@@ -42,7 +42,7 @@ export const OverviewPendingIssues: FC<OverviewPendingIssuesProps> = (props) => 
             color="text.secondary"
             variant="body2"
           >
-            Pending Issues
+            Tareas pendientes
           </Typography>
           <Typography
             color="text.primary"
@@ -63,7 +63,7 @@ export const OverviewPendingIssues: FC<OverviewPendingIssuesProps> = (props) => 
           }
           size="small"
         >
-          See all issues
+          Ver todas las tareas
         </Button>
       </CardActions>
     </Card>

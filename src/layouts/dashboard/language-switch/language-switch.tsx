@@ -41,11 +41,6 @@ export const LanguageSwitch: FC = () => {
           </Box>
         </IconButton>
       </Tooltip>
-      <LanguagePopover
-        anchorEl={popover.anchorRef.current}
-        onClose={popover.handleClose}
-        open={popover.open}
-      />
     </>
   );
 };

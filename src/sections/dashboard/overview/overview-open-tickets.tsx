@@ -42,7 +42,7 @@ export const OverviewOpenTickets: FC<OverviewOpenTicketsProps> = (props) => {
             color="text.secondary"
             variant="body2"
           >
-            Open tickets
+            Tareas activas
           </Typography>
           <Typography
             color="text.primary"
@@ -63,7 +63,7 @@ export const OverviewOpenTickets: FC<OverviewOpenTicketsProps> = (props) => {
           }
           size="small"
         >
-          See all tickets
+          Ver todas las tareas
         </Button>
       </CardActions>
     </Card>

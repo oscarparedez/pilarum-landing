@@ -231,30 +231,6 @@ export const SideNav: FC<SideNavProps> = (props) => {
               />
             ))}
           </Stack>
-          <Box sx={{ p: 3 }}>
-            <Typography variant="subtitle1">Need help?</Typography>
-            <Typography
-              color="neutral.400"
-              sx={{ mb: 2 }}
-              variant="body2"
-            >
-              Please check our docs.
-            </Typography>
-            <Button
-              component="a"
-              fullWidth
-              href={paths.docs}
-              startIcon={
-                <SvgIcon>
-                  <File04Icon />
-                </SvgIcon>
-              }
-              target="_blank"
-              variant="contained"
-            >
-              Documentation
-            </Button>
-          </Box>
         </Stack>
       </Scrollbar>
     </Drawer>

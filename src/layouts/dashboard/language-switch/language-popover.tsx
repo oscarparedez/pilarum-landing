@@ -50,7 +50,7 @@ export const LanguagePopover: FC<LanguagePopoverProps> = (props) => {
     async (language: Language): Promise<void> => {
       onClose?.();
       await i18n.changeLanguage(language);
-      const message = t(tokens.common.languageChanged) as string;
+      const message = "Idioma cambiado"
       toast.success(message);
     },
     [onClose, i18n, t]

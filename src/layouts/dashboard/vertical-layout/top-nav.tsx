@@ -10,9 +10,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import type { Theme } from '@mui/material/styles/createTheme';
 
 import { AccountButton } from '../account-button';
-import { ContactsButton } from '../contacts-button';
-import { LanguageSwitch } from '../language-switch';
-import { NotificationsButton } from '../notifications-button';
 import { SearchButton } from '../search-button';
 
 const TOP_NAV_HEIGHT = 64;
@@ -73,9 +70,6 @@ export const TopNav: FC<TopNavProps> = (props) => {
           direction="row"
           spacing={2}
         >
-          <LanguageSwitch />
-          <NotificationsButton />
-          <ContactsButton />
           <AccountButton />
         </Stack>
       </Stack>

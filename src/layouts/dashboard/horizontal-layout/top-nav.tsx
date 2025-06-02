@@ -18,10 +18,7 @@ import { paths } from 'src/paths';
 import type { NavColor } from 'src/types/settings';
 
 import { AccountButton } from '../account-button';
-import { ContactsButton } from '../contacts-button';
 import type { Section } from '../config';
-import { LanguageSwitch } from '../language-switch';
-import { NotificationsButton } from '../notifications-button';
 import { TenantSwitch } from '../tenant-switch';
 import { TopNavSection } from './top-nav-section';
 
@@ -228,9 +225,6 @@ export const TopNav: FC<TopNavProps> = (props) => {
           direction="row"
           spacing={2}
         >
-          <LanguageSwitch />
-          <NotificationsButton />
-          <ContactsButton />
           <AccountButton />
         </Stack>
       </Stack>

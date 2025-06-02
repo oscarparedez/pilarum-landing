@@ -3,14 +3,14 @@ import { createContext } from 'react';
 import type { Settings } from 'src/types/settings';
 
 export const defaultSettings: Settings = {
-  colorPreset: 'indigo',
-  contrast: 'normal',
+  colorPreset: 'green',
+  contrast: 'high',
   direction: 'ltr',
   layout: 'vertical',
   navColor: 'evident',
   paletteMode: 'light',
   responsiveFontSizes: true,
-  stretch: false,
+  stretch: true,
 };
 
 export interface State extends Settings {

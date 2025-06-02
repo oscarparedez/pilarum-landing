@@ -42,7 +42,7 @@ export const OverviewDoneTasks: FC<OverviewDoneTasksProps> = (props) => {
             color="text.secondary"
             variant="body2"
           >
-            Done Tasks
+            Tareas completadas
           </Typography>
           <Typography
             color="text.primary"
@@ -63,7 +63,7 @@ export const OverviewDoneTasks: FC<OverviewDoneTasksProps> = (props) => {
           }
           size="small"
         >
-          See all tasks
+          Ver todas las tareas
         </Button>
       </CardActions>
     </Card>
