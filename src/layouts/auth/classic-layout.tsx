@@ -75,7 +75,7 @@ export const Layout: FC<LayoutProps> = (props) => {
                   lineHeight: 2.5,
                 }}
               >
-                Pilarium
+                Pilarum
               </Box>
             </Stack>
           </Stack>

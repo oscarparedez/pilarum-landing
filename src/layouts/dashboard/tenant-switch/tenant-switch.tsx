@@ -22,7 +22,7 @@ export const TenantSwitch: FC<TenantSwitchProps> = (props) => {
             color="inherit"
             variant="h5"
           >
-            Pilarium
+            Pilarum
           </Typography>
         </Box>
       </Stack>
