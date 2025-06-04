@@ -21,10 +21,10 @@ import { Scrollbar } from 'src/components/scrollbar';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SendIcon from '@mui/icons-material/Send';
 import { subDays } from 'date-fns';
-import { ModalMovimientos } from './movimientos-inventario-modal';
+import { ModalMovimientos } from './movimientos-material-planificado-modal';
 import { ModalEnviarMaterial } from './enviar-material-modal';
 
-interface InventarioItem {
+interface MaterialItem {
   id: string;
   nombre: string;
   tipo: string;
@@ -32,49 +32,18 @@ interface InventarioItem {
   unidad: string;
 }
 
-const inventarioOriginal: InventarioItem[] = [
-  {
-    id: 'inv-001',
-    nombre: 'Sacos de cemento 25kg',
-    tipo: 'Consumible',
-    cantidad: 48,
-    unidad: 'sacos',
-  },
-  {
-    id: 'inv-002',
-    nombre: 'Vigas metálicas 4m',
-    tipo: 'Estructura',
-    cantidad: 12,
-    unidad: 'unidades',
-  },
-  {
-    id: 'inv-003',
-    nombre: 'Cubetas de pintura blanca',
-    tipo: 'Consumible',
-    cantidad: 24,
-    unidad: 'cubetas',
-  },
-  {
-    id: 'inv-004',
-    nombre: 'Taladro industrial Bosch',
-    tipo: 'Herramienta',
-    cantidad: 3,
-    unidad: 'unidades',
-  },
-  {
-    id: 'inv-005',
-    nombre: 'Lámparas LED industriales',
-    tipo: 'Eléctrico',
-    cantidad: 0,
-    unidad: 'piezas',
-  },
+const materialPlanificadoOriginal: MaterialItem[] = [
+  { id: 'mat-001', nombre: 'Sacos de cemento 25kg', tipo: 'Consumible', cantidad: 48, unidad: 'sacos' },
+  { id: 'mat-002', nombre: 'Vigas metálicas 4m', tipo: 'Estructura', cantidad: 12, unidad: 'unidades' },
+  { id: 'mat-003', nombre: 'Cubetas de pintura blanca', tipo: 'Consumible', cantidad: 24, unidad: 'cubetas' },
+  { id: 'mat-004', nombre: 'Taladro industrial Bosch', tipo: 'Herramienta', cantidad: 3, unidad: 'unidades' },
+  { id: 'mat-005', nombre: 'Lámparas LED industriales', tipo: 'Eléctrico', cantidad: 2, unidad: 'piezas' },
 ];
 
-export const Inventario: FC = () => {
+export const MaterialPlanificado: FC = () => {
   const [search, setSearch] = useState('');
   const [orden, setOrden] = useState<'asc' | 'desc'>('asc');
   const [unidad, setUnidad] = useState('all');
-  const [soloConStock, setSoloConStock] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -83,38 +52,29 @@ export const Inventario: FC = () => {
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
 
   const [modalEnviarOpen, setModalEnviarOpen] = useState(false);
-  const [productoEnviar, setProductoEnviar] = useState<InventarioItem | null>(null);
+  const [productoEnviar, setProductoEnviar] = useState<MaterialItem | null>(null);
 
-  const unidadesDisponibles = Array.from(new Set(inventarioOriginal.map((item) => item.unidad)));
+  const unidadesDisponibles = Array.from(new Set(materialPlanificadoOriginal.map((item) => item.unidad)));
 
-  const inventarioFiltrado = useMemo(() => {
-    let items = [...inventarioOriginal];
+  const materialFiltrado = useMemo(() => {
+    let items = [...materialPlanificadoOriginal];
 
-    // Search
     if (search.trim()) {
       items = items.filter((item) => item.nombre.toLowerCase().includes(search.toLowerCase()));
     }
 
-    // Filtro por unidad
     if (unidad !== 'all') {
       items = items.filter((item) => item.unidad === unidad);
     }
 
-    // Filtro por cantidad > 0
-    if (soloConStock) {
-      items = items.filter((item) => item.cantidad > 0);
-    }
-
-    // Orden alfabético
     items.sort((a, b) =>
       orden === 'asc' ? a.nombre.localeCompare(b.nombre) : b.nombre.localeCompare(a.nombre)
     );
 
     return items;
-  }, [search, unidad, orden, soloConStock]);
+  }, [search, unidad, orden]);
 
-  const abrirModal = (producto: InventarioItem) => {
-    // Aquí puedes usar datos reales en lugar del ejemplo
+  const abrirModal = (producto: MaterialItem) => {
     const mockMovimientos = [
       {
         id: 'mov-001',
@@ -138,7 +98,7 @@ export const Inventario: FC = () => {
     setModalOpen(true);
   };
 
-  const abrirModalEnviar = (producto: InventarioItem) => {
+  const abrirModalEnviar = (producto: MaterialItem) => {
     setProductoEnviar(producto);
     setModalEnviarOpen(true);
   };
@@ -146,22 +106,11 @@ export const Inventario: FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Card>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ px: 3, py: 3 }}
-        >
-          <Typography variant="h5">Inventario de materiales</Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 3 }}>
+          <Typography variant="h5">Material planificado</Typography>
         </Stack>
 
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{ px: 2, pb: 3 }}
-          flexWrap="wrap"
-          alignItems="center"
-        >
+        <Stack direction="row" spacing={2} sx={{ px: 2, pb: 3 }} flexWrap="wrap" alignItems="center">
           <OutlinedInput
             fullWidth
             placeholder="Buscar material"
@@ -169,13 +118,12 @@ export const Inventario: FC = () => {
             onChange={(e) => setSearch(e.target.value)}
             startAdornment={
               <InputAdornment position="start">
-                <SvgIcon>
-                  <SearchMdIcon />
-                </SvgIcon>
+                <SvgIcon><SearchMdIcon /></SvgIcon>
               </InputAdornment>
             }
             sx={{ maxWidth: 400 }}
           />
+
           <TextField
             label="Orden"
             select
@@ -198,25 +146,8 @@ export const Inventario: FC = () => {
           >
             <option value="all">Todas</option>
             {unidadesDisponibles.map((u) => (
-              <option
-                key={u}
-                value={u}
-              >
-                {u}
-              </option>
+              <option key={u} value={u}>{u}</option>
             ))}
-          </TextField>
-
-          <TextField
-            label="Stock"
-            select
-            SelectProps={{ native: true }}
-            value={soloConStock ? 'stock' : 'all'}
-            onChange={(e) => setSoloConStock(e.target.value === 'stock')}
-            sx={{ width: 200 }}
-          >
-            <option value="all">Todos los productos</option>
-            <option value="stock">Solo con stock</option>
           </TextField>
         </Stack>
 
@@ -232,29 +163,20 @@ export const Inventario: FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {inventarioFiltrado
+              {materialFiltrado
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((item) => (
-                  <TableRow
-                    hover
-                    key={item.id}
-                  >
-                    <TableCell>
-                      <Typography variant="subtitle2">{item.nombre}</Typography>
-                    </TableCell>
+                  <TableRow hover key={item.id}>
+                    <TableCell><Typography variant="subtitle2">{item.nombre}</Typography></TableCell>
                     <TableCell>{item.tipo}</TableCell>
                     <TableCell>{item.cantidad}</TableCell>
                     <TableCell>{item.unidad}</TableCell>
                     <TableCell>
                       <IconButton onClick={() => abrirModal(item)}>
-                        <SvgIcon>
-                          <VisibilityIcon />
-                        </SvgIcon>
+                        <SvgIcon><VisibilityIcon /></SvgIcon>
                       </IconButton>
                       <IconButton onClick={() => abrirModalEnviar(item)}>
-                        <SvgIcon>
-                          <SendIcon />
-                        </SvgIcon>
+                        <SvgIcon><SendIcon /></SvgIcon>
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -262,9 +184,10 @@ export const Inventario: FC = () => {
             </TableBody>
           </Table>
         </Scrollbar>
+
         <TablePagination
           component="div"
-          count={inventarioFiltrado.length}
+          count={materialFiltrado.length}
           onPageChange={(_, newPage) => setPage(newPage)}
           onRowsPerPageChange={(e) => {
             setRowsPerPage(parseInt(e.target.value, 10));
@@ -275,12 +198,14 @@ export const Inventario: FC = () => {
           rowsPerPageOptions={[5, 10, 25]}
         />
       </Card>
+
       <ModalMovimientos
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         movimientos={movimientos}
         producto={productoSeleccionado}
       />
+
       {productoEnviar && (
         <ModalEnviarMaterial
           open={modalEnviarOpen}

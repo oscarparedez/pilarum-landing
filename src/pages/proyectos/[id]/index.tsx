@@ -5,8 +5,8 @@ import { usePageView } from 'src/hooks/use-page-view';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { Timeline } from './timeline/timeline';
 import { ResumenFinanciero } from './resumen-financiero/resumen-financiero';
+import { MaterialPlanificado } from './material-planificado/material-planificado';
 import { Revisiones } from './revisiones/revisiones';
-import { Inventario } from './inventario/inventario';
 import { Maquinaria } from './maquinaria/maquinaria';
 import { Personal } from './personal/personal';
 import { useState } from 'react';
@@ -153,8 +153,8 @@ const Page: NextPage = () => {
           <Maquinaria />
           {/* INGENIEROS Y ARQUITECTOS */}
           <Personal />
-          {/* INVENTARIO */}
-          <Inventario />
+          {/* MATERIAL PLANIFICADO */}
+          <MaterialPlanificado />
           {/* SECCIÓN DE REVISIONES */}
           <Revisiones revisiones={revisiones} />
         </Stack>
