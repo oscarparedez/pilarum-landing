@@ -1,7 +1,7 @@
 import { tokens } from '../tokens';
 
 export const es = {
-  [tokens.nav.pizarron]: 'Pizarrón de proyectos',
+  [tokens.nav.pizarron]: 'Visión general',
   [tokens.nav.proyectos]: 'Proyectos',
   [tokens.nav.presupuestos]: 'Presupuestos',
   [tokens.nav.fechas]: 'Fechas y prórrogas',

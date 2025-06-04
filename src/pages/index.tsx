@@ -9,7 +9,7 @@ const IndexPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace(paths.dashboard.index); // or whatever your app home is
+      router.replace(paths.dashboard.inicio);
     } else {
       router.replace(paths.auth.login);
     }

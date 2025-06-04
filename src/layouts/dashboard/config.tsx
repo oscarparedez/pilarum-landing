@@ -44,25 +44,6 @@ export const useSections = (): Section[] => {
         ],
       },
       {
-        subheader: t(tokens.nav.proyectos),
-        items: [
-          {
-            title: t(tokens.nav.proyectos),
-            path: paths.dashboard.proyectos.index,
-            icon: <SvgIcon fontSize="small"><ClipboardIcon /></SvgIcon>,
-            items: [
-              { title: t(tokens.nav.presupuestos), path: paths.dashboard.proyectos.presupuestos },
-              { title: t(tokens.nav.fechas), path: paths.dashboard.proyectos.fechas },
-              { title: t(tokens.nav.pagos), path: paths.dashboard.proyectos.pagos },
-              { title: t(tokens.nav.ingresos), path: paths.dashboard.proyectos.ingresos },
-              { title: t(tokens.nav.asignaciones), path: paths.dashboard.proyectos.asignaciones },
-              { title: t(tokens.nav.revisiones), path: paths.dashboard.proyectos.revisiones },
-              { title: t(tokens.nav.inventario), path: paths.dashboard.proyectos.inventario },
-            ],
-          },
-        ],
-      },
-      {
         subheader: t(tokens.nav.oficina),
         items: [
           {
@@ -94,17 +75,22 @@ export const useSections = (): Section[] => {
         ],
       },
       {
+        subheader: t(tokens.nav.proyectos),
+        items: [
+          {
+            title: t(tokens.nav.proyectos),
+            path: paths.dashboard.proyectos.index,
+            icon: <SvgIcon><ClipboardIcon /></SvgIcon>,
+          }
+        ],
+      },
+      {
         subheader: t(tokens.nav.maquinaria),
         items: [
           {
             title: t(tokens.nav.maquinaria),
             path: paths.dashboard.maquinaria.index,
             icon: <SvgIcon fontSize="small"><Truck01Icon /></SvgIcon>,
-            items: [
-              { title: t(tokens.nav.maquinariaAsignaciones), path: paths.dashboard.maquinaria.asignaciones },
-              { title: t(tokens.nav.maquinariaGastos), path: paths.dashboard.maquinaria.gastos },
-              { title: t(tokens.nav.maquinariaEstado), path: paths.dashboard.maquinaria.estado },
-            ],
           },
         ],
       },

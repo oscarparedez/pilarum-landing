@@ -52,7 +52,6 @@ const Page: NextPage = () => {
   };
 
   useEffect(() => {
-    console.log('isAuthenticated', isAuthenticated);
     if (isAuthenticated) {
       router.replace(paths.dashboard.inicio);
     }
