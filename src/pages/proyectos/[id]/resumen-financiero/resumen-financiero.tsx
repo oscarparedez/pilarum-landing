@@ -158,7 +158,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
           {
             id_ingreso: 'ing-001',
             proyecto_id: 'proy-001',
-            monto_total: 'Q12,500',
+            monto_total: '12500',
             fecha_ingreso: '2025-06-01',
             tipo_ingreso: 'Avance de obra',
             tipo_documento: 'Transferencia',
@@ -168,7 +168,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
           {
             id_ingreso: 'ing-002',
             proyecto_id: 'proy-001',
-            monto_total: 'Q8,000',
+            monto_total: '8000',
             fecha_ingreso: '2025-06-02',
             tipo_ingreso: 'Pago final',
             tipo_documento: 'Efectivo',
@@ -184,7 +184,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
           {
             id_pago: 'pag-001',
             proyecto_id: 'proy-001',
-            monto_total: 'Q5,000',
+            monto_total: '5000',
             fecha_pago: '2025-06-01',
             tipo_pago: 'Maestro de obra',
             tipo_documento: 'Cheque',
@@ -194,7 +194,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
           {
             id_pago: 'pag-002',
             proyecto_id: 'proy-001',
-            monto_total: 'Q3,000',
+            monto_total: '3000',
             fecha_pago: '2025-06-03',
             tipo_pago: 'Socio',
             tipo_documento: 'Transferencia',

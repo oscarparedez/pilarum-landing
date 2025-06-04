@@ -10,25 +10,24 @@ import {
     MenuItem,
     Select,
     Stack,
-    TextField,
     Typography,
   } from '@mui/material';
   import { FC, useEffect, useState } from 'react';
   import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
   import { format } from 'date-fns';
-  import { DiaToggle } from './dia-toggle';
+  import { DiaToggle } from '../maquinaria/dia-toggle';
   
-  interface ModalEditarMaquinariaProps {
+  interface ModalEditarPersonalProps {
     open: boolean;
     onClose: () => void;
     onConfirm: (data: {
-      maquina: string;
+      personal: string;
       dias: string[];
       hasta: string;
     }) => void;
-    maquinasDisponibles: string[];
+    personalDisponible: { nombre: string; tipo: 'Ingeniero' | 'Arquitecto' }[];
     initialData: {
-      maquina: string;
+      personal: string;
       diasBinarios: string;
       hasta: string;
     };
@@ -36,11 +35,11 @@ import {
   
   const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   
-  export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
+  export const ModalEditarPersonal: FC<ModalEditarPersonalProps> = ({
     open,
     onClose,
     onConfirm,
-    maquinasDisponibles,
+    personalDisponible,
     initialData,
   }) => {
     const binarioToDias = (bin: string): string[] =>
@@ -49,16 +48,14 @@ import {
         .map((val, i) => (val === '1' ? DIAS_SEMANA[i] : null))
         .filter(Boolean) as string[];
   
-    const [maquina, setMaquina] = useState(initialData.maquina);
+    const [personal, setPersonal] = useState(initialData.personal);
     const [dias, setDias] = useState<string[]>(binarioToDias(initialData.diasBinarios));
     const [hastaDate, setHastaDate] = useState<Date | null>(new Date(initialData.hasta));
-    const [asignadoA, setAsignadoA] = useState(initialData.asignadoA);
   
     useEffect(() => {
-      setMaquina(initialData.maquina);
+      setPersonal(initialData.personal);
       setDias(binarioToDias(initialData.diasBinarios));
       setHastaDate(new Date(initialData.hasta));
-      setAsignadoA(initialData.asignadoA);
     }, [initialData]);
   
     const toggleDia = (dia: string) => {
@@ -66,12 +63,11 @@ import {
     };
   
     const handleConfirm = () => {
-      if (maquina && dias.length && hastaDate && asignadoA) {
+      if (personal && dias.length && hastaDate) {
         onConfirm({
-          maquina,
+          personal,
           dias,
           hasta: format(hastaDate, 'yyyy-MM-dd'),
-          asignadoA,
         });
         onClose();
       }
@@ -79,49 +75,56 @@ import {
   
     return (
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Editar maquinaria asignada</DialogTitle>
+        <DialogTitle>Editar técnico asignado</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={3} mt={1}>
-            {/* Maquinaria */}
             <FormControl fullWidth disabled>
-              <InputLabel>Maquinaria</InputLabel>
-              <Select value={maquina} label="Maquinaria" onChange={(e) => setMaquina(e.target.value)}>
-                {maquinasDisponibles.map((m) => (
-                  <MenuItem key={m} value={m}>
-                    {m}
+              <InputLabel>Técnico</InputLabel>
+              <Select value={personal} label="Técnico">
+                {personalDisponible.map((p) => (
+                  <MenuItem key={p.nombre} value={p.nombre}>
+                    {p.nombre} ({p.tipo})
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
   
-            {/* Días */}
             <Box>
               <Typography variant="subtitle2" gutterBottom>
-                Días de uso
+                Días de trabajo
               </Typography>
               <Stack direction="row" flexWrap="wrap">
                 {DIAS_SEMANA.map((dia) => (
-                  <DiaToggle key={dia} dia={dia} selected={dias.includes(dia)} onClick={() => toggleDia(dia)} />
+                  <DiaToggle
+                    key={dia}
+                    dia={dia}
+                    selected={dias.includes(dia)}
+                    onClick={() => toggleDia(dia)}
+                  />
                 ))}
               </Stack>
             </Box>
   
-            {/* Fecha hasta */}
             <Box>
               <Typography variant="subtitle2" gutterBottom>
                 Hasta
               </Typography>
-              <DateCalendar value={hastaDate} onChange={(newDate) => setHastaDate(newDate)} disablePast />
+              <DateCalendar
+                value={hastaDate}
+                onChange={(newDate) => setHastaDate(newDate)}
+                disablePast
+              />
             </Box>
-  
-            {/* Asignado a */}
-            <TextField fullWidth label="Asignado a" value={asignadoA} onChange={(e) => setAsignadoA(e.target.value)} />
           </Stack>
         </DialogContent>
   
         <DialogActions>
           <Button onClick={onClose}>Cancelar</Button>
-          <Button variant="contained" onClick={handleConfirm} disabled={!maquina || !dias.length || !hastaDate || !asignadoA}>
+          <Button
+            variant="contained"
+            onClick={handleConfirm}
+            disabled={!personal || !dias.length || !hastaDate}
+          >
             Guardar cambios
           </Button>
         </DialogActions>

@@ -1,6 +1,5 @@
 import type { NextPage } from 'next';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
-import { useState } from 'react';
 import { useSettings } from 'src/hooks/use-settings';
 import { usePageView } from 'src/hooks/use-page-view';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
@@ -9,19 +8,22 @@ import { ResumenFinanciero } from './resumen-financiero/resumen-financiero';
 import { Revisiones } from './revisiones/revisiones';
 import { Inventario } from './inventario/inventario';
 import { Maquinaria } from './maquinaria/maquinaria';
+import { Personal } from './personal/personal';
+import { useState } from 'react';
+import { EditarDatosBasicosModal } from './editar-datos-modal';
 
 const Page: NextPage = () => {
   const settings = useSettings();
   usePageView();
 
-  const proyecto = {
+  const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
+  const [datosProyecto, setDatosProyecto] = useState({
     nombre: 'Residencial Aurora',
     ubicacion: 'Zona 16, Guatemala',
-    fecha_inicio: '2024-01-10',
-    fecha_fin: '2024-10-15',
-    actualizado_el: '2025-06-01',
-    creado_por: 'Luis G.',
-  };
+    fechaInicio: '2025-01-10',
+    fechaFin: '2025-10-15',
+    presupuesto: 'Q100,000',
+  });
 
   const revisiones = [
     {
@@ -44,55 +46,36 @@ const Page: NextPage = () => {
     },
   ];
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalImages, setModalImages] = useState<string[]>([]);
-  const [imageIndex, setImageIndex] = useState(0);
-
-  const openModalWithImages = (images: string[]) => {
-    setModalImages(images);
-    setImageIndex(0);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setImageIndex(0);
-  };
-
-  const handleNext = () => {
-    setImageIndex((prev) => (prev + 1) % modalImages.length);
-  };
-
-  const handlePrev = () => {
-    setImageIndex((prev) => (prev - 1 + modalImages.length) % modalImages.length);
-  };
-
   return (
     <Box
       component="main"
       sx={{ flexGrow: 1, py: 8 }}
     >
       <Container maxWidth={settings.stretch ? false : 'xl'}>
-        <Stack spacing={4}>
+        <Stack spacing={2}>
           {/* ENCABEZADO */}
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="flex-start"
+            px={3}
           >
             <Box>
-              <Typography variant="h4">{proyecto.nombre}</Typography>
-              <Typography color="text.secondary">
-                Última modificación por {proyecto.creado_por} el {proyecto.actualizado_el}
-              </Typography>
+              <Typography variant="h4">{datosProyecto.nombre}</Typography>
+              <Typography color="text.secondary">{datosProyecto.ubicacion}</Typography>
             </Box>
-            <Button variant="outlined">Editar datos básicos</Button>
+            <Button
+              variant="outlined"
+              onClick={() => setModalEditarAbierto(true)}
+            >
+              Editar datos básicos
+            </Button>
           </Stack>
           {/* TIMELINE */}
 
           <Timeline
-            fechaInicio="2024-01-10"
-            fechaFin="2024-10-15"
+            fechaInicio="2025-01-10"
+            fechaFin="2025-10-15"
             ampliacionesFecha={[
               { fecha: '2025-08-10', motivo: 'Demora por clima', usuario: 'Luis G.' },
               { fecha: '2025-09-02', motivo: 'Cambio de planos', usuario: 'Ana M.' },
@@ -100,15 +83,15 @@ const Page: NextPage = () => {
             presupuestoInicial="Q100,000"
             ampliacionesPresupuesto={[
               {
-                fecha: '2024-03-10',
+                fecha: '2025-03-10',
                 motivo: 'Compra de herramienta adicional',
-                monto: 'Q15,000',
+                monto: '15000',
                 usuario: 'Luis G.',
               },
               {
-                fecha: '2024-06-22',
+                fecha: '2025-06-22',
                 motivo: 'Costo extra de concreto',
-                monto: 'Q8,500',
+                monto: '8500',
                 usuario: 'Ana M.',
               },
             ]}
@@ -148,8 +131,28 @@ const Page: NextPage = () => {
               },
             ]}
           />
+
+          {/* MODAL PARA EDITAR DATOS BÁSICOS */}
+          <EditarDatosBasicosModal
+            open={modalEditarAbierto}
+            onClose={() => setModalEditarAbierto(false)}
+            initialData={{
+              nombre: datosProyecto.nombre,
+              ubicacion: datosProyecto.ubicacion,
+              presupuesto: datosProyecto.presupuesto,
+              fechaInicio: datosProyecto.fechaInicio,
+              fechaFin: datosProyecto.fechaFin,
+            }}
+            onConfirm={(data) => {
+              setDatosProyecto(data);
+              setModalEditarAbierto(false);
+            }}
+          />
+
           {/* MAQUINARIA */}
           <Maquinaria />
+          {/* INGENIEROS Y ARQUITECTOS */}
+          <Personal />
           {/* INVENTARIO */}
           <Inventario />
           {/* SECCIÓN DE REVISIONES */}
