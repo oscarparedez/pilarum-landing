@@ -17,26 +17,20 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
 import { format } from 'date-fns';
+import { Ingreso } from '../index.d';
 
 interface ModalEditarIngresoProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (data: {
     fecha_ingreso: string;
-    monto_total: string;
+    monto_total: number;
     tipo_ingreso: string;
     tipo_documento: string;
     anotaciones: string;
     usuario_registro: string;
   }) => void;
-  initialData: {
-    fecha_ingreso: string;
-    monto_total: string;
-    tipo_ingreso: string;
-    tipo_documento: string;
-    anotaciones: string;
-    usuario_registro: string;
-  };
+  initialData: Ingreso;
 }
 
 export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
@@ -45,9 +39,8 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
   onConfirm,
   initialData,
 }) => {
-  console.log('ModalEditarIngreso', initialData);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [monto, setMonto] = useState('');
+  const [monto, setMonto] = useState(0);
   const [tipoIngreso, setTipoIngreso] = useState('');
   const [tipoDocumento, setTipoDocumento] = useState('');
   const [anotaciones, setAnotaciones] = useState('');

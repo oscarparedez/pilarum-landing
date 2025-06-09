@@ -17,14 +17,14 @@ interface EditarDatosBasicosModalProps {
     ubicacion: string;
     fechaInicio: string;
     fechaFin: string;
-    presupuesto: string;
+    presupuestoInicial: number;
   };
   onConfirm: (data: {
     nombre: string;
     ubicacion: string;
     fechaInicio: string;
     fechaFin: string;
-    presupuesto: string;
+    presupuestoInicial: number;
   }) => void;
 }
 
@@ -36,7 +36,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
 }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
   const [ubicacion, setUbicacion] = useState(initialData.ubicacion);
-  const [presupuesto, setPresupuesto] = useState(initialData.presupuesto);
+  const [presupuesto, setPresupuesto] = useState(initialData.presupuestoInicial);
   const [fechaInicio, setFechaInicio] = useState<Date | null>(new Date(initialData.fechaInicio));
   const [fechaFin, setFechaFin] = useState<Date | null>(new Date(initialData.fechaFin));
 
@@ -45,7 +45,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
       onConfirm({
         nombre,
         ubicacion,
-        presupuesto,
+        presupuestoInicial: presupuesto,
         fechaInicio: fechaInicio.toISOString().split('T')[0],
         fechaFin: fechaFin.toISOString().split('T')[0],
       });
@@ -91,7 +91,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
             label="Presupuesto inicial (Q)"
             fullWidth
             value={presupuesto}
-            onChange={(e) => setPresupuesto(e.target.value)}
+            onChange={(e) => setPresupuesto(Number(e.target.value))}
           />
 
           <Stack direction="row" spacing={2} justifyContent="space-between">

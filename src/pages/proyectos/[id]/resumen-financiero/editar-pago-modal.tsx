@@ -16,6 +16,7 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
+import { Pago } from '../index.d';
 
 interface ModalEditarPagoProps {
   open: boolean;
@@ -25,17 +26,10 @@ interface ModalEditarPagoProps {
     tipo_pago: string;
     tipo_documento: string;
     anotaciones: string;
-    monto_total: string;
+    monto_total: number;
     usuario_registro: string;
   }) => void;
-  initialData: {
-    fecha_pago: string;
-    tipo_pago: string;
-    tipo_documento: string;
-    anotaciones: string;
-    monto_total: string;
-    usuario_registro: string;
-  };
+  initialData: Pago;
 }
 
 export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
@@ -48,7 +42,7 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
   const [tipoPago, setTipoPago] = useState('');
   const [tipoDocumento, setTipoDocumento] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
-  const [monto, setMonto] = useState('');
+  const [monto, setMonto] = useState(0);
 
   useEffect(() => {
     setFecha(new Date(initialData.fecha_pago));
@@ -72,7 +66,10 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           backgroundColor: 'background.paper',
@@ -89,10 +86,17 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
       >
         <Card>
           <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 'bold' }}
+            >
               Editar pago
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2 }}
+            >
               Modifica los campos necesarios
             </Typography>
 
@@ -107,11 +111,20 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
               />
 
               <Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 1 }}
+                >
                   Fecha de pago <span style={{ color: 'red' }}>*</span>
                 </Typography>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                  <DateCalendar value={fecha} onChange={setFecha} />
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
+                >
+                  <DateCalendar
+                    value={fecha}
+                    onChange={setFecha}
+                  />
                 </LocalizationProvider>
               </Box>
 

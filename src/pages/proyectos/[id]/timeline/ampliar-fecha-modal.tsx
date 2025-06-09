@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Typography,
   Stack,
+  TextField,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -18,7 +19,7 @@ interface AmpliarFechaModalProps {
   open: boolean;
   onClose: () => void;
   fechaActual: string;
-  onSave?: (nuevaFecha: Date) => void;
+  onSave?: (nuevaFecha: Date, anotaciones: string) => void;
 }
 
 export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
@@ -28,10 +29,11 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
   onSave,
 }) => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
+  const [anotaciones, setAnotaciones] = useState('');
 
   const handleSave = () => {
-    if (fechaSeleccionada && onSave) {
-      onSave(fechaSeleccionada);
+    if (fechaSeleccionada && anotaciones && onSave) {
+      onSave(fechaSeleccionada, anotaciones);
       onClose();
     }
   };
@@ -43,67 +45,51 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 3, py: 4, minHeight: 300 },
+        sx: { borderRadius: 3, py: 4 },
       }}
     >
       <DialogTitle sx={{ textAlign: 'center', mb: 2 }}>
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-        >
+        <Typography variant="h5" fontWeight="bold">
           Seleccionar nueva fecha de fin
         </Typography>
-        <Typography
-          variant="subtitle2"
-          color="text.secondary"
-          sx={{ mt: 1 }}
-        >
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
           Fecha actual estimada: <strong>{fechaActual}</strong>
         </Typography>
       </DialogTitle>
 
-      <Box
-        display="flex"
-        justifyContent="center"
-        py={4}
-      >
-        <LocalizationProvider
-          dateAdapter={AdapterDateFns}
-          adapterLocale={es}
-        >
-          <DateCalendar
-            sx={{
-                transform: 'scale(1.2)',
+      <DialogContent>
+        <Box display="flex" justifyContent="center" py={2}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+            <DateCalendar
+              views={['year', 'month', 'day']}
+              value={fechaSeleccionada}
+              onChange={(newDate) => setFechaSeleccionada(newDate)}
+            />
+          </LocalizationProvider>
+        </Box>
 
-              '& .MuiPickersCalendarHeader-label': {
-                textTransform: 'capitalize',
-                fontWeight: 'medium',
-              },
-            }}
-            views={['year', 'month', 'day']}
-            value={fechaSeleccionada}
-            onChange={(newDate) => setFechaSeleccionada(newDate)}
-          />
-        </LocalizationProvider>
-      </Box>
+        <TextField
+          label="Anotaciones"
+          multiline
+          rows={3}
+          fullWidth
+          required
+          value={anotaciones}
+          onChange={(e) => setAnotaciones(e.target.value)}
+          sx={{ mt: 2 }}
+        />
+      </DialogContent>
 
-      <DialogActions sx={{ justifyContent: 'center', mt: 0 }}>
-        <Stack
-          direction="row"
-          spacing={2}
-        >
-          <Button
-            onClick={onClose}
-            color="inherit"
-            size="large"
-          >
+      <DialogActions sx={{ justifyContent: 'center', mt: 2 }}>
+        <Stack direction="row" spacing={2}>
+          <Button onClick={onClose} color="inherit" size="large">
             Cancelar
           </Button>
           <Button
             onClick={handleSave}
             variant="contained"
             size="large"
-            disabled={!fechaSeleccionada}
+            disabled={!fechaSeleccionada || !anotaciones}
           >
             Guardar
           </Button>

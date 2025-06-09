@@ -1,31 +1,95 @@
 import { FC, useState } from 'react';
 import { Box, Card, Grid, Stack, Typography, Button } from '@mui/material';
-import { SeverityPill } from 'src/components/severity-pill';
 import { ModalRegistrarIngreso } from './registrar-ingreso-modal';
 import { ModalRegistrarCobro } from './registrar-pago-modal';
 import { ModalListaIngresos } from './ingresos-modal';
 import { ModalListaPagos } from './pagos-modal';
 import { ModalMovimientos } from './movimientos-modal';
+import { Ingreso, Pago } from '../index.d';
+import { formatearQuetzales } from 'src/utils/format-currency';
+
+type ButtonColor = 'inherit' | 'success' | 'error' | 'info' | 'primary' | 'secondary' | 'warning';
+
+const isValidButtonColor = (value: any): value is ButtonColor =>
+  ['inherit', 'success', 'error', 'info', 'primary', 'secondary', 'warning'].includes(value);
 
 interface ResumenFinancieroProps {
-  data: {
-    label: string;
-    value: string;
-    pill?: string;
-    pillColor?: 'primary' | 'success' | 'error' | 'warning';
-    buttonColor?: 'primary' | 'secondary' | 'error' | 'success' | 'warning' | 'info';
-    buttonLabel?: string;
-    secondaryButtonLabel?: string;
-    modalType?: 'ingreso' | 'pago' | 'movimientos';
-  }[];
+  ingresos: Ingreso[];
+  pagos: Pago[];
+  presupuestoInicial: number;
 }
 
-export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
+export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
+  ingresos,
+  pagos,
+  presupuestoInicial,
+}) => {
   const [openIngreso, setOpenIngreso] = useState(false);
   const [openCobro, setOpenCobro] = useState(false);
   const [openListaIngresos, setOpenListaIngresos] = useState(false);
   const [openListaPagos, setOpenListaPagos] = useState(false);
   const [openMovimientos, setOpenMovimientos] = useState(false);
+
+  const totalIngresos = ingresos.reduce((acc, curr) => acc + curr.monto_total, 0);
+
+  const ultimoIngreso = ingresos.reduce((latest, curr) =>
+    new Date(curr.fecha_ingreso) > new Date(latest.fecha_ingreso) ? curr : latest
+  ).fecha_ingreso;
+
+  const totalPagos = pagos.reduce((acc, curr) => acc + curr.monto_total, 0);
+
+  const progreso = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
+  const ganancia = totalIngresos - totalPagos;
+
+  const tarjetas = [
+    {
+      label: 'Ingresos',
+      value: `${formatearQuetzales(totalIngresos)}`,
+      buttonLabel: 'Nuevo ingreso',
+      secondaryButtonLabel: 'Ver ingresos',
+      buttonColor: 'success',
+      modalType: 'ingreso',
+    },
+    {
+      label: 'Pagos',
+      value: `${formatearQuetzales(totalPagos)}`,
+      buttonLabel: 'Nuevo pago',
+      secondaryButtonLabel: 'Ver pagos',
+      buttonColor: 'error',
+      modalType: 'pago',
+    },
+    {
+      label: 'Ganancia bruta',
+      value: `${formatearQuetzales(ganancia)}`,
+    },
+    {
+      label: 'Último ingreso',
+      value: ultimoIngreso,
+      buttonLabel: 'Ver movimientos',
+      buttonColor: 'info',
+      modalType: 'movimientos',
+    },
+  ];
+
+  const handleClick = (modalType?: string) => {
+    switch (modalType) {
+      case 'ingreso':
+        return setOpenIngreso(true);
+      case 'pago':
+        return setOpenCobro(true);
+      case 'movimientos':
+        return setOpenMovimientos(true);
+    }
+  };
+
+  const handleSecondaryClick = (modalType?: string) => {
+    switch (modalType) {
+      case 'ingreso':
+        return setOpenListaIngresos(true);
+      case 'pago':
+        return setOpenListaPagos(true);
+    }
+  };
 
   return (
     <>
@@ -45,30 +109,8 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
               },
             }}
           >
-            {data.map((item, index) => {
-              const handleClick = (modalType?: string) => {
-                switch (modalType) {
-                  case 'ingreso':
-                    return setOpenIngreso(true);
-                  case 'pago':
-                    return setOpenCobro(true);
-                  case 'movimientos':
-                    return setOpenMovimientos(true);
-                  default:
-                    return;
-                }
-              };
-
-              const handleSecondaryClick = (modalType?: string) => {
-                switch (modalType) {
-                  case 'ingreso':
-                    return setOpenListaIngresos(true);
-                  case 'pago':
-                    return setOpenListaPagos(true);
-                  default:
-                    return;
-                }
-              };
+            {tarjetas.map((item, index) => {
+              const color = isValidButtonColor(item.buttonColor) ? item.buttonColor : 'primary';
 
               return (
                 <Grid
@@ -82,24 +124,15 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
                     spacing={1}
                     sx={{ p: 3 }}
                   >
-                    {item.pill ? (
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        alignItems="center"
-                      >
-                        <Typography
-                          component="span"
-                          variant="h5"
-                        >
-                          {item.value}
-                        </Typography>
-                        <SeverityPill color={item.pillColor || 'primary'}>{item.pill}</SeverityPill>
-                      </Stack>
-                    ) : (
-                      <Typography variant="h5">{item.value}</Typography>
-                    )}
-
+                    <Typography variant="h5">{item.value}</Typography>
+                    
+                      <Typography
+                      color="text.secondary"
+                      variant="overline"
+                      sx={{ p: 0}}
+                    >
+                      {item.label === 'Ingresos' ? `${progreso.toFixed(0)} % del presupuesto alcanzado` : '-' }
+                    </Typography>
                     <Typography
                       color="text.secondary"
                       variant="overline"
@@ -116,18 +149,17 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
                         <Button
                           size="large"
                           variant="contained"
-                          color={item.buttonColor || 'primary'}
+                          color={color}
                           onClick={() => handleClick(item.modalType)}
                           sx={{ flex: 1, minWidth: 130 }}
                         >
                           {item.buttonLabel}
                         </Button>
-
                         {item.secondaryButtonLabel && (
                           <Button
                             size="large"
                             variant="text"
-                            color={item.buttonColor || 'primary'}
+                            color={color}
                             onClick={() => handleSecondaryClick(item.modalType)}
                             sx={{ flex: 1, minWidth: 130 }}
                           >
@@ -154,83 +186,38 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({ data }) => {
         onClose={() => setOpenCobro(false)}
       />
       <ModalListaIngresos
-        ingresos={[
-          {
-            id_ingreso: 'ing-001',
-            proyecto_id: 'proy-001',
-            monto_total: '12500',
-            fecha_ingreso: '2025-06-01',
-            tipo_ingreso: 'Avance de obra',
-            tipo_documento: 'Transferencia',
-            anotaciones: 'Pago parcial del avance #2',
-            usuario_registro: 'Andrea López',
-          },
-          {
-            id_ingreso: 'ing-002',
-            proyecto_id: 'proy-001',
-            monto_total: '8000',
-            fecha_ingreso: '2025-06-02',
-            tipo_ingreso: 'Pago final',
-            tipo_documento: 'Efectivo',
-            anotaciones: '',
-            usuario_registro: 'Carlos Ramírez',
-          },
-        ]}
         open={openListaIngresos}
         onClose={() => setOpenListaIngresos(false)}
+        ingresos={ingresos}
+        fetchIngresos={() => {}}
       />
       <ModalListaPagos
-        pagos={[
-          {
-            id_pago: 'pag-001',
-            proyecto_id: 'proy-001',
-            monto_total: '5000',
-            fecha_pago: '2025-06-01',
-            tipo_pago: 'Maestro de obra',
-            tipo_documento: 'Cheque',
-            anotaciones: 'Pago quincenal',
-            usuario_registro: 'Andrea López',
-          },
-          {
-            id_pago: 'pag-002',
-            proyecto_id: 'proy-001',
-            monto_total: '3000',
-            fecha_pago: '2025-06-03',
-            tipo_pago: 'Socio',
-            tipo_documento: 'Transferencia',
-            anotaciones: 'Participación mensual',
-            usuario_registro: 'Carlos Ramírez',
-          },
-        ]}
         open={openListaPagos}
         onClose={() => setOpenListaPagos(false)}
+        pagos={pagos}
+        fetchPagos={() => {}}
       />
       <ModalMovimientos
-        movimientos={[
-          {
-            tipo: 'Ingreso',
-            monto: 'Q12,500',
-            fecha: '2025-06-01',
-            descripcion: 'Avance de obra - Transferencia',
-            usuario: 'Andrea López',
-          },
-          {
-            tipo: 'Pago',
-            monto: 'Q5,000',
-            fecha: '2025-06-01',
-            descripcion: 'Pago a maestro - Cheque',
-            usuario: 'Andrea López',
-          },
-          {
-            tipo: 'Ingreso',
-            monto: 'Q8,000',
-            fecha: '2025-06-02',
-            descripcion: 'Pago final - Efectivo',
-            usuario: 'Carlos Ramírez',
-          },
-        ]}
         open={openMovimientos}
         onClose={() => setOpenMovimientos(false)}
+        //TODO - Implementar la agrupación de movimientos en redux
+        movimientos={[
+          ...ingresos.map((ing) => ({
+            tipo: 'Ingreso' as const,
+            monto: ing.monto_total,
+            fecha: ing.fecha_ingreso,
+            descripcion: ing.tipo_ingreso,
+            usuario: ing.usuario_registro,
+          })),
+          ...pagos.map((pag) => ({
+            tipo: 'Pago' as const,
+            monto: pag.monto_total,
+            fecha: pag.fecha_pago,
+            descripcion: pag.tipo_pago,
+            usuario: pag.usuario_registro,
+          })),
+        ]}
+        fetchMovimientos={() => {}}
       />
     </>
   );

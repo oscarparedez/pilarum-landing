@@ -4,25 +4,14 @@ import { AmpliarFechaModal } from './ampliar-fecha-modal';
 import { ModalAmpliacionesFecha } from './ampliaciones-fecha-modal';
 import { ModalAmpliacionesPresupuesto } from './ampliaciones-presupuesto-modal';
 import { ModalAmpliarPresupuesto } from './ampliar-presupuesto-modal';
-
-interface AmpliacionFecha {
-  fecha: string;
-  motivo: string;
-  usuario: string;
-}
-
-interface AmpliacionPresupuesto {
-  fecha: string;
-  motivo: string;
-  monto?: string;
-  usuario: string;
-}
+import { AmpliacionPresupuesto, AmpliacionFecha } from '../index.d';
+import { formatearQuetzales } from 'src/utils/format-currency';
 
 interface TimelineProps {
   fechaInicio: string;
   fechaFin: string;
   ampliacionesFecha: AmpliacionFecha[];
-  presupuestoInicial: string;
+  presupuestoInicial: number;
   ampliacionesPresupuesto: AmpliacionPresupuesto[];
   onAmpliarFecha?: () => void;
   onAmpliarPresupuesto?: () => void;
@@ -34,8 +23,6 @@ export const Timeline: FC<TimelineProps> = ({
   ampliacionesFecha,
   presupuestoInicial,
   ampliacionesPresupuesto,
-  onAmpliarFecha,
-  onAmpliarPresupuesto,
 }) => {
   // Modales independientes
   const [showAmpliarFecha, setShowAmpliarFecha] = useState(false);
@@ -61,7 +48,6 @@ export const Timeline: FC<TimelineProps> = ({
               },
             }}
           >
-            {/* INICIO */}
             <Grid
               item
               xs={12}
@@ -86,8 +72,6 @@ export const Timeline: FC<TimelineProps> = ({
                 </Typography>
               </Stack>
             </Grid>
-
-            {/* FIN */}
             <Grid
               item
               xs={12}
@@ -151,7 +135,7 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  {presupuestoInicial}
+                  {formatearQuetzales(presupuestoInicial)}
                 </Typography>
                 <Typography
                   color="text.secondary"

@@ -10,33 +10,26 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Button,
+  Button
 } from '@mui/material';
-import { format } from 'date-fns';
 import { ModalEditarIngreso } from './editar-ingreso-modal';
-
-interface Ingreso {
-  id_ingreso: string;
-  proyecto_id: string;
-  monto_total: string;
-  fecha_ingreso: string;
-  tipo_ingreso: string;
-  tipo_documento: string;
-  anotaciones: string;
-  usuario_registro: string;
-}
+import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
+import { formatearQuetzales } from 'src/utils/format-currency';
+import { formatearFecha } from 'src/utils/format-date';
+import { Ingreso } from '../index.d';
 
 interface ModalListaIngresosProps {
   open: boolean;
   onClose: () => void;
   ingresos: Ingreso[];
+  fetchIngresos: (params: {
+    search: string;
+    fechaInicio: Date | null;
+    fechaFin: Date | null;
+  }) => void;
 }
 
-export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
-  open,
-  onClose,
-  ingresos,
-}) => {
+export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({ open, onClose, ingresos, fetchIngresos }) => {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
 
@@ -50,78 +43,68 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '95%',
-            maxWidth: 800,
-            maxHeight: '90vh',
-            overflow: 'auto',
+            maxWidth: 900,
             p: 2,
           }}
         >
           <Card>
             <CardHeader title="Historial de ingresos" />
             <Divider />
-            <Table>
-              <TableBody>
-                {ingresos.map((ingreso, index) => {
-                  const fechaFormatted = format(
-                    new Date(ingreso.fecha_ingreso),
-                    'dd LLL yyyy'
-                  ).toUpperCase();
-                  return (
-                    <TableRow key={ingreso.id_ingreso || index}>
-                      <TableCell width={100}>
-                        <Box sx={{ p: 1 }}>
-                          <Typography
-                            align="center"
-                            color="text.secondary"
-                            variant="subtitle2"
-                          >
-                            {fechaFormatted}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle2">
-                          {ingreso.usuario_registro}
-                        </Typography>
-                        <Typography
-                          color="text.secondary"
-                          variant="body2"
-                        >
-                          {ingreso.tipo_ingreso} - {ingreso.tipo_documento}
-                        </Typography>
-                        {ingreso.anotaciones && (
-                          <Typography
-                            color="text.secondary"
-                            variant="body2"
-                          >
-                            {ingreso.anotaciones}
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography
-                          color="success.main"
-                          variant="subtitle2"
-                        >
-                          {ingreso.monto_total}
-                        </Typography>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          sx={{ mt: 1 }}
-                          onClick={() => {
-                            setEditandoIndex(index);
-                            setModalEditarAbierto(true);
-                          }}
-                        >
-                          Editar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+
+            <TablaPaginadaConFiltros
+              onFiltrar={({ search, fechaInicio, fechaFin }) => {
+                fetchIngresos({ search, fechaInicio, fechaFin });
+              }}
+              totalItems={ingresos.length} 
+            >
+              {(currentPage) => (
+                <Table>
+                  <TableBody>
+                    {ingresos
+                      .slice((currentPage - 1) * 5, currentPage * 5)
+                      .map((ingreso, index) => {
+                        const fechaFormatted = formatearFecha(ingreso.fecha_ingreso);
+                        return (
+                          <TableRow key={ingreso.id_ingreso || index}>
+                            <TableCell width={100}>
+                              <Box sx={{ p: 1 }}>
+                                <Typography align="center" color="text.secondary" variant="subtitle2">
+                                  {fechaFormatted}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="subtitle2">{ingreso.usuario_registro}</Typography>
+                              <Typography color="text.secondary" variant="body2">
+                                {ingreso.tipo_ingreso} - {ingreso.tipo_documento}
+                              </Typography>
+                              {ingreso.anotaciones && (
+                                <Typography color="text.secondary" variant="body2">
+                                  {ingreso.anotaciones}
+                                </Typography>
+                              )}
+                            </TableCell>
+                            <TableCell align="right">
+                              <Typography color="success.main" variant="subtitle2">{formatearQuetzales(ingreso.monto_total)}</Typography>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                sx={{ mt: 1 }}
+                                onClick={() => {
+                                  setEditandoIndex(index + (currentPage - 1) * 5);
+                                  setModalEditarAbierto(true);
+                                }}
+                              >
+                                Editar
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              )}
+            </TablaPaginadaConFiltros>
           </Card>
         </Box>
       </Modal>
@@ -134,7 +117,6 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
           onConfirm={(data) => {
             console.log('Ingreso editado:', data);
             setModalEditarAbierto(false);
-            // Aquí podrías hacer refetch o levantar al padre si es necesario
           }}
         />
       )}

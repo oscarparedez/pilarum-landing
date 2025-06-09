@@ -1,0 +1,61 @@
+{
+  "nombre": "Excavadora CAT 320",
+  "placa": "XYZ-123",
+  "costo": 425000,
+  "totalServicios": 12500,
+  "totalCombustibleUltimoMes": 3100,
+  "asignaciones": [
+    {
+      "proyecto": "Residencial La Cumbre",
+      "fechaInicio": "2025-06-01",
+      "fechaFin": "2025-06-15",
+      "dias": "Lun-Mie-Vie"
+    },
+    {
+      "proyecto": "Torre Roble",
+      "fechaInicio": "2025-07-01",
+      "fechaFin": "2025-07-28",
+      "dias": "Lun-Mar"
+    }
+  ],
+  "servicios": [
+    {
+      "tipo": "Reparación",
+      "fecha": "2025-06-03",
+      "solicitadoPor": "Luis García",
+      "costo": 1500,
+      "anotaciones": "Cambio de aceite y filtro. Pago con voucher #234423",
+      "fotos": ["/assets/products/product-1.png", "/assets/products/product-2.png"]
+    },
+    {
+      "tipo": "Mantenimiento",
+      "fecha": "2025-06-15",
+      "solicitadoPor": "Ana López",
+      "costo": 800,
+      "anotaciones": "Revisión general y limpieza de filtros. Pago con tarjeta - #123456",
+      "fotos": ["/assets/products/product-2.png"]
+    }
+  ],
+  "consumos": [
+    {
+      "tipo": "Diesel",
+      "fecha": "2025-06-01",
+      "cantidad": "40",
+      "unidad": "litros",
+      "costo": 320,
+      "anotaciones": "Llenado tanque principal",
+      "reportadoPor": "Pedro Sánchez",
+      "fotos": ["/assets/products/product-1.png", "/assets/products/product-2.png"]
+    },
+    {
+      "tipo": "Aceite",
+      "fecha": "2025-06-12",
+      "cantidad": "2",
+      "unidad": "galones",
+      "costo": 50,
+      "anotaciones": "Cambio de aceite motor",
+      "reportadoPor": "María Pérez",
+      "fotos": ["/assets/products/product-2.png"]
+    }
+  ]
+}

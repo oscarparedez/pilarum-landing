@@ -12,27 +12,24 @@ import {
   Typography,
   Button,
 } from '@mui/material';
-import { format } from 'date-fns';
 import { ModalEditarPago } from './editar-pago-modal';
-
-interface Pago {
-  id_pago: string;
-  proyecto_id: string;
-  monto_total: string;
-  fecha_pago: string;
-  tipo_pago: string;
-  tipo_documento: string;
-  anotaciones: string;
-  usuario_registro: string;
-}
+import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
+import { formatearQuetzales } from 'src/utils/format-currency';
+import { formatearFecha } from 'src/utils/format-date';
+import { Pago } from '../index.d';
 
 interface ModalListaPagosProps {
   open: boolean;
   onClose: () => void;
   pagos: Pago[];
+  fetchPagos: (filtros: {
+    search: string;
+    fechaInicio: Date | null;
+    fechaFin: Date | null;
+  }) => void;
 }
 
-export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos }) => {
+export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos, fetchPagos }) => {
   const [editando, setEditando] = useState<Pago | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
@@ -47,60 +44,70 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
             transform: 'translate(-50%, -50%)',
             width: '95%',
             maxWidth: 800,
-            maxHeight: '90vh',
-            overflow: 'auto',
             p: 2,
           }}
         >
           <Card>
             <CardHeader title="Historial de pagos" />
             <Divider />
-            <Table>
-              <TableBody>
-                {pagos.map((pago, index) => {
-                  const fechaFormatted = format(new Date(pago.fecha_pago), 'dd LLL yyyy').toUpperCase();
-                  return (
-                    <TableRow key={pago.id_pago || index}>
-                      <TableCell width={100}>
-                        <Box sx={{ p: 1 }}>
-                          <Typography align="center" color="text.secondary" variant="subtitle2">
-                            {fechaFormatted}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle2">{pago.usuario_registro}</Typography>
-                        <Typography color="text.secondary" variant="body2">
-                          {pago.tipo_pago} - {pago.tipo_documento}
-                        </Typography>
-                        {pago.anotaciones && (
-                          <Typography color="text.secondary" variant="body2">
-                            {pago.anotaciones}
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography color="success.main" variant="subtitle2">
-                          {pago.monto_total}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => {
-                            setEditando(pago);
-                            setEditModalOpen(true);
-                          }}
-                        >
-                          Editar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+
+            <TablaPaginadaConFiltros
+              onFiltrar={({ search, fechaInicio, fechaFin }) => {
+                fetchPagos({ search, fechaInicio, fechaFin });
+              }}
+              totalItems={pagos.length}
+            >
+              {(currentPage) => (
+                <Table>
+                  <TableBody>
+                    {pagos
+                      .slice((currentPage - 1) * 5, currentPage * 5)
+                      .map((pago, index) => {
+                        const fechaFormatted = formatearFecha(pago.fecha_pago);
+                        return (
+                          <TableRow key={pago.id_pago || index}>
+                            <TableCell width={100}>
+                              <Box sx={{ p: 1 }}>
+                                <Typography align="center" color="text.secondary" variant="subtitle2">
+                                  {fechaFormatted}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="subtitle2">{pago.usuario_registro}</Typography>
+                              <Typography color="text.secondary" variant="body2">
+                                {pago.tipo_pago} - {pago.tipo_documento}
+                              </Typography>
+                              {pago.anotaciones && (
+                                <Typography color="text.secondary" variant="body2">
+                                  {pago.anotaciones}
+                                </Typography>
+                              )}
+                            </TableCell>
+                            <TableCell align="right">
+                              <Typography color="success.main" variant="subtitle2">
+                                {formatearQuetzales(Number(pago.monto_total))}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="right">
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => {
+                                  setEditando(pago);
+                                  setEditModalOpen(true);
+                                }}
+                              >
+                                Editar
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              )}
+            </TablaPaginadaConFiltros>
           </Card>
         </Box>
       </Modal>
@@ -111,7 +118,6 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
           onClose={() => setEditModalOpen(false)}
           initialData={editando}
           onConfirm={(data) => {
-            // Acá deberías hacer refetch o levantar a nivel superior
             console.log('Datos editados:', data);
             setEditModalOpen(false);
           }}

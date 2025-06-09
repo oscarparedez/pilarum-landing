@@ -11,25 +11,16 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { RevisionImagenesModal } from './revision-imagenes-modal';
 import { Stack } from '@mui/system';
 import { ModalAgregarRevision } from './agregar-revision-modal';
+import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
+import { Revision } from '../index.d';
 
-interface Revision {
-  id: string;
-  fecha: string;
-  responsable: string;
-  anotaciones: string;
-  imagenes: string[];
-}
+export const Revisiones: FC<{ revisiones: Revision[] }> = ({ revisiones }) => {
 
-interface RevisionesProps {
-  revisiones: Revision[];
-}
-
-export const Revisiones = ({ revisiones }: RevisionesProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
@@ -38,7 +29,7 @@ export const Revisiones = ({ revisiones }: RevisionesProps) => {
   const abrirModal = (imgs: string[]) => {
     setImagenes(imgs);
     setIndex(0);
-    setModalOpen(true); // este es el que realmente controla el modal
+    setModalOpen(true);
   };
 
   const cerrarModal = () => {
@@ -65,33 +56,43 @@ export const Revisiones = ({ revisiones }: RevisionesProps) => {
               Agregar revisión
             </Button>
           </Stack>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Fecha</TableCell>
-                <TableCell>Responsable</TableCell>
-                <TableCell>Anotaciones</TableCell>
-                <TableCell>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {revisiones.map((rev) => (
-                <TableRow
-                  hover
-                  key={rev.id}
-                >
-                  <TableCell>{rev.fecha}</TableCell>
-                  <TableCell>{rev.responsable}</TableCell>
-                  <TableCell>{rev.anotaciones}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => abrirModal(rev.imagenes)}>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+
+          <TablaPaginadaConFiltros
+            totalItems={revisiones.length}
+            onFiltrar={() => {}}
+            filtrosFecha={false}
+            filtrosEstado={false}
+            filtrosSearch={false}
+          >
+            {(currentPage) => (
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Fecha</TableCell>
+                    <TableCell>Responsable</TableCell>
+                    <TableCell>Anotaciones</TableCell>
+                    <TableCell>Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {revisiones
+                    .slice((currentPage - 1) * 5, currentPage * 5)
+                    .map((rev) => (
+                      <TableRow hover key={rev.id}>
+                        <TableCell>{rev.fecha}</TableCell>
+                        <TableCell>{rev.responsable}</TableCell>
+                        <TableCell>{rev.anotaciones}</TableCell>
+                        <TableCell>
+                          <IconButton onClick={() => abrirModal(rev.imagenes)}>
+                            <VisibilityIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            )}
+          </TablaPaginadaConFiltros>
         </CardContent>
       </Card>
       <RevisionImagenesModal
@@ -104,7 +105,6 @@ export const Revisiones = ({ revisiones }: RevisionesProps) => {
         onClose={() => setAgregarModalOpen(false)}
         onConfirm={(data) => {
           console.log('Nueva revisión:', data);
-          // Aquí puedes subir a backend o agregar al estado
         }}
       />
     </Box>

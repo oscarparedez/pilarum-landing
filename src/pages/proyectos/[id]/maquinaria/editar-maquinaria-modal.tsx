@@ -25,12 +25,14 @@ import {
       maquina: string;
       dias: string[];
       hasta: string;
+      asignadoA: string;
     }) => void;
     maquinasDisponibles: string[];
     initialData: {
       maquina: string;
       diasBinarios: string;
       hasta: string;
+      asignadoA: string;
     };
   }
   

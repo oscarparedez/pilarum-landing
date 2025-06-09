@@ -1,27 +1,23 @@
 import { FC, useState } from 'react';
 import {
   Box,
-  Button,
+  Modal,
   Card,
   CardHeader,
   Divider,
-  Modal,
   Table,
   TableBody,
   TableCell,
   TableRow,
   Typography,
+  Button,
+  Stack,
 } from '@mui/material';
-import { format } from 'date-fns';
+import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarAmpliacionPresupuesto } from './editar-ampliacion-presupuesto-modal';
-import { Stack } from '@mui/system';
-
-interface AmpliacionPresupuesto {
-  fecha: string;
-  motivo: string;
-  monto?: string;
-  usuario: string;
-}
+import { formatearFecha } from 'src/utils/format-date';
+import { formatearQuetzales } from 'src/utils/format-currency';
+import { AmpliacionPresupuesto } from '../index.d';
 
 interface ModalAmpliacionesPresupuestoProps {
   open: boolean;
@@ -46,55 +42,67 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '90%',
-            maxWidth: 600,
+            width: '95%',
+            maxWidth: 900,
             p: 3,
           }}
         >
           <Card>
             <CardHeader title="Historial de ampliaciones de presupuesto" />
             <Divider />
-            <Table>
-              <TableBody>
-                {ampliaciones.map((item, index) => {
-                  const fechaFormatted = format(new Date(item.fecha), 'dd LLL yyyy').toUpperCase();
-                  return (
-                    <TableRow key={index}>
-                      <TableCell width={120}>
-                        <Box sx={{ p: 1 }}>
-                          <Typography align="center" color="text.secondary" variant="subtitle2">
-                            {fechaFormatted}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle2">{item.usuario}</Typography>
-                        <Typography color="text.secondary" variant="body2">
-                          {item.motivo}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Stack spacing={0.5} alignItems="flex-end">
-                          <Typography variant="subtitle2" color="success.main">
-                            +{item.monto}
-                          </Typography>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => {
-                              setEditandoIndex(index);
-                              setEditModalOpen(true);
-                            }}
-                          >
-                            Editar
-                          </Button>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+
+            <TablaPaginadaConFiltros
+              onFiltrar={() => {}}
+              totalItems={ampliaciones.length}
+            >
+              {(currentPage) => (
+                <Table>
+                  <TableBody>
+                    {ampliaciones
+                      .slice((currentPage - 1) * 5, currentPage * 5)
+                      .map((item, index) => {
+                        const fechaFormatted = formatearFecha(item.fecha);
+                        return (
+                          <TableRow key={index}>
+                            <TableCell width={120}>
+                              <Box sx={{ p: 1 }}>
+                                <Typography align="center" color="text.secondary" variant="subtitle2">
+                                  {fechaFormatted}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="subtitle2">{item.usuario}</Typography>
+                              <Typography color="text.secondary" variant="body2">
+                                {item.motivo}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="right">
+                              <Stack spacing={0.5} alignItems="flex-end">
+                                {item.monto && (
+                                  <Typography variant="subtitle2" color="success.main">
+                                    +{formatearQuetzales(Number(item.monto))}
+                                  </Typography>
+                                )}
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  onClick={() => {
+                                    setEditandoIndex(index + (currentPage - 1) * 5);
+                                    setEditModalOpen(true);
+                                  }}
+                                >
+                                  Editar
+                                </Button>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              )}
+            </TablaPaginadaConFiltros>
           </Card>
         </Box>
 
