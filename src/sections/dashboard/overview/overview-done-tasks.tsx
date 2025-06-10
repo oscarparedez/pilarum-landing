@@ -12,10 +12,11 @@ import Typography from '@mui/material/Typography';
 
 interface OverviewDoneTasksProps {
   amount: number;
+  onClick: () => void;
 }
 
 export const OverviewDoneTasks: FC<OverviewDoneTasksProps> = (props) => {
-  const { amount } = props;
+  const { amount, onClick } = props;
 
   return (
     <Card>
@@ -61,6 +62,7 @@ export const OverviewDoneTasks: FC<OverviewDoneTasksProps> = (props) => {
               <ArrowRightIcon />
             </SvgIcon>
           }
+          onClick={onClick}
           size="small"
         >
           Ver todas las tareas

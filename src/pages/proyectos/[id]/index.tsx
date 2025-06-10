@@ -13,9 +13,81 @@ import { Maquinaria } from './maquinaria/maquinaria';
 import { PersonalAsignado } from './personal/personal';
 import { EditarDatosBasicosModal } from './editar-datos-modal';
 import proyecto from './proyecto.json';
-import { ConfigProyecto } from './index.d';
+import { ConfigProyecto, Tarea } from './index.d';
+import { Pizarron } from './pizarron/pizarron';
 
 const config: ConfigProyecto = proyecto as ConfigProyecto;
+
+export const tareasEjemplo: Tarea[] = [
+  // Tareas pendientes (3)
+  {
+    id: '1',
+    descripcion: 'Revisar planos estructurales del primer nivel',
+    estado: 'pendiente',
+    asignadoA: { id: 'u1', nombre: 'Juan Pérez' },
+    fechaCreacion: '2025-06-01T09:00:00Z',
+  },
+  {
+    id: '2',
+    descripcion: 'Solicitar cotizaciones de materiales',
+    estado: 'pendiente',
+    asignadoA: { id: 'u2', nombre: 'Ana Gómez' },
+    fechaCreacion: '2025-06-02T10:30:00Z',
+  },
+  {
+    id: '3',
+    descripcion: 'Validar permisos municipales',
+    estado: 'pendiente',
+    asignadoA: { id: 'u3', nombre: 'Carlos Ruiz' },
+    fechaCreacion: '2025-06-03T14:45:00Z',
+  },
+
+  // Tareas activas (4)
+  {
+    id: '4',
+    descripcion: 'Supervisar vaciado de concreto',
+    estado: 'activa',
+    asignadoA: { id: 'u1', nombre: 'Juan Pérez' },
+    fechaCreacion: '2025-06-04T08:00:00Z',
+  },
+  {
+    id: '5',
+    descripcion: 'Verificar instalación de andamios',
+    estado: 'activa',
+    asignadoA: { id: 'u2', nombre: 'Ana Gómez' },
+    fechaCreacion: '2025-06-05T11:20:00Z',
+  },
+  {
+    id: '6',
+    descripcion: 'Actualizar cronograma del proyecto',
+    estado: 'activa',
+    asignadoA: { id: 'u3', nombre: 'Carlos Ruiz' },
+    fechaCreacion: '2025-06-06T13:15:00Z',
+  },
+  {
+    id: '7',
+    descripcion: 'Coordinar visita del inspector de obra',
+    estado: 'activa',
+    asignadoA: { id: 'u1', nombre: 'Juan Pérez' },
+    fechaCreacion: '2025-06-07T15:00:00Z',
+  },
+
+  // Tareas completadas (2)
+  {
+    id: '8',
+    descripcion: 'Entrega de planos firmados por arquitecto',
+    estado: 'completada',
+    asignadoA: { id: 'u2', nombre: 'Ana Gómez' },
+    fechaCreacion: '2025-05-30T09:30:00Z',
+  },
+  {
+    id: '9',
+    descripcion: 'Informe de avance semanal enviado',
+    estado: 'completada',
+    asignadoA: { id: 'u3', nombre: 'Carlos Ruiz' },
+    fechaCreacion: '2025-05-31T16:00:00Z',
+  },
+];
 
 const Page: NextPage = () => {
   const settings = useSettings();
@@ -33,7 +105,7 @@ const Page: NextPage = () => {
     materialPlanificado,
   }: ConfigProyecto = config;
 
-  const { nombre, ubicacion, fechaInicio, fechaFin, presupuestoInicial } = datosBasicos;
+  const { nombre, ubicacion, fechaInicio, fechaFin, socio, presupuestoInicial } = datosBasicos;
 
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [datosProyecto, setDatosProyecto] = useState(datosBasicos);
@@ -63,6 +135,7 @@ const Page: NextPage = () => {
             <Box>
               <Typography variant="h4">{nombre}</Typography>
               <Typography color="text.secondary">{ubicacion}</Typography>
+              <Typography color="text.secondary">Socio - {socio.nombre}</Typography>
             </Box>
             <Button
               variant="outlined"
@@ -82,6 +155,8 @@ const Page: NextPage = () => {
             onAmpliarFecha={() => console.log('Ampliar fecha')}
             onAmpliarPresupuesto={() => console.log('Ampliar presupuesto')}
           />
+
+          <Pizarron tareas={tareasEjemplo} />
 
           {/* RESUMEN FINANCIERO */}
           <ResumenFinanciero

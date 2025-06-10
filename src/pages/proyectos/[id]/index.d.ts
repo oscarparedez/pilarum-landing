@@ -29,6 +29,17 @@ export interface Ingreso {
   usuario_registro: string;
 }
 
+export interface Tarea {
+  id: string;
+  descripcion: string;
+  estado: 'pendiente' | 'activa' | 'completada';
+  asignadoA: {
+    id: string;
+    nombre: string;
+  };
+  fechaCreacion: string;
+}
+
 export interface ResumenFinancieroProps {
   data: {
     label: string;
@@ -98,6 +109,10 @@ export interface ConfigProyecto {
     fechaInicio: string;
     fechaFin: string;
     presupuestoInicial: number;
+    socio: {
+      id: string;
+      nombre: string;
+    }
   };
   ampliacionesPresupuesto: AmpliacionPresupuesto[];
   ampliacionesFecha: AmpliacionFecha[];

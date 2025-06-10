@@ -14,6 +14,8 @@ import { useSettings } from 'src/hooks/use-settings';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { paths } from 'src/paths';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { CrearProyectoModal } from './crear/crear-proyecto-modal';
 
 const mockProyectos = [
   {
@@ -33,11 +35,13 @@ const mockProyectos = [
 const Page: NextPage = () => {
   const settings = useSettings();
   const router = useRouter();
+  const [modalCrearProyectoOpen, setModalCrearProyectoOpen] = useState(false);
+
 
   usePageView();
 
   const handleCrearProyecto = () => {
-    router.push(paths.dashboard.proyectos.crear);
+    setModalCrearProyectoOpen(true);
   };
 
   const handleVerDetalles = (id: string) => {
@@ -106,6 +110,11 @@ const Page: NextPage = () => {
             ))}
           </Grid>
         </Container>
+        <CrearProyectoModal
+        open={modalCrearProyectoOpen}
+        onClose={() => setModalCrearProyectoOpen(false)}
+        onConfirm={() => console.log('Proyecto creado')}
+      />
       </Box>
     </>
   );

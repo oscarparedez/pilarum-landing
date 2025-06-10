@@ -4,7 +4,8 @@
     "ubicacion": "Zona 16, Guatemala",
     "fechaInicio": "2025-01-10",
     "fechaFin": "2025-10-15",
-    "presupuestoInicial": 100000
+    "presupuestoInicial": 100000,
+    "socio": { "id": "1", "nombre": "Juan Pérez" }
   },
   "ampliacionesPresupuesto": [
     {
