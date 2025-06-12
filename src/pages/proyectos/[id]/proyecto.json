@@ -39,8 +39,8 @@
         "proyecto_id": "proy-001",
         "monto_total": 65000,
         "fecha_ingreso": "2025-05-28",
-        "tipo_ingreso": "Cliente",
-        "tipo_documento": "Factura",
+        "tipo_ingreso": "Avance de obra",
+        "tipo_documento": "Transferencia",
         "anotaciones": "Pago cliente etapa 2",
         "usuario_registro": "Luis G."
       },
@@ -49,8 +49,8 @@
         "proyecto_id": "proy-001",
         "monto_total": 20000,
         "fecha_ingreso": "2025-05-28",
-        "tipo_ingreso": "Cliente",
-        "tipo_documento": "Factura",
+        "tipo_ingreso": "Pago final",
+        "tipo_documento": "Efectivo",
         "anotaciones": "Pago cliente etapa 1",
         "usuario_registro": "Luis G."
       }
@@ -61,8 +61,8 @@
         "proyecto_id": "proy-001",
         "monto_total": 12000,
         "fecha_pago": "2025-05-10",
-        "tipo_pago": "Mano de obra",
-        "tipo_documento": "Boleta",
+        "tipo_pago": "Socio",
+        "tipo_documento": "Cheque",
         "anotaciones": "Pago por avance de obra",
         "usuario_registro": "Ana M."
       },
@@ -71,8 +71,8 @@
         "proyecto_id": "proy-001",
         "monto_total": 8000,
         "fecha_pago": "2025-04-15",
-        "tipo_pago": "Material",
-        "tipo_documento": "Factura",
+        "tipo_pago": "Maestro de obra",
+        "tipo_documento": "Transferencia",
         "anotaciones": "Compra de cemento",
         "usuario_registro": "Luis G."
       },

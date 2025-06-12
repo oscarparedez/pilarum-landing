@@ -12,19 +12,24 @@ import {
   Typography,
 } from '@mui/material';
 import { FC, useState } from 'react';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { RevisionImagenesModal } from './revision-imagenes-modal';
 import { Stack } from '@mui/system';
 import { ModalAgregarRevision } from './agregar-revision-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { Revision } from '../index.d';
+import { ModalEditarRevision } from './editar-revision-modal';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 export const Revisiones: FC<{ revisiones: Revision[] }> = ({ revisiones }) => {
-
   const [modalOpen, setModalOpen] = useState(false);
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
+  const [editarRevision, setEditarRevisino] = useState<Revision | null>(null);
+  const [revisionAEliminar, setRevisionAEliminar] = useState<Revision | null>(null);
 
   const abrirModal = (imgs: string[]) => {
     setImagenes(imgs);
@@ -75,37 +80,69 @@ export const Revisiones: FC<{ revisiones: Revision[] }> = ({ revisiones }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {revisiones
-                    .slice((currentPage - 1) * 5, currentPage * 5)
-                    .map((rev) => (
-                      <TableRow hover key={rev.id}>
-                        <TableCell>{rev.fecha}</TableCell>
-                        <TableCell>{rev.responsable}</TableCell>
-                        <TableCell>{rev.anotaciones}</TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => abrirModal(rev.imagenes)}>
-                            <VisibilityIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                  {revisiones.slice((currentPage - 1) * 5, currentPage * 5).map((rev) => (
+                    <TableRow
+                      hover
+                      key={rev.id}
+                    >
+                      <TableCell>{rev.fecha}</TableCell>
+                      <TableCell>{rev.responsable}</TableCell>
+                      <TableCell>{rev.anotaciones}</TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={() => {
+                            abrirModal(rev.imagenes);
+                          }}
+                        >
+                          <VisibilityIcon />
+                        </IconButton>
+                        <IconButton onClick={() => setEditarRevisino(rev)}>
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton onClick={() => setRevisionAEliminar(rev)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             )}
           </TablaPaginadaConFiltros>
         </CardContent>
       </Card>
-      <RevisionImagenesModal
-        open={modalOpen}
-        onClose={cerrarModal}
-        images={imagenes}
-      />
       <ModalAgregarRevision
         open={agregarModalOpen}
         onClose={() => setAgregarModalOpen(false)}
         onConfirm={(data) => {
           console.log('Nueva revisión:', data);
         }}
+      />
+
+      <ModalEditarRevision
+        open={!!editarRevision}
+        revision={editarRevision}
+        onClose={() => setEditarRevisino(null)}
+        onConfirm={(data) => {
+          console.log('Servicio editado:', data);
+          setEditarRevisino(null);
+        }}
+      />
+
+      <ModalEliminar
+        type="revisión"
+        open={!!revisionAEliminar}
+        onClose={() => setRevisionAEliminar(null)}
+        onConfirm={() => {
+          console.log('Eliminando:', revisionAEliminar);
+          setRevisionAEliminar(null);
+        }}
+      />
+
+      <RevisionImagenesModal
+        open={modalOpen}
+        onClose={cerrarModal}
+        images={imagenes}
       />
     </Box>
   );

@@ -10,13 +10,18 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Button,
+  IconButton,
+  Stack,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+
 import { ModalEditarPago } from './editar-pago-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
 import { Pago } from '../index.d';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 interface ModalListaPagosProps {
   open: boolean;
@@ -29,9 +34,15 @@ interface ModalListaPagosProps {
   }) => void;
 }
 
-export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos, fetchPagos }) => {
-  const [editando, setEditando] = useState<Pago | null>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
+export const ModalListaPagos: FC<ModalListaPagosProps> = ({
+  open,
+  onClose,
+  pagos,
+  fetchPagos,
+}) => {
+  const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
+  const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
+  const [pagoAEliminar, setPagoAEliminar] = useState<Pago | null>(null);
 
   return (
     <>
@@ -43,7 +54,7 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '95%',
-            maxWidth: 800,
+            maxWidth: 900,
             p: 2,
           }}
         >
@@ -63,43 +74,70 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
                     {pagos
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((pago, index) => {
-                        const fechaFormatted = formatearFecha(pago.fecha_pago);
+                        const globalIndex = index + (currentPage - 1) * 5;
                         return (
                           <TableRow key={pago.id_pago || index}>
                             <TableCell width={100}>
                               <Box sx={{ p: 1 }}>
-                                <Typography align="center" color="text.secondary" variant="subtitle2">
-                                  {fechaFormatted}
+                                <Typography
+                                  align="center"
+                                  color="text.secondary"
+                                  variant="subtitle2"
+                                >
+                                  {formatearFecha(pago.fecha_pago)}
                                 </Typography>
                               </Box>
                             </TableCell>
+
                             <TableCell>
-                              <Typography variant="subtitle2">{pago.usuario_registro}</Typography>
-                              <Typography color="text.secondary" variant="body2">
+                              <Typography variant="subtitle2">
+                                {pago.usuario_registro}
+                              </Typography>
+                              <Typography
+                                color="text.secondary"
+                                variant="body2"
+                              >
                                 {pago.tipo_pago} - {pago.tipo_documento}
                               </Typography>
                               {pago.anotaciones && (
-                                <Typography color="text.secondary" variant="body2">
+                                <Typography
+                                  color="text.secondary"
+                                  variant="body2"
+                                >
                                   {pago.anotaciones}
                                 </Typography>
                               )}
                             </TableCell>
+
                             <TableCell align="right">
-                              <Typography color="success.main" variant="subtitle2">
+                              <Typography
+                                color="success.main"
+                                variant="subtitle2"
+                              >
                                 {formatearQuetzales(Number(pago.monto_total))}
                               </Typography>
-                            </TableCell>
-                            <TableCell align="right">
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                onClick={() => {
-                                  setEditando(pago);
-                                  setEditModalOpen(true);
-                                }}
+
+                              <Stack
+                                direction="row"
+                                justifyContent="flex-end"
                               >
-                                Editar
-                              </Button>
+                                <IconButton
+                                  onClick={() => {
+                                    setEditandoIndex(globalIndex);
+                                    setModalEditarAbierto(true);
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+
+                                <IconButton
+                                  onClick={() => {
+                                    setPagoAEliminar(pago);
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Stack>
                             </TableCell>
                           </TableRow>
                         );
@@ -112,17 +150,27 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
         </Box>
       </Modal>
 
-      {editando && (
+      {editandoIndex !== null && (
         <ModalEditarPago
-          open={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          initialData={editando}
+          open={modalEditarAbierto}
+          onClose={() => setModalEditarAbierto(false)}
+          initialData={pagos[editandoIndex]}
           onConfirm={(data) => {
-            console.log('Datos editados:', data);
-            setEditModalOpen(false);
+            console.log('Pago editado:', data);
+            setModalEditarAbierto(false);
           }}
         />
       )}
+
+      <ModalEliminar
+        type="pago"
+        open={!!pagoAEliminar}
+        onClose={() => setPagoAEliminar(null)}
+        onConfirm={() => {
+          console.log('Pago eliminado');
+          setPagoAEliminar(null);
+        }}
+      />
     </>
   );
 };

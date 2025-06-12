@@ -10,13 +10,19 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Button
+  IconButton,
+  Stack,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+
 import { ModalEditarIngreso } from './editar-ingreso-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
 import { Ingreso } from '../index.d';
+import { ModalEliminar } from 'src/components/eliminar-modal';
+import { set } from 'nprogress';
 
 interface ModalListaIngresosProps {
   open: boolean;
@@ -29,13 +35,22 @@ interface ModalListaIngresosProps {
   }) => void;
 }
 
-export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({ open, onClose, ingresos, fetchIngresos }) => {
+export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
+  open,
+  onClose,
+  ingresos,
+  fetchIngresos,
+}) => {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
+  const [ingresoAEliminar, setIngresoAEliminar] = useState<Ingreso | null>(null);
 
   return (
     <>
-      <Modal open={open} onClose={onClose}>
+      <Modal
+        open={open}
+        onClose={onClose}
+      >
         <Box
           sx={{
             position: 'absolute',
@@ -55,7 +70,7 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({ open, onClose,
               onFiltrar={({ search, fechaInicio, fechaFin }) => {
                 fetchIngresos({ search, fechaInicio, fechaFin });
               }}
-              totalItems={ingresos.length} 
+              totalItems={ingresos.length}
             >
               {(currentPage) => (
                 <Table>
@@ -63,40 +78,70 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({ open, onClose,
                     {ingresos
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((ingreso, index) => {
-                        const fechaFormatted = formatearFecha(ingreso.fecha_ingreso);
+                        const globalIndex = index + (currentPage - 1) * 5;
                         return (
                           <TableRow key={ingreso.id_ingreso || index}>
                             <TableCell width={100}>
                               <Box sx={{ p: 1 }}>
-                                <Typography align="center" color="text.secondary" variant="subtitle2">
-                                  {fechaFormatted}
+                                <Typography
+                                  align="center"
+                                  color="text.secondary"
+                                  variant="subtitle2"
+                                >
+                                  {formatearFecha(ingreso.fecha_ingreso)}
                                 </Typography>
                               </Box>
                             </TableCell>
+
                             <TableCell>
-                              <Typography variant="subtitle2">{ingreso.usuario_registro}</Typography>
-                              <Typography color="text.secondary" variant="body2">
+                              <Typography variant="subtitle2">
+                                {ingreso.usuario_registro}
+                              </Typography>
+                              <Typography
+                                color="text.secondary"
+                                variant="body2"
+                              >
                                 {ingreso.tipo_ingreso} - {ingreso.tipo_documento}
                               </Typography>
                               {ingreso.anotaciones && (
-                                <Typography color="text.secondary" variant="body2">
+                                <Typography
+                                  color="text.secondary"
+                                  variant="body2"
+                                >
                                   {ingreso.anotaciones}
                                 </Typography>
                               )}
                             </TableCell>
+
                             <TableCell align="right">
-                              <Typography color="success.main" variant="subtitle2">{formatearQuetzales(ingreso.monto_total)}</Typography>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                sx={{ mt: 1 }}
-                                onClick={() => {
-                                  setEditandoIndex(index + (currentPage - 1) * 5);
-                                  setModalEditarAbierto(true);
-                                }}
+                              <Typography
+                                color="success.main"
+                                variant="subtitle2"
                               >
-                                Editar
-                              </Button>
+                                {formatearQuetzales(ingreso.monto_total)}
+                              </Typography>
+
+                              <Stack
+                                direction="row"
+                                justifyContent="flex-end"
+                              >
+                                <IconButton
+                                  onClick={() => {
+                                    setEditandoIndex(globalIndex);
+                                    setModalEditarAbierto(true);
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+
+                                <IconButton
+                                  onClick={() => {
+                                    setIngresoAEliminar(ingreso);
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Stack>
                             </TableCell>
                           </TableRow>
                         );
@@ -120,6 +165,18 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({ open, onClose,
           }}
         />
       )}
+
+      <ModalEliminar
+        type="ingreso"
+        open={!!ingresoAEliminar} // Aquí podrías manejar el estado de apertura del modal de eliminación
+        onClose={() => {
+          setIngresoAEliminar(null);
+        }}
+        onConfirm={() => {
+          console.log('Ingreso eliminado');
+          setIngresoAEliminar(null);
+        }}
+      />
     </>
   );
 };

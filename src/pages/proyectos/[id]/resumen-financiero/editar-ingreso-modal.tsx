@@ -123,30 +123,40 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
                 </LocalizationProvider>
               </Box>
 
-              <TextField
-                label="Tipo de ingreso"
-                select
-                fullWidth
-                required
-                value={tipoIngreso}
-                onChange={(e) => setTipoIngreso(e.target.value)}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: 2,
+                }}
               >
-                <MenuItem value="Avance de obra">Avance de obra</MenuItem>
-                <MenuItem value="Pago final">Pago final</MenuItem>
-              </TextField>
+                <TextField
+                  label="Tipo de ingreso"
+                  select
+                  required
+                  value={tipoIngreso}
+                  onChange={(e) => setTipoIngreso(e.target.value)}
+                  fullWidth
+                  sx={{ flex: 1 }}
+                >
+                  <MenuItem value="Avance de obra">Avance de obra</MenuItem>
+                  <MenuItem value="Pago final">Pago final</MenuItem>
+                </TextField>
 
-              <TextField
-                label="Tipo de documento"
-                select
-                fullWidth
-                required
-                value={tipoDocumento}
-                onChange={(e) => setTipoDocumento(e.target.value)}
-              >
-                <MenuItem value="Cheque">Cheque</MenuItem>
-                <MenuItem value="Transferencia">Transferencia</MenuItem>
-                <MenuItem value="Efectivo">Efectivo</MenuItem>
-              </TextField>
+                <TextField
+                  label="Tipo de documento"
+                  select
+                  required
+                  value={tipoDocumento}
+                  onChange={(e) => setTipoDocumento(e.target.value)}
+                  fullWidth
+                  sx={{ flex: 1 }}
+                >
+                  <MenuItem value="Cheque">Cheque</MenuItem>
+                  <MenuItem value="Transferencia">Transferencia</MenuItem>
+                  <MenuItem value="Efectivo">Efectivo</MenuItem>
+                </TextField>
+              </Box>
 
               <TextField
                 label="Anotaciones"

@@ -1,28 +1,16 @@
 import { FC, useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Modal,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Modal, Stack, TextField, Typography } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { format } from 'date-fns';
 
 interface ModalEditarAmpliacionPresupuestoProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: {
-    fecha: string;
-    motivo: string;
-    monto: string;
-    usuario: string;
-  }) => void;
+  onConfirm: (data: { fecha: string; motivo: string; monto: number; usuario: string }) => void;
   initialData: {
     fecha: string;
     motivo: string;
-    monto?: string;
+    monto?: number;
     usuario: string;
   };
 }
@@ -33,8 +21,7 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
   onConfirm,
   initialData,
 }) => {
-
-    console.log("initialData", initialData);
+  console.log('initialData', initialData);
   const [fecha, setFecha] = useState<Date | null>(new Date(initialData.fecha));
   const [motivo, setMotivo] = useState(initialData.motivo);
   const [monto, setMonto] = useState(initialData.monto || '');
@@ -57,7 +44,10 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           backgroundColor: 'background.paper',
@@ -76,7 +66,12 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
           <Typography variant="h6">Editar ampliación de presupuesto</Typography>
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>Fecha</Typography>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
+              Fecha
+            </Typography>
             <DateCalendar
               value={fecha}
               onChange={(newValue) => setFecha(newValue)}
@@ -99,9 +94,17 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
             inputProps={{ min: 0 }}
           />
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            spacing={2}
+          >
             <Button onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" onClick={handleConfirm} disabled={!fecha || !motivo || !monto}>
+            <Button
+              variant="contained"
+              onClick={handleConfirm}
+              disabled={!fecha || !motivo || !monto}
+            >
               Guardar cambios
             </Button>
           </Stack>

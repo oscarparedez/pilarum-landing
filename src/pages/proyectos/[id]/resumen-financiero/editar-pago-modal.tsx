@@ -16,6 +16,7 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
+import { format } from 'date-fns';
 import { Pago } from '../index.d';
 
 interface ModalEditarPagoProps {
@@ -53,105 +54,92 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
   }, [initialData]);
 
   const handleConfirm = () => {
-    if (fecha && tipoPago && tipoDocumento && monto) {
-      onConfirm({
-        fecha_pago: fecha.toISOString().split('T')[0],
-        tipo_pago: tipoPago,
-        tipo_documento: tipoDocumento,
-        anotaciones,
-        monto_total: monto,
-        usuario_registro: initialData.usuario_registro,
-      });
-    }
+    if (!fecha || !tipoPago || !tipoDocumento || !monto) return;
+
+    onConfirm({
+      fecha_pago: format(fecha, 'yyyy-MM-dd'),
+      tipo_pago: tipoPago,
+      tipo_documento: tipoDocumento,
+      anotaciones,
+      monto_total: monto,
+      usuario_registro: initialData.usuario_registro,
+    });
+
+    onClose();
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-    >
+    <Modal open={open} onClose={onClose}>
       <Box
         sx={{
-          backgroundColor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 4,
-          width: '90%',
-          maxWidth: 500,
           position: 'absolute',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
+          width: '90%',
+          maxWidth: 600,
+          p: 2,
         }}
       >
         <Card>
           <CardContent>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 'bold' }}
-            >
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
               Editar pago
             </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 2 }}
-            >
-              Modifica los campos necesarios
-            </Typography>
 
-            <Stack spacing={3}>
+            <Stack spacing={3} mt={2}>
               <TextField
                 label="Monto total (Q)"
                 type="number"
                 fullWidth
                 required
                 value={monto}
-                onChange={(e) => setMonto(e.target.value)}
+                onChange={(e) => setMonto(Number(e.target.value))}
               />
 
               <Box>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 1 }}
-                >
+                <Typography variant="body2" sx={{ mb: 1 }}>
                   Fecha de pago <span style={{ color: 'red' }}>*</span>
                 </Typography>
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={es}
-                >
-                  <DateCalendar
-                    value={fecha}
-                    onChange={setFecha}
-                  />
+                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+                  <DateCalendar value={fecha} onChange={setFecha} />
                 </LocalizationProvider>
               </Box>
 
-              <TextField
-                label="Tipo de pago"
-                select
-                fullWidth
-                required
-                value={tipoPago}
-                onChange={(e) => setTipoPago(e.target.value)}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: 2,
+                }}
               >
-                <MenuItem value="Socio">Socio</MenuItem>
-                <MenuItem value="Maestro de obra">Maestro de obra</MenuItem>
-              </TextField>
+                <TextField
+                  label="Tipo de pago"
+                  select
+                  required
+                  fullWidth
+                  sx={{ flex: 1 }}
+                  value={tipoPago}
+                  onChange={(e) => setTipoPago(e.target.value)}
+                >
+                  <MenuItem value="Socio">Socio</MenuItem>
+                  <MenuItem value="Maestro de obra">Maestro de obra</MenuItem>
+                </TextField>
 
-              <TextField
-                label="Tipo de documento"
-                select
-                fullWidth
-                required
-                value={tipoDocumento}
-                onChange={(e) => setTipoDocumento(e.target.value)}
-              >
-                <MenuItem value="Cheque">Cheque</MenuItem>
-                <MenuItem value="Transferencia">Transferencia</MenuItem>
-                <MenuItem value="Efectivo">Efectivo</MenuItem>
-              </TextField>
+                <TextField
+                  label="Tipo de documento"
+                  select
+                  required
+                  fullWidth
+                  sx={{ flex: 1 }}
+                  value={tipoDocumento}
+                  onChange={(e) => setTipoDocumento(e.target.value)}
+                >
+                  <MenuItem value="Cheque">Cheque</MenuItem>
+                  <MenuItem value="Transferencia">Transferencia</MenuItem>
+                  <MenuItem value="Efectivo">Efectivo</MenuItem>
+                </TextField>
+              </Box>
 
               <TextField
                 label="Anotaciones"

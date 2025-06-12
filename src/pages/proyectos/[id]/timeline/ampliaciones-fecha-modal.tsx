@@ -10,11 +10,15 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Button,
+  IconButton,
+  Stack,
 } from '@mui/material';
-import { format } from 'date-fns';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarAmpliacionFecha } from './editar-ampliacion-fecha-modal';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 import { formatearFecha } from 'src/utils/format-date';
 
 interface Ampliacion {
@@ -36,13 +40,14 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
 }) => {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [eliminando, setEliminando] = useState<Ampliacion | null>(null);
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-    >
-      <>
+    <>
+      <Modal
+        open={open}
+        onClose={onClose}
+      >
         <Box
           sx={{
             position: 'absolute',
@@ -69,6 +74,8 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((item, index) => {
                         const fechaFormatted = formatearFecha(item.fecha);
+                        const globalIndex = index + (currentPage - 1) * 5;
+
                         return (
                           <TableRow key={index}>
                             <TableCell width={120}>
@@ -92,16 +99,22 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
                               </Typography>
                             </TableCell>
                             <TableCell align="right">
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                onClick={() => {
-                                  setEditandoIndex(index + (currentPage - 1) * 5);
-                                  setEditModalOpen(true);
-                                }}
+                              <Stack
+                                direction="row"
+                                justifyContent="flex-end"
                               >
-                                Editar
-                              </Button>
+                                <IconButton
+                                  onClick={() => {
+                                    setEditandoIndex(globalIndex);
+                                    setEditModalOpen(true);
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                                <IconButton onClick={() => setEliminando(item)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Stack>
                             </TableCell>
                           </TableRow>
                         );
@@ -112,20 +125,29 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
             </TablaPaginadaConFiltros>
           </Card>
         </Box>
+      </Modal>
 
-        {editandoIndex !== null && (
-          <ModalEditarAmpliacionFecha
-            open={editModalOpen}
-            onClose={() => setEditModalOpen(false)}
-            initialData={ampliaciones[editandoIndex]}
-            onConfirm={(data) => {
-              const nuevas = [...ampliaciones];
-              nuevas[editandoIndex] = data;
-              setEditModalOpen(false);
-            }}
-          />
-        )}
-      </>
-    </Modal>
+      {editandoIndex !== null && (
+        <ModalEditarAmpliacionFecha
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          initialData={ampliaciones[editandoIndex]}
+          onConfirm={(data) => {
+            // Actualizar desde el padre o refetch
+            setEditModalOpen(false);
+          }}
+        />
+      )}
+
+      <ModalEliminar
+        type="ampliación de fecha"
+        open={!!eliminando}
+        onClose={() => setEliminando(null)}
+        onConfirm={() => {
+          console.log('Ampliación eliminada');
+          setEliminando(null);
+        }}
+      />
+    </>
   );
 };

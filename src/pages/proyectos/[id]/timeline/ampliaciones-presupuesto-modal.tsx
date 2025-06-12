@@ -10,11 +10,15 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Button,
   Stack,
+  IconButton,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarAmpliacionPresupuesto } from './editar-ampliacion-presupuesto-modal';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 import { formatearFecha } from 'src/utils/format-date';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { AmpliacionPresupuesto } from '../index.d';
@@ -32,10 +36,14 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
 }) => {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [eliminando, setEliminando] = useState<AmpliacionPresupuesto | null>(null);
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <>
+    <>
+      <Modal
+        open={open}
+        onClose={onClose}
+      >
         <Box
           sx={{
             position: 'absolute',
@@ -62,38 +70,53 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((item, index) => {
                         const fechaFormatted = formatearFecha(item.fecha);
+                        const globalIndex = index + (currentPage - 1) * 5;
+
                         return (
                           <TableRow key={index}>
                             <TableCell width={120}>
                               <Box sx={{ p: 1 }}>
-                                <Typography align="center" color="text.secondary" variant="subtitle2">
+                                <Typography
+                                  align="center"
+                                  color="text.secondary"
+                                  variant="subtitle2"
+                                >
                                   {fechaFormatted}
                                 </Typography>
                               </Box>
                             </TableCell>
                             <TableCell>
                               <Typography variant="subtitle2">{item.usuario}</Typography>
-                              <Typography color="text.secondary" variant="body2">
+                              <Typography
+                                color="text.secondary"
+                                variant="body2"
+                              >
                                 {item.motivo}
                               </Typography>
                             </TableCell>
                             <TableCell align="right">
-                              <Stack spacing={0.5} alignItems="flex-end">
-                                {item.monto && (
-                                  <Typography variant="subtitle2" color="success.main">
-                                    +{formatearQuetzales(Number(item.monto))}
-                                  </Typography>
-                                )}
-                                <Button
-                                  size="small"
-                                  variant="outlined"
+                              <Typography
+                                variant="subtitle2"
+                                color="success.main"
+                              >
+                                +{formatearQuetzales(Number(item.monto))}
+                              </Typography>
+
+                              <Stack
+                                direction="row"
+                                justifyContent="flex-end"
+                              >
+                                <IconButton
                                   onClick={() => {
-                                    setEditandoIndex(index + (currentPage - 1) * 5);
+                                    setEditandoIndex(globalIndex);
                                     setEditModalOpen(true);
                                   }}
                                 >
-                                  Editar
-                                </Button>
+                                  <EditIcon />
+                                </IconButton>
+                                <IconButton onClick={() => setEliminando(item)}>
+                                  <DeleteIcon />
+                                </IconButton>
                               </Stack>
                             </TableCell>
                           </TableRow>
@@ -105,19 +128,28 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
             </TablaPaginadaConFiltros>
           </Card>
         </Box>
+      </Modal>
 
-        {editandoIndex !== null && (
-          <ModalEditarAmpliacionPresupuesto
-            open={editModalOpen}
-            onClose={() => setEditModalOpen(false)}
-            initialData={ampliaciones[editandoIndex]}
-            onConfirm={(data) => {
-              // Aquí deberías levantar el estado o hacer refetch como mencionaste
-              setEditModalOpen(false);
-            }}
-          />
-        )}
-      </>
-    </Modal>
+      {editandoIndex !== null && (
+        <ModalEditarAmpliacionPresupuesto
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          initialData={ampliaciones[editandoIndex]}
+          onConfirm={(data) => {
+            setEditModalOpen(false);
+          }}
+        />
+      )}
+
+      <ModalEliminar
+        type="ampliación de presupuesto"
+        open={!!eliminando}
+        onClose={() => setEliminando(null)}
+        onConfirm={() => {
+          console.log('Ampliación de presupuesto eliminada');
+          setEliminando(null);
+        }}
+      />
+    </>
   );
 };
