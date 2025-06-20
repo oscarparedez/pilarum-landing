@@ -48,7 +48,7 @@ export const useSections = (): Section[] => {
         items: [
           {
             title: t(tokens.nav.personal),
-            path: paths.dashboard.oficina.personal,
+            path: paths.dashboard.oficina.planilla,
             icon: <SvgIcon fontSize="small"><Users03Icon /></SvgIcon>,
           },
           {

@@ -23,25 +23,35 @@ interface Filtros {
 
 interface TablaPaginadaConFiltrosProps {
   onFiltrar: (filtros: Filtros) => void;
+  onPageChange?: (page: number) => void;
   totalItems: number;
   filtrosSearch?: boolean;
   filtrosFecha?: boolean;
   filtrosEstado?: boolean;
-  children: (currentPage: number, estado?: string | undefined) => ReactNode;
+  filtrosRol?: boolean;
+  children: (
+    currentPage: number,
+    estadoFiltro?: string,
+    rolFiltro?: string,
+    search?: string
+  ) => ReactNode;
 }
 
 export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   onFiltrar,
+  onPageChange,
   totalItems,
   filtrosSearch = true,
   filtrosFecha = true,
   filtrosEstado = false,
+  filtrosRol = false,
   children,
 }) => {
   const [search, setSearch] = useState('');
   const [fechaInicio, setFechaInicio] = useState<Date | null>(null);
   const [fechaFin, setFechaFin] = useState<Date | null>(null);
   const [estado, setEstado] = useState('');
+  const [rol, setRol] = useState('');
   const [page, setPage] = useState(1);
 
   const rowsPerPage = 5;
@@ -111,11 +121,9 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
               />
             </>
           )}
+
           {filtrosEstado && (
-            <FormControl
-              sx={{ minWidth: 190 }}
-              size="medium"
-            >
+            <FormControl sx={{ minWidth: 190 }} size="medium">
               <InputLabel>Estado</InputLabel>
               <Select
                 value={estado}
@@ -124,13 +132,6 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
                   setPage(1);
                   setEstado(e.target.value);
                 }}
-                sx={{
-                  height: 54, // mismo alto que el OutlinedInput
-                  '& .MuiSelect-select': {
-                    display: 'flex',
-                    alignItems: 'center',
-                  },
-                }}
               >
                 <MenuItem value="">Todos</MenuItem>
                 <MenuItem value="Activo">Activo</MenuItem>
@@ -138,16 +139,40 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
               </Select>
             </FormControl>
           )}
+
+          {filtrosRol && (
+            <FormControl sx={{ minWidth: 190 }} size="medium">
+              <InputLabel>Rol</InputLabel>
+              <Select
+                value={rol}
+                label="Rol"
+                onChange={(e) => {
+                  setPage(1);
+                  setRol(e.target.value);
+                }}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value="Ingeniero">Ingeniero</MenuItem>
+                <MenuItem value="Arquitecto">Arquitecto</MenuItem>
+                <MenuItem value="Supervisor">Supervisor</MenuItem>
+              </Select>
+            </FormControl>
+          )}
         </Stack>
       </Box>
 
-      <Box sx={{ px: 2, pt: 3 }}>{children(page, filtrosEstado ? estado : undefined)}</Box>
+      <Box sx={{ px: 2, pt: 3 }}>
+        {children(page, filtrosEstado ? estado : undefined, filtrosRol ? rol : undefined, search)}
+      </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 2 }}>
         <Pagination
           count={totalPages}
           page={page}
-          onChange={(_, value) => setPage(value)}
+          onChange={(_, value) => {
+            setPage(value);
+            onPageChange?.(value);
+          }}
           color="primary"
         />
       </Box>

@@ -69,38 +69,34 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
         <TablaPaginadaConFiltros
           totalItems={asignacionesFiltradas.length}
           onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
+          onPageChange={(page) => setPaginaActual(page)}
           filtrosSearch
           filtrosFecha
         >
-          {(page, estado) => {
-            setPaginaActual(page);
-            setFiltros((prev) => ({ ...prev, estado }));
-
-            return (
-              <Box sx={{ overflowX: 'auto' }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Proyecto</TableCell>
-                      <TableCell>Inicio</TableCell>
-                      <TableCell>Fin</TableCell>
-                      <TableCell>Días</TableCell>
+          {() => (
+            <Box sx={{ overflowX: 'auto' }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Proyecto</TableCell>
+                    <TableCell>Inicio</TableCell>
+                    <TableCell>Fin</TableCell>
+                    <TableCell>Días</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedAsignaciones.map((a, i) => (
+                    <TableRow key={i} hover>
+                      <TableCell>{a.proyecto}</TableCell>
+                      <TableCell>{a.fechaInicio}</TableCell>
+                      <TableCell>{a.fechaFin}</TableCell>
+                      <TableCell>{a.dias}</TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {paginatedAsignaciones.map((a, i) => (
-                      <TableRow key={i} hover>
-                        <TableCell>{a.proyecto}</TableCell>
-                        <TableCell>{a.fechaInicio}</TableCell>
-                        <TableCell>{a.fechaFin}</TableCell>
-                        <TableCell>{a.dias}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Box>
-            );
-          }}
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          )}
         </TablaPaginadaConFiltros>
       </Card>
     </Box>

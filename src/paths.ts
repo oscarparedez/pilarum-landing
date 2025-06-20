@@ -9,7 +9,7 @@ export const paths = {
   dashboard: {
     inicio: '/dashboard',  
     oficina: {
-      personal: '/oficina/personal',
+      planilla: '/oficina/planilla',
       roles: '/oficina/roles',
       ingresos: '/oficina/ingresos',
       costos: '/oficina/costos',

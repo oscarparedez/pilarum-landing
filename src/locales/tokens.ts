@@ -10,7 +10,7 @@ export const tokens = {
     revisiones: 'nav.revisiones',
     inventario: 'nav.inventario',
     oficina: 'nav.oficina',
-    personal: 'nav.personal',
+    personal: 'nav.planilla',
     roles: 'nav.roles',
     finanzas: 'nav.finanzas',
     ingresosOficina: 'nav.ingresosOficina',
