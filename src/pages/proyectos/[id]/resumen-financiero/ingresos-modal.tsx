@@ -68,9 +68,13 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
 
             <TablaPaginadaConFiltros
               onFiltrar={({ search, fechaInicio, fechaFin }) => {
-                fetchIngresos({ search, fechaInicio, fechaFin });
+                fetchIngresos({
+                  search,
+                  fechaInicio: fechaInicio ?? null,
+                  fechaFin: fechaFin ?? null,
+                });
               }}
-              totalItems={ingresos.length}
+              totalItems={ingresos.length} // requerido
             >
               {(currentPage) => (
                 <Table>

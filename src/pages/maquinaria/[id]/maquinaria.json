@@ -1,6 +1,6 @@
 {
   "nombre": "Excavadora CAT 320",
-  "placa": "XYZ-123",
+  "identificador": "XYZ-123",
   "costo": 425000,
   "totalServicios": 12500,
   "totalCombustibleUltimoMes": 3100,
@@ -22,7 +22,10 @@
     {
       "tipo": "Reparación",
       "fecha": "2025-06-03",
-      "solicitadoPor": "Luis García",
+      "solicitadoPor": {
+        "id": "user-005",
+        "nombre": "Luis García"
+      },
       "costo": 1500,
       "anotaciones": "Cambio de aceite y filtro. Pago con voucher #234423",
       "fotos": ["/assets/products/product-1.png", "/assets/products/product-2.png"]
@@ -30,7 +33,10 @@
     {
       "tipo": "Mantenimiento",
       "fecha": "2025-06-15",
-      "solicitadoPor": "Ana López",
+      "solicitadoPor": {
+        "id": "user-002",
+        "nombre": "Ana López"
+      },
       "costo": 800,
       "anotaciones": "Revisión general y limpieza de filtros. Pago con tarjeta - #123456",
       "fotos": ["/assets/products/product-2.png"]
@@ -44,7 +50,10 @@
       "unidad": "litros",
       "costo": 320,
       "anotaciones": "Llenado tanque principal",
-      "reportadoPor": "Pedro Sánchez",
+      "solicitadoPor": {
+        "id": "user-003",
+        "nombre": "Pedro Sánchez"
+      },
       "fotos": ["/assets/products/product-1.png", "/assets/products/product-2.png"]
     },
     {
@@ -54,7 +63,10 @@
       "unidad": "galones",
       "costo": 50,
       "anotaciones": "Cambio de aceite motor",
-      "reportadoPor": "María Pérez",
+      "solicitadoPor": {
+        "id": "user-004",
+        "nombre": "María Pérez"
+      },
       "fotos": ["/assets/products/product-2.png"]
     }
   ]

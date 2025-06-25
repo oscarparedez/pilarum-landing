@@ -47,7 +47,7 @@ export const PostCard: FC<PostCardProps> = (props) => {
     <Card {...other}>
       <CardMedia
         component={RouterLink}
-        href={paths.dashboard.blog.postDetails}
+        href={paths.dashboard.inicio}
         image={cover}
         sx={{ height: 280 }}
       />
@@ -58,7 +58,7 @@ export const PostCard: FC<PostCardProps> = (props) => {
         <Link
           color="text.primary"
           component={RouterLink}
-          href={paths.dashboard.blog.postDetails}
+          href={paths.dashboard.inicio}
           variant="h5"
         >
           {title}

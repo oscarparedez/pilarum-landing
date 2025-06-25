@@ -171,7 +171,7 @@ export const CustomerListTable: FC<CustomerListTableProps> = (props) => {
                         <Link
                           color="inherit"
                           component={RouterLink}
-                          href={paths.dashboard.customers.details}
+                          href={paths.dashboard.inicio}
                           variant="subtitle2"
                         >
                           {customer.name}
@@ -193,7 +193,7 @@ export const CustomerListTable: FC<CustomerListTableProps> = (props) => {
                   <TableCell align="right">
                     <IconButton
                       component={RouterLink}
-                      href={paths.dashboard.customers.edit}
+                      href={paths.dashboard.inicio}
                     >
                       <SvgIcon>
                         <Edit02Icon />
@@ -201,7 +201,7 @@ export const CustomerListTable: FC<CustomerListTableProps> = (props) => {
                     </IconButton>
                     <IconButton
                       component={RouterLink}
-                      href={paths.dashboard.customers.details}
+                      href={paths.dashboard.inicio}
                     >
                       <SvgIcon>
                         <ArrowRightIcon />

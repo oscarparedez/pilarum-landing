@@ -6,7 +6,7 @@ import {
   DialogActions,
   TextField,
   Button,
-  MenuItem
+  MenuItem,
 } from '@mui/material';
 import { Personal } from './index.d';
 import { ModalCambiarContrasena } from './cambiar-contrasena-modal';
@@ -33,7 +33,12 @@ export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onCo
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar persona</DialogTitle>
       <DialogContent>
         <TextField
@@ -62,7 +67,10 @@ export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onCo
           margin="normal"
         >
           {ROLES.map((rol) => (
-            <MenuItem key={rol} value={rol}>
+            <MenuItem
+              key={rol}
+              value={rol}
+            >
               {rol}
             </MenuItem>
           ))}
@@ -90,7 +98,10 @@ export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onCo
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button variant="contained" onClick={handleGuardar}>
+        <Button
+          variant="contained"
+          onClick={handleGuardar}
+        >
           Guardar cambios
         </Button>
       </DialogActions>

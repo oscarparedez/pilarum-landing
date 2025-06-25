@@ -1,13 +1,5 @@
 import { FC, useState } from 'react';
-import {
-  Modal,
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Stack,
-  MenuItem,
-} from '@mui/material';
+import { Modal, Box, Button, TextField, Typography, Stack, MenuItem } from '@mui/material';
 
 interface ModalAgregarRecursoProps {
   open: boolean;
@@ -15,27 +7,30 @@ interface ModalAgregarRecursoProps {
   onConfirm: (data: {
     tipo: 'maquinaria' | 'herramienta';
     nombre: string;
-    placa?: string;
+    identificador?: string;
   }) => void;
 }
 
 export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClose, onConfirm }) => {
   const [tipo, setTipo] = useState<'maquinaria' | 'herramienta'>('maquinaria');
   const [nombre, setNombre] = useState('');
-  const [placa, setPlaca] = useState('');
+  const [identificador, setIdentificador] = useState('');
 
   const handleConfirm = () => {
     if (!nombre) return;
-    const data = { tipo, nombre, ...(tipo === 'maquinaria' && placa ? { placa } : {}) };
+    const data = { tipo, nombre, ...(identificador ? { identificador } : {}) };
     onConfirm(data);
     onClose();
     setNombre('');
-    setPlaca('');
+    setIdentificador('');
     setTipo('maquinaria');
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -49,7 +44,12 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
           p: 4,
         }}
       >
-        <Typography variant="h6" mb={2}>Agregar nuevo recurso</Typography>
+        <Typography
+          variant="h6"
+          mb={2}
+        >
+          Agregar nuevo recurso
+        </Typography>
         <Stack spacing={2}>
           <TextField
             select
@@ -69,18 +69,24 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
             fullWidth
           />
 
-          {tipo === 'maquinaria' && (
-            <TextField
-              label="Placa"
-              value={placa}
-              onChange={(e) => setPlaca(e.target.value)}
-              fullWidth
-            />
-          )}
+          <TextField
+            label="Identificador"
+            value={identificador}
+            onChange={(e) => setIdentificador(e.target.value)}
+            fullWidth
+          />
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            spacing={2}
+            mt={2}
+          >
             <Button onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" onClick={handleConfirm}>
+            <Button
+              variant="contained"
+              onClick={handleConfirm}
+            >
               Guardar
             </Button>
           </Stack>

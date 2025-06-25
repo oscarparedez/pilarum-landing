@@ -34,8 +34,16 @@ interface ModalMovimientosProps {
   }) => void;
 }
 
-export const ModalMovimientos: FC<ModalMovimientosProps> = ({ open, onClose, movimientos, fetchMovimientos }) => (
-  <Modal open={open} onClose={onClose}>
+export const ModalMovimientos: FC<ModalMovimientosProps> = ({
+  open,
+  onClose,
+  movimientos,
+  fetchMovimientos,
+}) => (
+  <Modal
+    open={open}
+    onClose={onClose}
+  >
     <Box
       sx={{
         position: 'absolute',
@@ -53,44 +61,53 @@ export const ModalMovimientos: FC<ModalMovimientosProps> = ({ open, onClose, mov
 
         <TablaPaginadaConFiltros
           onFiltrar={({ search, fechaInicio, fechaFin }) => {
-            fetchMovimientos({ search, fechaInicio, fechaFin });
+            fetchMovimientos({
+              search,
+              fechaInicio: fechaInicio ?? null,
+              fechaFin: fechaFin ?? null,
+            });
           }}
           totalItems={movimientos.length}
         >
           {(currentPage) => (
             <Table>
               <TableBody>
-                {movimientos
-                  .slice((currentPage - 1) * 5, currentPage * 5)
-                  .map((item, index) => {
-                    const fechaFormatted = formatDate(item.fecha)
-                    const isIngreso = item.tipo === 'Ingreso';
-                    return (
-                      <TableRow key={index}>
-                        <TableCell width={100}>
-                          <Box sx={{ p: 1 }}>
-                            <Typography align="center" color="text.secondary" variant="subtitle2">
-                              {fechaFormatted}
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="subtitle2">{item.usuario}</Typography>
-                          <Typography color="text.secondary" variant="body2">
-                            {item.descripcion}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
+                {movimientos.slice((currentPage - 1) * 5, currentPage * 5).map((item, index) => {
+                  const fechaFormatted = formatDate(item.fecha);
+                  const isIngreso = item.tipo === 'Ingreso';
+                  return (
+                    <TableRow key={index}>
+                      <TableCell width={100}>
+                        <Box sx={{ p: 1 }}>
                           <Typography
+                            align="center"
+                            color="text.secondary"
                             variant="subtitle2"
-                            color={isIngreso ? 'success.main' : 'error.main'}
                           >
-                            {isIngreso ? '+' : '-'} {formatearQuetzales(Number(item.monto))}
+                            {fechaFormatted}
                           </Typography>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="subtitle2">{item.usuario}</Typography>
+                        <Typography
+                          color="text.secondary"
+                          variant="body2"
+                        >
+                          {item.descripcion}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Typography
+                          variant="subtitle2"
+                          color={isIngreso ? 'success.main' : 'error.main'}
+                        >
+                          {isIngreso ? '+' : '-'} {formatearQuetzales(Number(item.monto))}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

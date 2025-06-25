@@ -70,6 +70,7 @@ export const Pizarron: FC<PizarronProps> = ({ tareas }) => {
         onClose={() => setModalAbierto(false)}
         estado={estadoActual}
         tareas={tareas.filter((t) => t.estado === estadoActual)}
+        onActualizarEstado={() => {}}
       />
     </Box>
   );

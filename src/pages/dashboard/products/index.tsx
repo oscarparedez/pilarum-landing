@@ -150,7 +150,7 @@ const Page: NextPage = () => {
                   <Link
                     color="text.primary"
                     component={RouterLink}
-                    href={paths.dashboard.index}
+                    href={paths.dashboard.inicio}
                     variant="subtitle2"
                   >
                     Dashboard
@@ -158,7 +158,7 @@ const Page: NextPage = () => {
                   <Link
                     color="text.primary"
                     component={RouterLink}
-                    href={paths.dashboard.products.index}
+                    href={paths.dashboard.inicio}
                     variant="subtitle2"
                   >
                     Products
@@ -178,7 +178,7 @@ const Page: NextPage = () => {
               >
                 <Button
                   component={RouterLink}
-                  href={paths.dashboard.products.create}
+                  href={paths.dashboard.inicio}
                   startIcon={
                     <SvgIcon>
                       <PlusIcon />

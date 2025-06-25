@@ -272,7 +272,7 @@ export const CustomerEditForm: FC<CustomerEditFormProps> = (props) => {
             color="inherit"
             component={RouterLink}
             disabled={formik.isSubmitting}
-            href={paths.dashboard.customers.details}
+            href={paths.dashboard.inicio}
           >
             Cancel
           </Button>

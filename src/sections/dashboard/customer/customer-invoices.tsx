@@ -60,7 +60,7 @@ export const CustomerInvoices: FC<CustomerInvoicesProps> = (props) => {
                   <TableCell align="right">
                     <IconButton
                       component={RouterLink}
-                      href={paths.dashboard.invoices.details}
+                      href={paths.dashboard.inicio}
                     >
                       <SvgIcon>
                         <ArrowRightIcon />

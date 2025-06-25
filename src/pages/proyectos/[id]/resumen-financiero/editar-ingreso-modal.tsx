@@ -102,7 +102,7 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
                 fullWidth
                 required
                 value={monto}
-                onChange={(e) => setMonto(e.target.value)}
+                onChange={(e) => setMonto(e.target.value === '' ? 0 : Number(e.target.value))}
               />
 
               <Box>

@@ -36,14 +36,11 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
   const asignacionesFiltradas = useMemo(() => {
     return asignaciones.filter((a) => {
       const cumpleBusqueda =
-        !filtros.search ||
-        a.proyecto.toLowerCase().includes(filtros.search.toLowerCase());
+        !filtros.search || a.proyecto.toLowerCase().includes(filtros.search.toLowerCase());
       const cumpleFechaInicio =
-        !filtros.fechaInicio ||
-        new Date(a.fechaInicio) >= new Date(filtros.fechaInicio);
+        !filtros.fechaInicio || new Date(a.fechaInicio) >= new Date(filtros.fechaInicio);
       const cumpleFechaFin =
-        !filtros.fechaFin ||
-        new Date(a.fechaFin) <= new Date(filtros.fechaFin);
+        !filtros.fechaFin || new Date(a.fechaFin) <= new Date(filtros.fechaFin);
 
       return cumpleBusqueda && cumpleFechaInicio && cumpleFechaFin;
     });
@@ -86,7 +83,10 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
                 </TableHead>
                 <TableBody>
                   {paginatedAsignaciones.map((a, i) => (
-                    <TableRow key={i} hover>
+                    <TableRow
+                      key={i}
+                      hover
+                    >
                       <TableCell>{a.proyecto}</TableCell>
                       <TableCell>{a.fechaInicio}</TableCell>
                       <TableCell>{a.fechaFin}</TableCell>

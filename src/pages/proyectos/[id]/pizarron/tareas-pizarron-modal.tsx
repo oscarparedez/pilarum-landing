@@ -80,7 +80,13 @@ export const ModalTareas: FC<ModalTareasProps> = ({
             <CardHeader title={titulo} />
             <Divider />
             <TablaPaginadaConFiltros
-              onFiltrar={(f) => setFiltros(f)}
+              onFiltrar={(f) =>
+                setFiltros({
+                  search: f.search ?? '',
+                  fechaInicio: f.fechaInicio ?? null,
+                  fechaFin: f.fechaFin ?? null,
+                })
+              }
               totalItems={tareasFiltradas.length}
               filtrosSearch
               filtrosFecha

@@ -46,7 +46,7 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
       const cumpleBusqueda =
         !filtros.search ||
         s.tipo.toLowerCase().includes(filtros.search.toLowerCase()) ||
-        s.solicitadoPor.toLowerCase().includes(filtros.search.toLowerCase()) ||
+        s.solicitadoPor.nombre.toLowerCase().includes(filtros.search.toLowerCase()) ||
         s.anotaciones.toLowerCase().includes(filtros.search.toLowerCase());
 
       const cumpleFechaInicio =
@@ -110,7 +110,7 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
                       >
                         <TableCell>{s.tipo}</TableCell>
                         <TableCell>{s.fecha}</TableCell>
-                        <TableCell>{s.solicitadoPor}</TableCell>
+                        <TableCell>{s.solicitadoPor.nombre}</TableCell>
                         <TableCell>Q{s.costo.toLocaleString()}</TableCell>
                         <TableCell>{s.anotaciones}</TableCell>
                         <TableCell>
@@ -125,7 +125,7 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
                           <IconButton onClick={() => setEditarServicio(s)}>
                             <EditIcon />
                           </IconButton>
-                          <IconButton onClick={() => setServicioAEliminar(c)}>
+                          <IconButton onClick={() => setServicioAEliminar(s)}>
                             <DeleteIcon />
                           </IconButton>
                         </TableCell>

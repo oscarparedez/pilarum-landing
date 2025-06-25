@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Button
+  Button,
 } from '@mui/material';
 
 interface Props {
@@ -18,7 +18,12 @@ export const ModalCambiarContrasena: FC<Props> = ({ open, onClose, onConfirm }) 
   const [contrasena, setContrasena] = useState('');
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+    >
       <DialogTitle>Cambiar contraseña</DialogTitle>
       <DialogContent>
         <TextField

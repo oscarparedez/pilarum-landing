@@ -32,11 +32,7 @@ const socios = [
   { id: '3', nombre: 'Carlos Rodríguez' },
 ];
 
-export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({
-  open,
-  onClose,
-  onConfirm,
-}) => {
+export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose, onConfirm }) => {
   const [nombre, setNombre] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [presupuesto, setPresupuesto] = useState<number | ''>('');
@@ -45,14 +41,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({
   const [fechaFin, setFechaFin] = useState<Date | null>(new Date());
 
   const handleConfirm = () => {
-    if (
-      nombre &&
-      ubicacion &&
-      presupuesto !== '' &&
-      socioAsignado &&
-      fechaInicio &&
-      fechaFin
-    ) {
+    if (nombre && ubicacion && presupuesto !== '' && socioAsignado && fechaInicio && fechaFin) {
       onConfirm({
         nombre,
         ubicacion,
@@ -66,7 +55,10 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -80,7 +72,10 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({
           p: 4,
         }}
       >
-        <Typography variant="h6" mb={2}>
+        <Typography
+          variant="h6"
+          mb={2}
+        >
           Crear nuevo proyecto
         </Typography>
 
@@ -116,28 +111,49 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({
               onChange={(e) => setSocioAsignado(e.target.value)}
             >
               {socios.map((socio) => (
-                <MenuItem key={socio.id} value={socio.id}>
+                <MenuItem
+                  key={socio.id}
+                  value={socio.id}
+                >
                   {socio.nombre}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <Stack direction="row" spacing={2} justifyContent="space-between">
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="space-between"
+          >
             <Box>
               <Typography variant="subtitle2">Fecha de inicio</Typography>
-              <DateCalendar value={fechaInicio} onChange={(d) => setFechaInicio(d)} />
+              <DateCalendar
+                value={fechaInicio}
+                onChange={(d) => setFechaInicio(d)}
+              />
             </Box>
 
             <Box>
               <Typography variant="subtitle2">Fecha final</Typography>
-              <DateCalendar value={fechaFin} onChange={(d) => setFechaFin(d)} />
+              <DateCalendar
+                value={fechaFin}
+                onChange={(d) => setFechaFin(d)}
+              />
             </Box>
           </Stack>
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            spacing={2}
+            mt={2}
+          >
             <Button onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" onClick={handleConfirm}>
+            <Button
+              variant="contained"
+              onClick={handleConfirm}
+            >
               Guardar proyecto
             </Button>
           </Stack>

@@ -16,7 +16,7 @@ import SearchMdIcon from '@untitled-ui/icons-react/build/esm/SearchMd';
 import debounce from 'lodash.debounce';
 
 interface Filtros {
-  search?: string;
+  search: string;
   fechaInicio?: Date | null;
   fechaFin?: Date | null;
 }
@@ -60,7 +60,11 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   const debouncedFiltrar = useMemo(
     () =>
       debounce((searchValue: string, inicio: Date | null, fin: Date | null) => {
-        onFiltrar({ search: searchValue, fechaInicio: inicio, fechaFin: fin });
+        onFiltrar({
+          search: searchValue ?? '',
+          fechaInicio: inicio ?? null,
+          fechaFin: fin ?? null,
+        });
       }, 500),
     [onFiltrar]
   );
@@ -68,7 +72,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   useEffect(() => {
     debouncedFiltrar(search, fechaInicio, fechaFin);
     return () => debouncedFiltrar.cancel();
-  }, [search, fechaInicio, fechaFin]);
+  }, [search, fechaInicio, fechaFin, debouncedFiltrar]);
 
   return (
     <Box>
@@ -123,7 +127,10 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
           )}
 
           {filtrosEstado && (
-            <FormControl sx={{ minWidth: 190 }} size="medium">
+            <FormControl
+              sx={{ minWidth: 190 }}
+              size="medium"
+            >
               <InputLabel>Estado</InputLabel>
               <Select
                 value={estado}
@@ -141,7 +148,10 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
           )}
 
           {filtrosRol && (
-            <FormControl sx={{ minWidth: 190 }} size="medium">
+            <FormControl
+              sx={{ minWidth: 190 }}
+              size="medium"
+            >
               <InputLabel>Rol</InputLabel>
               <Select
                 value={rol}

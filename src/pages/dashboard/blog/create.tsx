@@ -59,7 +59,7 @@ const Page: NextPage = () => {
               <Link
                 color="text.primary"
                 component={RouterLink}
-                href={paths.dashboard.index}
+                href={paths.dashboard.inicio}
                 variant="subtitle2"
               >
                 Dashboard
@@ -67,7 +67,7 @@ const Page: NextPage = () => {
               <Link
                 color="text.primary"
                 component={RouterLink}
-                href={paths.dashboard.blog.index}
+                href={paths.dashboard.inicio}
                 variant="subtitle2"
               >
                 Blog
@@ -102,13 +102,13 @@ const Page: NextPage = () => {
               <Button
                 color="inherit"
                 component={RouterLink}
-                href={paths.dashboard.blog.index}
+                href={paths.dashboard.inicio}
               >
                 Cancel
               </Button>
               <Button
                 component={RouterLink}
-                href={paths.dashboard.blog.postDetails}
+                href={paths.dashboard.inicio}
                 variant="contained"
               >
                 Publish changes
@@ -299,7 +299,7 @@ const Page: NextPage = () => {
           >
             <Button
               component={RouterLink}
-              href={paths.dashboard.blog.postDetails}
+              href={paths.dashboard.inicio}
               variant="contained"
             >
               Publish changes

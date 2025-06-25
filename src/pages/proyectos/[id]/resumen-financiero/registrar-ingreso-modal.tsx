@@ -17,7 +17,10 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
 
-export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
+export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> = ({
+  open,
+  onClose,
+}) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [tipoIngreso, setTipoIngreso] = useState('');
 
@@ -26,7 +29,10 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -40,21 +46,39 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
       >
         <Card>
           <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 'bold' }}
+            >
               Nuevo ingreso al proyecto
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2 }}
+            >
               Completa los siguientes campos para registrar un nuevo ingreso
             </Typography>
 
             <Stack spacing={3}>
-              <TextField label="Monto total (Q)" type="number" fullWidth required />
+              <TextField
+                label="Monto total (Q)"
+                type="number"
+                fullWidth
+                required
+              />
 
               <Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 1 }}
+                >
                   Fecha de ingreso <span style={{ color: 'red' }}>*</span>
                 </Typography>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
+                >
                   <DateCalendar
                     value={selectedDate}
                     onChange={setSelectedDate}
@@ -75,19 +99,35 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
               </TextField>
 
               {tipoIngreso === 'final' && (
-                <TextField label="Socio" select fullWidth required>
+                <TextField
+                  label="Socio"
+                  select
+                  fullWidth
+                  required
+                >
                   <MenuItem value="socio1">Socio 1</MenuItem>
                   <MenuItem value="socio2">Socio 2</MenuItem>
                 </TextField>
               )}
 
-              <TextField label="Tipo de documento" select fullWidth required>
+              <TextField
+                label="Tipo de documento"
+                select
+                fullWidth
+                required
+              >
                 <MenuItem value="cheque">Cheque</MenuItem>
                 <MenuItem value="transferencia">Transferencia</MenuItem>
                 <MenuItem value="efectivo">Efectivo</MenuItem>
               </TextField>
 
-              <TextField label="Anotaciones" multiline rows={3} fullWidth required />
+              <TextField
+                label="Anotaciones"
+                multiline
+                rows={3}
+                fullWidth
+                required
+              />
             </Stack>
           </CardContent>
 
@@ -95,7 +135,10 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
 
           <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
             <Button onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" color="primary">
+            <Button
+              variant="contained"
+              color="primary"
+            >
               Guardar ingreso
             </Button>
           </CardActions>

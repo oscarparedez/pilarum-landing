@@ -25,9 +25,17 @@ interface ModalRegistrarServicioProps {
     fecha: string;
     anotaciones: string;
     costo: number;
+    solicitadoPor: string;
     imagenes: File[];
   }) => void;
 }
+
+const usuarios = [
+  { id: 'user-001', nombre: 'Juan Pérez' },
+  { id: 'user-002', nombre: 'Ana Gómez' },
+  { id: 'user-003', nombre: 'Carlos Méndez' },
+  { id: 'user-004', nombre: 'Lucía Ramos' },
+];
 
 export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
   open,
@@ -38,6 +46,7 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
   const [fecha, setFecha] = useState<Date | null>(new Date());
   const [anotaciones, setAnotaciones] = useState('');
   const [costo, setCosto] = useState('');
+  const [solicitadoPor, setSolicitadoPor] = useState('');
   const [imagenes, setImagenes] = useState<File[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
 
@@ -54,6 +63,7 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
     setTipo('Reparación');
     setFecha(new Date());
     setAnotaciones('');
+    setSolicitadoPor('');
     setCosto('');
     setImagenes([]);
     setCargadas([]);
@@ -67,6 +77,7 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
         fecha: fecha.toISOString().split('T')[0],
         anotaciones,
         costo: parseFloat(costo),
+        solicitadoPor,
         imagenes,
       });
       handleClose();
@@ -116,6 +127,22 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
             onChange={(e) => setCosto(e.target.value)}
             inputProps={{ min: 0 }}
           />
+
+          <TextField
+            select
+            label="Solicitado por"
+            value={solicitadoPor}
+            onChange={(e) => setSolicitadoPor(e.target.value)}
+          >
+            {usuarios.map((user) => (
+              <MenuItem
+                key={user.id}
+                value={user.id}
+              >
+                {user.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
 
           <TextField
             label="Anotaciones"
@@ -261,7 +288,9 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!tipo || !fecha || imagenes.length === 0 || !costo}
+          disabled={
+            !tipo || !fecha || imagenes.length === 0 || !costo || !solicitadoPor || !anotaciones
+          }
         >
           Guardar servicio
         </Button>

@@ -47,7 +47,7 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
       const cumpleBusqueda =
         !filtros.search ||
         c.tipo.toLowerCase().includes(filtros.search.toLowerCase()) ||
-        c.reportadoPor.toLowerCase().includes(filtros.search.toLowerCase()) ||
+        c.solicitadoPor.nombre.toLowerCase().includes(filtros.search.toLowerCase()) ||
         c.anotaciones.toLowerCase().includes(filtros.search.toLowerCase());
 
       const cumpleFechaInicio =
@@ -98,9 +98,9 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
                       <TableCell>Tipo</TableCell>
                       <TableCell>Fecha</TableCell>
                       <TableCell>Cantidad</TableCell>
-                      <TableCell>Reportado por</TableCell>
-                      <TableCell>Anotaciones</TableCell>
+                      <TableCell>Solicitado por</TableCell>
                       <TableCell>Costo</TableCell>
+                      <TableCell>Anotaciones</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
@@ -115,9 +115,9 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
                         <TableCell>
                           {c.cantidad} {c.unidad}
                         </TableCell>
-                        <TableCell>{c.reportadoPor}</TableCell>
-                        <TableCell>{c.anotaciones}</TableCell>
+                        <TableCell>{c.solicitadoPor.nombre}</TableCell>
                         <TableCell>Q{c.costo.toLocaleString()}</TableCell>
+                        <TableCell>{c.anotaciones}</TableCell>
                         <TableCell>
                           <IconButton
                             onClick={() => {

@@ -104,7 +104,7 @@ const Page: NextPage = () => {
                   <Link
                     color="text.primary"
                     component={RouterLink}
-                    href={paths.dashboard.academy.index}
+                    href={paths.dashboard.inicio}
                     sx={{
                       alignItems: 'center',
                       display: 'inline-flex',

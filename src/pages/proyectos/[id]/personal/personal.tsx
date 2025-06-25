@@ -1,7 +1,18 @@
 import { FC, useState } from 'react';
 import {
-  Box, Button, Typography, Stack, Card, CardContent,
-  Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper
+  Box,
+  Button,
+  Typography,
+  Stack,
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableContainer,
+  Paper,
 } from '@mui/material';
 import { diasBinarioToTexto, diasToBinario } from '../maquinaria/utils';
 import { ModalAgregarPersonal } from './agregar-personal-modal';
@@ -18,9 +29,17 @@ export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => 
     <Box sx={{ p: 3 }}>
       <Card>
         <CardContent sx={{ p: 0 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 3 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ px: 3, py: 3 }}
+          >
             <Typography variant="h5">Ingenieros y arquitectos asignados</Typography>
-            <Button variant="contained" onClick={() => setAgregarModalOpen(true)}>
+            <Button
+              variant="contained"
+              onClick={() => setAgregarModalOpen(true)}
+            >
               Asignar recurso
             </Button>
           </Stack>
@@ -50,7 +69,10 @@ export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => 
                       .filter((r) => (estadoFiltro ? r.estado === estadoFiltro : true))
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((item, i) => (
-                        <TableRow key={i} hover>
+                        <TableRow
+                          key={i}
+                          hover
+                        >
                           <TableCell>{item.nombre}</TableCell>
                           <TableCell>{item.tipo}</TableCell>
                           <TableCell>{item.fechaInicio}</TableCell>
@@ -58,12 +80,26 @@ export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => 
                           <TableCell>{item.estado}</TableCell>
                           <TableCell>{diasBinarioToTexto(item.diasAsignados)}</TableCell>
                           <TableCell>
-                            <Stack direction="row" spacing={1}>
-                              <Button size="small" onClick={() => {
-                                setEditando(item);
-                                setEditarModalOpen(true);
-                              }}>Editar</Button>
-                              <Button size="small" variant="outlined" color="error">Liberar</Button>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                            >
+                              <Button
+                                size="small"
+                                onClick={() => {
+                                  setEditando(item);
+                                  setEditarModalOpen(true);
+                                }}
+                              >
+                                Editar
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                              >
+                                Liberar
+                              </Button>
                             </Stack>
                           </TableCell>
                         </TableRow>

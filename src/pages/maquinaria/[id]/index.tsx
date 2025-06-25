@@ -17,15 +17,14 @@ import { ConfigMaquinaria } from './index.d';
 
 const config: ConfigMaquinaria = maquinaria as ConfigMaquinaria;
 
-
 const Page: NextPage = () => {
   const settings = useSettings();
   usePageView();
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
 
-   const {
+  const {
     nombre,
-    placa,
+    identificador,
     costo,
     totalServicios,
     totalCombustibleUltimoMes,
@@ -48,7 +47,7 @@ const Page: NextPage = () => {
           >
             <Box>
               <Typography variant="h4">{nombre}</Typography>
-              <Typography color="text.secondary">Placa No. {placa}</Typography>
+              <Typography color="text.secondary">Identificador: {identificador}</Typography>
             </Box>
             <Button
               variant="outlined"
@@ -63,8 +62,8 @@ const Page: NextPage = () => {
             onClose={() => setModalEditarOpen(false)}
             initialData={{
               nombre: maquinaria.nombre,
-              placa: maquinaria.placa,
-              esMaquina: true, // 👈 cambia a false si es herramienta
+              identificador: maquinaria.identificador,
+              esMaquina: true,
             }}
             onConfirm={(updated) => {
               // llamada api
@@ -72,12 +71,13 @@ const Page: NextPage = () => {
             }}
           />
 
-          {/* ESTADISCICAS RAPIDAS */}
+          {/* ESTADISTICAS RAPIDAS */}
           <EstadisticasRapidas
             costo={costo}
             totalServicios={totalServicios}
             totalCombustibleUltimoMes={totalCombustibleUltimoMes}
           />
+
           {/* ASIGNACIONES */}
           <Asignaciones asignaciones={asignaciones} />
 

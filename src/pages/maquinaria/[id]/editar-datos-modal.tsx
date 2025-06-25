@@ -1,25 +1,15 @@
 import { FC, useEffect, useState } from 'react';
-import {
-  Modal,
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Stack,
-} from '@mui/material';
+import { Modal, Box, Button, TextField, Typography, Stack } from '@mui/material';
 
 interface EditarDatosBasicosModalProps {
   open: boolean;
   onClose: () => void;
   initialData: {
     nombre: string;
-    esMaquina: boolean;
-    placa?: string;
+    identificador?: string;
+    esMaquina?: boolean;
   };
-  onConfirm: (data: {
-    nombre: string;
-    placa?: string;
-  }) => void;
+  onConfirm: (data: { nombre: string; identificador?: string }) => void;
 }
 
 export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
@@ -29,12 +19,12 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   onConfirm,
 }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
-  const [placa, setPlaca] = useState(initialData.placa || '');
+  const [identificador, setIdentificador] = useState(initialData.identificador || '');
 
   useEffect(() => {
     if (open) {
       setNombre(initialData.nombre);
-      setPlaca(initialData.placa || '');
+      setIdentificador(initialData.identificador || '');
     }
   }, [open, initialData]);
 
@@ -42,14 +32,17 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
     if (nombre.trim()) {
       onConfirm({
         nombre: nombre.trim(),
-        ...(initialData.esMaquina && placa.trim() && { placa: placa.trim() }),
+        ...(identificador.trim() && { identificador: identificador.trim() }),
       });
       onClose();
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -63,8 +56,11 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
           p: 4,
         }}
       >
-        <Typography variant="h6" mb={2}>
-          Editar maquinaria
+        <Typography
+          variant="h6"
+          mb={2}
+        >
+          Editar {initialData.esMaquina ? 'maquinaria' : 'herramienta'}
         </Typography>
 
         <Stack spacing={3}>
@@ -75,18 +71,23 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
             onChange={(e) => setNombre(e.target.value)}
           />
 
-          {initialData.esMaquina && (
-            <TextField
-              label="Placa"
-              fullWidth
-              value={placa}
-              onChange={(e) => setPlaca(e.target.value)}
-            />
-          )}
+          <TextField
+            label="Identificador"
+            fullWidth
+            value={identificador}
+            onChange={(e) => setIdentificador(e.target.value)}
+          />
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            spacing={2}
+          >
             <Button onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" onClick={handleConfirm}>
+            <Button
+              variant="contained"
+              onClick={handleConfirm}
+            >
               Guardar
             </Button>
           </Stack>

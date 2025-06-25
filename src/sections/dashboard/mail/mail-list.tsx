@@ -228,8 +228,8 @@ export const MailList: FC<MailListProps> = (props) => {
 
               const href =
                 currentLabelId && currentLabelId !== 'inbox'
-                  ? paths.dashboard.mail + `?emailId=${emailId}&label=${currentLabelId}`
-                  : paths.dashboard.mail + `?emailId=${emailId}`;
+                  ? paths.dashboard.inicio + `?emailId=${emailId}&label=${currentLabelId}`
+                  : paths.dashboard.inicio + `?emailId=${emailId}`;
 
               return (
                 <MailItem

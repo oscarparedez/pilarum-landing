@@ -270,7 +270,7 @@ const Page: NextPage = () => {
                 )}
                 <Button
                   component={RouterLink}
-                  href={paths.dashboard.chat}
+                  href={paths.dashboard.inicio}
                   size="small"
                   startIcon={
                     <SvgIcon>

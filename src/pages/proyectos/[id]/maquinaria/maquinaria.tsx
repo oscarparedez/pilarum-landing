@@ -36,7 +36,10 @@ export const Maquinaria: FC<{ maquinaria: Recurso[] }> = ({ maquinaria }) => {
             sx={{ px: 3, py: 3 }}
           >
             <Typography variant="h5">Maquinaria y herramientas</Typography>
-            <Button variant="contained" onClick={() => setAgregarModalOpen(true)}>
+            <Button
+              variant="contained"
+              onClick={() => setAgregarModalOpen(true)}
+            >
               Asignar maquinaria
             </Button>
           </Stack>
@@ -48,7 +51,10 @@ export const Maquinaria: FC<{ maquinaria: Recurso[] }> = ({ maquinaria }) => {
             filtrosEstado={true}
           >
             {(currentPage, estadoFiltro) => (
-              <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+              <TableContainer
+                component={Paper}
+                sx={{ maxHeight: 600 }}
+              >
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
@@ -67,7 +73,10 @@ export const Maquinaria: FC<{ maquinaria: Recurso[] }> = ({ maquinaria }) => {
                       .filter((r) => (estadoFiltro ? r.estado === estadoFiltro : true))
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((item, i) => (
-                        <TableRow key={i} hover>
+                        <TableRow
+                          key={i}
+                          hover
+                        >
                           <TableCell>{item.nombre}</TableCell>
                           <TableCell>{item.tipo}</TableCell>
                           <TableCell>{item.fechaInicio}</TableCell>
@@ -76,7 +85,10 @@ export const Maquinaria: FC<{ maquinaria: Recurso[] }> = ({ maquinaria }) => {
                           <TableCell>{diasBinarioToTexto(item.diasAsignados)}</TableCell>
                           <TableCell>{item.asignadoA}</TableCell>
                           <TableCell>
-                            <Stack direction="row" spacing={1}>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                            >
                               <Button
                                 size="small"
                                 variant="text"
@@ -87,7 +99,11 @@ export const Maquinaria: FC<{ maquinaria: Recurso[] }> = ({ maquinaria }) => {
                               >
                                 Editar
                               </Button>
-                              <Button size="small" variant="outlined" color="error">
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                              >
                                 Liberar
                               </Button>
                             </Stack>

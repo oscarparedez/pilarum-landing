@@ -29,7 +29,7 @@ const useParticipants = (threadKey: string): Participant[] => {
       setParticipants(participants);
     } catch (err) {
       console.error(err);
-      router.push(paths.dashboard.chat);
+      router.push(paths.dashboard.inicio);
     }
   }, [router, threadKey]);
 
@@ -68,7 +68,7 @@ const useThread = (threadKey: string): Thread | undefined => {
       )) as unknown as string | undefined;
     } catch (err) {
       console.error(err);
-      router.push(paths.dashboard.chat);
+      router.push(paths.dashboard.inicio);
       return;
     }
 

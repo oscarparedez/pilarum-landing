@@ -53,7 +53,12 @@ export const ServicioImagenesModal: FC<Props> = ({ open, onClose, images }) => {
           flexDirection: 'column',
         }}
       >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
           <Typography variant="h6">Fotos del servicio</Typography>
           <IconButton onClick={onClose}>
             <CloseIcon />
@@ -97,7 +102,12 @@ export const ServicioImagenesModal: FC<Props> = ({ open, onClose, images }) => {
           </IconButton>
         </Box>
 
-        <Typography variant="caption" color="text.secondary" align="center" mt={1}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          align="center"
+          mt={1}
+        >
           {index + 1} / {images.length}
         </Typography>
       </Box>

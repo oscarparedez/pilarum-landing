@@ -1,7 +1,17 @@
 import { FC, useEffect, useState } from 'react';
 import {
-  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  IconButton, MenuItem, Stack, TextField, Typography, CircularProgress
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+  CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -16,6 +26,14 @@ interface ModalEditarServicioProps {
   onConfirm: (data: Servicio & { nuevasImagenes: File[] }) => void;
 }
 
+const usuarios = [
+  { id: 'user-001', nombre: 'Juan Pérez' },
+  { id: 'user-002', nombre: 'Ana Gómez' },
+  { id: 'user-003', nombre: 'Carlos Méndez' },
+  { id: 'user-004', nombre: 'Lucía Ramos' },
+  { id: 'user-005', nombre: 'Luis García' },
+];
+
 export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   open,
   servicio,
@@ -26,6 +44,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   const [fecha, setFecha] = useState<Date | null>(new Date());
   const [anotaciones, setAnotaciones] = useState('');
   const [costo, setCosto] = useState('');
+  const [solicitadoPor, setSolicitadoPor] = useState<{ id: string; nombre: string } | null>(null);
   const [imagenes, setImagenes] = useState<(string | File)[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
 
@@ -35,6 +54,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
       setFecha(formatearFechaLocal(servicio.fecha));
       setAnotaciones(servicio.anotaciones);
       setCosto(servicio.costo.toString());
+      setSolicitadoPor(servicio.solicitadoPor);
       setImagenes(servicio.fotos);
       setCargadas(servicio.fotos.map(() => true));
     }
@@ -56,7 +76,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   };
 
   const handleConfirm = () => {
-    if (servicio && tipo && fecha && costo) {
+    if (servicio && tipo && fecha && costo && solicitadoPor) {
       const nuevasImagenes = imagenes.filter((img) => img instanceof File) as File[];
       onConfirm({
         ...servicio,
@@ -64,6 +84,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
         fecha: fecha.toISOString().split('T')[0],
         anotaciones,
         costo: parseFloat(costo),
+        solicitadoPor,
         nuevasImagenes,
       });
       onClose();
@@ -71,10 +92,18 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar servicio</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <TextField
             select
             label="Tipo de servicio"
@@ -86,8 +115,16 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
           </TextField>
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>Fecha del servicio</Typography>
-            <DateCalendar value={fecha} onChange={(newValue) => setFecha(newValue)} />
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
+              Fecha del servicio
+            </Typography>
+            <DateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
 
           <TextField
@@ -99,6 +136,26 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
           />
 
           <TextField
+            select
+            label="Solicitado por"
+            value={solicitadoPor?.id || ''}
+            onChange={(e) => {
+              const user = usuarios.find((u) => u.id === e.target.value);
+              if (user) setSolicitadoPor(user);
+            }}
+            fullWidth
+          >
+            {usuarios.map((user) => (
+              <MenuItem
+                key={user.id}
+                value={user.id}
+              >
+                {user.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
             label="Anotaciones"
             multiline
             minRows={3}
@@ -107,7 +164,12 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
           />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>Subir imágenes (máximo 3)</Typography>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
+              Subir imágenes (máximo 3)
+            </Typography>
             <Box
               component="label"
               htmlFor="upload-input"
@@ -133,8 +195,15 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
               }}
             >
               <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary' }} />
-              <Typography color="text.secondary">Arrastra o haz clic para subir imágenes</Typography>
-              <Typography variant="caption" color="text.secondary">Máximo 3 archivos (.jpg, .png)</Typography>
+              <Typography color="text.secondary">
+                Arrastra o haz clic para subir imágenes
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
+                Máximo 3 archivos (.jpg, .png)
+              </Typography>
               <input
                 id="upload-input"
                 type="file"
@@ -146,11 +215,18 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
             </Box>
 
             {imagenes.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {imagenes.map((item, i) => {
                   const src = typeof item === 'string' ? item : URL.createObjectURL(item);
                   return (
-                    <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                    <Box
+                      key={i}
+                      sx={{ position: 'relative', width: 80, height: 80 }}
+                    >
                       <Box
                         component="img"
                         src={src}
@@ -165,7 +241,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
                       />
                       <IconButton
                         size="small"
-                        onClick={() => setImagenes((prev) => prev.filter((_, idx) => idx !== i))}
+                        onClick={() => handleRemove(i)}
                         sx={{
                           position: 'absolute',
                           top: -10,
@@ -193,7 +269,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!tipo || !fecha || !costo}
+          disabled={!tipo || !fecha || !costo || !solicitadoPor}
         >
           Guardar cambios
         </Button>

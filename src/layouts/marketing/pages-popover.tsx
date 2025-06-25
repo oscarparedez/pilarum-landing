@@ -45,7 +45,7 @@ const sections: Section[] = [
         children: [
           {
             title: 'Overview',
-            path: paths.dashboard.index,
+            path: paths.dashboard.inicio,
           },
         ],
       },

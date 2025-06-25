@@ -57,10 +57,18 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Asignar maquinaria al proyecto</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           {/* Maquinaria */}
           <FormControl fullWidth>
             <InputLabel>Maquinaria</InputLabel>
@@ -70,7 +78,10 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
               onChange={(e) => setMaquina(e.target.value)}
             >
               {maquinasDisponibles.map((m) => (
-                <MenuItem key={m} value={m}>
+                <MenuItem
+                  key={m}
+                  value={m}
+                >
                   {m}
                 </MenuItem>
               ))}
@@ -79,10 +90,16 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
 
           {/* Días de la semana */}
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Días de uso
             </Typography>
-            <Stack direction="row" flexWrap="wrap">
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+            >
               {DIAS_SEMANA.map((dia) => (
                 <DiaToggle
                   key={dia}
@@ -96,11 +113,20 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
 
           {/* Fecha hasta con DateCalendar */}
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha hasta <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-              <DateCalendar value={hasta} onChange={setHasta} />
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
+            >
+              <DateCalendar
+                value={hasta}
+                onChange={setHasta}
+              />
             </LocalizationProvider>
           </Box>
 

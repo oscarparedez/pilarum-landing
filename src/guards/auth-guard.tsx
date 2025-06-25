@@ -14,7 +14,7 @@ interface AuthGuardProps {
 export const AuthGuard: FC<AuthGuardProps> = (props) => {
   const { children } = props;
   const router = useRouter();
-  const { isAuthenticated, issuer } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [checked, setChecked] = useState<boolean>(false);
 
   const check = useCallback(() => {
@@ -24,7 +24,7 @@ export const AuthGuard: FC<AuthGuardProps> = (props) => {
     } else {
       setChecked(true);
     }
-  }, [isAuthenticated, issuer, router]);
+  }, [isAuthenticated, router]);
 
   // Only check on mount, this allows us to redirect the user manually when auth state changes
   useEffect(

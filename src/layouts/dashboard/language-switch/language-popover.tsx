@@ -53,7 +53,7 @@ export const LanguagePopover: FC<LanguagePopoverProps> = (props) => {
       const message = "Idioma cambiado"
       toast.success(message);
     },
-    [onClose, i18n, t]
+    [onClose, i18n]
   );
 
   return (

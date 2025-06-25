@@ -6,7 +6,7 @@ import {
   DialogActions,
   TextField,
   Button,
-  MenuItem
+  MenuItem,
 } from '@mui/material';
 import { Personal } from './index.d';
 
@@ -19,11 +19,13 @@ interface Props {
 const ROLES = ['Ingeniero', 'Arquitecto', 'Supervisor'];
 
 export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) => {
-  const [form, setForm] = useState<Omit<Personal, 'id_usuario' | 'fecha_creacion' | 'usuario_registro'>>({
+  const [form, setForm] = useState<
+    Omit<Personal, 'id_usuario' | 'fecha_creacion' | 'usuario_registro'>
+  >({
     nombre: '',
     telefono: '',
     rol: '',
-    estado: 'Activo'
+    estado: 'Activo',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,13 +37,18 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) =
       ...form,
       id_usuario: Math.random().toString(36).substring(2, 9),
       fecha_creacion: new Date().toISOString().split('T')[0],
-      usuario_registro: 'admin'
+      usuario_registro: 'admin',
     };
     onConfirm(nuevaPersona);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Registrar nueva persona</DialogTitle>
       <DialogContent>
         <TextField
@@ -70,7 +77,10 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) =
           margin="normal"
         >
           {ROLES.map((rol) => (
-            <MenuItem key={rol} value={rol}>
+            <MenuItem
+              key={rol}
+              value={rol}
+            >
               {rol}
             </MenuItem>
           ))}
@@ -90,7 +100,10 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) =
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button variant="contained" onClick={handleGuardar}>
+        <Button
+          variant="contained"
+          onClick={handleGuardar}
+        >
           Guardar
         </Button>
       </DialogActions>

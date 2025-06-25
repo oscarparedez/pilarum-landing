@@ -64,7 +64,7 @@ export const ChatComposer: FC = (props) => {
         return;
       }
 
-      router.push(paths.dashboard.chat + `?threadKey=${threadId}`);
+      router.push(paths.dashboard.inicio + `?threadKey=${threadId}`);
     },
     [dispatch, router, recipients]
   );

@@ -37,7 +37,10 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({ open
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -51,10 +54,17 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({ open
       >
         <Card>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold">
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+            >
               Ampliar presupuesto
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2 }}
+            >
               Completa los campos para registrar una ampliación de presupuesto
             </Typography>
 
@@ -69,11 +79,20 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({ open
               />
 
               <Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 1 }}
+                >
                   Fecha de ampliación <span style={{ color: 'red' }}>*</span>
                 </Typography>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                  <DateCalendar value={fecha} onChange={setFecha} />
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
+                >
+                  <DateCalendar
+                    value={fecha}
+                    onChange={setFecha}
+                  />
                 </LocalizationProvider>
               </Box>
 

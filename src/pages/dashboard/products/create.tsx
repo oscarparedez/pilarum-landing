@@ -35,7 +35,7 @@ const Page: NextPage = () => {
                 <Link
                   color="text.primary"
                   component={RouterLink}
-                  href={paths.dashboard.index}
+                  href={paths.dashboard.inicio}
                   variant="subtitle2"
                 >
                   Dashboard
@@ -43,7 +43,7 @@ const Page: NextPage = () => {
                 <Link
                   color="text.primary"
                   component={RouterLink}
-                  href={paths.dashboard.products.index}
+                  href={paths.dashboard.inicio}
                   variant="subtitle2"
                 >
                   Products

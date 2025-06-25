@@ -29,6 +29,7 @@ const mockPersonas: Personal[] = [
     rol: 'Ingeniero',
     estado: 'Activo',
     fecha_creacion: '2025-06-01',
+    usuario_registro: 'admin',
   },
   {
     id_usuario: 'u002',
@@ -37,6 +38,7 @@ const mockPersonas: Personal[] = [
     rol: 'Arquitecto',
     estado: 'Activo',
     fecha_creacion: '2025-06-03',
+    usuario_registro: 'admin',
   },
   {
     id_usuario: 'u003',
@@ -45,6 +47,7 @@ const mockPersonas: Personal[] = [
     rol: 'Supervisor',
     estado: 'Inactivo',
     fecha_creacion: '2025-05-28',
+    usuario_registro: 'admin',
   },
   {
     id_usuario: 'u004',
@@ -53,8 +56,10 @@ const mockPersonas: Personal[] = [
     rol: 'Ingeniero',
     estado: 'Activo',
     fecha_creacion: '2025-06-02',
+    usuario_registro: 'admin',
   },
 ];
+
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -73,7 +78,10 @@ const Page: NextPage = () => {
             sx={{ px: 3, py: 3 }}
           >
             <Typography variant="h5">Planilla de personal</Typography>
-            <Button variant="contained" onClick={() => setModalCrearOpen(true)}>
+            <Button
+              variant="contained"
+              onClick={() => setModalCrearOpen(true)}
+            >
               Agregar persona
             </Button>
           </Stack>
@@ -86,7 +94,10 @@ const Page: NextPage = () => {
             filtrosRol
           >
             {(currentPage, estadoFiltro, rolFiltro, search) => (
-              <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+              <TableContainer
+                component={Paper}
+                sx={{ maxHeight: 600 }}
+              >
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
@@ -108,7 +119,10 @@ const Page: NextPage = () => {
                       )
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((persona) => (
-                        <TableRow key={persona.id_usuario} hover>
+                        <TableRow
+                          key={persona.id_usuario}
+                          hover
+                        >
                           <TableCell>{persona.nombre}</TableCell>
                           <TableCell>{persona.telefono}</TableCell>
                           <TableCell>{persona.rol}</TableCell>

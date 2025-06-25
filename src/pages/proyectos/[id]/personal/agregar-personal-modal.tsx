@@ -61,10 +61,18 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Asignar recurso técnico</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <FormControl fullWidth>
             <InputLabel>Ingeniero o Arquitecto</InputLabel>
             <Select
@@ -77,7 +85,10 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
               }}
             >
               {personalDisponible.map((p) => (
-                <MenuItem key={p.nombre} value={p.nombre}>
+                <MenuItem
+                  key={p.nombre}
+                  value={p.nombre}
+                >
                   {p.nombre} ({p.tipo})
                 </MenuItem>
               ))}
@@ -85,10 +96,16 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
           </FormControl>
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Días de asignación
             </Typography>
-            <Stack direction="row" flexWrap="wrap">
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+            >
               {DIAS_SEMANA.map((dia) => (
                 <DiaToggle
                   key={dia}
@@ -101,11 +118,20 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
           </Box>
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha hasta <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns} locale={es}>
-              <DateCalendar value={hasta} onChange={setHasta} />
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
+            >
+              <DateCalendar
+                value={hasta}
+                onChange={setHasta}
+              />
             </LocalizationProvider>
           </Box>
         </Stack>

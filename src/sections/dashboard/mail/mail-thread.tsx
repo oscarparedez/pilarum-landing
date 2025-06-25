@@ -49,8 +49,8 @@ export const MailThread: FC<MailThreadProps> = (props) => {
 
   const backHref =
     currentLabelId && currentLabelId !== 'inbox'
-      ? paths.dashboard.mail + `?label=${currentLabelId}`
-      : paths.dashboard.mail;
+      ? paths.dashboard.inicio + `?label=${currentLabelId}`
+      : paths.dashboard.inicio;
 
   const hasMessage = !!email.message;
   const hasAttachments = email.attachments && email.attachments.length > 0;

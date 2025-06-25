@@ -83,7 +83,7 @@ const Page: NextPage = () => {
                 <Link
                   color="text.primary"
                   component={RouterLink}
-                  href={paths.dashboard.invoices.index}
+                  href={paths.dashboard.inicio}
                   sx={{
                     alignItems: 'center',
                     display: 'inline-flex',

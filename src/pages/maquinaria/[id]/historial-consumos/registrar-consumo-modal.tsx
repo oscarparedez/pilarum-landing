@@ -25,12 +25,19 @@ interface ModalRegistrarConsumoProps {
     fecha: string;
     cantidad: string;
     unidad: string;
-    reportadoPor: string;
+    solicitadoPor: string;
     anotaciones: string;
     costo: number;
     imagenes: File[];
   }) => void;
 }
+
+const usuarios = [
+  { id: 'user-001', nombre: 'Juan Pérez' },
+  { id: 'user-002', nombre: 'Ana Gómez' },
+  { id: 'user-003', nombre: 'Carlos Méndez' },
+  { id: 'user-004', nombre: 'Lucía Ramos' },
+];
 
 export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   open,
@@ -41,7 +48,7 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   const [fecha, setFecha] = useState<Date | null>(new Date());
   const [cantidad, setCantidad] = useState('');
   const [unidad, setUnidad] = useState('galones');
-  const [reportadoPor, setReportadoPor] = useState('');
+  const [solicitadoPor, setSolicitadoPor] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
   const [costo, setCosto] = useState('');
   const [imagenes, setImagenes] = useState<File[]>([]);
@@ -61,7 +68,7 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
     setFecha(new Date());
     setCantidad('');
     setUnidad('galones');
-    setReportadoPor('');
+    setSolicitadoPor('');
     setAnotaciones('');
     setCosto('');
     setImagenes([]);
@@ -70,13 +77,13 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   };
 
   const handleConfirm = () => {
-    if (tipo && fecha && cantidad && unidad && reportadoPor && costo) {
+    if (tipo && fecha && cantidad && unidad && solicitadoPor && costo) {
       onConfirm({
         tipo,
         fecha: fecha.toISOString().split('T')[0],
         cantidad,
         unidad,
-        reportadoPor,
+        solicitadoPor,
         anotaciones,
         costo: parseFloat(costo),
         imagenes,
@@ -141,13 +148,6 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
           </Stack>
 
           <TextField
-            label="Reportado por"
-            value={reportadoPor}
-            onChange={(e) => setReportadoPor(e.target.value)}
-            fullWidth
-          />
-
-          <TextField
             label="Costo (Q)"
             type="number"
             value={costo}
@@ -155,6 +155,23 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
             inputProps={{ min: 0 }}
             fullWidth
           />
+
+          <TextField
+            select
+            label="Solicitado por"
+            value={solicitadoPor}
+            onChange={(e) => setSolicitadoPor(e.target.value)}
+            fullWidth
+          >
+            {usuarios.map((user) => (
+              <MenuItem
+                key={user.id}
+                value={user.id}
+              >
+                {user.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
 
           <TextField
             label="Anotaciones"
@@ -301,7 +318,9 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!tipo || !fecha || !cantidad || !unidad || !reportadoPor || !costo}
+          disabled={
+            !tipo || !fecha || !cantidad || !unidad || !solicitadoPor || !anotaciones || !costo
+          }
         >
           Guardar consumo
         </Button>

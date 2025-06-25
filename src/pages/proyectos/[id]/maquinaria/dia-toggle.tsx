@@ -28,8 +28,11 @@ export const DiaToggle: FC<DiaToggleProps> = ({ dia, selected, onClick }) => {
         },
       }}
     >
-      <Typography variant="body2" fontWeight="bold">
-      {dia.slice(0, 3)}
+      <Typography
+        variant="body2"
+        fontWeight="bold"
+      >
+        {dia.slice(0, 3)}
       </Typography>
     </Box>
   );

@@ -39,7 +39,7 @@ export const CompanyCard: FC<CompanyCardProps> = (props) => {
         >
           <Avatar
             component={RouterLink}
-            href={paths.dashboard.jobs.companies.details}
+            href={paths.dashboard.inicio}
             src={company.logo}
             variant="rounded"
           >
@@ -49,7 +49,7 @@ export const CompanyCard: FC<CompanyCardProps> = (props) => {
             <Link
               color="text.primary"
               component={RouterLink}
-              href={paths.dashboard.jobs.companies.details}
+              href={paths.dashboard.inicio}
               variant="h6"
             >
               {company.name}

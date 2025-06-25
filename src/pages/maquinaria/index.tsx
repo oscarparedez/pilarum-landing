@@ -17,7 +17,7 @@ type Recurso = {
   id: string;
   tipo: 'maquinaria' | 'herramienta';
   nombre: string;
-  placa?: string;
+  identificador?: string;
   asignaciones: {
     dias: string;
     proyecto: string;
@@ -30,7 +30,7 @@ const mockRecursos: Recurso[] = [
     id: '1',
     tipo: 'maquinaria',
     nombre: 'Excavadora CAT 320',
-    placa: 'MAQ-5678',
+    identificador: 'MAQ-5678',
     asignaciones: [
       {
         dias: 'Lun-Mie-Vie',
@@ -48,6 +48,7 @@ const mockRecursos: Recurso[] = [
     id: '2',
     tipo: 'herramienta',
     nombre: 'Taladro Bosch GBH2',
+    identificador: '',
     asignaciones: [
       {
         dias: 'Lun-Mar',
@@ -60,7 +61,7 @@ const mockRecursos: Recurso[] = [
     id: '3',
     tipo: 'maquinaria',
     nombre: 'Retroexcavadora JCB 3CX',
-    placa: 'MAQ-1234',
+    identificador: 'MAQ-1234',
     asignaciones: [
       {
         dias: 'Lun-Vie',
@@ -174,12 +175,12 @@ const Page: NextPage = () => {
                 >
                   <Typography variant="h6">{recurso.nombre}</Typography>
 
-                  {recurso.placa && (
+                  {recurso.identificador && (
                     <Typography
                       variant="body2"
                       color="text.secondary"
                     >
-                      Placa: {recurso.placa}
+                      Identificador: {recurso.identificador}
                     </Typography>
                   )}
 

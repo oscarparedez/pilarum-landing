@@ -24,12 +24,12 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
   console.log('initialData', initialData);
   const [fecha, setFecha] = useState<Date | null>(new Date(initialData.fecha));
   const [motivo, setMotivo] = useState(initialData.motivo);
-  const [monto, setMonto] = useState(initialData.monto || '');
+  const [monto, setMonto] = useState<number | ''>('');
 
   useEffect(() => {
     setFecha(new Date(initialData.fecha));
     setMotivo(initialData.motivo);
-    setMonto(initialData.monto ?? ''); // más seguro con nullish coalescing
+    setMonto(initialData.monto ?? '');
   }, [initialData]);
 
   const handleConfirm = () => {
@@ -89,7 +89,10 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
             fullWidth
             label="Monto (Q)"
             value={monto}
-            onChange={(e) => setMonto(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setMonto(value === '' ? '' : Number(value));
+            }}
             type="number"
             inputProps={{ min: 0 }}
           />

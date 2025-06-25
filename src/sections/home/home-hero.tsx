@@ -87,7 +87,7 @@ export const HomeHero: FC = () => {
           >
             <Button
               component={RouterLink}
-              href={paths.dashboard.index}
+              href={paths.dashboard.inicio}
               startIcon={
                 <SvgIcon fontSize="small">
                   <EyeIcon />

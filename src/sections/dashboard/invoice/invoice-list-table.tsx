@@ -74,7 +74,7 @@ const InvoiceRow: FC<InvoiceRowProps> = (props) => {
           direction="row"
           spacing={2}
           component={RouterLink}
-          href={paths.dashboard.invoices.details}
+          href={paths.dashboard.inicio}
           sx={{
             display: 'inline-flex',
             textDecoration: 'none',
@@ -135,7 +135,7 @@ const InvoiceRow: FC<InvoiceRowProps> = (props) => {
       <TableCell align="right">
         <IconButton
           component={RouterLink}
-          href={paths.dashboard.invoices.details}
+          href={paths.dashboard.inicio}
         >
           <SvgIcon>
             <ArrowRightIcon />

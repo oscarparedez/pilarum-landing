@@ -96,7 +96,7 @@ const Page: NextPage = () => {
               <Button
                 color="primary"
                 component={RouterLink}
-                href={paths.dashboard.jobs.create}
+                href={paths.dashboard.inicio}
                 size="large"
                 sx={{ mt: 3 }}
                 variant="contained"

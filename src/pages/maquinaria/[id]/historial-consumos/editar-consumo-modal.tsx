@@ -15,7 +15,7 @@ import { FC, useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import type { Consumo } from '../index.d';
+import type { Consumo, TipoConsumo, UnidadConsumo } from '../index.d';
 
 interface Props {
   open: boolean;
@@ -24,12 +24,19 @@ interface Props {
   onConfirm: (data: Consumo & { nuevasImagenes: File[]; fotos: string[] }) => void;
 }
 
+const usuarios = [
+  { id: 'user-001', nombre: 'Juan Pérez' },
+  { id: 'user-002', nombre: 'Ana Gómez' },
+  { id: 'user-003', nombre: 'Carlos Méndez' },
+  { id: 'user-004', nombre: 'Lucía Ramos' },
+];
+
 export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfirm }) => {
-  const [tipo, setTipo] = useState('');
+  const [tipo, setTipo] = useState<TipoConsumo>('');
   const [fecha, setFecha] = useState<Date | null>(new Date());
   const [cantidad, setCantidad] = useState('');
-  const [unidad, setUnidad] = useState('');
-  const [reportadoPor, setReportadoPor] = useState('');
+  const [unidad, setUnidad] = useState<UnidadConsumo>('');
+  const [solicitadoPor, setSolicitadoPor] = useState<{ id: string; nombre: string } | null>(null); // ✅ Aquí
   const [anotaciones, setAnotaciones] = useState('');
   const [costo, setCosto] = useState('');
   const [imagenes, setImagenes] = useState<(string | File)[]>([]);
@@ -40,7 +47,7 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
       setFecha(new Date(consumo.fecha));
       setCantidad(consumo.cantidad);
       setUnidad(consumo.unidad);
-      setReportadoPor(consumo.reportadoPor);
+      setSolicitadoPor(consumo.solicitadoPor);
       setAnotaciones(consumo.anotaciones);
       setCosto(consumo.costo.toString());
       setImagenes(consumo.fotos);
@@ -56,14 +63,14 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
   };
 
   const handleConfirm = () => {
-    if (tipo && fecha && cantidad && unidad && reportadoPor && costo) {
+    if (tipo && fecha && cantidad && unidad && solicitadoPor && costo) {
       onConfirm({
         ...consumo!,
         tipo,
         fecha: fecha.toISOString().split('T')[0],
         cantidad,
         unidad,
-        reportadoPor,
+        solicitadoPor,
         anotaciones,
         costo: parseFloat(costo),
         nuevasImagenes: imagenes.filter((img) => typeof img !== 'string') as File[],
@@ -74,28 +81,105 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar consumo</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
-          <TextField label="Tipo de consumo" value={tipo} onChange={(e) => setTipo(e.target.value)} />
+        <Stack
+          spacing={3}
+          mt={1}
+        >
+          <TextField
+            label="Tipo de consumo"
+            value={tipo}
+            onChange={(e) => setTipo(e.target.value as TipoConsumo)}
+            fullWidth
+          />
+
           <Box>
-            <Typography variant="subtitle2" gutterBottom>Fecha del consumo</Typography>
-            <DateCalendar value={fecha} onChange={(newValue) => setFecha(newValue)} />
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
+              Fecha del consumo
+            </Typography>
+            <DateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
-          <Stack direction="row" spacing={2}>
-            <TextField label="Cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} fullWidth />
-            <TextField select label="Unidad" value={unidad} onChange={(e) => setUnidad(e.target.value)} fullWidth>
+
+          <Stack
+            direction="row"
+            spacing={2}
+          >
+            <TextField
+              label="Cantidad"
+              value={cantidad}
+              onChange={(e) => setCantidad(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              select
+              label="Unidad"
+              value={unidad}
+              onChange={(e) => setUnidad(e.target.value as UnidadConsumo)}
+              fullWidth
+            >
               <MenuItem value="galones">galones</MenuItem>
               <MenuItem value="litros">litros</MenuItem>
             </TextField>
           </Stack>
-          <TextField label="Reportado por" value={reportadoPor} onChange={(e) => setReportadoPor(e.target.value)} />
-          <TextField label="Costo (Q)" type="number" value={costo} onChange={(e) => setCosto(e.target.value)} />
-          <TextField label="Anotaciones" multiline minRows={3} value={anotaciones} onChange={(e) => setAnotaciones(e.target.value)} />
+
+          <TextField
+            label="Costo (Q)"
+            type="number"
+            value={costo}
+            onChange={(e) => setCosto(e.target.value)}
+            inputProps={{ min: 0 }}
+            fullWidth
+          />
+
+          <TextField
+            select
+            label="Solicitado por"
+            value={solicitadoPor?.id || ''}
+            onChange={(e) => {
+              const user = usuarios.find((u) => u.id === e.target.value);
+              if (user) setSolicitadoPor(user);
+            }}
+            fullWidth
+          >
+            {usuarios.map((user) => (
+              <MenuItem
+                key={user.id}
+                value={user.id}
+              >
+                {user.nombre}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            label="Anotaciones"
+            multiline
+            minRows={3}
+            value={anotaciones}
+            onChange={(e) => setAnotaciones(e.target.value)}
+            fullWidth
+          />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>Subir imágenes (máximo 3)</Typography>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
+              Subir imágenes (máximo 3)
+            </Typography>
             <Box
               component="label"
               htmlFor="upload-input"
@@ -121,8 +205,15 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
               }}
             >
               <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary' }} />
-              <Typography color="text.secondary">Arrastra o haz clic para subir imágenes</Typography>
-              <Typography variant="caption" color="text.secondary">Máximo 3 archivos (.jpg, .png)</Typography>
+              <Typography color="text.secondary">
+                Arrastra o haz clic para subir imágenes
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
+                Máximo 3 archivos (.jpg, .png)
+              </Typography>
               <input
                 id="upload-input"
                 type="file"
@@ -134,11 +225,18 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
             </Box>
 
             {imagenes.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {imagenes.map((item, i) => {
                   const src = typeof item === 'string' ? item : URL.createObjectURL(item);
                   return (
-                    <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                    <Box
+                      key={i}
+                      sx={{ position: 'relative', width: 80, height: 80 }}
+                    >
                       <Box
                         component="img"
                         src={src}
@@ -181,7 +279,7 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!tipo || !fecha || !cantidad || !unidad || !reportadoPor || !costo}
+          disabled={!tipo || !fecha || !cantidad || !unidad || !solicitadoPor || !costo}
         >
           Guardar cambios
         </Button>

@@ -66,7 +66,7 @@ export const ChatSidebar: FC<ChatSidebarProps> = (props) => {
   const mdUp = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
 
   const handleCompose = useCallback((): void => {
-    router.push(paths.dashboard.chat + '?compose=true');
+    router.push(paths.dashboard.inicio + '?compose=true');
   }, [router]);
 
   const handleSearchChange = useCallback(
@@ -110,7 +110,7 @@ export const ChatSidebar: FC<ChatSidebarProps> = (props) => {
       setSearchFocused(false);
       setSearchQuery('');
 
-      router.push(paths.dashboard.chat + `?threadKey=${threadKey}`);
+      router.push(paths.dashboard.inicio + `?threadKey=${threadKey}`);
     },
     [router]
   );
@@ -121,9 +121,9 @@ export const ChatSidebar: FC<ChatSidebarProps> = (props) => {
       const threadKey = getThreadKey(thread, user.id);
 
       if (!threadKey) {
-        router.push(paths.dashboard.chat);
+        router.push(paths.dashboard.inicio);
       } else {
-        router.push(paths.dashboard.chat + `?threadKey=${threadKey}`);
+        router.push(paths.dashboard.inicio + `?threadKey=${threadKey}`);
       }
     },
     [router, threads, user]

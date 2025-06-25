@@ -120,7 +120,7 @@ const Page: NextPage = () => {
               <Link
                 color="text.primary"
                 component={RouterLink}
-                href={paths.dashboard.index}
+                href={paths.dashboard.inicio}
                 variant="subtitle2"
               >
                 Dashboard
@@ -128,7 +128,7 @@ const Page: NextPage = () => {
               <Link
                 color="text.primary"
                 component={RouterLink}
-                href={paths.dashboard.blog.index}
+                href={paths.dashboard.inicio}
                 variant="subtitle2"
               >
                 Blog
@@ -157,7 +157,7 @@ const Page: NextPage = () => {
             <Typography variant="subtitle1">Hello, Admin</Typography>
             <Button
               component={RouterLink}
-              href={paths.dashboard.blog.postCreate}
+              href={paths.dashboard.inicio}
               variant="contained"
             >
               Edit Post

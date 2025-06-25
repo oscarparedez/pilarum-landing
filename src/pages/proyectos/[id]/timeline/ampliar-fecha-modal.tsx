@@ -49,17 +49,31 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
       }}
     >
       <DialogTitle sx={{ textAlign: 'center', mb: 2 }}>
-        <Typography variant="h5" fontWeight="bold">
+        <Typography
+          variant="h5"
+          fontWeight="bold"
+        >
           Seleccionar nueva fecha de fin
         </Typography>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="subtitle2"
+          color="text.secondary"
+          sx={{ mt: 1 }}
+        >
           Fecha actual estimada: <strong>{fechaActual}</strong>
         </Typography>
       </DialogTitle>
 
       <DialogContent>
-        <Box display="flex" justifyContent="center" py={2}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          py={2}
+        >
+          <LocalizationProvider
+            dateAdapter={AdapterDateFns}
+            adapterLocale={es}
+          >
             <DateCalendar
               views={['year', 'month', 'day']}
               value={fechaSeleccionada}
@@ -81,8 +95,15 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: 'center', mt: 2 }}>
-        <Stack direction="row" spacing={2}>
-          <Button onClick={onClose} color="inherit" size="large">
+        <Stack
+          direction="row"
+          spacing={2}
+        >
+          <Button
+            onClick={onClose}
+            color="inherit"
+            size="large"
+          >
             Cancelar
           </Button>
           <Button

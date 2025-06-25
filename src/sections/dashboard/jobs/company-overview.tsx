@@ -79,7 +79,7 @@ export const CompanyOverview: FC<CompanyOverviewProps> = (props) => {
         <Link
           color="inherit"
           component={RouterLink}
-          href={paths.dashboard.jobs.companies.details}
+          href={paths.dashboard.inicio}
           variant="subtitle2"
           sx={{
             alignItems: 'center',
@@ -112,7 +112,7 @@ export const CompanyOverview: FC<CompanyOverviewProps> = (props) => {
         <Link
           color="inherit"
           component={RouterLink}
-          href={paths.dashboard.jobs.companies.details}
+          href={paths.dashboard.inicio}
           variant="subtitle2"
           sx={{
             alignItems: 'center',

@@ -73,19 +73,28 @@ const Page: NextPage = () => {
               xs={12}
               md={4}
             >
-              <OverviewDoneTasks amount={31} />
+              <OverviewDoneTasks
+                onClick={() => console.log('Clicked done tasks')}
+                amount={31}
+              />
             </Grid>
             <Grid
               xs={12}
               md={4}
             >
-              <OverviewPendingIssues amount={12} />
+              <OverviewPendingIssues
+                onClick={() => console.log('Clicked done tasks')}
+                amount={12}
+              />
             </Grid>
             <Grid
               xs={12}
               md={4}
             >
-              <OverviewOpenTickets amount={5} />
+              <OverviewOpenTickets
+                onClick={() => console.log('Clicked done tasks')}
+                amount={5}
+              />
             </Grid>
           </Grid>
         </Container>

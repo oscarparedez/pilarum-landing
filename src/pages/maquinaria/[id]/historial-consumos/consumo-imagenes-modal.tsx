@@ -1,13 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
-import {
-  Modal,
-  Backdrop,
-  Box,
-  IconButton,
-  Typography,
-  Stack,
-} from '@mui/material';
+import { Modal, Backdrop, Box, IconButton, Typography, Stack } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -60,7 +53,12 @@ export const ConsumoImagenesModal: FC<Props> = ({ open, onClose, images }) => {
           flexDirection: 'column',
         }}
       >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
           <Typography variant="h6">Fotos del consumo</Typography>
           <IconButton onClick={onClose}>
             <CloseIcon />
@@ -104,7 +102,12 @@ export const ConsumoImagenesModal: FC<Props> = ({ open, onClose, images }) => {
           </IconButton>
         </Box>
 
-        <Typography variant="caption" color="text.secondary" align="center" mt={1}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          align="center"
+          mt={1}
+        >
           {index + 1} / {images.length}
         </Typography>
       </Box>

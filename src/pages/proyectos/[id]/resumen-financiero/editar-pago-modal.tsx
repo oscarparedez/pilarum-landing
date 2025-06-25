@@ -69,7 +69,10 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -83,11 +86,17 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
       >
         <Card>
           <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 'bold' }}
+            >
               Editar pago
             </Typography>
 
-            <Stack spacing={3} mt={2}>
+            <Stack
+              spacing={3}
+              mt={2}
+            >
               <TextField
                 label="Monto total (Q)"
                 type="number"
@@ -98,11 +107,20 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
               />
 
               <Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 1 }}
+                >
                   Fecha de pago <span style={{ color: 'red' }}>*</span>
                 </Typography>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                  <DateCalendar value={fecha} onChange={setFecha} />
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
+                >
+                  <DateCalendar
+                    value={fecha}
+                    onChange={setFecha}
+                  />
                 </LocalizationProvider>
               </Box>
 
