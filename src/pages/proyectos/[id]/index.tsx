@@ -19,7 +19,6 @@ import { Pizarron } from './pizarron/pizarron';
 const config: ConfigProyecto = proyecto as ConfigProyecto;
 
 export const tareasEjemplo: Tarea[] = [
-  // Tareas pendientes (3)
   {
     id: '1',
     descripcion: 'Revisar planos estructurales del primer nivel',
@@ -41,8 +40,6 @@ export const tareasEjemplo: Tarea[] = [
     asignadoA: { id: 'u3', nombre: 'Carlos Ruiz' },
     fechaCreacion: '2025-06-03T14:45:00Z',
   },
-
-  // Tareas activas (4)
   {
     id: '4',
     descripcion: 'Supervisar vaciado de concreto',
@@ -71,8 +68,6 @@ export const tareasEjemplo: Tarea[] = [
     asignadoA: { id: 'u1', nombre: 'Juan Pérez' },
     fechaCreacion: '2025-06-07T15:00:00Z',
   },
-
-  // Tareas completadas (2)
   {
     id: '8',
     descripcion: 'Entrega de planos firmados por arquitecto',
@@ -98,7 +93,7 @@ const Page: NextPage = () => {
     ampliacionesPresupuesto,
     ampliacionesFecha,
     ingresos,
-    pagos,
+    pagos: costos,
     revisiones,
     maquinaria,
     personal,
@@ -110,7 +105,6 @@ const Page: NextPage = () => {
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [datosProyecto, setDatosProyecto] = useState(datosBasicos);
 
-  // sum de las ampliaciones de presupuesto + presupeusto inicial
   const presupuestoTotal =
     presupuestoInicial +
     ampliacionesPresupuesto.reduce((acc, curr) => {
@@ -125,7 +119,6 @@ const Page: NextPage = () => {
     >
       <Container maxWidth={settings.stretch ? false : 'xl'}>
         <Stack spacing={2}>
-          {/* ENCABEZADO */}
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -135,7 +128,7 @@ const Page: NextPage = () => {
             <Box>
               <Typography variant="h4">{nombre}</Typography>
               <Typography color="text.secondary">{ubicacion}</Typography>
-              <Typography color="text.secondary">Socio - {socio.nombre}</Typography>
+              <Typography color="text.secondary">Empresa - {socio.nombre}</Typography>
             </Box>
             <Button
               variant="outlined"
@@ -145,7 +138,6 @@ const Page: NextPage = () => {
             </Button>
           </Stack>
 
-          {/* TIMELINE */}
           <Timeline
             fechaInicio={fechaInicio}
             fechaFin={fechaFin}
@@ -158,14 +150,12 @@ const Page: NextPage = () => {
 
           <Pizarron tareas={tareasEjemplo} />
 
-          {/* RESUMEN FINANCIERO */}
           <ResumenFinanciero
             ingresos={ingresos}
-            pagos={pagos}
+            pagos={costos}
             presupuestoInicial={presupuestoTotal}
           />
 
-          {/* MODAL PARA EDITAR DATOS BÁSICOS */}
           <EditarDatosBasicosModal
             open={modalEditarAbierto}
             onClose={() => setModalEditarAbierto(false)}
@@ -176,13 +166,9 @@ const Page: NextPage = () => {
             }}
           />
 
-          {/* MAQUINARIA */}
           <Maquinaria maquinaria={maquinaria} />
-          {/* PERSONAL */}
           <PersonalAsignado personal={personal} />
-          {/* MATERIAL PLANIFICADO */}
           <MaterialPlanificado materialPlanificado={materialPlanificado} />
-          {/* REVISIÓN DE OBRA */}
           <Revisiones revisiones={revisiones} />
         </Stack>
       </Container>

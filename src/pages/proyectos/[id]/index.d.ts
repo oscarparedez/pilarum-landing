@@ -7,7 +7,7 @@ export interface MaterialItem {
   unidad: string;
 }
 
-export interface Pago {
+export interface Costo {
   id_pago: string;
   proyecto_id: string;
   monto_total: number;

@@ -64,12 +64,14 @@ export const useSections = (): Section[] => {
               { title: t(tokens.nav.costos), path: paths.dashboard.oficina.costos },
             ],
           },
-          {
-            title: t(tokens.nav.materiales),
-            path: paths.dashboard.oficina.materiales,
+                    {
+            title: t(tokens.nav.bodega),
             icon: <SvgIcon fontSize="small"><ShoppingBag03Icon /></SvgIcon>,
             items: [
-              { title: t(tokens.nav.movimientos), path: paths.dashboard.oficina.movimientos },
+              { title: t(tokens.nav.inventario), path: paths.dashboard.oficina.inventario },
+              { title: t(tokens.nav.materiales), path: paths.dashboard.oficina.materiales },
+              { title: t(tokens.nav.unidades), path: paths.dashboard.oficina.unidades },
+              { title: t(tokens.nav.marcas), path: paths.dashboard.oficina.marcas },
             ],
           },
         ],

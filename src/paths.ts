@@ -1,3 +1,5 @@
+import { id } from "date-fns/locale";
+
 export const paths = {
   index: '/',
   checkout: '/checkout',
@@ -13,29 +15,24 @@ export const paths = {
       roles: '/oficina/roles',
       ingresos: '/oficina/ingresos',
       costos: '/oficina/costos',
-      materiales: '/oficina/inventario/materiales',
-      movimientos: '/oficina/inventario/movimientos',
-      pendientes: '/oficina/pendientes',
+      inventario: '/oficina/inventario',
+      materiales: '/oficina/materiales',
+      unidades: '/oficina/unidades',
+      marcas: '/oficina/marcas',
+      crear: '/oficina/inventario/crear',
+      rebajar: '/oficina/inventario/rebajar',
+      orden_de_compra: (id: string) => `/oficina/inventario/orden-de-compra/${id}`,
+      rebaja: (id: string) => `/oficina/inventario/rebaja/${id}`,
     },
     proyectos: {
       index: '/proyectos',
       crear: '/proyectos/crear',
       detalle: (id: string) => `/proyectos/${id}`,
-      presupuestos: (id: string) => `/proyectos/${id}/presupuestos`,
-      fechas: (id: string) => `/proyectos/${id}/fechas`,
-      pagos: (id: string) => `/proyectos/${id}/pagos`,
-      ingresos: (id: string) => `/proyectos/${id}/ingresos`,
-      asignaciones: (id: string) => `/proyectos/${id}/asignaciones`,
-      revisiones: (id: string) => `/proyectos/${id}/revisiones`,
-      inventario: (id: string) => `/proyectos/${id}/inventario`,
     },
     maquinaria: {
       index: '/maquinaria',
       crear: '/maquinaria/crear',
       detalle: (id: string) => `/maquinaria/${id}`,
-      asignaciones: (id: string) => `/maquinaria/${id}/asignaciones`,
-      gastos: (id: string) => `/maquinaria/${id}/gastos`,
-      estado: (id: string) => `/maquinaria/${id}/estado`,
     },
   },
   components: {

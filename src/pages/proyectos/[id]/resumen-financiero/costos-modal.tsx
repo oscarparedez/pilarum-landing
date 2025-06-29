@@ -16,28 +16,28 @@ import {
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
 
-import { ModalEditarPago } from './editar-pago-modal';
+import { ModalEditarCosto } from './editar-costo-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
-import { Pago } from '../index.d';
+import { Costo } from '../index.d';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 
-interface ModalListaPagosProps {
+interface ModalListaCostosProps {
   open: boolean;
   onClose: () => void;
-  pagos: Pago[];
-  fetchPagos: (filtros: {
+  costos: Costo[];
+  fetchCostos: (filtros: {
     search: string;
     fechaInicio: Date | null;
     fechaFin: Date | null;
   }) => void;
 }
 
-export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos, fetchPagos }) => {
+export const ModalListaCostos: FC<ModalListaCostosProps> = ({ open, onClose, costos, fetchCostos }) => {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
-  const [pagoAEliminar, setPagoAEliminar] = useState<Pago | null>(null);
+  const [costoAEliminar, setCostoAEliminar] = useState<Costo | null>(null);
 
   return (
     <>
@@ -57,26 +57,26 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
           }}
         >
           <Card>
-            <CardHeader title="Historial de pagos" />
+            <CardHeader title="Historial de costos" />
             <Divider />
 
             <TablaPaginadaConFiltros
               onFiltrar={({ search, fechaInicio, fechaFin }) => {
-                fetchPagos({
+                fetchCostos({
                   search,
                   fechaInicio: fechaInicio ?? null,
                   fechaFin: fechaFin ?? null,
                 });
               }}
-              totalItems={pagos.length}
+              totalItems={costos.length}
             >
               {(currentPage) => (
                 <Table>
                   <TableBody>
-                    {pagos.slice((currentPage - 1) * 5, currentPage * 5).map((pago, index) => {
+                    {costos.slice((currentPage - 1) * 5, currentPage * 5).map((costo, index) => {
                       const globalIndex = index + (currentPage - 1) * 5;
                       return (
-                        <TableRow key={pago.id_pago || index}>
+                        <TableRow key={costo.id_pago || index}>
                           <TableCell width={100}>
                             <Box sx={{ p: 1 }}>
                               <Typography
@@ -84,25 +84,25 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
                                 color="text.secondary"
                                 variant="subtitle2"
                               >
-                                {formatearFecha(pago.fecha_pago)}
+                                {formatearFecha(costo.fecha_pago)}
                               </Typography>
                             </Box>
                           </TableCell>
 
                           <TableCell>
-                            <Typography variant="subtitle2">{pago.usuario_registro}</Typography>
+                            <Typography variant="subtitle2">{costo.usuario_registro}</Typography>
                             <Typography
                               color="text.secondary"
                               variant="body2"
                             >
-                              {pago.tipo_pago} - {pago.tipo_documento}
+                              {costo.tipo_pago} - {costo.tipo_documento}
                             </Typography>
-                            {pago.anotaciones && (
+                            {costo.anotaciones && (
                               <Typography
                                 color="text.secondary"
                                 variant="body2"
                               >
-                                {pago.anotaciones}
+                                {costo.anotaciones}
                               </Typography>
                             )}
                           </TableCell>
@@ -112,7 +112,7 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
                               color="success.main"
                               variant="subtitle2"
                             >
-                              {formatearQuetzales(Number(pago.monto_total))}
+                              {formatearQuetzales(Number(costo.monto_total))}
                             </Typography>
 
                             <Stack
@@ -130,7 +130,7 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
 
                               <IconButton
                                 onClick={() => {
-                                  setPagoAEliminar(pago);
+                                  setCostoAEliminar(costo);
                                 }}
                               >
                                 <DeleteIcon />
@@ -149,24 +149,24 @@ export const ModalListaPagos: FC<ModalListaPagosProps> = ({ open, onClose, pagos
       </Modal>
 
       {editandoIndex !== null && (
-        <ModalEditarPago
+        <ModalEditarCosto
           open={modalEditarAbierto}
           onClose={() => setModalEditarAbierto(false)}
-          initialData={pagos[editandoIndex]}
+          initialData={costos[editandoIndex]}
           onConfirm={(data) => {
-            console.log('Pago editado:', data);
+            console.log('Costo editado:', data);
             setModalEditarAbierto(false);
           }}
         />
       )}
 
       <ModalEliminar
-        type="pago"
-        open={!!pagoAEliminar}
-        onClose={() => setPagoAEliminar(null)}
+        type="costo"
+        open={!!costoAEliminar}
+        onClose={() => setCostoAEliminar(null)}
         onConfirm={() => {
-          console.log('Pago eliminado');
-          setPagoAEliminar(null);
+          console.log('Costo eliminado');
+          setCostoAEliminar(null);
         }}
       />
     </>

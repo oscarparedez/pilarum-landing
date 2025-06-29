@@ -19,6 +19,7 @@ interface Filtros {
   search: string;
   fechaInicio?: Date | null;
   fechaFin?: Date | null;
+  empresa?: string;
 }
 
 interface TablaPaginadaConFiltrosProps {
@@ -29,11 +30,13 @@ interface TablaPaginadaConFiltrosProps {
   filtrosFecha?: boolean;
   filtrosEstado?: boolean;
   filtrosRol?: boolean;
+  filtrosEmpresa?: boolean;
   children: (
     currentPage: number,
     estadoFiltro?: string,
     rolFiltro?: string,
-    search?: string
+    search?: string,
+    empresa?: string
   ) => ReactNode;
 }
 
@@ -45,6 +48,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   filtrosFecha = true,
   filtrosEstado = false,
   filtrosRol = false,
+  filtrosEmpresa = false,
   children,
 }) => {
   const [search, setSearch] = useState('');
@@ -52,6 +56,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   const [fechaFin, setFechaFin] = useState<Date | null>(null);
   const [estado, setEstado] = useState('');
   const [rol, setRol] = useState('');
+  const [empresa, setEmpresa] = useState('');
   const [page, setPage] = useState(1);
 
   const rowsPerPage = 5;
@@ -59,20 +64,24 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
 
   const debouncedFiltrar = useMemo(
     () =>
-      debounce((searchValue: string, inicio: Date | null, fin: Date | null) => {
-        onFiltrar({
-          search: searchValue ?? '',
-          fechaInicio: inicio ?? null,
-          fechaFin: fin ?? null,
-        });
-      }, 500),
+      debounce(
+        (searchValue: string, inicio: Date | null, fin: Date | null, empresaValue: string) => {
+          onFiltrar({
+            search: searchValue ?? '',
+            fechaInicio: inicio ?? null,
+            fechaFin: fin ?? null,
+            empresa: empresaValue || undefined,
+          });
+        },
+        500
+      ),
     [onFiltrar]
   );
 
   useEffect(() => {
-    debouncedFiltrar(search, fechaInicio, fechaFin);
+    debouncedFiltrar(search, fechaInicio, fechaFin, empresa);
     return () => debouncedFiltrar.cancel();
-  }, [search, fechaInicio, fechaFin, debouncedFiltrar]);
+  }, [search, fechaInicio, fechaFin, empresa, debouncedFiltrar]);
 
   return (
     <Box>
@@ -168,11 +177,39 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
               </Select>
             </FormControl>
           )}
+
+          {filtrosEmpresa && (
+            <FormControl
+              sx={{ minWidth: 190 }}
+              size="medium"
+            >
+              <InputLabel>Empresa</InputLabel>
+              <Select
+                value={empresa}
+                label="Empresa"
+                onChange={(e) => {
+                  setPage(1);
+                  setEmpresa(e.target.value);
+                }}
+              >
+                <MenuItem value="">Todas</MenuItem>
+                <MenuItem value="Empresa A">Empresa A</MenuItem>
+                <MenuItem value="Empresa B">Empresa B</MenuItem>
+                <MenuItem value="Empresa C">Empresa C</MenuItem>
+              </Select>
+            </FormControl>
+          )}
         </Stack>
       </Box>
 
       <Box sx={{ px: 2, pt: 3 }}>
-        {children(page, filtrosEstado ? estado : undefined, filtrosRol ? rol : undefined, search)}
+        {children(
+          page,
+          filtrosEstado ? estado : undefined,
+          filtrosRol ? rol : undefined,
+          search,
+          empresa || undefined
+        )}
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 2 }}>

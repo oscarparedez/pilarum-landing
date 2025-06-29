@@ -17,9 +17,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
 import { format } from 'date-fns';
-import { Pago } from '../index.d';
+import { Costo } from '../index.d';
 
-interface ModalEditarPagoProps {
+interface ModalEditarCostoProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (data: {
@@ -30,10 +30,10 @@ interface ModalEditarPagoProps {
     monto_total: number;
     usuario_registro: string;
   }) => void;
-  initialData: Pago;
+  initialData: Costo;
 }
 
-export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
+export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
   open,
   onClose,
   onConfirm,
@@ -90,7 +90,7 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
               variant="h6"
               sx={{ fontWeight: 'bold' }}
             >
-              Editar pago
+              Editar costo
             </Typography>
 
             <Stack
@@ -111,7 +111,7 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
                   variant="body2"
                   sx={{ mb: 1 }}
                 >
-                  Fecha de pago <span style={{ color: 'red' }}>*</span>
+                  Fecha del costo <span style={{ color: 'red' }}>*</span>
                 </Typography>
                 <LocalizationProvider
                   dateAdapter={AdapterDateFns}
@@ -132,7 +132,7 @@ export const ModalEditarPago: FC<ModalEditarPagoProps> = ({
                 }}
               >
                 <TextField
-                  label="Tipo de pago"
+                  label="Tipo de costo"
                   select
                   required
                   fullWidth

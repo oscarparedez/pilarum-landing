@@ -16,7 +16,7 @@ import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatDate } from '@fullcalendar/core';
 
 interface Movimiento {
-  tipo: 'Ingreso' | 'Pago';
+  tipo: 'Ingreso' | 'Costo';
   monto: number;
   fecha: string;
   descripcion: string;

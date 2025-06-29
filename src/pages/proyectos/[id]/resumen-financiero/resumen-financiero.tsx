@@ -1,12 +1,12 @@
 import { FC, useState } from 'react';
 import { Box, Card, Grid, Stack, Typography, Button } from '@mui/material';
 import { ModalRegistrarIngreso } from './registrar-ingreso-modal';
-import { ModalRegistrarCobro } from './registrar-pago-modal';
+import { ModalRegistrarCobro } from './registrar-costo-modal';
 import { ModalListaIngresos } from './ingresos-modal';
-import { ModalListaPagos } from './pagos-modal';
 import { ModalMovimientos } from './movimientos-modal';
-import { Ingreso, Pago } from '../index.d';
+import { Ingreso, Costo } from '../index.d';
 import { formatearQuetzales } from 'src/utils/format-currency';
+import { ModalListaCostos } from './costos-modal';
 
 type ButtonColor = 'inherit' | 'success' | 'error' | 'info' | 'primary' | 'secondary' | 'warning';
 
@@ -15,31 +15,29 @@ const isValidButtonColor = (value: any): value is ButtonColor =>
 
 interface ResumenFinancieroProps {
   ingresos: Ingreso[];
-  pagos: Pago[];
+  pagos: Costo[];
   presupuestoInicial: number;
 }
 
 export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   ingresos,
-  pagos,
+  pagos: costos,
   presupuestoInicial,
 }) => {
   const [openIngreso, setOpenIngreso] = useState(false);
-  const [openCobro, setOpenCobro] = useState(false);
+  const [openCosto, setOpenCosto] = useState(false);
   const [openListaIngresos, setOpenListaIngresos] = useState(false);
-  const [openListaPagos, setOpenListaPagos] = useState(false);
+  const [openListaCostos, setOpenListaCostos] = useState(false);
   const [openMovimientos, setOpenMovimientos] = useState(false);
 
   const totalIngresos = ingresos.reduce((acc, curr) => acc + curr.monto_total, 0);
-
   const ultimoIngreso = ingresos.reduce((latest, curr) =>
     new Date(curr.fecha_ingreso) > new Date(latest.fecha_ingreso) ? curr : latest
   ).fecha_ingreso;
-
-  const totalPagos = pagos.reduce((acc, curr) => acc + curr.monto_total, 0);
+  const totalCostos = costos.reduce((acc, curr) => acc + curr.monto_total, 0);
 
   const progreso = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
-  const ganancia = totalIngresos - totalPagos;
+  const ganancia = totalIngresos - totalCostos;
 
   const tarjetas = [
     {
@@ -51,12 +49,12 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
       modalType: 'ingreso',
     },
     {
-      label: 'Pagos',
-      value: `${formatearQuetzales(totalPagos)}`,
-      buttonLabel: 'Nuevo pago',
-      secondaryButtonLabel: 'Ver pagos',
+      label: 'Costos',
+      value: `${formatearQuetzales(totalCostos)}`,
+      buttonLabel: 'Nuevo costo',
+      secondaryButtonLabel: 'Ver costos',
       buttonColor: 'error',
-      modalType: 'pago',
+      modalType: 'costo',
     },
     {
       label: 'Ganancia bruta',
@@ -75,8 +73,8 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     switch (modalType) {
       case 'ingreso':
         return setOpenIngreso(true);
-      case 'pago':
-        return setOpenCobro(true);
+      case 'costo':
+        return setOpenCosto(true);
       case 'movimientos':
         return setOpenMovimientos(true);
     }
@@ -86,8 +84,8 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     switch (modalType) {
       case 'ingreso':
         return setOpenListaIngresos(true);
-      case 'pago':
-        return setOpenListaPagos(true);
+      case 'costo':
+        return setOpenListaCostos(true);
     }
   };
 
@@ -125,13 +123,14 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                     sx={{ p: 3 }}
                   >
                     <Typography variant="h5">{item.value}</Typography>
-                    
-                      <Typography
+                    <Typography
                       color="text.secondary"
                       variant="overline"
-                      sx={{ p: 0}}
+                      sx={{ p: 0 }}
                     >
-                      {item.label === 'Ingresos' ? `${progreso.toFixed(0)} % del presupuesto alcanzado` : '-' }
+                      {item.label === 'Ingresos'
+                        ? `${progreso.toFixed(0)} % del presupuesto alcanzado`
+                        : '-'}
                     </Typography>
                     <Typography
                       color="text.secondary"
@@ -176,14 +175,13 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
         </Card>
       </Box>
 
-      {/* Modales */}
       <ModalRegistrarIngreso
         open={openIngreso}
         onClose={() => setOpenIngreso(false)}
       />
       <ModalRegistrarCobro
-        open={openCobro}
-        onClose={() => setOpenCobro(false)}
+        open={openCosto}
+        onClose={() => setOpenCosto(false)}
       />
       <ModalListaIngresos
         open={openListaIngresos}
@@ -191,16 +189,15 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
         ingresos={ingresos}
         fetchIngresos={() => {}}
       />
-      <ModalListaPagos
-        open={openListaPagos}
-        onClose={() => setOpenListaPagos(false)}
-        pagos={pagos}
-        fetchPagos={() => {}}
+      <ModalListaCostos
+        open={openListaCostos}
+        onClose={() => setOpenListaCostos(false)}
+        costos={costos}
+        fetchCostos={() => {}}
       />
       <ModalMovimientos
         open={openMovimientos}
         onClose={() => setOpenMovimientos(false)}
-        //TODO - Implementar la agrupación de movimientos en redux
         movimientos={[
           ...ingresos.map((ing) => ({
             tipo: 'Ingreso' as const,
@@ -209,12 +206,12 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
             descripcion: ing.tipo_ingreso,
             usuario: ing.usuario_registro,
           })),
-          ...pagos.map((pag) => ({
-            tipo: 'Pago' as const,
-            monto: pag.monto_total,
-            fecha: pag.fecha_pago,
-            descripcion: pag.tipo_pago,
-            usuario: pag.usuario_registro,
+          ...costos.map((costo) => ({
+            tipo: 'Costo' as const,
+            monto: costo.monto_total,
+            fecha: costo.fecha_pago,
+            descripcion: costo.tipo_pago,
+            usuario: costo.usuario_registro,
           })),
         ]}
         fetchMovimientos={() => {}}

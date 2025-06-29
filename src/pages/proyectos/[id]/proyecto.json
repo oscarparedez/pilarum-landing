@@ -5,7 +5,7 @@
     "fechaInicio": "2025-01-10",
     "fechaFin": "2025-10-15",
     "presupuestoInicial": 100000,
-    "socio": { "id": "1", "nombre": "Juan Pérez" }
+    "socio": { "id": "1", "nombre": "Empresa A" }
   },
   "ampliacionesPresupuesto": [
     {
@@ -61,7 +61,7 @@
         "proyecto_id": "proy-001",
         "monto_total": 12000,
         "fecha_pago": "2025-05-10",
-        "tipo_pago": "Socio",
+        "tipo_pago": "Pago a socio",
         "tipo_documento": "Cheque",
         "anotaciones": "Pago por avance de obra",
         "usuario_registro": "Ana M."
@@ -82,7 +82,7 @@
         "monto_total": 36000,
         "fecha_pago": "2025-03-25",
         "tipo_pago": "Subcontrato",
-        "tipo_documento": "Factura",
+        "tipo_documento": "Efectivo",
         "anotaciones": "Pago a subcontratista",
         "usuario_registro": "Luis G."
       }

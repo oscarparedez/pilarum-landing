@@ -1,5 +1,3 @@
-// src/oficina/roles/detalle-rol-modal.tsx
-
 import {
   Dialog,
   DialogTitle,
