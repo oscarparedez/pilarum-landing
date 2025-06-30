@@ -9,6 +9,7 @@ import ShoppingBag03Icon from 'src/icons/untitled-ui/duocolor/shopping-bag-03';
 import Users03Icon from 'src/icons/untitled-ui/duocolor/users-03';
 import ClipboardIcon from '@untitled-ui/icons-react/build/esm/Clipboard';
 import Truck01Icon from 'src/icons/untitled-ui/duocolor/truck-01';
+import BuildingIcon from 'src/icons/untitled-ui/duocolor/building-04';
 
 import { tokens } from 'src/locales/tokens';
 import { paths } from 'src/paths';
@@ -46,6 +47,11 @@ export const useSections = (): Section[] => {
       {
         subheader: t(tokens.nav.oficina),
         items: [
+          {
+            title: t(tokens.nav.empresas),
+            path: paths.dashboard.oficina.empresas,
+            icon: <SvgIcon fontSize="small"><BuildingIcon /></SvgIcon>,
+          },
           {
             title: t(tokens.nav.personal),
             path: paths.dashboard.oficina.planilla,

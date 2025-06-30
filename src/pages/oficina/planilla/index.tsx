@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -20,52 +20,37 @@ import { ModalRegistrarPersona } from './crear-personal-modal';
 import { ModalEditarPersona } from './editar-personal-modal';
 import { NextPage } from 'next';
 import { Personal } from './index.d';
-
-const mockPersonas: Personal[] = [
-  {
-    id_usuario: 'u001',
-    nombre: 'Carlos Morales',
-    telefono: '5555-1234',
-    rol: 'Ingeniero',
-    estado: 'Activo',
-    fecha_creacion: '2025-06-01',
-    usuario_registro: 'admin',
-  },
-  {
-    id_usuario: 'u002',
-    nombre: 'María López',
-    telefono: '5555-5678',
-    rol: 'Arquitecto',
-    estado: 'Activo',
-    fecha_creacion: '2025-06-03',
-    usuario_registro: 'admin',
-  },
-  {
-    id_usuario: 'u003',
-    nombre: 'Pedro Rodríguez',
-    telefono: '5555-8765',
-    rol: 'Supervisor',
-    estado: 'Inactivo',
-    fecha_creacion: '2025-05-28',
-    usuario_registro: 'admin',
-  },
-  {
-    id_usuario: 'u004',
-    nombre: 'Ana Gómez',
-    telefono: '5555-1122',
-    rol: 'Ingeniero',
-    estado: 'Activo',
-    fecha_creacion: '2025-06-02',
-    usuario_registro: 'admin',
-  },
-];
-
+import { usePlanillaApi } from 'src/api/planilla/usePlanillaApi';
 
 const Page: NextPage = () => {
+  const { getUsuarios } = usePlanillaApi();
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [personaSeleccionada, setPersonaSeleccionada] = useState<Personal | null>(null);
-  const [personal, setPersonal] = useState<Personal[]>(mockPersonas);
+  const [personal, setPersonal] = useState<Personal[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const usuarios = await getUsuarios();
+        const transformados: Personal[] = usuarios.map((u) => ({
+          id_usuario: String(u.id ?? 'FALTANTE'),
+          nombre: u.name ?? 'FALTANTE',
+          usuario: u.username ?? 'FALTANTE',
+          telefono: u.telefono ?? 'FALTANTE',
+          rol: u.rol ?? 'FALTANTE',
+          estado: u.is_active === false ? 'Inactivo' : u.is_active === true ? 'Activo' : 'FALTANTE',
+          fecha_creacion: u.fecha_creacion ?? 'FALTANTE',
+          usuario_registro: u.usuario_registro ?? 'FALTANTE',
+        }));
+        setPersonal(transformados);
+      } catch (error) {
+        console.error('Error al cargar usuarios', error);
+      }
+    };
+
+    fetchData();
+  }, [getUsuarios]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -78,10 +63,7 @@ const Page: NextPage = () => {
             sx={{ px: 3, py: 3 }}
           >
             <Typography variant="h5">Planilla de personal</Typography>
-            <Button
-              variant="contained"
-              onClick={() => setModalCrearOpen(true)}
-            >
+            <Button variant="contained" onClick={() => setModalCrearOpen(true)}>
               Agregar persona
             </Button>
           </Stack>
@@ -94,18 +76,17 @@ const Page: NextPage = () => {
             filtrosRol
           >
             {(currentPage, estadoFiltro, rolFiltro, search) => (
-              <TableContainer
-                component={Paper}
-                sx={{ maxHeight: 600 }}
-              >
+              <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
                       <TableCell>Nombre</TableCell>
+                      <TableCell>Usuario</TableCell>
                       <TableCell>Teléfono</TableCell>
                       <TableCell>Rol</TableCell>
                       <TableCell>Estado</TableCell>
                       <TableCell>Fecha de creación</TableCell>
+                      <TableCell>Creado por</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
@@ -119,15 +100,14 @@ const Page: NextPage = () => {
                       )
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((persona) => (
-                        <TableRow
-                          key={persona.id_usuario}
-                          hover
-                        >
+                        <TableRow key={persona.id_usuario} hover>
                           <TableCell>{persona.nombre}</TableCell>
+                          <TableCell>{persona.usuario}</TableCell>
                           <TableCell>{persona.telefono}</TableCell>
                           <TableCell>{persona.rol}</TableCell>
                           <TableCell>{persona.estado}</TableCell>
                           <TableCell>{persona.fecha_creacion}</TableCell>
+                          <TableCell>{persona.usuario_registro}</TableCell>
                           <TableCell>
                             <Button
                               size="small"
@@ -148,7 +128,6 @@ const Page: NextPage = () => {
             )}
           </TablaPaginadaConFiltros>
 
-          {/* Modal para crear nueva persona */}
           <ModalRegistrarPersona
             open={modalCrearOpen}
             onClose={() => setModalCrearOpen(false)}
@@ -158,7 +137,6 @@ const Page: NextPage = () => {
             }}
           />
 
-          {/* Modal para editar persona */}
           {personaSeleccionada && (
             <ModalEditarPersona
               open={modalEditarOpen}

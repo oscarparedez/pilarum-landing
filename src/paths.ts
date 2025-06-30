@@ -11,6 +11,7 @@ export const paths = {
   dashboard: {
     inicio: '/dashboard',  
     oficina: {
+      empresas: '/oficina/empresas',
       planilla: '/oficina/planilla',
       roles: '/oficina/roles',
       ingresos: '/oficina/ingresos',

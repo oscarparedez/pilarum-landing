@@ -1,129 +1,151 @@
 {
-    "📂 OFICINA": {
-        "👥 Planilla de personal": [
-            "Ver planilla de personal",
-            "Crear usuario de planilla",
-            "Editar usuario de planilla",
-            "Dar de baja usuario de planilla"
-        ],
-        "🔐 Roles y permisos": [
-            "Ver roles y permisos",
-            "Crear nuevo rol",
-            "Editar rol y permisos asignados",
-            "Eliminar rol"
-        ],
-        "💵 Ingresos generales": [
-            "Ver ingresos generales",
-            "Registrar ingreso general",
-            "Editar ingreso general",
-            "Eliminar ingreso general"
-        ],
-        "💼 Costos generales": [
-            "Ver costos generales",
-            "Registrar costo general",
-            "Editar costo general",
-            "Eliminar costo general"
-        ],
-        "🏬 Movimientos de bodega": [
-            "Ver movimientos de bodega",
-            "Registrar movimiento de bodega",
-            "Editar movimiento de bodega",
-            "Eliminar movimiento de bodega"
-        ]
-    },
-    "🏗️ PROYECTOS": {
-        "📁 Gestión de proyectos": [
-            "Ver proyectos",
-            "Crear proyecto",
-            "Editar datos básicos del proyecto",
-            "Eliminar proyecto"
-        ],
-        "🧾 Presupuesto y fechas": [
-            "Ver presupuesto inicial",
-            "Editar presupuesto inicial",
-            "Ver ampliaciones de presupuesto",
-            "Crear ampliación de presupuesto",
-            "Editar ampliación de presupuesto",
-            "Eliminar ampliación de presupuesto",
-            "Ver ampliaciones de fecha",
-            "Crear ampliación de fecha",
-            "Editar ampliación de fecha",
-            "Eliminar ampliación de fecha"
-        ],
-        "💰 Ingresos del proyecto": [
-            "Ver ingresos del proyecto",
-            "Registrar ingreso de proyecto",
-            "Editar ingreso de proyecto",
-            "Eliminar ingreso de proyecto"
-        ],
-        "💸 Pagos del proyecto": [
-            "Ver pagos de proyecto",
-            "Registrar pago de proyecto",
-            "Editar pago de proyecto",
-            "Eliminar pago de proyecto"
-        ],
-        "📋 Asignaciones de maquinaria a proyecto": [
-            "Ver asignaciones de maquinaria a proyecto",
-            "Asignar maquinaria a proyecto",
-            "Editar asignación de maquinaria a proyecto",
-            "Liberar asignación de maquinaria a proyecto"
-        ],
-        "👷 Asignaciones de personal": [
-            "Ver asignaciones de personal",
-            "Crear asignación de personal",
-            "Editar asignación de personal",
-            "Liberar asignación de personal"
-        ],
-        "📦 Material planificado del proyecto": [
-            "Ver materiales planificados del proyecto",
-            "Ingresar material para proyecto",
-            "Egresar material para proyecto"
-        ],
-        "🖼️ Revisiones de avance": [
-            "Ver revisiones del proyecto",
-            "Registrar revisión",
-            "Editar revisión",
-            "Eliminar revisión"
-        ],
-        "📝 Pizarrón de tareas": [
-            "Ver tareas del proyecto",
-            "Crear tarea de proyecto",
-            "Cambiar status de tarea de proyecto"
-        ]
-    },
-    "🚜 MAQUINARIA": {
-        "📁 Gestión de maquinaria": [
-            "Ver maquinaria",
-            "Crear maquinaria",
-            "Editar datos básicos de maquinaria",
-            "Eliminar maquinaria"
-        ],
-        "💵 Costos de maquinaria": [
-            "Ver costo de adquisición de maquinaria",
-            "Ver total gastado en servicios",
-            "Ver combustible gastado último mes"
-        ],
-        "📋 Asignaciones de maquinaria ": [
-            "Ver asignaciones de maquinaria"
-        ],
-        "⚙️ Servicios de maquinaria": [
-            "Ver historial de servicios",
-            "Registrar servicio",
-            "Editar servicio",
-            "Eliminar servicio"
-        ],
-        "⛽️ Consumos de maquinaria": [
-            "Ver historial de consumos",
-            "Registrar consumo",
-            "Editar consumo",
-            "Eliminar consumo"
-        ]
-    },
-    "📊 GENERAL": {
-        "📌 Pizarrón general": [
-            "Ver tareas generales",
-            "Crear tarea general",
-            "Cambiar status de tarea general"
-        ]
-    }
+  "📂 OFICINA": {
+    "🏢 Gestión de empresas": [
+      "Ver empresas",
+      "Crear empresa",
+      "Editar empresa"
+    ],
+    "👥 Planilla de personal": [
+      "Ver planilla de personal",
+      "Crear usuario de planilla",
+      "Editar usuario de planilla",
+      "Dar de baja usuario de planilla"
+    ],
+    "🔐 Roles y permisos": [
+      "Ver roles y permisos",
+      "Crear nuevo rol",
+      "Editar rol y permisos asignados",
+      "Eliminar rol"
+    ],
+    "💵 Ingresos generales": [
+      "Ver ingresos generales",
+      "Registrar ingreso general",
+      "Editar ingreso general",
+      "Eliminar ingreso general"
+    ],
+    "💼 Costos generales": [
+      "Ver costos generales",
+      "Registrar costo general",
+      "Editar costo general",
+      "Eliminar costo general"
+    ],
+    "📦 Inventario": [
+      "Ver inventario",
+      "Generar orden de compra",
+      "Ver historial de órdenes de compra",
+      "Ver detalles de orden de compra",
+      "Rebajar inventario",
+      "Ver historial de rebajas",
+      "Ver detalles de una rebaja",
+      "Ver materiales",
+      "Crear material",
+      "Editar material",
+      "Ver unidades de medida",
+      "Crear unidad de medida",
+      "Editar unidad de medida",
+      "Ver marcas",
+      "Crear marca",
+      "Editar marca"
+    ]
+  },
+  "🏗️ PROYECTOS": {
+    "📁 Gestión de proyectos": [
+      "Ver proyectos",
+      "Crear proyecto",
+      "Editar datos básicos del proyecto",
+      "Eliminar proyecto"
+    ],
+    "🧾 Presupuesto y fechas": [
+      "Ver presupuesto inicial",
+      "Editar presupuesto inicial",
+      "Ver ampliaciones de presupuesto",
+      "Crear ampliación de presupuesto",
+      "Editar ampliación de presupuesto",
+      "Eliminar ampliación de presupuesto",
+      "Ver ampliaciones de fecha",
+      "Crear ampliación de fecha",
+      "Editar ampliación de fecha",
+      "Eliminar ampliación de fecha"
+    ],
+    "💰 Ingresos del proyecto": [
+      "Ver ingresos del proyecto",
+      "Registrar ingreso de proyecto",
+      "Editar ingreso de proyecto",
+      "Eliminar ingreso de proyecto"
+    ],
+    "💸 Pagos del proyecto": [
+      "Ver pagos de proyecto",
+      "Registrar pago de proyecto",
+      "Editar pago de proyecto",
+      "Eliminar pago de proyecto"
+    ],
+    "📌 Pizarrón de proyecto": [
+      "Ver tareas de proyecto",
+      "Crear tarea de proyecto",
+      "Cambiar status de tarea de proyecto"
+    ],
+    "📋 Asignaciones de maquinaria a proyecto": [
+      "Ver asignaciones de maquinaria a proyecto",
+      "Asignar maquinaria a proyecto",
+      "Editar asignación de maquinaria a proyecto",
+      "Liberar asignación de maquinaria a proyecto"
+    ],
+    "👷 Asignaciones de personal": [
+      "Ver asignaciones de personal",
+      "Crear asignación de personal",
+      "Editar asignación de personal",
+      "Liberar asignación de personal"
+    ],
+    "📦 Material planificado del proyecto": [
+      "Ver materiales planificados del proyecto",
+      "Ingresar material para proyecto",
+      "Egresar material para proyecto"
+    ],
+    "🖼️ Revisiones de avance": [
+      "Ver revisiones del proyecto",
+      "Registrar revisión",
+      "Editar revisión",
+      "Eliminar revisión"
+    ],
+    "📝 Pizarrón de tareas": [
+      "Ver tareas del proyecto",
+      "Crear tarea de proyecto",
+      "Cambiar status de tarea de proyecto"
+    ]
+  },
+  "🚜 MAQUINARIA": {
+    "📁 Gestión de maquinaria": [
+      "Ver maquinaria",
+      "Crear maquinaria",
+      "Editar datos básicos de maquinaria",
+      "Eliminar maquinaria"
+    ],
+    "💵 Costos de maquinaria": [
+      "Ver costo de adquisición de maquinaria",
+      "Ver total gastado en servicios",
+      "Ver combustible gastado último mes"
+    ],
+    "📋 Asignaciones de maquinaria ": [
+      "Ver asignaciones de maquinaria"
+    ],
+    "⚙️ Servicios de maquinaria": [
+      "Ver historial de servicios",
+      "Registrar servicio",
+      "Editar servicio",
+      "Eliminar servicio"
+    ],
+    "⛽️ Consumos de maquinaria": [
+      "Ver historial de consumos",
+      "Registrar consumo",
+      "Editar consumo",
+      "Eliminar consumo"
+    ]
+  },
+  "📊 GENERAL": {
+    "📌 Pizarrón general": [
+      "Ver tareas generales",
+      "Crear tarea general",
+      "Cambiar status de tarea general"
+    ]
+  }
 }

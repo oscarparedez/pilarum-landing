@@ -14,6 +14,7 @@ export const tokens = {
     unidades: 'nav.unidades',
     marcas: 'nav.marcas',
     oficina: 'nav.oficina',
+    empresas: 'nav.empresas',
     personal: 'nav.planilla',
     roles: 'nav.roles',
     finanzas: 'nav.finanzas',

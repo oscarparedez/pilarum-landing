@@ -27,10 +27,8 @@ import { SplashScreen } from 'src/components/splash-screen';
 import { SettingsButton } from 'src/components/settings/settings-button';
 import { SettingsDrawer } from 'src/components/settings/settings-drawer';
 import { Toaster } from 'src/components/toaster';
-import { gtmConfig } from 'src/config';
 import { AuthConsumer, AuthProvider } from 'src/contexts/auth';
 import { SettingsConsumer, SettingsProvider } from 'src/contexts/settings';
-import { useAnalytics } from 'src/hooks/use-analytics';
 import { useNprogress } from 'src/hooks/use-nprogress';
 import { store } from 'src/store';
 import { createTheme } from 'src/theme';
@@ -46,7 +44,6 @@ export interface CustomAppProps extends AppProps {
 const CustomApp = (props: CustomAppProps) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
-  useAnalytics(gtmConfig);
   useNprogress();
 
   const getLayout = Component.getLayout ?? ((page) => page);

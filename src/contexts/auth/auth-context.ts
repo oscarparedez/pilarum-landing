@@ -17,8 +17,8 @@ export const initialState: State = {
 
 export interface AuthContextType extends State {
   issuer: Issuer.JWT;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, name: string, password: string) => Promise<void>;
+  signIn: (username: string, password: string) => Promise<void>;
+  signUp: (username: string, name: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 

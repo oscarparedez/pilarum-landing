@@ -2,14 +2,11 @@ import type { FC, ReactNode } from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 
-import { authApi } from 'src/api/auth';
 import type { User } from 'src/types/user';
 import { Issuer } from 'src/utils/auth';
-
 import type { State } from './auth-context';
 import { AuthContext, initialState } from './auth-context';
-
-const STORAGE_KEY = 'accessToken';
+import { useAuthApi } from 'src/api/auth/useAuthApi';
 
 enum ActionType {
   INITIALIZE = 'INITIALIZE',
@@ -91,35 +88,22 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: FC<AuthProviderProps> = (props) => {
-  const { children } = props;
+export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { signIn: apiSignIn, me, signOut: apiSignOut } = useAuthApi();
 
   const initialize = useCallback(async (): Promise<void> => {
     try {
-      const accessToken = window.sessionStorage.getItem(STORAGE_KEY);
+      const user = await me();
 
-      if (accessToken) {
-        const user = await authApi.me({ accessToken });
-
-        dispatch({
-          type: ActionType.INITIALIZE,
-          payload: {
-            isAuthenticated: true,
-            user,
-          },
-        });
-      } else {
-        dispatch({
-          type: ActionType.INITIALIZE,
-          payload: {
-            isAuthenticated: false,
-            user: null,
-          },
-        });
-      }
+      dispatch({
+        type: ActionType.INITIALIZE,
+        payload: {
+          isAuthenticated: true,
+          user,
+        },
+      });
     } catch (err) {
-      console.error(err);
       dispatch({
         type: ActionType.INITIALIZE,
         payload: {
@@ -128,54 +112,45 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         },
       });
     }
-  }, [dispatch]);
+  }, [me]);
 
-  useEffect(
-    () => {
-      initialize();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const signIn = useCallback(
-    async (email: string, password: string): Promise<void> => {
-      const { accessToken } = await authApi.signIn({ email, password });
-      const user = await authApi.me({ accessToken });
-
-      sessionStorage.setItem(STORAGE_KEY, accessToken);
+    async (username: string, password: string): Promise<void> => {
+      await apiSignIn(username, password);
+      const user = await me();
 
       dispatch({
         type: ActionType.SIGN_IN,
-        payload: {
-          user,
-        },
+        payload: { user },
       });
     },
-    [dispatch]
+    [apiSignIn, me]
   );
 
   const signUp = useCallback(
-    async (email: string, name: string, password: string): Promise<void> => {
-      const { accessToken } = await authApi.signUp({ email, name, password });
-      const user = await authApi.me({ accessToken });
+    async (username: string, name: string, password: string): Promise<void> => {
+    //   await apiSignUp(username, name, password);
+    //   const user = await me();
 
-      sessionStorage.setItem(STORAGE_KEY, accessToken);
-
-      dispatch({
-        type: ActionType.SIGN_UP,
-        payload: {
-          user,
-        },
-      });
-    },
-    [dispatch]
+    //   dispatch({
+    //     type: ActionType.SIGN_UP,
+    //     payload: { user },
+    //   });
+    // },
+    // [apiSignUp, me]
+      throw new Error('Sign up is not implemented yet');
+    }, 
+    []
   );
 
   const signOut = useCallback(async (): Promise<void> => {
-    sessionStorage.removeItem(STORAGE_KEY);
+    apiSignOut();
     dispatch({ type: ActionType.SIGN_OUT });
-  }, [dispatch]);
+  }, [apiSignOut]);
 
   return (
     <AuthContext.Provider
