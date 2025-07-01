@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { useSettings } from 'src/hooks/use-settings';
@@ -9,35 +9,80 @@ import { EstadisticasRapidas } from './estadisticas-rapidas/estadisticas-rapidas
 import { Asignaciones } from './asignaciones/asignaciones';
 import { HistorialServicios } from './historial-servicios/historial-servicios';
 import { HistorialConsumos } from './historial-consumos/historial-consumos';
-import { Servicio, Consumo } from './index.d';
 import { EditarDatosBasicosModal } from './editar-datos-modal';
-import maquinaria from './maquinaria.json';
-
-import { ConfigMaquinaria } from './index.d';
-
-const config: ConfigMaquinaria = maquinaria as ConfigMaquinaria;
+import { ConfigMaquinaria, TipoMaquinaria } from './index.d';
+import toast from 'react-hot-toast';
+import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
+import { FullPageLoader } from 'src/components/loader/Loader';
 
 const Page: NextPage = () => {
   const settings = useSettings();
-  usePageView();
+  const router = useRouter();
+  const { id } = router.query;
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
+  const [data, setData] = useState<ConfigMaquinaria | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const { getMaquinariaById, actualizarMaquinaria } = useMaquinariasApi();
+  usePageView();
+
+  const fetchData = async () => {
+    try {
+      if (!id) return;
+      setLoading(true);
+      const res = await getMaquinariaById(Number(id));
+      setData(res);
+    } catch (e) {
+      toast.error('Error al obtener la maquinaria');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmEdit = async (updated: {
+    tipo: TipoMaquinaria;
+    nombre: string;
+    identificador?: string;
+    costo: number;
+  }) => {
+    try {
+      if (!id) return;
+      setLoading(true);
+      await actualizarMaquinaria(Number(id), updated);
+      toast.success('Recurso actualizado');
+      setModalEditarOpen(false);
+      fetchData();
+    } catch {
+      toast.error('Error al actualizar el recurso');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
+
+  if (!data) return null;
 
   const {
     nombre,
     identificador,
+    tipo,
     costo,
     totalServicios,
     totalCombustibleUltimoMes,
     asignaciones,
     servicios,
     consumos,
-  } = config;
+  } = data;
 
   return (
     <Box
       component="main"
       sx={{ flexGrow: 1, py: 8 }}
     >
+      {loading && <FullPageLoader />}
       <Container maxWidth={settings.stretch ? false : 'xl'}>
         <Stack spacing={3}>
           <Stack
@@ -47,7 +92,9 @@ const Page: NextPage = () => {
           >
             <Box>
               <Typography variant="h4">{nombre}</Typography>
-              <Typography color="text.secondary">Identificador: {identificador}</Typography>
+              <Typography color="text.secondary">
+                {`${tipo.charAt(0).toUpperCase()}${tipo.slice(1)} #${identificador}`}
+              </Typography>
             </Box>
             <Button
               variant="outlined"
@@ -61,30 +108,22 @@ const Page: NextPage = () => {
             open={modalEditarOpen}
             onClose={() => setModalEditarOpen(false)}
             initialData={{
-              nombre: maquinaria.nombre,
-              identificador: maquinaria.identificador,
-              esMaquina: true,
+              nombre,
+              identificador,
+              costo,
+              tipo,
             }}
-            onConfirm={(updated) => {
-              // llamada api
-              setModalEditarOpen(false);
-            }}
+            onConfirm={handleConfirmEdit}
           />
 
-          {/* ESTADISTICAS RAPIDAS */}
           <EstadisticasRapidas
             costo={costo}
             totalServicios={totalServicios}
             totalCombustibleUltimoMes={totalCombustibleUltimoMes}
           />
 
-          {/* ASIGNACIONES */}
           <Asignaciones asignaciones={asignaciones} />
-
-          {/* HISTORIAL DE SERVICIOS */}
           <HistorialServicios servicios={servicios} />
-
-          {/* HISTORIAL CONSUMOS */}
           <HistorialConsumos consumos={consumos} />
         </Stack>
       </Container>

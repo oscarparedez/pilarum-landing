@@ -1,21 +1,10 @@
-export interface Servicio {
-  tipo: 'Reparación' | 'Mantenimiento';
-  fecha: string;
-  solicitadoPor: { nombre: string; id: string };
-  anotaciones: string;
-  fotos: string[];
-  costo: number;
-}
+export type TipoConsumo = 'combustible' | 'mantenimiento' | '';
 
-export type TipoConsumo = 'diesel' | 'aceite' | 'gasolina' | '';
+export type TipoMaquinaria = 'maquinaria' | 'herramienta';
 
-export type UnidadConsumo = 'litros' | 'galones' | '';
-
-export interface Consumo {
-  tipo: TipoConsumo;
-  fecha: string;
-  cantidad: string;
-  unidad: UnidadConsumo;
+export interface GastoMaquinaria {
+  tipo_gasto: TipoConsumo;
+  fecha_creacion: string;
   anotaciones: string;
   solicitadoPor: { nombre: string; id: string };
   costo: number;
@@ -32,6 +21,7 @@ export interface Asignacion {
 export interface ConfigMaquinaria {
   nombre: string;
   identificador?: string;
+  tipo: TipoMaquinaria;
   costo: number;
   totalServicios: number;
   totalCombustibleUltimoMes: number;

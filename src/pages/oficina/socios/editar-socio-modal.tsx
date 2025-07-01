@@ -7,33 +7,38 @@ import {
   Card,
   CardHeader,
   Divider,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 
-interface ModalEditarEmpresaProps {
+interface ModalEditarSocioProps {
   open: boolean;
   onClose: () => void;
-  initialData: { id: string; nombre: string };
-  onConfirm: (data: { id: string; nombre: string }) => void;
+  initialData: { id: number; nombre: string; tipo: 'interno' | 'externo' };
+  onConfirm: (data: { id: number; nombre: string; tipo: 'interno' | 'externo' }) => void;
 }
 
-export const ModalEditarEmpresa: FC<ModalEditarEmpresaProps> = ({
+export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
   open,
   onClose,
   initialData,
   onConfirm,
 }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
+  const [tipo, setTipo] = useState<'interno' | 'externo'>(initialData.tipo);
 
   useEffect(() => {
     if (open) {
       setNombre(initialData.nombre);
+      setTipo(initialData.tipo);
     }
   }, [open, initialData]);
 
   const handleSubmit = () => {
     if (!nombre.trim()) return;
-    onConfirm({ id: initialData.id, nombre: nombre.trim() });
+    onConfirm({ id: initialData.id, nombre: nombre.trim(), tipo });
     onClose();
   };
 
@@ -51,15 +56,37 @@ export const ModalEditarEmpresa: FC<ModalEditarEmpresaProps> = ({
         }}
       >
         <Card>
-          <CardHeader title="Editar empresa" />
+          <CardHeader title="Editar socio" />
           <Divider />
           <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              label="Nombre de la empresa"
+              label="Nombre del socio"
               fullWidth
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
+
+            <Box>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                Tipo de socio
+              </Typography>
+              <ToggleButtonGroup
+                value={tipo}
+                exclusive
+                onChange={(_, newTipo) => {
+                  if (newTipo) setTipo(newTipo);
+                }}
+                fullWidth
+              >
+                <ToggleButton value="interno" sx={{ textTransform: 'none' }}>
+                  Interno
+                </ToggleButton>
+                <ToggleButton value="externo" sx={{ textTransform: 'none' }}>
+                  Externo
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+
             <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button onClick={onClose}>Cancelar</Button>
               <Button

@@ -48,8 +48,8 @@ export const useSections = (): Section[] => {
         subheader: t(tokens.nav.oficina),
         items: [
           {
-            title: t(tokens.nav.empresas),
-            path: paths.dashboard.oficina.empresas,
+            title: t(tokens.nav.socios),
+            path: paths.dashboard.oficina.socios,
             icon: <SvgIcon fontSize="small"><BuildingIcon /></SvgIcon>,
           },
           {

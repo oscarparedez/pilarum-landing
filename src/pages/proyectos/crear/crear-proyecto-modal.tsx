@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Modal,
   Box,
@@ -12,6 +12,7 @@ import {
   Select,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { useSociosApi } from 'src/api/socios/useSociosApi';
 
 interface CrearProyectoModalProps {
   open: boolean;
@@ -26,11 +27,11 @@ interface CrearProyectoModalProps {
   }) => void;
 }
 
-const socios = [
-  { id: '1', nombre: 'Juan Pérez' },
-  { id: '2', nombre: 'Ana Gómez' },
-  { id: '3', nombre: 'Carlos Rodríguez' },
-];
+interface Socio {
+  id: number;
+  tipo: 'interno' | 'externo';
+  nombre: string;
+}
 
 export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose, onConfirm }) => {
   const [nombre, setNombre] = useState('');
@@ -39,6 +40,23 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
   const [socioAsignado, setSocioAsignado] = useState('');
   const [fechaInicio, setFechaInicio] = useState<Date | null>(new Date());
   const [fechaFin, setFechaFin] = useState<Date | null>(new Date());
+  const [socios, setSocios] = useState<Socio[]>([]);
+  const { getSociosInternos } = useSociosApi();
+
+useEffect(() => {
+  const fetchSociosInternos = async () => {
+    try {
+      const socios = await getSociosInternos();
+      setSocios(socios);
+    } catch (error) {
+      console.error('Error fetching socios:', error);
+    }
+  };
+
+  if (open) {
+    fetchSociosInternos();
+  }
+}, [open, getSociosInternos]);
 
   const handleConfirm = () => {
     if (nombre && ubicacion && presupuesto !== '' && socioAsignado && fechaInicio && fechaFin) {
@@ -55,10 +73,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-    >
+    <Modal open={open} onClose={onClose}>
       <Box
         sx={{
           position: 'absolute',
@@ -72,10 +87,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
           p: 4,
         }}
       >
-        <Typography
-          variant="h6"
-          mb={2}
-        >
+        <Typography variant="h6" mb={2}>
           Crear nuevo proyecto
         </Typography>
 
@@ -111,49 +123,28 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
               onChange={(e) => setSocioAsignado(e.target.value)}
             >
               {socios.map((socio) => (
-                <MenuItem
-                  key={socio.id}
-                  value={socio.id}
-                >
+                <MenuItem key={socio.id} value={socio.id}>
                   {socio.nombre}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <Stack
-            direction="row"
-            spacing={2}
-            justifyContent="space-between"
-          >
+          <Stack direction="row" spacing={2} justifyContent="space-between">
             <Box>
               <Typography variant="subtitle2">Fecha de inicio</Typography>
-              <DateCalendar
-                value={fechaInicio}
-                onChange={(d) => setFechaInicio(d)}
-              />
+              <DateCalendar value={fechaInicio} onChange={(d) => setFechaInicio(d)} />
             </Box>
 
             <Box>
               <Typography variant="subtitle2">Fecha final</Typography>
-              <DateCalendar
-                value={fechaFin}
-                onChange={(d) => setFechaFin(d)}
-              />
+              <DateCalendar value={fechaFin} onChange={(d) => setFechaFin(d)} />
             </Box>
           </Stack>
 
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            spacing={2}
-            mt={2}
-          >
+          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
             <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              onClick={handleConfirm}
-            >
+            <Button variant="contained" onClick={handleConfirm}>
               Guardar proyecto
             </Button>
           </Stack>

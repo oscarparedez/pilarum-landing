@@ -11,7 +11,7 @@ export const paths = {
   dashboard: {
     inicio: '/dashboard',  
     oficina: {
-      empresas: '/oficina/empresas',
+      socios: '/oficina/socios',
       planilla: '/oficina/planilla',
       roles: '/oficina/roles',
       ingresos: '/oficina/ingresos',
@@ -33,7 +33,7 @@ export const paths = {
     maquinaria: {
       index: '/maquinaria',
       crear: '/maquinaria/crear',
-      detalle: (id: string) => `/maquinaria/${id}`,
+      detalle: (id: number) => `/maquinaria/${id}`,
     },
   },
   components: {

@@ -1,15 +1,22 @@
 import { FC, useEffect, useState } from 'react';
-import { Modal, Box, Button, TextField, Typography, Stack } from '@mui/material';
+import { Modal, Box, Button, TextField, Typography, Stack, MenuItem } from '@mui/material';
+import { TipoMaquinaria } from './index.d';
 
 interface EditarDatosBasicosModalProps {
   open: boolean;
   onClose: () => void;
   initialData: {
+    tipo: TipoMaquinaria;
     nombre: string;
     identificador?: string;
-    esMaquina?: boolean;
+    costo: number;
   };
-  onConfirm: (data: { nombre: string; identificador?: string }) => void;
+  onConfirm: (data: {
+    tipo: TipoMaquinaria;
+    nombre: string;
+    identificador?: string;
+    costo: number;
+  }) => void;
 }
 
 export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
@@ -18,24 +25,29 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   initialData,
   onConfirm,
 }) => {
+  const [tipo, setTipo] = useState<TipoMaquinaria>(initialData.tipo);
   const [nombre, setNombre] = useState(initialData.nombre);
   const [identificador, setIdentificador] = useState(initialData.identificador || '');
+  const [costo, setCosto] = useState(initialData.costo.toString());
 
   useEffect(() => {
     if (open) {
+      setTipo(initialData.tipo);
       setNombre(initialData.nombre);
       setIdentificador(initialData.identificador || '');
+      setCosto(initialData.costo.toString());
     }
   }, [open, initialData]);
 
   const handleConfirm = () => {
-    if (nombre.trim()) {
-      onConfirm({
-        nombre: nombre.trim(),
-        ...(identificador.trim() && { identificador: identificador.trim() }),
-      });
-      onClose();
-    }
+    if (!nombre.trim() || !costo) return;
+    onConfirm({
+      tipo,
+      nombre: nombre.trim(),
+      ...(identificador.trim() && { identificador: identificador.trim() }),
+      costo: parseFloat(costo),
+    });
+    onClose();
   };
 
   return (
@@ -60,10 +72,21 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
           variant="h6"
           mb={2}
         >
-          Editar {initialData.esMaquina ? 'maquinaria' : 'herramienta'}
+          Editar recurso
         </Typography>
 
         <Stack spacing={3}>
+          <TextField
+            select
+            label="Tipo"
+            value={tipo}
+            onChange={(e) => setTipo(e.target.value as TipoMaquinaria)}
+            fullWidth
+          >
+            <MenuItem value="maquinaria">Maquinaria</MenuItem>
+            <MenuItem value="herramienta">Herramienta</MenuItem>
+          </TextField>
+
           <TextField
             label="Nombre"
             fullWidth
@@ -76,6 +99,14 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
             fullWidth
             value={identificador}
             onChange={(e) => setIdentificador(e.target.value)}
+          />
+
+          <TextField
+            label="Costo (Q)"
+            type="number"
+            fullWidth
+            value={costo}
+            onChange={(e) => setCosto(e.target.value)}
           />
 
           <Stack

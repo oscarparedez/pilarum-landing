@@ -10,7 +10,7 @@ export const es = {
   [tokens.nav.asignaciones]: 'Asignación de técnicos',
   [tokens.nav.revisiones]: 'Revisiones de avance',
   [tokens.nav.oficina]: 'Oficina',
-  [tokens.nav.empresas]: 'Empresas',
+  [tokens.nav.socios]: 'Socios',
   [tokens.nav.personal]: 'Planilla de personal',
   [tokens.nav.roles]: 'Roles y permisos',
   [tokens.nav.finanzas]: 'Finanzas',

@@ -72,7 +72,7 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
           alignItems="center"
           sx={{ px: 3, py: 3 }}
         >
-          <Typography variant="h5">Historial de servicios</Typography>
+          <Typography variant="h5">Historial de mantenimiento</Typography>
           <Button
             variant="contained"
             onClick={() => setAgregarModalOpen(true)}

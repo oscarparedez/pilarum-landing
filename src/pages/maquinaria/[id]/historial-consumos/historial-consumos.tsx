@@ -73,7 +73,7 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
           alignItems="center"
           sx={{ px: 3, py: 3 }}
         >
-          <Typography variant="h5">Historial de consumos</Typography>
+          <Typography variant="h5">Historial de combustible</Typography>
           <Button
             variant="contained"
             onClick={() => setModalOpen(true)}

@@ -8,6 +8,7 @@ interface ModalAgregarRecursoProps {
     tipo: 'maquinaria' | 'herramienta';
     nombre: string;
     identificador?: string;
+    costo: number;
   }) => void;
 }
 
@@ -15,22 +16,26 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
   const [tipo, setTipo] = useState<'maquinaria' | 'herramienta'>('maquinaria');
   const [nombre, setNombre] = useState('');
   const [identificador, setIdentificador] = useState('');
+  const [costo, setCosto] = useState('');
 
   const handleConfirm = () => {
-    if (!nombre) return;
-    const data = { tipo, nombre, ...(identificador ? { identificador } : {}) };
+    if (!nombre || !costo) return;
+    const data = {
+      tipo,
+      nombre,
+      ...(identificador ? { identificador } : {}),
+      costo: parseFloat(costo),
+    };
     onConfirm(data);
     onClose();
     setNombre('');
     setIdentificador('');
+    setCosto('');
     setTipo('maquinaria');
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-    >
+    <Modal open={open} onClose={onClose}>
       <Box
         sx={{
           position: 'absolute',
@@ -44,10 +49,7 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
           p: 4,
         }}
       >
-        <Typography
-          variant="h6"
-          mb={2}
-        >
+        <Typography variant="h6" mb={2}>
           Agregar nuevo recurso
         </Typography>
         <Stack spacing={2}>
@@ -76,17 +78,17 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
             fullWidth
           />
 
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            spacing={2}
-            mt={2}
-          >
+          <TextField
+            label="Costo"
+            type="number"
+            value={costo}
+            onChange={(e) => setCosto(e.target.value)}
+            fullWidth
+          />
+
+          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
             <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              onClick={handleConfirm}
-            >
+            <Button variant="contained" onClick={handleConfirm}>
               Guardar
             </Button>
           </Stack>
