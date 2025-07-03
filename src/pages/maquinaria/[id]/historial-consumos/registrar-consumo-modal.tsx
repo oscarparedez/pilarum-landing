@@ -23,8 +23,6 @@ interface ModalRegistrarConsumoProps {
   onConfirm: (data: {
     tipo: string;
     fecha: string;
-    cantidad: string;
-    unidad: string;
     solicitadoPor: string;
     anotaciones: string;
     costo: number;
@@ -46,8 +44,6 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
 }) => {
   const [tipo, setTipo] = useState('Diesel');
   const [fecha, setFecha] = useState<Date | null>(new Date());
-  const [cantidad, setCantidad] = useState('');
-  const [unidad, setUnidad] = useState('galones');
   const [solicitadoPor, setSolicitadoPor] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
   const [costo, setCosto] = useState('');
@@ -66,8 +62,6 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   const handleClose = () => {
     setTipo('Diesel');
     setFecha(new Date());
-    setCantidad('');
-    setUnidad('galones');
     setSolicitadoPor('');
     setAnotaciones('');
     setCosto('');
@@ -77,12 +71,10 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   };
 
   const handleConfirm = () => {
-    if (tipo && fecha && cantidad && unidad && solicitadoPor && costo) {
+    if (tipo && fecha && solicitadoPor && costo) {
       onConfirm({
         tipo,
         fecha: fecha.toISOString().split('T')[0],
-        cantidad,
-        unidad,
         solicitadoPor,
         anotaciones,
         costo: parseFloat(costo),
@@ -123,29 +115,6 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
               onChange={(newValue) => setFecha(newValue)}
             />
           </Box>
-
-          <Stack
-            direction="row"
-            spacing={2}
-          >
-            <TextField
-              label="Cantidad"
-              type="text"
-              value={cantidad}
-              onChange={(e) => setCantidad(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              select
-              label="Unidad"
-              value={unidad}
-              onChange={(e) => setUnidad(e.target.value)}
-              fullWidth
-            >
-              <MenuItem value="galones">galones</MenuItem>
-              <MenuItem value="litros">litros</MenuItem>
-            </TextField>
-          </Stack>
 
           <TextField
             label="Costo (Q)"
@@ -318,9 +287,7 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={
-            !tipo || !fecha || !cantidad || !unidad || !solicitadoPor || !anotaciones || !costo
-          }
+          disabled={!tipo || !fecha || !solicitadoPor || !costo}
         >
           Guardar consumo
         </Button>

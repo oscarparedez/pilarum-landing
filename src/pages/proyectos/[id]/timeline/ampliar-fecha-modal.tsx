@@ -14,12 +14,13 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
+import { formatearFechaLocalMasUno } from 'src/utils/format-date';
 
 interface AmpliarFechaModalProps {
   open: boolean;
   onClose: () => void;
   fechaActual: string;
-  onSave?: (nuevaFecha: Date, anotaciones: string) => void;
+  onSave: (nuevaFecha: Date, motivo: string) => void;
 }
 
 export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
@@ -29,11 +30,11 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
   onSave,
 }) => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
-  const [anotaciones, setAnotaciones] = useState('');
+  const [motivo, setMotivo] = useState('');
 
   const handleSave = () => {
-    if (fechaSeleccionada && anotaciones && onSave) {
-      onSave(fechaSeleccionada, anotaciones);
+    if (fechaSeleccionada && motivo && onSave) {
+      onSave(fechaSeleccionada, motivo);
       onClose();
     }
   };
@@ -78,18 +79,19 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
               views={['year', 'month', 'day']}
               value={fechaSeleccionada}
               onChange={(newDate) => setFechaSeleccionada(newDate)}
+              minDate={formatearFechaLocalMasUno(fechaActual)}
             />
           </LocalizationProvider>
         </Box>
 
         <TextField
-          label="Anotaciones"
+          label="motivo"
           multiline
           rows={3}
           fullWidth
           required
-          value={anotaciones}
-          onChange={(e) => setAnotaciones(e.target.value)}
+          value={motivo}
+          onChange={(e) => setMotivo(e.target.value)}
           sx={{ mt: 2 }}
         />
       </DialogContent>
@@ -110,7 +112,7 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
             onClick={handleSave}
             variant="contained"
             size="large"
-            disabled={!fechaSeleccionada || !anotaciones}
+            disabled={!fechaSeleccionada || !motivo}
           >
             Guardar
           </Button>

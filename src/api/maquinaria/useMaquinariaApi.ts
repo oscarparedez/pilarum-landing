@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { calcularTotalCombustibleUltimoMes, calcularTotalServicios } from './utils';
-import { ConfigMaquinaria, Consumo, Servicio, Asignacion } from 'src/pages/maquinaria/[id]/index.d';
+import { ConfigMaquinaria, GastoMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
 
 export interface Maquinaria {
   id: number;
@@ -38,7 +38,7 @@ export const useMaquinariasApi = () => {
       }
 
       const maquinaria = await maquinariaRes.json();
-      const gastosOperativos: Consumo[] = await gastosOperativosRes.json();
+      const gastosOperativos: GastoMaquinaria[] = await gastosOperativosRes.json();
       // const asignaciones: Asignacion[] = await asignacionesRes.json();
 
       return {

@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { useSettings } from 'src/hooks/use-settings';
@@ -26,7 +26,7 @@ const Page: NextPage = () => {
   const { getMaquinariaById, actualizarMaquinaria } = useMaquinariasApi();
   usePageView();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (!id) return;
       setLoading(true);
@@ -37,7 +37,7 @@ const Page: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, setLoading, getMaquinariaById, setData]);
 
   const handleConfirmEdit = async (updated: {
     tipo: TipoMaquinaria;
@@ -61,7 +61,7 @@ const Page: NextPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+  }, [fetchData]);
 
   if (!data) return null;
 

@@ -16,14 +16,14 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import type { Servicio } from '../index.d';
+import type { GastoMaquinaria, TipoConsumo } from '../index.d';
 import { formatearFechaLocal } from 'src/utils/format-date';
 
 interface ModalEditarServicioProps {
   open: boolean;
-  servicio: Servicio | null;
+  servicio: GastoMaquinaria | null;
   onClose: () => void;
-  onConfirm: (data: Servicio & { nuevasImagenes: File[] }) => void;
+  onConfirm: (data: GastoMaquinaria & { nuevasImagenes: File[] }) => void;
 }
 
 const usuarios = [
@@ -40,7 +40,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const [tipo, setTipo] = useState<'Reparación' | 'Mantenimiento'>('Reparación');
+  const [tipo, setTipo] = useState<TipoConsumo>('');
   const [fecha, setFecha] = useState<Date | null>(new Date());
   const [anotaciones, setAnotaciones] = useState('');
   const [costo, setCosto] = useState('');
@@ -50,8 +50,8 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
 
   useEffect(() => {
     if (servicio) {
-      setTipo(servicio.tipo);
-      setFecha(formatearFechaLocal(servicio.fecha));
+      setTipo(servicio.tipo_gasto);
+      setFecha(formatearFechaLocal(servicio.fecha_creacion));
       setAnotaciones(servicio.anotaciones);
       setCosto(servicio.costo.toString());
       setSolicitadoPor(servicio.solicitadoPor);
@@ -80,8 +80,8 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
       const nuevasImagenes = imagenes.filter((img) => img instanceof File) as File[];
       onConfirm({
         ...servicio,
-        tipo,
-        fecha: fecha.toISOString().split('T')[0],
+        tipo_gasto: tipo,
+        fecha_creacion: fecha.toISOString().split('T')[0],
         anotaciones,
         costo: parseFloat(costo),
         solicitadoPor,
@@ -108,7 +108,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
             select
             label="Tipo de servicio"
             value={tipo}
-            onChange={(e) => setTipo(e.target.value as 'Reparación' | 'Mantenimiento')}
+            onChange={(e) => setTipo(e.target.value as TipoConsumo)}
           >
             <MenuItem value="Reparación">Reparación</MenuItem>
             <MenuItem value="Mantenimiento">Mantenimiento</MenuItem>

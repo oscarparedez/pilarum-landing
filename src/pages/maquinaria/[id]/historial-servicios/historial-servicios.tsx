@@ -15,7 +15,7 @@ import {
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
-import type { Servicio } from '../index.d';
+import type { GastoMaquinaria } from '../index.d';
 import { ModalRegistrarServicio } from './registrar-servicio-modal';
 import { ServicioImagenesModal } from './servicio-imagenes-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
@@ -23,13 +23,13 @@ import { ModalEditarServicio } from './editar-servicio-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 
 interface Props {
-  servicios: Servicio[];
+  servicios: GastoMaquinaria[];
 }
 
 export const HistorialServicios: FC<Props> = ({ servicios }) => {
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
-  const [editarServicio, setEditarServicio] = useState<Servicio | null>(null);
-  const [servicioAEliminar, setServicioAEliminar] = useState<Servicio | null>(null);
+  const [editarServicio, setEditarServicio] = useState<GastoMaquinaria | null>(null);
+  const [servicioAEliminar, setServicioAEliminar] = useState<GastoMaquinaria | null>(null);
   const [visorAbierto, setVisorAbierto] = useState(false);
   const [fotosVisor, setFotosVisor] = useState<string[]>([]);
   const [filtros, setFiltros] = useState<{
@@ -45,14 +45,14 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
     return servicios.filter((s) => {
       const cumpleBusqueda =
         !filtros.search ||
-        s.tipo.toLowerCase().includes(filtros.search.toLowerCase()) ||
+        s.tipo_gasto.toLowerCase().includes(filtros.search.toLowerCase()) ||
         s.solicitadoPor.nombre.toLowerCase().includes(filtros.search.toLowerCase()) ||
         s.anotaciones.toLowerCase().includes(filtros.search.toLowerCase());
 
       const cumpleFechaInicio =
-        !filtros.fechaInicio || new Date(s.fecha) >= new Date(filtros.fechaInicio);
+        !filtros.fechaInicio || new Date(s.fecha_creacion) >= new Date(filtros.fechaInicio);
 
-      const cumpleFechaFin = !filtros.fechaFin || new Date(s.fecha) <= new Date(filtros.fechaFin);
+      const cumpleFechaFin = !filtros.fechaFin || new Date(s.fecha_creacion) <= new Date(filtros.fechaFin);
 
       return cumpleBusqueda && cumpleFechaInicio && cumpleFechaFin;
     });
@@ -108,8 +108,8 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
                         key={i}
                         hover
                       >
-                        <TableCell>{s.tipo}</TableCell>
-                        <TableCell>{s.fecha}</TableCell>
+                        <TableCell>{s.tipo_gasto}</TableCell>
+                        <TableCell>{s.fecha_creacion}</TableCell>
                         <TableCell>{s.solicitadoPor.nombre}</TableCell>
                         <TableCell>Q{s.costo.toLocaleString()}</TableCell>
                         <TableCell>{s.anotaciones}</TableCell>

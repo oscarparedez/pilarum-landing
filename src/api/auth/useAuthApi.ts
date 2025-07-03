@@ -26,7 +26,7 @@ export const useAuthApi = () => {
     });
 
     if (!res.ok) throw new Error('Credenciales inválidas');
-    
+
     const data = await res.json();
     setTokens(data.access, data.refresh);
     return data;
@@ -89,25 +89,32 @@ export const useAuthApi = () => {
   }, []);
 
   // Wrapper con refresh automático
-  const fetchWithAuth = useCallback(async (input: RequestInfo, init: RequestInit = {}) => {
-    let access = getAccessToken();
-    const addAuth = (token: string) => ({
-      ...init,
-      headers: {
-        ...init.headers,
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const fetchWithAuth = useCallback(
+    async (input: RequestInfo, init: RequestInit = {}) => {
+      let access = getAccessToken() ?? '';
 
-    let res = await fetch(input, addAuth(access || ''));
+      const addAuth = (token: string): RequestInit => ({
+        ...init,
+        headers: {
+          ...init.headers,
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (res.status === 401) {
-      access = await refreshAccessToken();
-      res = await fetch(input, addAuth(access));
-    }
+      let res = await fetch(input, addAuth(access));
 
-    return res;
-  }, [refreshAccessToken]);
+      if (res.status === 401) {
+        const newAccess = await refreshAccessToken();
+        if (!newAccess) throw new Error('No se pudo refrescar el token');
+
+        access = newAccess;
+        res = await fetch(input, addAuth(access));
+      }
+
+      return res;
+    },
+    [refreshAccessToken]
+  );
 
   return {
     signIn,

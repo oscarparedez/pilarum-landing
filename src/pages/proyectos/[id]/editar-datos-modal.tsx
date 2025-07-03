@@ -59,8 +59,6 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   const [fechaInicio, setFechaInicio] = useState<Date | null>(new Date(initialData.fechaInicio));
   const [fechaFin, setFechaFin] = useState<Date | null>(new Date(initialData.fechaFin));
 
-  console.log('initialData', initialData);
-
   const handleConfirm = () => {
     if (nombre && ubicacion && presupuesto && fechaInicio && fechaFin) {
       onConfirm({

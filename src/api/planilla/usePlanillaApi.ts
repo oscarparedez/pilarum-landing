@@ -1,15 +1,7 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-
-export interface Usuario {
-  id: number;
-  username: string;
-  name: string;
-  email?: string;
-  is_active: boolean;
-  [key: string]: any;
-}
+import { Usuario } from 'src/pages/oficina/planilla/index.d';
 
 export const usePlanillaApi = () => {
   const { fetchWithAuth } = useAuthApi();

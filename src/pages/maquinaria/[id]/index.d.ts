@@ -26,6 +26,6 @@ export interface ConfigMaquinaria {
   totalServicios: number;
   totalCombustibleUltimoMes: number;
   asignaciones: Asignacion[];
-  servicios: Servicio[];
-  consumos: Consumo[];
+  servicios: GastoMaquinaria[];
+  consumos: GastoMaquinaria[];
 }

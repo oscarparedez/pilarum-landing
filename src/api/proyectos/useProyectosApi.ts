@@ -2,6 +2,11 @@ import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { usePresupuestosApi } from '../presupuestos/usePresupuestosApi';
+import { useIngresosApi } from '../ingresos/useIngresosApi';
+import { usePagosApi } from '../pagos/usePagosApi';
+import { useAmpliacionesApi } from '../ampliaciones/useAmpliacionesApi';
+import { mapProyectoDatosBasicosToFrontend, mapProyectoToConfig } from './utils';
+import { ConfigProyecto } from 'src/pages/proyectos/[id]/index.d';
 
 export interface Proyecto {
   id: number;
@@ -15,7 +20,10 @@ export interface Proyecto {
 
 export const useProyectosApi = () => {
   const { fetchWithAuth } = useAuthApi();
-  const { crearPresupuestoInicial } = usePresupuestosApi();
+  const { crearPresupuestoInicial, getPresupuestos } = usePresupuestosApi();
+  const { getIngresos } = useIngresosApi();
+  const { getPagos } = usePagosApi();
+  const { getAmpliaciones } = useAmpliacionesApi();
 
   const getProyectos = useCallback(async (): Promise<Proyecto[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/`, { method: 'GET' });
@@ -96,11 +104,44 @@ export const useProyectosApi = () => {
     [fetchWithAuth]
   );
 
+  const getProyectoInfo = useCallback(
+    async (id: number): Promise<ConfigProyecto> => {
+      try {
+        const [proyectoRaw, ingresos, pagos, ampliaciones, presupuestos] = await Promise.all([
+          getProyectoById(id),
+          getIngresos(id),
+          getPagos(id),
+          getAmpliaciones(id),
+          getPresupuestos(id),
+        ]);
+
+        const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
+
+        return mapProyectoToConfig({
+          nombre: proyecto.nombre,
+          ubicacion: proyecto.ubicacion,
+          fecha_inicio: proyecto.fechaInicio,
+          fecha_fin: proyecto.fechaFin,
+          socioAsignado: proyecto.socioAsignado,
+          ingresos,
+          pagos,
+          ampliaciones,
+          presupuestos,
+        });
+      } catch (error) {
+        console.error('Error al obtener los datos del proyecto completo:', error);
+        throw new Error('No se pudo obtener la información completa del proyecto');
+      }
+    },
+    [getProyectoById, getIngresos, getPagos, getAmpliaciones, getPresupuestos]
+  );
+
   return {
     getProyectos,
     getProyectoById,
     crearProyecto,
     actualizarProyecto,
     eliminarProyecto,
+    getProyectoInfo,
   };
 };

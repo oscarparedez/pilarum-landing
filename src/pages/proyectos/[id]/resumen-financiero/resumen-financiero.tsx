@@ -31,9 +31,11 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   const [openMovimientos, setOpenMovimientos] = useState(false);
 
   const totalIngresos = ingresos.reduce((acc, curr) => acc + curr.monto_total, 0);
-  const ultimoIngreso = ingresos.reduce((latest, curr) =>
-    new Date(curr.fecha_ingreso) > new Date(latest.fecha_ingreso) ? curr : latest
-  ).fecha_ingreso;
+  const ultimoIngreso = ingresos.length
+    ? ingresos.reduce((latest, curr) =>
+        new Date(curr.fecha_ingreso) > new Date(latest.fecha_ingreso) ? curr : latest
+      ).fecha_ingreso
+    : '';
   const totalCostos = costos.reduce((acc, curr) => acc + curr.monto_total, 0);
 
   const progreso = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
@@ -126,6 +128,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                     <Typography
                       color="text.secondary"
                       variant="overline"
+                      align='center'
                       sx={{ p: 0 }}
                     >
                       {item.label === 'Ingresos'

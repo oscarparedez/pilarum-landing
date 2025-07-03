@@ -8,38 +8,47 @@ import {
   Button,
   MenuItem,
 } from '@mui/material';
-import { Personal } from './index.d';
+import { Usuario } from './index.d';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onConfirm: (persona: Personal) => void;
+  onConfirm: (data: Usuario) => void;
 }
 
 const ROLES = ['Ingeniero', 'Arquitecto', 'Supervisor'];
+const ROL_GRUPO_MAP: Record<string, number> = {
+  Ingeniero: 1,
+  Arquitecto: 2,
+  Supervisor: 3,
+};
 
 export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) => {
-  const [form, setForm] = useState<
-    Omit<Personal, 'id_usuario' | 'fecha_creacion' | 'usuario_registro'>
-  >({
-    nombre: '',
+  const [form, setForm] = useState<Omit<Usuario, 'groups'>>({
+    username: '',
+    password: '',
+    first_name: '',
+    last_name: '',
     telefono: '',
     rol: '',
     estado: 'Activo',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleGuardar = () => {
-    const nuevaPersona: Personal = {
+    const groups = form.rol ? [ROL_GRUPO_MAP[form.rol]] : [];
+    const data: Usuario = {
       ...form,
-      id_usuario: Math.random().toString(36).substring(2, 9),
-      fecha_creacion: new Date().toISOString().split('T')[0],
-      usuario_registro: 'admin',
+      groups,
     };
-    onConfirm(nuevaPersona);
+    onConfirm(data);
   };
 
   return (
@@ -53,9 +62,34 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) =
       <DialogContent>
         <TextField
           fullWidth
-          label="Nombre completo"
-          name="nombre"
-          value={form.nombre}
+          label="Username"
+          name="username"
+          value={form.username}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          label="Contraseña"
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          label="Nombre(s)"
+          name="first_name"
+          value={form.first_name}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          label="Apellido(s)"
+          name="last_name"
+          value={form.last_name}
           onChange={handleChange}
           margin="normal"
         />
@@ -103,6 +137,14 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) =
         <Button
           variant="contained"
           onClick={handleGuardar}
+          disabled={
+            !form.username ||
+            !form.password ||
+            !form.first_name ||
+            !form.last_name ||
+            !form.telefono ||
+            !form.rol
+          }
         >
           Guardar
         </Button>

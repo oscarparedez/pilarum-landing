@@ -68,9 +68,15 @@ const Page: NextPage = () => {
       <Seo title="Login" />
       <div>
         <Card elevation={16}>
-          <CardHeader sx={{ pb: 0 }} title="Inicio de sesión" />
+          <CardHeader
+            sx={{ pb: 0 }}
+            title="Inicio de sesión"
+          />
           <CardContent>
-            <form noValidate onSubmit={formik.handleSubmit}>
+            <form
+              noValidate
+              onSubmit={formik.handleSubmit}
+            >
               <Stack spacing={3}>
                 <TextField
                   autoFocus
@@ -95,12 +101,21 @@ const Page: NextPage = () => {
                   value={formik.values.password}
                 />
               </Stack>
-              <Button fullWidth size="large" sx={{ mt: 2 }} type="submit" variant="contained">
+              <Button
+                fullWidth
+                size="large"
+                sx={{ mt: 2 }}
+                type="submit"
+                variant="contained"
+              >
                 Continuar
               </Button>
               {errorMessage && (
                 <Box sx={{ mt: 2 }}>
-                  <Typography color="error" variant="body2">
+                  <Typography
+                    color="error"
+                    variant="body2"
+                  >
                     {errorMessage}
                   </Typography>
                 </Box>

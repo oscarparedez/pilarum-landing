@@ -43,7 +43,10 @@ export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -67,7 +70,10 @@ export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
             />
 
             <Box>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: 1 }}
+              >
                 Tipo de socio
               </Typography>
               <ToggleButtonGroup
@@ -78,16 +84,26 @@ export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
                 }}
                 fullWidth
               >
-                <ToggleButton value="interno" sx={{ textTransform: 'none' }}>
+                <ToggleButton
+                  value="interno"
+                  sx={{ textTransform: 'none' }}
+                >
                   Interno
                 </ToggleButton>
-                <ToggleButton value="externo" sx={{ textTransform: 'none' }}>
+                <ToggleButton
+                  value="externo"
+                  sx={{ textTransform: 'none' }}
+                >
                   Externo
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
 
-            <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent="flex-end"
+            >
               <Button onClick={onClose}>Cancelar</Button>
               <Button
                 variant="contained"

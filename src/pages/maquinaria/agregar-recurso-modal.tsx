@@ -35,7 +35,10 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -49,7 +52,10 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
           p: 4,
         }}
       >
-        <Typography variant="h6" mb={2}>
+        <Typography
+          variant="h6"
+          mb={2}
+        >
           Agregar nuevo recurso
         </Typography>
         <Stack spacing={2}>
@@ -86,9 +92,17 @@ export const ModalAgregarRecurso: FC<ModalAgregarRecursoProps> = ({ open, onClos
             fullWidth
           />
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            spacing={2}
+            mt={2}
+          >
             <Button onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" onClick={handleConfirm}>
+            <Button
+              variant="contained"
+              onClick={handleConfirm}
+            >
               Guardar
             </Button>
           </Stack>

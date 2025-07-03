@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Card,
@@ -32,23 +32,23 @@ const Page: NextPage = () => {
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [socioSeleccionado, setSocioSeleccionado] = useState<Socio | null>(null);
   const [socios, setSocios] = useState<Socio[]>([]);
-  const [ loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
   const { getSocios, crearSocio, actualizarSocio } = useSociosApi();
 
-  const fetchSocios = async () => {
+  const fetchSocios = useCallback(async () => {
     try {
       const data = await getSocios();
       setSocios(data);
     } catch {
       toast.error('Error al obtener socios');
     }
-  };
+  }, [getSocios, setSocios]);
 
   useEffect(() => {
     fetchSocios();
-  }, []);
+  }, [fetchSocios]);
 
   const abrirModalEditar = (socio: Socio) => {
     setSocioSeleccionado(socio);
@@ -69,7 +69,7 @@ const Page: NextPage = () => {
     }
   };
 
-    const handleEditar = async (editado: Socio) => {
+  const handleEditar = async (editado: Socio) => {
     try {
       setLoading(true);
       await actualizarSocio(editado.id, { nombre: editado.nombre, tipo: editado.tipo });
@@ -85,9 +85,14 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      { loading && <FullPageLoader /> }
+      {loading && <FullPageLoader />}
       <Card>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 3 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ px: 3, py: 3 }}
+        >
           <Typography variant="h5">Socios</Typography>
           <Button
             variant="contained"
@@ -108,7 +113,9 @@ const Page: NextPage = () => {
             const items = socios
               .filter((s) => s.nombre.toLowerCase().includes(search.toLowerCase()))
               .sort((a, b) =>
-                orden === 'asc' ? a.nombre.localeCompare(b.nombre) : b.nombre.localeCompare(a.nombre)
+                orden === 'asc'
+                  ? a.nombre.localeCompare(b.nombre)
+                  : b.nombre.localeCompare(a.nombre)
               )
               .slice((currentPage - 1) * 5, currentPage * 5);
 
@@ -124,7 +131,10 @@ const Page: NextPage = () => {
                   </TableHead>
                   <TableBody>
                     {items.map((socio) => (
-                      <TableRow key={socio.id} hover>
+                      <TableRow
+                        key={socio.id}
+                        hover
+                      >
                         <TableCell>{socio.nombre}</TableCell>
                         <TableCell>{socio.tipo === 'interno' ? 'Interno' : 'Externo'}</TableCell>
                         <TableCell align="center">

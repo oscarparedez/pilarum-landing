@@ -1,13 +1,6 @@
 import type { NextPage } from 'next';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
-import {
-  Box,
-  Button,
-  Container,
-  Stack,
-  SvgIcon,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Container, Stack, SvgIcon, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { Seo } from 'src/components/seo';
@@ -16,7 +9,7 @@ import { useSettings } from 'src/hooks/use-settings';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { paths } from 'src/paths';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 
 import { CrearProyectoModal } from './crear/crear-proyecto-modal';
@@ -32,20 +25,20 @@ const Page: NextPage = () => {
 
   usePageView();
 
-  const cargarProyectos = async () => {
+  const cargarProyectos = useCallback(async () => {
     try {
       const data = await getProyectos();
       setProyectos(data);
     } catch (error) {
       console.error('Error cargando proyectos:', error);
     }
-  };
+  }, [getProyectos, setProyectos]);
 
   useEffect(() => {
     cargarProyectos();
-  }, []);
+  }, [cargarProyectos]);
 
-  const handleCrearProyecto = async (data) => {
+  const handleCrearProyecto = async (data: any) => {
     try {
       await crearProyecto(data);
       toast.success('Proyecto creado exitosamente');
@@ -64,11 +57,22 @@ const Page: NextPage = () => {
   return (
     <>
       <Seo title="Proyectos" />
-      <Box component="main" sx={{ flexGrow: 1, py: 8 }}>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, py: 8 }}
+      >
         <Container maxWidth={settings.stretch ? false : 'xl'}>
-          <Grid container disableEqualOverflow spacing={{ xs: 3, lg: 4 }}>
+          <Grid
+            container
+            disableEqualOverflow
+            spacing={{ xs: 3, lg: 4 }}
+          >
             <Grid xs={12}>
-              <Stack direction="row" justifyContent="space-between" spacing={4}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                spacing={4}
+              >
                 <Typography variant="h4">Proyectos</Typography>
                 <Button
                   startIcon={
@@ -85,7 +89,12 @@ const Page: NextPage = () => {
             </Grid>
 
             {proyectos.map((proyecto) => (
-              <Grid key={proyecto.id} xs={12} md={6} lg={4}>
+              <Grid
+                key={proyecto.id}
+                xs={12}
+                md={6}
+                lg={4}
+              >
                 <Box
                   sx={{
                     border: '2px solid',
@@ -99,10 +108,16 @@ const Page: NextPage = () => {
                   }}
                 >
                   <Typography variant="h6">{proyecto.nombre}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
                     Ubicación: {proyecto.ubicacion}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
                     Estado: Activo
                   </Typography>
                   <Button

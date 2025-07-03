@@ -8,24 +8,36 @@ import {
   Button,
   MenuItem,
 } from '@mui/material';
-import { Personal } from './index.d';
+import { Usuario } from './index.d';
 import { ModalCambiarContrasena } from './cambiar-contrasena-modal';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  initialData: Personal;
-  onConfirm: (persona: Personal) => void;
+  initialData: Usuario;
+  onConfirm: (persona: Usuario) => void;
 }
 
 const ROLES = ['Ingeniero', 'Arquitecto', 'Supervisor'];
+const ROL_GRUPO_MAP: Record<string, number> = {
+  Ingeniero: 1,
+  Arquitecto: 2,
+  Supervisor: 3,
+};
 
 export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onConfirm }) => {
-  const [form, setForm] = useState<Personal>(initialData);
+  const [form, setForm] = useState<Usuario>(initialData);
   const [modalContrasenaAbierto, setModalContrasenaAbierto] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (name === 'rol') {
+        updated.groups = [ROL_GRUPO_MAP[value]];
+      }
+      return updated;
+    });
   };
 
   const handleGuardar = () => {
@@ -43,9 +55,17 @@ export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onCo
       <DialogContent>
         <TextField
           fullWidth
-          label="Nombre completo"
-          name="nombre"
-          value={form.nombre}
+          label="Nombre(s)"
+          name="first_name"
+          value={form.first_name}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          label="Apellido(s)"
+          name="last_name"
+          value={form.last_name}
           onChange={handleChange}
           margin="normal"
         />
@@ -110,7 +130,7 @@ export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onCo
         open={modalContrasenaAbierto}
         onClose={() => setModalContrasenaAbierto(false)}
         onConfirm={(nueva) => {
-          console.log(`Contraseña nueva para ${form.nombre}: ${nueva}`);
+          console.log(`Contraseña nueva para ${form.username}: ${nueva}`);
           setModalContrasenaAbierto(false);
         }}
       />

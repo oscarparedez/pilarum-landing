@@ -15,13 +15,13 @@ import { FC, useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import type { Consumo, TipoConsumo, UnidadConsumo } from '../index.d';
+import type { GastoMaquinaria, TipoConsumo } from '../index.d';
 
 interface Props {
   open: boolean;
-  consumo: Consumo | null;
+  consumo: GastoMaquinaria | null;
   onClose: () => void;
-  onConfirm: (data: Consumo & { nuevasImagenes: File[]; fotos: string[] }) => void;
+  onConfirm: (data: GastoMaquinaria & { nuevasImagenes: File[]; fotos: string[] }) => void;
 }
 
 const usuarios = [
@@ -34,19 +34,15 @@ const usuarios = [
 export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfirm }) => {
   const [tipo, setTipo] = useState<TipoConsumo>('');
   const [fecha, setFecha] = useState<Date | null>(new Date());
-  const [cantidad, setCantidad] = useState('');
-  const [unidad, setUnidad] = useState<UnidadConsumo>('');
-  const [solicitadoPor, setSolicitadoPor] = useState<{ id: string; nombre: string } | null>(null); // ✅ Aquí
+  const [solicitadoPor, setSolicitadoPor] = useState<{ id: string; nombre: string } | null>(null);
   const [anotaciones, setAnotaciones] = useState('');
   const [costo, setCosto] = useState('');
   const [imagenes, setImagenes] = useState<(string | File)[]>([]);
 
   useEffect(() => {
     if (consumo) {
-      setTipo(consumo.tipo);
-      setFecha(new Date(consumo.fecha));
-      setCantidad(consumo.cantidad);
-      setUnidad(consumo.unidad);
+      setTipo(consumo.tipo_gasto);
+      setFecha(new Date(consumo.fecha_creacion));
       setSolicitadoPor(consumo.solicitadoPor);
       setAnotaciones(consumo.anotaciones);
       setCosto(consumo.costo.toString());
@@ -63,13 +59,11 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
   };
 
   const handleConfirm = () => {
-    if (tipo && fecha && cantidad && unidad && solicitadoPor && costo) {
+    if (tipo && fecha && solicitadoPor && costo) {
       onConfirm({
         ...consumo!,
-        tipo,
-        fecha: fecha.toISOString().split('T')[0],
-        cantidad,
-        unidad,
+        tipo_gasto: tipo,
+        fecha_creacion: fecha.toISOString().split('T')[0],
         solicitadoPor,
         anotaciones,
         costo: parseFloat(costo),
@@ -112,28 +106,6 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
               onChange={(newValue) => setFecha(newValue)}
             />
           </Box>
-
-          <Stack
-            direction="row"
-            spacing={2}
-          >
-            <TextField
-              label="Cantidad"
-              value={cantidad}
-              onChange={(e) => setCantidad(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              select
-              label="Unidad"
-              value={unidad}
-              onChange={(e) => setUnidad(e.target.value as UnidadConsumo)}
-              fullWidth
-            >
-              <MenuItem value="galones">galones</MenuItem>
-              <MenuItem value="litros">litros</MenuItem>
-            </TextField>
-          </Stack>
 
           <TextField
             label="Costo (Q)"
@@ -279,7 +251,7 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!tipo || !fecha || !cantidad || !unidad || !solicitadoPor || !costo}
+          disabled={!tipo || !fecha || !solicitadoPor || !costo}
         >
           Guardar cambios
         </Button>

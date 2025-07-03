@@ -1,3 +1,5 @@
+import { Usuario } from "src/api/planilla/usePlanillaApi/index.d";
+
 // index.d.ts
 export interface MaterialItem {
   id: string;
@@ -90,9 +92,10 @@ export interface Revision {
 }
 
 interface AmpliacionFecha {
+  id: number;
   fecha: string;
   motivo: string;
-  usuario: string;
+  usuario: Usuario;
 }
 
 export interface AmpliacionPresupuesto {

@@ -16,7 +16,7 @@ import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
 
-import type { Consumo } from '../index.d';
+import type { GastoMaquinaria } from '../index.d';
 import { ModalRegistrarConsumo } from './registrar-consumo-modal';
 import { ConsumoImagenesModal } from './consumo-imagenes-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
@@ -24,15 +24,15 @@ import { ModalEditarConsumo } from './editar-consumo-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 
 interface Props {
-  consumos: Consumo[];
+  consumos: GastoMaquinaria[];
 }
 
 export const HistorialConsumos: FC<Props> = ({ consumos }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [visorAbierto, setVisorAbierto] = useState(false);
   const [fotosVisor, setFotosVisor] = useState<string[]>([]);
-  const [consumoEditando, setConsumoEditando] = useState<Consumo | null>(null);
-  const [consumoAEliminar, setConsumoAEliminar] = useState<Consumo | null>(null);
+  const [consumoEditando, setConsumoEditando] = useState<GastoMaquinaria | null>(null);
+  const [consumoAEliminar, setConsumoAEliminar] = useState<GastoMaquinaria | null>(null);
   const [filtros, setFiltros] = useState<{
     search?: string;
     fechaInicio?: Date | null;
@@ -46,14 +46,14 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
     return consumos.filter((c) => {
       const cumpleBusqueda =
         !filtros.search ||
-        c.tipo.toLowerCase().includes(filtros.search.toLowerCase()) ||
+        c.tipo_gasto.toLowerCase().includes(filtros.search.toLowerCase()) ||
         c.solicitadoPor.nombre.toLowerCase().includes(filtros.search.toLowerCase()) ||
         c.anotaciones.toLowerCase().includes(filtros.search.toLowerCase());
 
       const cumpleFechaInicio =
-        !filtros.fechaInicio || new Date(c.fecha) >= new Date(filtros.fechaInicio);
+        !filtros.fechaInicio || new Date(c.fecha_creacion) >= new Date(filtros.fechaInicio);
 
-      const cumpleFechaFin = !filtros.fechaFin || new Date(c.fecha) <= new Date(filtros.fechaFin);
+      const cumpleFechaFin = !filtros.fechaFin || new Date(c.fecha_creacion) <= new Date(filtros.fechaFin);
 
       return cumpleBusqueda && cumpleFechaInicio && cumpleFechaFin;
     });
@@ -97,7 +97,6 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
                     <TableRow>
                       <TableCell>Tipo</TableCell>
                       <TableCell>Fecha</TableCell>
-                      <TableCell>Cantidad</TableCell>
                       <TableCell>Solicitado por</TableCell>
                       <TableCell>Costo</TableCell>
                       <TableCell>Anotaciones</TableCell>
@@ -110,11 +109,8 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
                         key={i}
                         hover
                       >
-                        <TableCell>{c.tipo}</TableCell>
-                        <TableCell>{c.fecha}</TableCell>
-                        <TableCell>
-                          {c.cantidad} {c.unidad}
-                        </TableCell>
+                        <TableCell>{c.tipo_gasto}</TableCell>
+                        <TableCell>{c.fecha_creacion}</TableCell>
                         <TableCell>{c.solicitadoPor.nombre}</TableCell>
                         <TableCell>Q{c.costo.toLocaleString()}</TableCell>
                         <TableCell>{c.anotaciones}</TableCell>

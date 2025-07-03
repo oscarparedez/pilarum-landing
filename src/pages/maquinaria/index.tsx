@@ -1,17 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
-import {
-  Box,
-  Button,
-  Container,
-  Stack,
-  SvgIcon,
-  Typography,
-  Tabs,
-  Tab,
-} from '@mui/material';
+import { Box, Button, Container, Stack, SvgIcon, Typography, Tabs, Tab } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { Seo } from 'src/components/seo';
@@ -29,11 +20,13 @@ type Recurso = {
   nombre: string;
   identificador?: string;
   costo: number;
-  asignaciones?: {
-    dias: string;
-    proyecto: string;
-    fechaFin: string;
-  }[] | null; // puede ser arreglo o null
+  asignaciones?:
+    | {
+        dias: string;
+        proyecto: string;
+        fechaFin: string;
+      }[]
+    | null; // puede ser arreglo o null
 };
 
 const Page: NextPage = () => {
@@ -48,7 +41,7 @@ const Page: NextPage = () => {
 
   const { crearMaquinaria, getMaquinarias } = useMaquinariasApi();
 
-  const cargarRecursos = async () => {
+  const cargarRecursos = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getMaquinarias();
@@ -63,11 +56,11 @@ const Page: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setLoading, getMaquinarias, setRecursos]);
 
   useEffect(() => {
     cargarRecursos();
-  }, []);
+  }, [cargarRecursos]);
 
   const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
     setTab(newValue);
@@ -97,9 +90,7 @@ const Page: NextPage = () => {
     }
   };
 
-  const recursosFiltrados = recursos.filter((r) =>
-    tab === 'todos' ? true : r.tipo === tab
-  );
+  const recursosFiltrados = recursos.filter((r) => (tab === 'todos' ? true : r.tipo === tab));
 
   const formatFecha = (fecha: string) => {
     const d = new Date(fecha);
@@ -108,13 +99,23 @@ const Page: NextPage = () => {
 
   return (
     <>
-      { loading && <FullPageLoader /> }
+      {loading && <FullPageLoader />}
       <Seo title="Maquinaria y Herramientas" />
-      <Box component="main" sx={{ flexGrow: 1, py: 8 }}>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, py: 8 }}
+      >
         <Container maxWidth={settings.stretch ? false : 'xl'}>
-          <Grid container spacing={3}>
+          <Grid
+            container
+            spacing={3}
+          >
             <Grid xs={12}>
-              <Stack direction="row" justifyContent="space-between" spacing={4}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                spacing={4}
+              >
                 <Typography variant="h4">Maquinaria y Herramientas</Typography>
                 <Button
                   startIcon={
@@ -137,14 +138,28 @@ const Page: NextPage = () => {
                 textColor="primary"
                 indicatorColor="primary"
               >
-                <Tab label="Maquinarias" value="maquinaria" />
-                <Tab label="Herramientas" value="herramienta" />
-                <Tab label="Todos" value="todos" />
+                <Tab
+                  label="Maquinarias"
+                  value="maquinaria"
+                />
+                <Tab
+                  label="Herramientas"
+                  value="herramienta"
+                />
+                <Tab
+                  label="Todos"
+                  value="todos"
+                />
               </Tabs>
             </Grid>
 
             {recursosFiltrados.map((recurso) => (
-              <Grid key={recurso.id} xs={12} md={6} lg={4}>
+              <Grid
+                key={recurso.id}
+                xs={12}
+                md={6}
+                lg={4}
+              >
                 <Box
                   sx={{
                     border: '2px solid',
@@ -160,7 +175,10 @@ const Page: NextPage = () => {
                   <Typography variant="h6">{recurso.nombre}</Typography>
 
                   {recurso.identificador && (
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
                       Identificador: {recurso.identificador}
                     </Typography>
                   )}
@@ -172,11 +190,14 @@ const Page: NextPage = () => {
                   >
                     Asignaciones:
                   </Typography>
-                  {recurso.asignaciones.length === 0 ? (
+                  {!recurso?.asignaciones || recurso.asignaciones.length === 0 ? (
                     <Typography variant="body2">Sin asignaciones</Typography>
                   ) : (
                     recurso.asignaciones.map((a, index) => (
-                      <Typography key={index} variant="body2">
+                      <Typography
+                        key={index}
+                        variant="body2"
+                      >
                         {a.dias}: {a.proyecto} (hasta {formatFecha(a.fechaFin)})
                       </Typography>
                     ))
@@ -207,6 +228,5 @@ const Page: NextPage = () => {
 };
 
 Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
-
 
 export default Page;

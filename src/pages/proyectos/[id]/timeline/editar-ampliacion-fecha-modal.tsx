@@ -1,17 +1,31 @@
-import { Box, Button, Modal, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { formatearFechaLocal, formatearFechaLocalMasUno } from 'src/utils/format-date';
 
 interface ModalEditarAmpliacionFechaProps {
   open: boolean;
   onClose: () => void;
   initialData: {
+    id: number;
     fecha: string;
     motivo: string;
-    usuario: string;
   };
-  onConfirm: (data: { fecha: string; motivo: string; usuario: string }) => void;
+  onConfirm: (data: { ampliacionId: number; fecha: string; motivo: string }) => void;
 }
 
 export const ModalEditarAmpliacionFecha: FC<ModalEditarAmpliacionFechaProps> = ({
@@ -20,95 +34,108 @@ export const ModalEditarAmpliacionFecha: FC<ModalEditarAmpliacionFechaProps> = (
   initialData,
   onConfirm,
 }) => {
-  const [fecha, setFecha] = useState<Date | null>(new Date(initialData.fecha));
+  const [fecha, setFecha] = useState<Date | null>(formatearFechaLocal(initialData.fecha));
   const [motivo, setMotivo] = useState(initialData.motivo);
-  const [usuario, setUsuario] = useState(initialData.usuario);
 
   useEffect(() => {
-    setFecha(new Date(initialData.fecha));
-    setMotivo(initialData.motivo);
-    setUsuario(initialData.usuario);
+    if (initialData) {
+      setFecha(formatearFechaLocal(initialData.fecha));
+      setMotivo(initialData.motivo);
+    }
   }, [initialData]);
 
   const handleSave = () => {
-    if (fecha && motivo && usuario) {
-      onConfirm({
-        fecha: format(fecha, 'yyyy-MM-dd'),
-        motivo,
-        usuario,
-      });
-      onClose();
+    if (!fecha || !motivo) {
+      return;
     }
+
+    onConfirm({
+      ampliacionId: initialData.id,
+      fecha: format(fecha, 'yyyy-MM-dd'),
+      motivo,
+    });
+    onClose();
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: { borderRadius: 3, py: 4 },
+      }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 500,
-          bgcolor: 'background.paper',
-          boxShadow: 24,
-          borderRadius: 2,
-          p: 4,
-        }}
-      >
+      <DialogTitle sx={{ textAlign: 'center', mb: 2 }}>
         <Typography
-          variant="h6"
-          mb={2}
+          variant="h5"
+          fontWeight="bold"
         >
           Editar ampliación de fecha
         </Typography>
+        <Typography
+          variant="subtitle2"
+          color="text.secondary"
+          sx={{ mt: 1 }}
+        >
+          Fecha anterior: <strong>{initialData.fecha}</strong>
+        </Typography>
+      </DialogTitle>
 
-        <Stack spacing={2}>
-          <TextField
-            label="Motivo"
-            fullWidth
-            value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
-          />
-          <TextField
-            label="Usuario"
-            fullWidth
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
-          />
-          <Box>
-            <Typography
-              variant="subtitle2"
-              mb={1}
-            >
-              Nueva fecha
-            </Typography>
+      <DialogContent>
+        <Box
+          display="flex"
+          justifyContent="center"
+          py={2}
+        >
+          <LocalizationProvider
+            dateAdapter={AdapterDateFns}
+            adapterLocale={es}
+          >
             <DateCalendar
+              views={['year', 'month', 'day']}
               value={fecha}
               onChange={(newDate) => setFecha(newDate)}
+              minDate={formatearFechaLocalMasUno(initialData.fecha)}
             />
-          </Box>
-        </Stack>
+          </LocalizationProvider>
+        </Box>
 
+        <TextField
+          label="Motivo"
+          multiline
+          rows={3}
+          fullWidth
+          required
+          value={motivo}
+          onChange={(e) => setMotivo(e.target.value)}
+          sx={{ mt: 2 }}
+        />
+      </DialogContent>
+
+      <DialogActions sx={{ justifyContent: 'center', mt: 2 }}>
         <Stack
           direction="row"
-          justifyContent="flex-end"
           spacing={2}
-          mt={3}
         >
-          <Button onClick={onClose}>Cancelar</Button>
+          <Button
+            onClick={onClose}
+            color="inherit"
+            size="large"
+          >
+            Cancelar
+          </Button>
           <Button
             variant="contained"
+            size="large"
             onClick={handleSave}
+            disabled={!fecha || !motivo}
           >
-            Guardar cambios
+            Guardar
           </Button>
         </Stack>
-      </Box>
-    </Modal>
+      </DialogActions>
+    </Dialog>
   );
 };

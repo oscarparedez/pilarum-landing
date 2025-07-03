@@ -13,7 +13,12 @@ interface TimelineProps {
   ampliacionesFecha: AmpliacionFecha[];
   presupuestoInicial: number;
   ampliacionesPresupuesto: AmpliacionPresupuesto[];
-  onAmpliarFecha?: () => void;
+  onAmpliarFecha: (nuevaFecha: Date, motivo: string) => Promise<void>;
+  onEditarAmpliacion: (
+    id: number,
+    data: { nueva_fecha_estimada_fin: string; motivo: string }
+  ) => Promise<void>;
+  onEliminarAmpliacion: (id: number) => Promise<void>;
   onAmpliarPresupuesto?: () => void;
 }
 
@@ -23,12 +28,35 @@ export const Timeline: FC<TimelineProps> = ({
   ampliacionesFecha,
   presupuestoInicial,
   ampliacionesPresupuesto,
+  onAmpliarFecha,
+  onEditarAmpliacion,
+  onEliminarAmpliacion,
+  onAmpliarPresupuesto,
 }) => {
-  // Modales independientes
   const [showAmpliarFecha, setShowAmpliarFecha] = useState(false);
   const [showHistorialFechas, setShowHistorialFechas] = useState(false);
   const [showHistorialPresupuesto, setShowHistorialPresupuesto] = useState(false);
   const [showAmpliarPresupuesto, setShowAmpliarPresupuesto] = useState(false);
+
+  const handleAmpliarFecha = async (nuevaFecha: Date, motivo: string) => {
+    setShowAmpliarFecha(false);
+    await onAmpliarFecha(nuevaFecha, motivo);
+  };
+
+  const handleActualizarAmpliacion = async (
+    id: number,
+    data: { fecha: string; motivo: string }
+  ) => {
+    await onEditarAmpliacion(id, {
+      nueva_fecha_estimada_fin: data.fecha,
+      motivo: data.motivo,
+    });
+  };
+
+  const handleEliminarAmpliacion = async (id: number) => {
+    await onEliminarAmpliacion(id);
+    setShowHistorialFechas(false);
+  };
 
   return (
     <>
@@ -72,6 +100,7 @@ export const Timeline: FC<TimelineProps> = ({
                 </Typography>
               </Stack>
             </Grid>
+
             <Grid
               item
               xs={12}
@@ -120,7 +149,6 @@ export const Timeline: FC<TimelineProps> = ({
               </Stack>
             </Grid>
 
-            {/* PRESUPUESTO */}
             <Grid
               item
               xs={12}
@@ -135,7 +163,7 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  {formatearQuetzales(presupuestoInicial)}
+                  Q{formatearQuetzales(presupuestoInicial)}
                 </Typography>
                 <Typography
                   color="text.secondary"
@@ -172,27 +200,26 @@ export const Timeline: FC<TimelineProps> = ({
         </Card>
       </Box>
 
-      {/* MODAL: Ampliar Fecha */}
       <AmpliarFechaModal
         open={showAmpliarFecha}
         onClose={() => setShowAmpliarFecha(false)}
         fechaActual={fechaFin}
+        onSave={handleAmpliarFecha}
       />
 
-      {/* MODAL: Historial Fechas */}
       <ModalAmpliacionesFecha
         open={showHistorialFechas}
         onClose={() => setShowHistorialFechas(false)}
         ampliaciones={ampliacionesFecha}
+        onAmpliacionActualizada={handleActualizarAmpliacion}
+        onEliminarAmpliacion={handleEliminarAmpliacion}
       />
 
-      {/* MODAL: Ampliar Presupuesto */}
       <ModalAmpliarPresupuesto
         open={showAmpliarPresupuesto}
         onClose={() => setShowAmpliarPresupuesto(false)}
       />
 
-      {/* MODAL: Historial Presupuesto */}
       <ModalAmpliacionesPresupuesto
         open={showHistorialPresupuesto}
         onClose={() => setShowHistorialPresupuesto(false)}

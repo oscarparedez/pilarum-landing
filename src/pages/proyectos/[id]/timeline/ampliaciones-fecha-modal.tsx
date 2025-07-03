@@ -22,25 +22,52 @@ import { ModalEliminar } from 'src/components/eliminar-modal';
 import { formatearFecha } from 'src/utils/format-date';
 
 interface Ampliacion {
+  id: number;
   fecha: string;
   motivo: string;
-  usuario: string;
+  usuario: any;
 }
 
 interface ModalAmpliacionesFechaProps {
   open: boolean;
   onClose: () => void;
   ampliaciones: Ampliacion[];
+  onAmpliacionActualizada: (id: number, data: { fecha: string; motivo: string }) => Promise<void>;
+  onEliminarAmpliacion: (id: number) => Promise<void>;
 }
 
 export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
   open,
   onClose,
   ampliaciones,
+  onAmpliacionActualizada,
+  onEliminarAmpliacion,
 }) => {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [eliminando, setEliminando] = useState<Ampliacion | null>(null);
+
+  const nombreUsuario = (usuario: any) =>
+    usuario ? `${usuario.first_name} ${usuario.last_name}` : 'Desconocido';
+
+  const handleAmpliacionActualizada = async (data: {
+    ampliacionId: number;
+    fecha: string;
+    motivo: string;
+  }) => {
+    await onAmpliacionActualizada(data.ampliacionId, {
+      fecha: data.fecha,
+      motivo: data.motivo,
+    });
+    setEditModalOpen(false);
+    setEditandoIndex(null);
+  };
+
+  const handleAmpliacionEliminada = async () => {
+    if (!eliminando) return;
+    await onEliminarAmpliacion(eliminando.id);
+    setEliminando(null);
+  };
 
   return (
     <>
@@ -62,7 +89,6 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
           <Card>
             <CardHeader title="Historial de ampliaciones de fecha" />
             <Divider />
-
             <TablaPaginadaConFiltros
               onFiltrar={() => {}}
               totalItems={ampliaciones.length}
@@ -77,7 +103,7 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
                         const globalIndex = index + (currentPage - 1) * 5;
 
                         return (
-                          <TableRow key={index}>
+                          <TableRow key={item.id}>
                             <TableCell width={120}>
                               <Box sx={{ p: 1 }}>
                                 <Typography
@@ -90,7 +116,9 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
                               </Box>
                             </TableCell>
                             <TableCell>
-                              <Typography variant="subtitle2">{item.usuario}</Typography>
+                              <Typography variant="subtitle2">
+                                {nombreUsuario(item.usuario)}
+                              </Typography>
                               <Typography
                                 color="text.secondary"
                                 variant="body2"
@@ -127,27 +155,23 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
         </Box>
       </Modal>
 
-      {editandoIndex !== null && (
+      {editandoIndex !== null && ampliaciones[editandoIndex] && (
         <ModalEditarAmpliacionFecha
           open={editModalOpen}
           onClose={() => setEditModalOpen(false)}
           initialData={ampliaciones[editandoIndex]}
-          onConfirm={(data) => {
-            // Actualizar desde el padre o refetch
-            setEditModalOpen(false);
-          }}
+          onConfirm={handleAmpliacionActualizada}
         />
       )}
 
-      <ModalEliminar
-        type="ampliación de fecha"
-        open={!!eliminando}
-        onClose={() => setEliminando(null)}
-        onConfirm={() => {
-          console.log('Ampliación eliminada');
-          setEliminando(null);
-        }}
-      />
+      {eliminando && (
+        <ModalEliminar
+          type="ampliación de fecha"
+          open={true}
+          onClose={() => setEliminando(null)}
+          onConfirm={handleAmpliacionEliminada}
+        />
+      )}
     </>
   );
 };

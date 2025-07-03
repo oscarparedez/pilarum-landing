@@ -21,7 +21,6 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
   onConfirm,
   initialData,
 }) => {
-  console.log('initialData', initialData);
   const [fecha, setFecha] = useState<Date | null>(new Date(initialData.fecha));
   const [motivo, setMotivo] = useState(initialData.motivo);
   const [monto, setMonto] = useState<number | ''>('');
