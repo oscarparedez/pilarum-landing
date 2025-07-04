@@ -27,23 +27,45 @@ interface ModalAmpliacionesPresupuestoProps {
   open: boolean;
   onClose: () => void;
   ampliaciones: AmpliacionPresupuesto[];
+  onEditarAmpliacion: (id: number, data: { monto: number; motivo?: string }) => void;
+  onEliminarAmpliacion: (id: number) => void;
 }
 
 export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps> = ({
   open,
   onClose,
   ampliaciones,
+  onEditarAmpliacion,
+  onEliminarAmpliacion,
 }) => {
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [eliminando, setEliminando] = useState<AmpliacionPresupuesto | null>(null);
 
+  const nombreUsuario = (usuario: any) => {
+    if (!usuario) return 'Desconocido';
+    if (typeof usuario === 'string') return usuario;
+    return `${usuario.first_name ?? ''} ${usuario.last_name ?? ''}`.trim() || 'Desconocido';
+  };
+
+  const handleAmpliacionActualizada = (data: { monto: number; motivo?: string }) => {
+    if (editandoIndex !== null) {
+      const id = ampliaciones[editandoIndex].id;
+      onEditarAmpliacion(id, data);
+      setEditModalOpen(false);
+    }
+  };
+
+  const handleAmpliacionEliminada = () => {
+    if (eliminando) {
+      onEliminarAmpliacion(eliminando.id);
+      setEliminando(null);
+    }
+  };
+
   return (
     <>
-      <Modal
-        open={open}
-        onClose={onClose}
-      >
+      <Modal open={open} onClose={onClose}>
         <Box
           sx={{
             position: 'absolute',
@@ -59,10 +81,7 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
             <CardHeader title="Historial de ampliaciones de presupuesto" />
             <Divider />
 
-            <TablaPaginadaConFiltros
-              onFiltrar={() => {}}
-              totalItems={ampliaciones.length}
-            >
+            <TablaPaginadaConFiltros onFiltrar={() => {}} totalItems={ampliaciones.length}>
               {(currentPage) => (
                 <Table>
                   <TableBody>
@@ -76,36 +95,23 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
                           <TableRow key={index}>
                             <TableCell width={120}>
                               <Box sx={{ p: 1 }}>
-                                <Typography
-                                  align="center"
-                                  color="text.secondary"
-                                  variant="subtitle2"
-                                >
+                                <Typography align="center" color="text.secondary" variant="subtitle2">
                                   {fechaFormatted}
                                 </Typography>
                               </Box>
                             </TableCell>
                             <TableCell>
-                              <Typography variant="subtitle2">{item.usuario}</Typography>
-                              <Typography
-                                color="text.secondary"
-                                variant="body2"
-                              >
-                                {item.motivo}
+                              <Typography variant="subtitle2">{nombreUsuario(item.usuario)}</Typography>
+                              <Typography color="text.secondary" variant="body2">
+                                {item.motivo || 'Sin motivo'}
                               </Typography>
                             </TableCell>
                             <TableCell align="right">
-                              <Typography
-                                variant="subtitle2"
-                                color="success.main"
-                              >
+                              <Typography variant="subtitle2" color="success.main">
                                 +{formatearQuetzales(Number(item.monto))}
                               </Typography>
 
-                              <Stack
-                                direction="row"
-                                justifyContent="flex-end"
-                              >
+                              <Stack direction="row" justifyContent="flex-end">
                                 <IconButton
                                   onClick={() => {
                                     setEditandoIndex(globalIndex);
@@ -130,14 +136,12 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
         </Box>
       </Modal>
 
-      {editandoIndex !== null && (
+      {editandoIndex !== null && ampliaciones[editandoIndex] && (
         <ModalEditarAmpliacionPresupuesto
           open={editModalOpen}
           onClose={() => setEditModalOpen(false)}
           initialData={ampliaciones[editandoIndex]}
-          onConfirm={(data) => {
-            setEditModalOpen(false);
-          }}
+          onConfirm={handleAmpliacionActualizada}
         />
       )}
 
@@ -145,10 +149,7 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
         type="ampliación de presupuesto"
         open={!!eliminando}
         onClose={() => setEliminando(null)}
-        onConfirm={() => {
-          console.log('Ampliación de presupuesto eliminada');
-          setEliminando(null);
-        }}
+        onConfirm={handleAmpliacionEliminada}
       />
     </>
   );

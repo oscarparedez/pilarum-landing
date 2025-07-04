@@ -20,6 +20,7 @@ import { Pizarron } from './pizarron/pizarron';
 import { useAmpliacionesApi } from 'src/api/ampliaciones/useAmpliacionesApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
+import { usePresupuestosApi } from 'src/api/presupuestos/usePresupuestosApi';
 
 export const tareasEjemplo: Tarea[] = [
   /* ... tus tareas aquí ... */
@@ -31,6 +32,8 @@ const Page: NextPage = () => {
   const router = useRouter();
   const { getProyectoInfo } = useProyectosApi();
   const { crearAmpliacion, editarAmpliacion, eliminarAmpliacion } = useAmpliacionesApi();
+  const { crearPresupuestoAmpliacion, actualizarPresupuesto, eliminarPresupuesto } =
+    usePresupuestosApi();
 
   const [config, setConfig] = useState<ConfigProyecto | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
@@ -115,6 +118,66 @@ const Page: NextPage = () => {
     }
   };
 
+  const handleAmpliarPresupuesto = async (data: { monto: number; motivo?: string }) => {
+    const id = router.query.id;
+    if (!id || Array.isArray(id)) return;
+
+    try {
+      setLoading(true);
+      await crearPresupuestoAmpliacion(parseInt(id), data);
+      const updated = await getProyectoInfo(parseInt(id));
+      setConfig(updated);
+      toast.success('Presupuesto ampliado exitosamente');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al ampliar presupuesto');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditarAmpliacionPresupuesto = async (
+    presupuestoId: number,
+    data: { monto: number; motivo?: string }
+  ) => {
+    const id = router.query.id;
+    if (!id || Array.isArray(id)) return;
+
+    try {
+      setLoading(true);
+      await actualizarPresupuesto(parseInt(id), presupuestoId, {
+        ...data,
+        tipo: 'ampliacion', // aseguramos que se mantenga como ampliación
+      });
+      const updated = await getProyectoInfo(parseInt(id));
+      setConfig(updated);
+      toast.success('Ampliación de presupuesto editada correctamente');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al editar ampliación de presupuesto');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEliminarAmpliacionPresupuesto = async (presupuestoId: number) => {
+    const id = router.query.id;
+    if (!id || Array.isArray(id)) return;
+
+    try {
+      setLoading(true);
+      await eliminarPresupuesto(parseInt(id), presupuestoId);
+      const updated = await getProyectoInfo(parseInt(id));
+      setConfig(updated);
+      toast.success('Ampliación de presupuesto eliminada');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al eliminar ampliación de presupuesto');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!config) return null;
 
   const {
@@ -130,9 +193,6 @@ const Page: NextPage = () => {
   } = config;
 
   const { nombre, ubicacion, fechaInicio, fechaFin, socio, presupuestoInicial } = datosBasicos;
-
-  const presupuestoTotal =
-    presupuestoInicial + ampliacionesPresupuesto.reduce((acc, curr) => acc + (curr.monto ?? 0), 0);
 
   return (
     <Box
@@ -164,13 +224,15 @@ const Page: NextPage = () => {
           <Timeline
             fechaInicio={fechaInicio}
             fechaFin={fechaFin}
-            presupuestoInicial={presupuestoTotal}
+            presupuestoInicial={presupuestoInicial}
             ampliacionesFecha={ampliacionesFecha}
             ampliacionesPresupuesto={ampliacionesPresupuesto}
             onAmpliarFecha={handleAmpliarFecha}
             onEditarAmpliacion={handleEditarAmpliacion}
             onEliminarAmpliacion={handleEliminarAmpliacion}
-            onAmpliarPresupuesto={() => console.log('Ampliar presupuesto')}
+            onAmpliarPresupuesto={handleAmpliarPresupuesto}
+            onEditarAmpliacionPresupuesto={handleEditarAmpliacionPresupuesto}
+            onEliminarAmpliacionPresupuesto={handleEliminarAmpliacionPresupuesto}
           />
 
           <Pizarron tareas={tareasEjemplo} />
@@ -178,7 +240,7 @@ const Page: NextPage = () => {
           <ResumenFinanciero
             ingresos={ingresos}
             pagos={costos}
-            presupuestoInicial={presupuestoTotal}
+            presupuestoInicial={presupuestoInicial}
           />
 
           <EditarDatosBasicosModal

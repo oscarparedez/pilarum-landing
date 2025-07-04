@@ -99,7 +99,9 @@ interface AmpliacionFecha {
 }
 
 export interface AmpliacionPresupuesto {
+  id: number;
   fecha: string;
+  tipo: 'inicial' | 'ampliacion';
   motivo: string;
   monto?: number;
   usuario: string;

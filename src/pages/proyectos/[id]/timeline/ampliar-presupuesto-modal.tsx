@@ -19,21 +19,21 @@ import { es } from 'date-fns/locale';
 interface ModalAmpliarPresupuestoProps {
   open: boolean;
   onClose: () => void;
+  onSave: (data: { monto: number; motivo?: string }) => void;
 }
 
-export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({ open, onClose }) => {
+export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({
+  open,
+  onClose,
+  onSave,
+}) => {
   const [monto, setMonto] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
   const [fecha, setFecha] = useState<Date | null>(new Date());
 
   const handleGuardar = () => {
-    // Validación simple
-    if (!monto || !anotaciones || !fecha) return;
-
-    // Aquí podrías enviar al API
-    console.log({ monto, anotaciones, fecha });
-
-    onClose();
+    if (!monto || !fecha) return;
+    onSave({ monto: parseFloat(monto), motivo: anotaciones });
   };
 
   return (
@@ -101,7 +101,6 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({ open
                 multiline
                 rows={3}
                 fullWidth
-                required
                 value={anotaciones}
                 onChange={(e) => setAnotaciones(e.target.value)}
               />
@@ -116,7 +115,7 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({ open
               variant="contained"
               color="primary"
               onClick={handleGuardar}
-              disabled={!monto || !anotaciones || !fecha}
+              disabled={!monto || !fecha}
             >
               Guardar ampliación
             </Button>

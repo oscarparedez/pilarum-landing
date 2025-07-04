@@ -24,8 +24,12 @@ export const mapProyectoToConfig = (data: {
   ampliaciones: AmpliacionFecha[];
   presupuestos: any[];
 }): ConfigProyecto => {
-  const presupuestoInicialObj = data.presupuestos.find((p) => p.tipo === 'inicial');
-  const presupuestoInicial = presupuestoInicialObj?.monto ?? 0;
+  const presupuestoInicial = data.presupuestos.reduce((total, p) => total + Number(p.monto), 0);
+
+  console.log('Presupuestos recibidos:');
+data.presupuestos.forEach((p, i) => {
+  console.log(`#${i + 1}`, `ID: ${p.id}`, `Monto: ${p.monto}`, `Tipo: ${p.tipo}`);
+});
 
   const fechaMasReciente = (() => {
     if (data.ampliaciones.length === 0) {
@@ -36,6 +40,8 @@ export const mapProyectoToConfig = (data: {
       new Date(current.fecha) > new Date(latest.fecha) ? current : latest
     ).fecha;
   })();
+
+  console.log("data presupuestos", data.presupuestos);
 
   return {
     datosBasicos: {
@@ -49,14 +55,7 @@ export const mapProyectoToConfig = (data: {
     ingresos: data.ingresos,
     pagos: data.pagos,
     ampliacionesFecha: data.ampliaciones,
-    ampliacionesPresupuesto: data.presupuestos
-      .filter((p) => p.tipo !== 'inicial')
-      .map((p) => ({
-        fecha: p.fecha_creacion,
-        motivo: p.motivo,
-        monto: p.monto,
-        usuario: p.usuario_creador,
-      })),
+    ampliacionesPresupuesto: data.presupuestos,
     revisiones: [],
     maquinaria: [],
     personal: [],
