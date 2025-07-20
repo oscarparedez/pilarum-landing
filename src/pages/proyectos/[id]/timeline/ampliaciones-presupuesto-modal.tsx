@@ -65,7 +65,10 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
 
   return (
     <>
-      <Modal open={open} onClose={onClose}>
+      <Modal
+        open={open}
+        onClose={onClose}
+      >
         <Box
           sx={{
             position: 'absolute',
@@ -81,7 +84,10 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
             <CardHeader title="Historial de ampliaciones de presupuesto" />
             <Divider />
 
-            <TablaPaginadaConFiltros onFiltrar={() => {}} totalItems={ampliaciones.length}>
+            <TablaPaginadaConFiltros
+              onFiltrar={() => {}}
+              totalItems={ampliaciones.length}
+            >
               {(currentPage) => (
                 <Table>
                   <TableBody>
@@ -95,23 +101,38 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
                           <TableRow key={index}>
                             <TableCell width={120}>
                               <Box sx={{ p: 1 }}>
-                                <Typography align="center" color="text.secondary" variant="subtitle2">
+                                <Typography
+                                  align="center"
+                                  color="text.secondary"
+                                  variant="subtitle2"
+                                >
                                   {fechaFormatted}
                                 </Typography>
                               </Box>
                             </TableCell>
                             <TableCell>
-                              <Typography variant="subtitle2">{nombreUsuario(item.usuario)}</Typography>
-                              <Typography color="text.secondary" variant="body2">
+                              <Typography variant="subtitle2">
+                                {nombreUsuario(item.usuario)}
+                              </Typography>
+                              <Typography
+                                color="text.secondary"
+                                variant="body2"
+                              >
                                 {item.motivo || 'Sin motivo'}
                               </Typography>
                             </TableCell>
                             <TableCell align="right">
-                              <Typography variant="subtitle2" color="success.main">
+                              <Typography
+                                variant="subtitle2"
+                                color="success.main"
+                              >
                                 +{formatearQuetzales(Number(item.monto))}
                               </Typography>
 
-                              <Stack direction="row" justifyContent="flex-end">
+                              <Stack
+                                direction="row"
+                                justifyContent="flex-end"
+                              >
                                 <IconButton
                                   onClick={() => {
                                     setEditandoIndex(globalIndex);

@@ -6,5 +6,5 @@ export const mapPagoToFrontend = (pago: any) => ({
   tipo_pago: pago.tipo,
   tipo_documento: pago.tipo_documento,
   anotaciones: pago.anotaciones,
-  usuario_registro: pago.usuario_creador_nombre,
+  usuario_registro: pago.usuario_creador,
 });

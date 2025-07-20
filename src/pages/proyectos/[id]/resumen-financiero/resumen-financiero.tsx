@@ -3,10 +3,12 @@ import { Box, Card, Grid, Stack, Typography, Button } from '@mui/material';
 import { ModalRegistrarIngreso } from './registrar-ingreso-modal';
 import { ModalRegistrarCobro } from './registrar-costo-modal';
 import { ModalListaIngresos } from './ingresos-modal';
+import { ModalListaCostos } from './costos-modal';
 import { ModalMovimientos } from './movimientos-modal';
 import { Ingreso, Costo } from '../index.d';
 import { formatearQuetzales } from 'src/utils/format-currency';
-import { ModalListaCostos } from './costos-modal';
+import { TipoIngreso } from '../../configuracion/tipo-ingresos/index.d';
+import { TipoPago } from '../../configuracion/tipo-pagos/index.d';
 
 type ButtonColor = 'inherit' | 'success' | 'error' | 'info' | 'primary' | 'secondary' | 'warning';
 
@@ -14,15 +16,44 @@ const isValidButtonColor = (value: any): value is ButtonColor =>
   ['inherit', 'success', 'error', 'info', 'primary', 'secondary', 'warning'].includes(value);
 
 interface ResumenFinancieroProps {
+  totalIngresos: number;
   ingresos: Ingreso[];
   pagos: Costo[];
+  tiposIngreso: TipoIngreso[];
+  tiposPago: TipoPago[];
   presupuestoInicial: number;
+  onCrearIngreso: (data: {
+    monto_total: number;
+    tipo_ingreso: number;
+    tipo_documento: string;
+    fecha_ingreso: string;
+    anotaciones: string;
+  }) => void;
+  onActualizarIngreso: (
+    ingreso_id: number,
+    data: {
+      monto_total: number;
+      tipo_ingreso: number;
+      tipo_documento: string;
+      fecha_ingreso: string;
+      anotaciones: string;
+    }
+  ) => Promise<void>;
+  onEliminarIngreso: (ingreso_id: number) => Promise<void>;
+  onCrearPago: (data: any) => Promise<void>;
 }
 
 export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
+  totalIngresos,
   ingresos,
   pagos: costos,
+  tiposIngreso,
+  tiposPago,
   presupuestoInicial,
+  onCrearIngreso,
+  onActualizarIngreso,
+  onEliminarIngreso,
+  onCrearPago,
 }) => {
   const [openIngreso, setOpenIngreso] = useState(false);
   const [openCosto, setOpenCosto] = useState(false);
@@ -30,14 +61,12 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   const [openListaCostos, setOpenListaCostos] = useState(false);
   const [openMovimientos, setOpenMovimientos] = useState(false);
 
-  const totalIngresos = ingresos.reduce((acc, curr) => acc + curr.monto_total, 0);
   const ultimoIngreso = ingresos.length
     ? ingresos.reduce((latest, curr) =>
         new Date(curr.fecha_ingreso) > new Date(latest.fecha_ingreso) ? curr : latest
       ).fecha_ingreso
     : '';
   const totalCostos = costos.reduce((acc, curr) => acc + curr.monto_total, 0);
-
   const progreso = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
   const ganancia = totalIngresos - totalCostos;
 
@@ -91,24 +120,36 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     }
   };
 
+  const handleCrearIngreso = (data: {
+    monto_total: number;
+    tipo_ingreso: number;
+    tipo_documento: string;
+    fecha_ingreso: string;
+    anotaciones: string;
+  }) => {
+    onCrearIngreso(data);
+    setOpenIngreso(false);
+  };
+
+  const handleActualizarIngreso = async (
+    id: number,
+    data: {
+      monto_total: number;
+      tipo_ingreso: number;
+      tipo_documento: string;
+      fecha_ingreso: string;
+      anotaciones: string;
+    }
+  ) => {
+    await onActualizarIngreso(id, data);
+    setOpenListaIngresos(false);
+  };
+
   return (
     <>
       <Box sx={{ p: 3 }}>
         <Card>
-          <Grid
-            container
-            sx={{
-              '& > *:not(:last-of-type)': {
-                borderRight: (theme) => ({
-                  md: `1px solid ${theme.palette.divider}`,
-                }),
-                borderBottom: (theme) => ({
-                  xs: `1px solid ${theme.palette.divider}`,
-                  md: 'none',
-                }),
-              },
-            }}
-          >
+          <Grid container>
             {tarjetas.map((item, index) => {
               const color = isValidButtonColor(item.buttonColor) ? item.buttonColor : 'primary';
 
@@ -118,6 +159,15 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                   xs={12}
                   sm={6}
                   md={3}
+                  sx={{
+                    borderRight: {
+                      md: index < tarjetas.length - 1 ? '1px solid #e0e0e0' : 'none',
+                    },
+                    borderBottom: {
+                      xs: index % 2 === 0 ? '1px solid #e0e0e0' : 'none',
+                      md: 'none',
+                    },
+                  }}
                 >
                   <Stack
                     alignItems="center"
@@ -128,8 +178,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                     <Typography
                       color="text.secondary"
                       variant="overline"
-                      align='center'
-                      sx={{ p: 0 }}
+                      align="center"
                     >
                       {item.label === 'Ingresos'
                         ? `${progreso.toFixed(0)} % del presupuesto alcanzado`
@@ -146,7 +195,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                       <Stack
                         direction="row"
                         spacing={1}
-                        sx={{ width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}
+                        sx={{ flexWrap: 'wrap', width: '100%' }}
                       >
                         <Button
                           size="large"
@@ -180,43 +229,34 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
 
       <ModalRegistrarIngreso
         open={openIngreso}
+        tiposIngreso={tiposIngreso}
         onClose={() => setOpenIngreso(false)}
+        onSave={handleCrearIngreso}
       />
       <ModalRegistrarCobro
         open={openCosto}
+        // tiposPago={tiposPago}
         onClose={() => setOpenCosto(false)}
+        // onConfirm={onCrearPago}
       />
       <ModalListaIngresos
         open={openListaIngresos}
         onClose={() => setOpenListaIngresos(false)}
         ingresos={ingresos}
-        fetchIngresos={() => {}}
+        tiposIngreso={tiposIngreso}
+        onActualizarIngreso={handleActualizarIngreso}
+        onEliminarIngreso={onEliminarIngreso}
       />
       <ModalListaCostos
         open={openListaCostos}
         onClose={() => setOpenListaCostos(false)}
         costos={costos}
-        fetchCostos={() => {}}
+        fetchCostos={() => console.log('asd')}
       />
       <ModalMovimientos
         open={openMovimientos}
         onClose={() => setOpenMovimientos(false)}
-        movimientos={[
-          ...ingresos.map((ing) => ({
-            tipo: 'Ingreso' as const,
-            monto: ing.monto_total,
-            fecha: ing.fecha_ingreso,
-            descripcion: ing.tipo_ingreso,
-            usuario: ing.usuario_registro,
-          })),
-          ...costos.map((costo) => ({
-            tipo: 'Costo' as const,
-            monto: costo.monto_total,
-            fecha: costo.fecha_pago,
-            descripcion: costo.tipo_pago,
-            usuario: costo.usuario_registro,
-          })),
-        ]}
+        movimientos={[]}
         fetchMovimientos={() => {}}
       />
     </>

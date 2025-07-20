@@ -2,6 +2,9 @@ export const tokens = {
   nav: {
     pizarron: 'nav.pizarron',
     proyectos: 'nav.proyectos',
+    configuracion: 'nav.configuracion',
+    tipoIngresos: 'nav.tipoIngresos',
+    tipoPagos: 'nav.tipoPagos',
     presupuestos: 'nav.presupuestos',
     fechas: 'nav.fechas',
     pagos: 'nav.pagos',

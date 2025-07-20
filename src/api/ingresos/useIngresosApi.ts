@@ -18,6 +18,18 @@ export const useIngresosApi = () => {
     [fetchWithAuth]
   );
 
+  const getIngresoById = useCallback(
+    async (proyectoId: number, ingresoId: number) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/ingresos/${ingresoId}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener ingreso');
+      const data = await res.json();
+      return mapIngresoToFrontend(data);
+    },
+    [fetchWithAuth]
+  );
+
   const crearIngreso = useCallback(
     async (proyectoId: number, data: any) => {
       const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/ingresos/`, {
@@ -31,5 +43,48 @@ export const useIngresosApi = () => {
     [fetchWithAuth]
   );
 
-  return { getIngresos, crearIngreso };
+  const actualizarIngreso = useCallback(
+    async (proyectoId: number, ingresoId: number, data: any) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/ingresos/${ingresoId}/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error al actualizar ingreso');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const actualizarIngresoParcial = useCallback(
+    async (proyectoId: number, ingresoId: number, data: Partial<any>) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/ingresos/${ingresoId}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error al actualizar ingreso parcialmente');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const eliminarIngreso = useCallback(
+    async (proyectoId: number, ingresoId: number) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/ingresos/${ingresoId}/`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Error al eliminar ingreso');
+    },
+    [fetchWithAuth]
+  );
+
+  return {
+    getIngresos,
+    getIngresoById,
+    crearIngreso,
+    actualizarIngreso,
+    actualizarIngresoParcial,
+    eliminarIngreso,
+  };
 };

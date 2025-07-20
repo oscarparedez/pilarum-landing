@@ -14,10 +14,16 @@ interface TimelineProps {
   presupuestoInicial: number;
   ampliacionesPresupuesto: AmpliacionPresupuesto[];
   onAmpliarFecha: (nuevaFecha: Date, motivo: string) => Promise<void>;
-  onEditarAmpliacion: (id: number, data: { nueva_fecha_estimada_fin: string; motivo: string }) => Promise<void>;
+  onEditarAmpliacion: (
+    id: number,
+    data: { nueva_fecha_estimada_fin: string; motivo: string }
+  ) => Promise<void>;
   onEliminarAmpliacion: (id: number) => Promise<void>;
   onAmpliarPresupuesto: (data: { monto: number; motivo?: string }) => Promise<void>;
-  onEditarAmpliacionPresupuesto: (id: number, data: { monto: number; motivo?: string }) => Promise<void>;
+  onEditarAmpliacionPresupuesto: (
+    id: number,
+    data: { monto: number; motivo?: string }
+  ) => Promise<void>;
   onEliminarAmpliacionPresupuesto: (id: number) => Promise<void>;
 }
 
@@ -44,7 +50,10 @@ export const Timeline: FC<TimelineProps> = ({
     await onAmpliarFecha(nuevaFecha, motivo);
   };
 
-  const handleActualizarAmpliacion = async (id: number, data: { fecha: string; motivo: string }) => {
+  const handleActualizarAmpliacion = async (
+    id: number,
+    data: { fecha: string; motivo: string }
+  ) => {
     await onEditarAmpliacion(id, {
       nueva_fecha_estimada_fin: data.fecha,
       motivo: data.motivo,
@@ -61,7 +70,10 @@ export const Timeline: FC<TimelineProps> = ({
     if (onAmpliarPresupuesto) await onAmpliarPresupuesto(data);
   };
 
-  const handleEditarAmpliacionPresupuesto = async (id: number, data: { monto: number; motivo?: string }) => {
+  const handleEditarAmpliacionPresupuesto = async (
+    id: number,
+    data: { monto: number; motivo?: string }
+  ) => {
     if (onEditarAmpliacionPresupuesto) await onEditarAmpliacionPresupuesto(id, data);
   };
 
@@ -77,41 +89,121 @@ export const Timeline: FC<TimelineProps> = ({
       <Box sx={{ p: 3 }}>
         <Card>
           <Grid container>
-            <Grid item xs={12} md={4}>
-              <Stack alignItems="center" spacing={1} sx={{ p: 3 }}>
-                <Typography variant="h5" fontWeight="bold">{fechaInicio}</Typography>
-                <Typography color="text.secondary" variant="overline">Fecha de inicio</Typography>
+            <Grid
+              item
+              xs={12}
+              md={4}
+            >
+              <Stack
+                alignItems="center"
+                spacing={1}
+                sx={{ p: 3 }}
+              >
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                >
+                  {fechaInicio}
+                </Typography>
+                <Typography
+                  color="text.secondary"
+                  variant="overline"
+                >
+                  Fecha de inicio
+                </Typography>
               </Stack>
             </Grid>
 
-            <Grid item xs={12} md={4}>
-              <Stack alignItems="center" spacing={1} sx={{ p: 3 }}>
-                <Typography variant="h5" fontWeight="bold">{fechaFin}</Typography>
-                <Typography color="text.secondary" variant="overline">Fin estimada</Typography>
+            <Grid
+              item
+              xs={12}
+              md={4}
+            >
+              <Stack
+                alignItems="center"
+                spacing={1}
+                sx={{ p: 3 }}
+              >
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                >
+                  {fechaFin}
+                </Typography>
+                <Typography
+                  color="text.secondary"
+                  variant="overline"
+                >
+                  Fin estimada
+                </Typography>
 
-                <Stack direction="row" spacing={2} sx={{ mt: 3, width: '100%' }}>
-                  <Button fullWidth variant="outlined" size="large" onClick={() => setShowAmpliarFecha(true)}>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  sx={{ mt: 3, width: '100%' }}
+                >
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    size="large"
+                    onClick={() => setShowAmpliarFecha(true)}
+                  >
                     Ampliar fecha
                   </Button>
-                  <Button fullWidth variant="contained" size="large" onClick={() => setShowHistorialFechas(true)}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    onClick={() => setShowHistorialFechas(true)}
+                  >
                     Ampliaciones
                   </Button>
                 </Stack>
               </Stack>
             </Grid>
 
-            <Grid item xs={12} md={4}>
-              <Stack alignItems="center" spacing={1} sx={{ p: 3 }}>
-                <Typography variant="h5" fontWeight="bold">
+            <Grid
+              item
+              xs={12}
+              md={4}
+            >
+              <Stack
+                alignItems="center"
+                spacing={1}
+                sx={{ p: 3 }}
+              >
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                >
                   Q{formatearQuetzales(presupuestoInicial)}
                 </Typography>
-                <Typography color="text.secondary" variant="overline">Presupuesto inicial</Typography>
+                <Typography
+                  color="text.secondary"
+                  variant="overline"
+                >
+                  Presupuesto inicial
+                </Typography>
 
-                <Stack direction="row" spacing={2} sx={{ mt: 3, width: '100%' }}>
-                  <Button fullWidth variant="outlined" size="large" onClick={() => setShowAmpliarPresupuesto(true)}>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  sx={{ mt: 3, width: '100%' }}
+                >
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    size="large"
+                    onClick={() => setShowAmpliarPresupuesto(true)}
+                  >
                     Ampliar presupuesto
                   </Button>
-                  <Button fullWidth variant="contained" size="large" onClick={() => setShowHistorialPresupuesto(true)}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    onClick={() => setShowHistorialPresupuesto(true)}
+                  >
                     Ampliaciones
                   </Button>
                 </Stack>

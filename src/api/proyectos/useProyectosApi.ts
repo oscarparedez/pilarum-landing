@@ -7,6 +7,10 @@ import { usePagosApi } from '../pagos/usePagosApi';
 import { useAmpliacionesApi } from '../ampliaciones/useAmpliacionesApi';
 import { mapProyectoDatosBasicosToFrontend, mapProyectoToConfig } from './utils';
 import { ConfigProyecto } from 'src/pages/proyectos/[id]/index.d';
+import { useTiposIngresoApi } from '../tipoIngresos/useTipoIngresosApi';
+import { useTiposPagoApi } from '../tipoPagos/useTipoPagosApi';
+import { TipoIngreso } from 'src/pages/proyectos/configuracion/tipo-ingresos/index.d';
+import { TipoPago } from 'src/pages/proyectos/configuracion/tipo-pagos/index.d';
 
 export interface Proyecto {
   id: number;
@@ -24,6 +28,8 @@ export const useProyectosApi = () => {
   const { getIngresos } = useIngresosApi();
   const { getPagos } = usePagosApi();
   const { getAmpliaciones } = useAmpliacionesApi();
+  const { getTiposIngreso } = useTiposIngresoApi();
+  const { getTiposPago } = useTiposPagoApi();
 
   const getProyectos = useCallback(async (): Promise<Proyecto[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/`, { method: 'GET' });
@@ -105,36 +111,57 @@ export const useProyectosApi = () => {
   );
 
   const getProyectoInfo = useCallback(
-    async (id: number): Promise<ConfigProyecto> => {
-      try {
-        const [proyectoRaw, ingresos, pagos, ampliaciones, presupuestos] = await Promise.all([
-          getProyectoById(id),
-          getIngresos(id),
-          getPagos(id),
-          getAmpliaciones(id),
-          getPresupuestos(id),
-        ]);
+  async (id: number): Promise<ConfigProyecto> => {
+    try {
+      const [
+        proyectoRaw,
+        ingresos,
+        pagos,
+        ampliaciones,
+        presupuestos,
+        tiposIngreso,
+        tiposPago,
+      ] = await Promise.all([
+        getProyectoById(id),
+        getIngresos(id),
+        getPagos(id),
+        getAmpliaciones(id),
+        getPresupuestos(id),
+        getTiposIngreso(),
+        getTiposPago(),
+      ]);
 
-        const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
+      const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
 
-        return mapProyectoToConfig({
-          nombre: proyecto.nombre,
-          ubicacion: proyecto.ubicacion,
-          fecha_inicio: proyecto.fechaInicio,
-          fecha_fin: proyecto.fechaFin,
-          socioAsignado: proyecto.socioAsignado,
-          ingresos,
-          pagos,
-          ampliaciones,
-          presupuestos,
-        });
-      } catch (error) {
-        console.error('Error al obtener los datos del proyecto completo:', error);
-        throw new Error('No se pudo obtener la información completa del proyecto');
-      }
-    },
-    [getProyectoById, getIngresos, getPagos, getAmpliaciones, getPresupuestos]
-  );
+      return mapProyectoToConfig({
+        nombre: proyecto.nombre,
+        ubicacion: proyecto.ubicacion,
+        fecha_inicio: proyecto.fechaInicio,
+        fecha_fin: proyecto.fechaFin,
+        socioAsignado: proyecto.socioAsignado,
+        ingresos,
+        pagos,
+        ampliaciones,
+        presupuestos,
+        tiposIngreso,
+        tiposPago,
+      });
+    } catch (error) {
+      console.error('Error al obtener los datos del proyecto completo:', error);
+      throw new Error('No se pudo obtener la información completa del proyecto');
+    }
+  },
+  [
+    getProyectoById,
+    getIngresos,
+    getPagos,
+    getAmpliaciones,
+    getPresupuestos,
+    getTiposIngreso,
+    getTiposPago,
+  ]
+);
+
 
   return {
     getProyectos,

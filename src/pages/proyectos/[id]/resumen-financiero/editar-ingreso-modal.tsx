@@ -22,15 +22,18 @@ import { Ingreso } from '../index.d';
 interface ModalEditarIngresoProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: {
-    fecha_ingreso: string;
-    monto_total: number;
-    tipo_ingreso: string;
-    tipo_documento: string;
-    anotaciones: string;
-    usuario_registro: string;
-  }) => void;
   initialData: Ingreso;
+  tiposIngreso: { id: number; nombre: string }[];
+  onConfirm: (
+    id: number,
+    data: {
+      monto_total: number;
+      tipo_ingreso: number;
+      tipo_documento: string;
+      fecha_ingreso: string;
+      anotaciones: string;
+    }
+  ) => Promise<void>;
 }
 
 export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
@@ -38,17 +41,18 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
   onClose,
   onConfirm,
   initialData,
+  tiposIngreso,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [monto, setMonto] = useState(0);
-  const [tipoIngreso, setTipoIngreso] = useState('');
+  const [tipoIngreso, setTipoIngreso] = useState<number | null>(null);
   const [tipoDocumento, setTipoDocumento] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
 
   useEffect(() => {
     setSelectedDate(new Date(initialData.fecha_ingreso));
     setMonto(initialData.monto_total);
-    setTipoIngreso(initialData.tipo_ingreso);
+    setTipoIngreso(initialData.tipo_ingreso.id);
     setTipoDocumento(initialData.tipo_documento);
     setAnotaciones(initialData.anotaciones);
   }, [initialData]);
@@ -56,13 +60,12 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
   const handleConfirm = () => {
     if (!selectedDate || !monto || !tipoIngreso || !tipoDocumento) return;
 
-    onConfirm({
+    onConfirm(initialData.id_ingreso, {
       fecha_ingreso: format(selectedDate, 'yyyy-MM-dd'),
       monto_total: monto,
       tipo_ingreso: tipoIngreso,
       tipo_documento: tipoDocumento,
       anotaciones,
-      usuario_registro: initialData.usuario_registro,
     });
 
     onClose();
@@ -135,12 +138,18 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
                   select
                   required
                   value={tipoIngreso}
-                  onChange={(e) => setTipoIngreso(e.target.value)}
+                  onChange={(e) => setTipoIngreso(Number(e.target.value))}
                   fullWidth
                   sx={{ flex: 1 }}
                 >
-                  <MenuItem value="Avance de obra">Avance de obra</MenuItem>
-                  <MenuItem value="Pago final">Pago final</MenuItem>
+                  {tiposIngreso.map((tipo) => (
+                    <MenuItem
+                      key={tipo.id}
+                      value={tipo.id}
+                    >
+                      {tipo.nombre}
+                    </MenuItem>
+                  ))}
                 </TextField>
 
                 <TextField
@@ -152,9 +161,9 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
                   fullWidth
                   sx={{ flex: 1 }}
                 >
-                  <MenuItem value="Cheque">Cheque</MenuItem>
-                  <MenuItem value="Transferencia">Transferencia</MenuItem>
-                  <MenuItem value="Efectivo">Efectivo</MenuItem>
+                  <MenuItem value="cheque">Cheque</MenuItem>
+                  <MenuItem value="transferencia">Transferencia</MenuItem>
+                  <MenuItem value="efectivo">Efectivo</MenuItem>
                 </TextField>
               </Box>
 

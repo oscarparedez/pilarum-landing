@@ -3,6 +3,9 @@ import { tokens } from '../tokens';
 export const es = {
   [tokens.nav.pizarron]: 'Visión general',
   [tokens.nav.proyectos]: 'Proyectos',
+  [tokens.nav.configuracion]: 'Configuración',
+  [tokens.nav.tipoIngresos]: 'Tipos de ingresos',
+  [tokens.nav.tipoPagos]: 'Tipos de pagos',
   [tokens.nav.presupuestos]: 'Presupuestos',
   [tokens.nav.fechas]: 'Fechas y prórrogas',
   [tokens.nav.pagos]: 'Pagos a maestro de obra',

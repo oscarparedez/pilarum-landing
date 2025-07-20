@@ -16,16 +16,47 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
+import { TipoIngreso } from '../../configuracion/tipo-ingresos/index.d';
 
-export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> = ({
+interface ModalRegistrarIngresoProps {
+  open: boolean;
+  tiposIngreso: TipoIngreso[];
+  onClose: () => void;
+  onSave: (data: {
+    monto_total: number;
+    tipo_ingreso: number;
+    tipo_documento: string;
+    fecha_ingreso: string;
+    anotaciones: string;
+  }) => void;
+}
+
+export const ModalRegistrarIngreso: FC<ModalRegistrarIngresoProps> = ({
   open,
+  tiposIngreso,
   onClose,
+  onSave,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [tipoIngreso, setTipoIngreso] = useState('');
+  const [monto, setMonto] = useState<number | ''>('');
+  const [tipoIngreso, setTipoIngreso] = useState<number | ''>('');
+  const [tipoDocumento, setTipoDocumento] = useState('');
+  const [anotaciones, setAnotaciones] = useState('');
 
-  const handleTipoIngresoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTipoIngreso(event.target.value);
+  const handleSave = () => {
+    if (!selectedDate || !monto || tipoIngreso === '' || !tipoDocumento) {
+      alert('Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    onSave({
+      monto_total: Number(monto),
+      tipo_ingreso: tipoIngreso as number,
+      tipo_documento: tipoDocumento,
+      fecha_ingreso: selectedDate.toISOString().split('T')[0],
+      anotaciones,
+    });
+    onClose();
   };
 
   return (
@@ -66,6 +97,8 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
                 type="number"
                 fullWidth
                 required
+                value={monto}
+                onChange={(e) => setMonto(Number(e.target.value))}
               />
 
               <Box>
@@ -92,29 +125,25 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
                 fullWidth
                 required
                 value={tipoIngreso}
-                onChange={handleTipoIngresoChange}
+                onChange={(e) => setTipoIngreso(Number(e.target.value))}
               >
-                <MenuItem value="avance">Avance de obra</MenuItem>
-                <MenuItem value="final">Pago final</MenuItem>
+                {tiposIngreso.map((tipo) => (
+                  <MenuItem
+                    key={tipo.id}
+                    value={tipo.id}
+                  >
+                    {tipo.nombre}
+                  </MenuItem>
+                ))}
               </TextField>
-
-              {tipoIngreso === 'final' && (
-                <TextField
-                  label="Socio"
-                  select
-                  fullWidth
-                  required
-                >
-                  <MenuItem value="socio1">Socio 1</MenuItem>
-                  <MenuItem value="socio2">Socio 2</MenuItem>
-                </TextField>
-              )}
 
               <TextField
                 label="Tipo de documento"
                 select
                 fullWidth
                 required
+                value={tipoDocumento}
+                onChange={(e) => setTipoDocumento(e.target.value)}
               >
                 <MenuItem value="cheque">Cheque</MenuItem>
                 <MenuItem value="transferencia">Transferencia</MenuItem>
@@ -126,7 +155,8 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
                 multiline
                 rows={3}
                 fullWidth
-                required
+                value={anotaciones}
+                onChange={(e) => setAnotaciones(e.target.value)}
               />
             </Stack>
           </CardContent>
@@ -138,6 +168,7 @@ export const ModalRegistrarIngreso: FC<{ open: boolean; onClose: () => void }> =
             <Button
               variant="contained"
               color="primary"
+              onClick={handleSave}
             >
               Guardar ingreso
             </Button>

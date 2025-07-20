@@ -73,7 +73,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
             empresa: empresaValue || undefined,
           });
         },
-        500
+        200
       ),
     [onFiltrar]
   );

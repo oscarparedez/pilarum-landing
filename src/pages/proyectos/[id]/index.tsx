@@ -21,6 +21,7 @@ import { useAmpliacionesApi } from 'src/api/ampliaciones/useAmpliacionesApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
 import { usePresupuestosApi } from 'src/api/presupuestos/usePresupuestosApi';
+import { useIngresosApi } from 'src/api/ingresos/useIngresosApi';
 
 export const tareasEjemplo: Tarea[] = [
   /* ... tus tareas aquí ... */
@@ -34,6 +35,7 @@ const Page: NextPage = () => {
   const { crearAmpliacion, editarAmpliacion, eliminarAmpliacion } = useAmpliacionesApi();
   const { crearPresupuestoAmpliacion, actualizarPresupuesto, eliminarPresupuesto } =
     usePresupuestosApi();
+  const { crearIngreso, actualizarIngreso, eliminarIngreso } = useIngresosApi();
 
   const [config, setConfig] = useState<ConfigProyecto | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
@@ -146,8 +148,7 @@ const Page: NextPage = () => {
     try {
       setLoading(true);
       await actualizarPresupuesto(parseInt(id), presupuestoId, {
-        ...data,
-        tipo: 'ampliacion', // aseguramos que se mantenga como ampliación
+        ...data
       });
       const updated = await getProyectoInfo(parseInt(id));
       setConfig(updated);
@@ -178,6 +179,82 @@ const Page: NextPage = () => {
     }
   };
 
+  const handleCrearIngreso = async (data: {
+    monto_total: number;
+    tipo_ingreso: number;
+    tipo_documento: string;
+    fecha_ingreso: string;
+    anotaciones: string;
+  }) => {
+    const id = router.query.id;
+    if (!id || Array.isArray(id)) return;
+    try {
+      await crearIngreso(parseInt(id), data);
+      const updated = await getProyectoInfo(parseInt(id));
+      setConfig(updated);
+      toast.success('Ingreso registrado correctamente');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al registrar ingreso');
+    }
+  };
+
+  const handleActualizarIngreso = async (
+    ingreso_id: number,
+    data: {
+      fecha_ingreso: string;
+      monto_total: number;
+      tipo_ingreso: number;
+      tipo_documento: string;
+      anotaciones: string;
+    }
+  ) => {
+    const id = router.query.id;
+    if (!id || Array.isArray(id)) return;
+    try {
+      await actualizarIngreso(parseInt(id), ingreso_id, data);
+      const updated = await getProyectoInfo(parseInt(id));
+      setConfig(updated);
+      toast.success('Ingreso actualizado correctamente');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al actualizar ingreso');
+    }
+  };
+
+  const handleEliminarIngreso = async (ingresoId: number) => {
+  const id = router.query.id;
+  if (!id || Array.isArray(id)) return;
+
+  try {
+    setLoading(true);
+    await eliminarIngreso(parseInt(id), ingresoId);
+    const updated = await getProyectoInfo(parseInt(id));
+    setConfig(updated);
+    toast.success('Ingreso eliminado correctamente');
+  } catch (error) {
+    console.error(error);
+    toast.error('Error al eliminar ingreso');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleCrearPago = async (data: any) => {
+    const id = router.query.id;
+    if (!id || Array.isArray(id)) return;
+
+    try {
+      // await crearPago(parseInt(id), data);
+      // const updated = await getProyectoInfo(parseInt(id));
+      // setConfig(updated);
+      // toast.success('Pago registrado correctamente');
+    } catch (error) {
+      // console.error(error);
+      // toast.error('Error al registrar pago');
+    }
+  };
+
   if (!config) return null;
 
   const {
@@ -190,9 +267,12 @@ const Page: NextPage = () => {
     maquinaria,
     personal,
     materialPlanificado,
+    tiposIngreso,
+    tiposPago,
   } = config;
 
-  const { nombre, ubicacion, fechaInicio, fechaFin, socio, presupuestoInicial } = datosBasicos;
+  const { nombre, ubicacion, fechaInicio, fechaFin, socio, presupuestoInicial, totalIngresos } =
+    datosBasicos;
 
   return (
     <Box
@@ -238,19 +318,23 @@ const Page: NextPage = () => {
           <Pizarron tareas={tareasEjemplo} />
 
           <ResumenFinanciero
+            totalIngresos={totalIngresos}
             ingresos={ingresos}
             pagos={costos}
+            tiposIngreso={tiposIngreso}
+            tiposPago={tiposPago}
             presupuestoInicial={presupuestoInicial}
+            onCrearIngreso={handleCrearIngreso}
+            onActualizarIngreso={handleActualizarIngreso}
+            onEliminarIngreso={handleEliminarIngreso}
+            onCrearPago={handleCrearPago}
           />
 
           <EditarDatosBasicosModal
             open={modalEditarAbierto}
             onClose={() => setModalEditarAbierto(false)}
             initialData={datosBasicos}
-            onConfirm={(data) => {
-              setConfig((prev) => (prev ? { ...prev, datosBasicos: data } : prev));
-              setModalEditarAbierto(false);
-            }}
+            onConfirm={() => {}}
           />
 
           <Maquinaria maquinaria={maquinaria} />

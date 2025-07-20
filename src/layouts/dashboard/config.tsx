@@ -5,6 +5,7 @@ import SvgIcon from '@mui/material/SvgIcon';
 
 import HomeSmileIcon from 'src/icons/untitled-ui/duocolor/home-smile';
 import Settings03Icon from '@untitled-ui/icons-react/build/esm/Settings03';
+import Settings02Icon from '@untitled-ui/icons-react/build/esm/Settings02';
 import ShoppingBag03Icon from 'src/icons/untitled-ui/duocolor/shopping-bag-03';
 import Users03Icon from 'src/icons/untitled-ui/duocolor/users-03';
 import ClipboardIcon from '@untitled-ui/icons-react/build/esm/Clipboard';
@@ -70,7 +71,7 @@ export const useSections = (): Section[] => {
               { title: t(tokens.nav.costos), path: paths.dashboard.oficina.costos },
             ],
           },
-                    {
+          {
             title: t(tokens.nav.bodega),
             icon: <SvgIcon fontSize="small"><ShoppingBag03Icon /></SvgIcon>,
             items: [
@@ -89,7 +90,15 @@ export const useSections = (): Section[] => {
             title: t(tokens.nav.proyectos),
             path: paths.dashboard.proyectos.index,
             icon: <SvgIcon><ClipboardIcon /></SvgIcon>,
-          }
+          },
+          {
+            title: t(tokens.nav.configuracion),
+            icon: <SvgIcon fontSize="small"><Settings02Icon /></SvgIcon>,
+            items: [
+              { title: t(tokens.nav.tipoIngresos), path: paths.dashboard.proyectos.configuracion.tipoIngresos },
+              { title: t(tokens.nav.tipoPagos), path: paths.dashboard.proyectos.configuracion.tipoPagos },
+            ],
+          },
         ],
       },
       {

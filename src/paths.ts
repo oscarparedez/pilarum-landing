@@ -29,6 +29,10 @@ export const paths = {
       index: '/proyectos',
       crear: '/proyectos/crear',
       detalle: (id: string) => `/proyectos/${id}`,
+      configuracion: {
+        tipoIngresos: '/proyectos/configuracion/tipo-ingresos',
+        tipoPagos: '/proyectos/configuracion/tipo-pagos',
+      }
     },
     maquinaria: {
       index: '/maquinaria',

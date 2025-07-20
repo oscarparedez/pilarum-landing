@@ -39,7 +39,7 @@ export const usePresupuestosApi = () => {
   const crearPresupuestoInicial = useCallback(
     async (
       proyectoId: number,
-      data: Omit<AmpliacionPresupuesto, 'id' | 'proyecto' | 'tipo' | 'fecha'>
+      data: { monto: number, motivo?: string }
     ): Promise<AmpliacionPresupuesto> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/presupuestos/`, {
         method: 'POST',
@@ -59,7 +59,7 @@ export const usePresupuestosApi = () => {
   const crearPresupuestoAmpliacion = useCallback(
     async (
       proyectoId: number,
-      data: Omit<AmpliacionPresupuesto, 'id' | 'proyecto' | 'tipo' | 'fecha'>
+      data: { monto: number, motivo?: string }
     ): Promise<AmpliacionPresupuesto> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/presupuestos/`, {
         method: 'POST',
@@ -76,7 +76,7 @@ export const usePresupuestosApi = () => {
     async (
       proyectoId: number,
       id: number,
-      data: Omit<AmpliacionPresupuesto, 'id' | 'proyecto' | 'fecha'>
+      data: { monto: number }
     ): Promise<AmpliacionPresupuesto> => {
       const res = await fetchWithAuth(
         `${API_BASE_URL}/proyectos/${proyectoId}/presupuestos/${id}/`,

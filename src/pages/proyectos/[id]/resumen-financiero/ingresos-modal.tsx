@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import {
   Box,
   Modal,
@@ -20,36 +20,74 @@ import { ModalEditarIngreso } from './editar-ingreso-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { Ingreso } from '../index.d';
 import { ModalEliminar } from 'src/components/eliminar-modal';
-import { set } from 'nprogress';
 
 interface ModalListaIngresosProps {
   open: boolean;
   onClose: () => void;
   ingresos: Ingreso[];
-  fetchIngresos: (params: {
-    search: string;
-    fechaInicio: Date | null;
-    fechaFin: Date | null;
-  }) => void;
+  tiposIngreso: { id: number; nombre: string }[];
+  onActualizarIngreso: (id: number, data: {
+  monto_total: number;
+  tipo_ingreso: number;
+  tipo_documento: string;
+  fecha_ingreso: string;
+  anotaciones: string;
+}) => Promise<void>;
+  onEliminarIngreso: (ingreso_id: number) => Promise<void>;
 }
+
+const formatTipoDocumento = (tipo: string) => {
+  if (!tipo) return '';
+  return tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
+};
 
 export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
   open,
   onClose,
   ingresos,
-  fetchIngresos,
+  tiposIngreso,
+  onActualizarIngreso,
+  onEliminarIngreso,
 }) => {
-  const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
+  const [filtros, setFiltros] = useState<{
+    search: string;
+    fechaInicio?: Date | null;
+    fechaFin?: Date | null;
+  }>({ search: '' });
+
+  const [ingresoEditando, setIngresoEditando] = useState<Ingreso | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [ingresoAEliminar, setIngresoAEliminar] = useState<Ingreso | null>(null);
+
+  const ingresosFiltrados = useMemo(() => {
+    return aplicarFiltros(ingresos, filtros, {
+      camposTexto: [
+        'usuario_registro.first_name',
+        'usuario_registro.last_name',
+        'tipo_ingreso.nombre',
+        'tipo_documento',
+        'anotaciones',
+      ],
+      campoFecha: 'fecha_ingreso',
+    });
+  }, [ingresos, filtros]);
+
+    const handleEliminarIngreso = () => {
+    if (ingresoAEliminar) {
+      onEliminarIngreso(ingresoAEliminar.id_ingreso);
+      setIngresoAEliminar(null);
+    }
+  };
 
   return (
     <>
       <Modal
         open={open}
         onClose={onClose}
+        aria-labelledby="modal-lista-ingresos"
       >
         <Box
           sx={{
@@ -57,8 +95,9 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '95%',
-            maxWidth: 900,
+            width: { xs: '95%', sm: '90%', md: 900 },
+            maxHeight: '90vh',
+            overflowY: 'auto',
             p: 2,
           }}
         >
@@ -67,89 +106,80 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
             <Divider />
 
             <TablaPaginadaConFiltros
-              onFiltrar={({ search, fechaInicio, fechaFin }) => {
-                fetchIngresos({
-                  search,
-                  fechaInicio: fechaInicio ?? null,
-                  fechaFin: fechaFin ?? null,
-                });
-              }}
-              totalItems={ingresos.length} // requerido
+              totalItems={ingresosFiltrados.length}
+              onFiltrar={(f) => setFiltros(f)}
             >
               {(currentPage) => (
                 <Table>
                   <TableBody>
-                    {ingresos
+                    {ingresosFiltrados
                       .slice((currentPage - 1) * 5, currentPage * 5)
-                      .map((ingreso, index) => {
-                        const globalIndex = index + (currentPage - 1) * 5;
-                        return (
-                          <TableRow key={ingreso.id_ingreso || index}>
-                            <TableCell width={100}>
-                              <Box sx={{ p: 1 }}>
-                                <Typography
-                                  align="center"
-                                  color="text.secondary"
-                                  variant="subtitle2"
-                                >
-                                  {formatearFecha(ingreso.fecha_ingreso)}
-                                </Typography>
-                              </Box>
-                            </TableCell>
+                      .map((ingreso) => (
+                        <TableRow key={ingreso.id_ingreso}>
+                          <TableCell width={100}>
+                            <Typography
+                              align="center"
+                              color="text.secondary"
+                              variant="subtitle2"
+                            >
+                              {formatearFecha(ingreso.fecha_ingreso)}
+                            </Typography>
+                          </TableCell>
 
-                            <TableCell>
-                              <Typography variant="subtitle2">
-                                {ingreso.usuario_registro}
-                              </Typography>
+                          <TableCell>
+                            <Typography variant="subtitle2">
+                              {ingreso.usuario_registro.first_name}{' '}
+                              {ingreso.usuario_registro.last_name}
+                            </Typography>
+                            <Typography
+                              color="text.secondary"
+                              variant="body2"
+                            >
+                              {ingreso.tipo_ingreso.nombre} –{' '}
+                              {formatTipoDocumento(ingreso.tipo_documento)}
+                            </Typography>
+                            {ingreso.anotaciones && (
                               <Typography
                                 color="text.secondary"
                                 variant="body2"
                               >
-                                {ingreso.tipo_ingreso} - {ingreso.tipo_documento}
+                                {ingreso.anotaciones}
                               </Typography>
-                              {ingreso.anotaciones && (
-                                <Typography
-                                  color="text.secondary"
-                                  variant="body2"
-                                >
-                                  {ingreso.anotaciones}
-                                </Typography>
-                              )}
-                            </TableCell>
+                            )}
+                          </TableCell>
 
-                            <TableCell align="right">
-                              <Typography
-                                color="success.main"
-                                variant="subtitle2"
+                          <TableCell align="right">
+                            <Typography
+                              color="success.main"
+                              variant="subtitle2"
+                            >
+                              {formatearQuetzales(ingreso.monto_total)}
+                            </Typography>
+
+                            <Stack
+                              direction="row"
+                              justifyContent="flex-end"
+                            >
+                              <IconButton
+                                onClick={() => {
+                                  setIngresoEditando(ingreso);
+                                  setModalEditarAbierto(true);
+                                }}
                               >
-                                {formatearQuetzales(ingreso.monto_total)}
-                              </Typography>
+                                <EditIcon />
+                              </IconButton>
 
-                              <Stack
-                                direction="row"
-                                justifyContent="flex-end"
+                              <IconButton
+                                onClick={() => {
+                                  setIngresoAEliminar(ingreso);
+                                }}
                               >
-                                <IconButton
-                                  onClick={() => {
-                                    setEditandoIndex(globalIndex);
-                                    setModalEditarAbierto(true);
-                                  }}
-                                >
-                                  <EditIcon />
-                                </IconButton>
-
-                                <IconButton
-                                  onClick={() => {
-                                    setIngresoAEliminar(ingreso);
-                                  }}
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </Stack>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                                <DeleteIcon />
+                              </IconButton>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               )}
@@ -158,28 +188,21 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
         </Box>
       </Modal>
 
-      {editandoIndex !== null && (
+      {ingresoEditando && (
         <ModalEditarIngreso
           open={modalEditarAbierto}
           onClose={() => setModalEditarAbierto(false)}
-          initialData={ingresos[editandoIndex]}
-          onConfirm={(data) => {
-            console.log('Ingreso editado:', data);
-            setModalEditarAbierto(false);
-          }}
+          initialData={ingresoEditando}
+          tiposIngreso={tiposIngreso}
+          onConfirm={onActualizarIngreso}
         />
       )}
 
       <ModalEliminar
         type="ingreso"
-        open={!!ingresoAEliminar} // Aquí podrías manejar el estado de apertura del modal de eliminación
-        onClose={() => {
-          setIngresoAEliminar(null);
-        }}
-        onConfirm={() => {
-          console.log('Ingreso eliminado');
-          setIngresoAEliminar(null);
-        }}
+        open={!!ingresoAEliminar}
+        onClose={() => setIngresoAEliminar(null)}
+        onConfirm={handleEliminarIngreso}
       />
     </>
   );

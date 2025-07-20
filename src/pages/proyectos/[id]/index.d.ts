@@ -1,4 +1,5 @@
 import { Usuario } from "src/api/planilla/usePlanillaApi/index.d";
+import { TipoIngreso } from "../configuracion/tipo-ingresos/index.d";
 
 // index.d.ts
 export interface MaterialItem {
@@ -21,14 +22,14 @@ export interface Costo {
 }
 
 export interface Ingreso {
-  id_ingreso: string;
+  id_ingreso: number;
   proyecto_id: string;
   monto_total: number;
   fecha_ingreso: string;
-  tipo_ingreso: string;
+  tipo_ingreso: TipoIngreso;
   tipo_documento: string;
   anotaciones: string;
-  usuario_registro: string;
+  usuario_registro: any;
 }
 
 export interface Tarea {
@@ -118,11 +119,14 @@ export interface ConfigProyecto {
       id: string;
       nombre: string;
     }
+    totalIngresos: number;
   };
   ampliacionesPresupuesto: AmpliacionPresupuesto[];
   ampliacionesFecha: AmpliacionFecha[];
   ingresos: Ingreso[];
+  tiposIngreso: TipoIngreso[];
   pagos: Pago[];
+  tiposPago: TipoPago[];
   revisiones: Revision[];
   maquinaria: Recurso[];
   personal: Personal[];
