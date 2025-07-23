@@ -18,6 +18,18 @@ export const usePagosApi = () => {
     [fetchWithAuth]
   );
 
+  const getPagoById = useCallback(
+    async (proyectoId: number, pagoId: number) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/pagos/${pagoId}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener pago');
+      const data = await res.json();
+      return mapPagoToFrontend(data);
+    },
+    [fetchWithAuth]
+  );
+
   const crearPago = useCallback(
     async (proyectoId: number, data: any) => {
       const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/pagos/`, {
@@ -31,5 +43,48 @@ export const usePagosApi = () => {
     [fetchWithAuth]
   );
 
-  return { getPagos, crearPago };
+  const actualizarPago = useCallback(
+    async (proyectoId: number, pagoId: number, data: any) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/pagos/${pagoId}/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error al actualizar pago');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const actualizarPagoParcial = useCallback(
+    async (proyectoId: number, pagoId: number, data: Partial<any>) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/pagos/${pagoId}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error al actualizar pago parcialmente');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const eliminarPago = useCallback(
+    async (proyectoId: number, pagoId: number) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${proyectoId}/pagos/${pagoId}/`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Error al eliminar pago');
+    },
+    [fetchWithAuth]
+  );
+
+  return {
+    getPagos,
+    getPagoById,
+    crearPago,
+    actualizarPago,
+    actualizarPagoParcial,
+    eliminarPago,
+  };
 };

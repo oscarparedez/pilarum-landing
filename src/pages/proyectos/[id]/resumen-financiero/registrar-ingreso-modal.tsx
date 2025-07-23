@@ -27,7 +27,8 @@ interface ModalRegistrarIngresoProps {
     tipo_ingreso: number;
     tipo_documento: string;
     fecha_ingreso: string;
-    anotaciones: string;
+    anotaciones?: string;
+    correlativo?: string;
   }) => void;
 }
 
@@ -41,6 +42,7 @@ export const ModalRegistrarIngreso: FC<ModalRegistrarIngresoProps> = ({
   const [monto, setMonto] = useState<number | ''>('');
   const [tipoIngreso, setTipoIngreso] = useState<number | ''>('');
   const [tipoDocumento, setTipoDocumento] = useState('');
+  const [correlativo, setCorrelativo] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
 
   const handleSave = () => {
@@ -55,7 +57,9 @@ export const ModalRegistrarIngreso: FC<ModalRegistrarIngresoProps> = ({
       tipo_documento: tipoDocumento,
       fecha_ingreso: selectedDate.toISOString().split('T')[0],
       anotaciones,
+      correlativo: correlativo.trim() || '',
     });
+
     onClose();
   };
 
@@ -119,36 +123,45 @@ export const ModalRegistrarIngreso: FC<ModalRegistrarIngresoProps> = ({
                 </LocalizationProvider>
               </Box>
 
-              <TextField
-                label="Tipo de ingreso"
-                select
-                fullWidth
-                required
-                value={tipoIngreso}
-                onChange={(e) => setTipoIngreso(Number(e.target.value))}
-              >
-                {tiposIngreso.map((tipo) => (
-                  <MenuItem
-                    key={tipo.id}
-                    value={tipo.id}
-                  >
-                    {tipo.nombre}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                  label="Tipo de ingreso"
+                  select
+                  fullWidth
+                  required
+                  value={tipoIngreso}
+                  onChange={(e) => setTipoIngreso(Number(e.target.value))}
+                >
+                  {tiposIngreso.map((tipo) => (
+                    <MenuItem
+                      key={tipo.id}
+                      value={tipo.id}
+                    >
+                      {tipo.nombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  label="Tipo de documento"
+                  select
+                  fullWidth
+                  required
+                  value={tipoDocumento}
+                  onChange={(e) => setTipoDocumento(e.target.value)}
+                >
+                  <MenuItem value="cheque">Cheque</MenuItem>
+                  <MenuItem value="efectivo">Efectivo</MenuItem>
+                  <MenuItem value="transferencia">Transferencia</MenuItem>
+                </TextField>
+              </Box>
 
               <TextField
-                label="Tipo de documento"
-                select
+                label="Correlativo"
                 fullWidth
-                required
-                value={tipoDocumento}
-                onChange={(e) => setTipoDocumento(e.target.value)}
-              >
-                <MenuItem value="cheque">Cheque</MenuItem>
-                <MenuItem value="transferencia">Transferencia</MenuItem>
-                <MenuItem value="efectivo">Efectivo</MenuItem>
-              </TextField>
+                value={correlativo}
+                onChange={(e) => setCorrelativo(e.target.value)}
+              />
 
               <TextField
                 label="Anotaciones"
@@ -169,6 +182,7 @@ export const ModalRegistrarIngreso: FC<ModalRegistrarIngresoProps> = ({
               variant="contained"
               color="primary"
               onClick={handleSave}
+              disabled={!selectedDate || !monto || tipoIngreso === '' || !tipoDocumento}
             >
               Guardar ingreso
             </Button>

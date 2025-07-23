@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -22,51 +22,74 @@ import { Costo } from '../index.d';
 interface ModalEditarCostoProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: {
-    fecha_pago: string;
-    tipo_pago: string;
-    tipo_documento: string;
-    anotaciones: string;
-    monto_total: number;
-    usuario_registro: string;
-  }) => void;
   initialData: Costo;
+  tiposPago: { id: number; nombre: string }[];
+  onConfirm: (
+    id: number,
+    data: {
+      fecha_pago: string;
+      tipo_pago: number;
+      tipo_documento: string;
+      anotaciones?: string;
+      correlativo?: string;
+      monto_total: number;
+      usuario_registro: string;
+    }
+  ) => void;
 }
 
 export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
   open,
   onClose,
-  onConfirm,
   initialData,
+  tiposPago,
+  onConfirm,
 }) => {
   const [fecha, setFecha] = useState<Date | null>(null);
-  const [tipoPago, setTipoPago] = useState('');
+  const [monto, setMonto] = useState<number | ''>('');
+  const [tipoPago, setTipoPago] = useState<number | ''>('');
   const [tipoDocumento, setTipoDocumento] = useState('');
+  const [correlativo, setCorrelativo] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
-  const [monto, setMonto] = useState(0);
 
   useEffect(() => {
-    setFecha(new Date(initialData.fecha_pago));
-    setTipoPago(initialData.tipo_pago);
-    setTipoDocumento(initialData.tipo_documento);
-    setAnotaciones(initialData.anotaciones);
+    setFecha(new Date(initialData.fecha_pago + 'T12:00:00'));
     setMonto(initialData.monto_total);
+    setTipoPago(initialData.tipo_pago.id);
+    setTipoDocumento(initialData.tipo_documento);
+    setCorrelativo(initialData.correlativo || '');
+    setAnotaciones(initialData.anotaciones || '');
   }, [initialData]);
 
-  const handleConfirm = () => {
-    if (!fecha || !tipoPago || !tipoDocumento || !monto) return;
+  const handleSave = useCallback(() => {
+    if (!fecha || !monto || !tipoPago || !tipoDocumento) {
+      alert('Por favor completa todos los campos requeridos');
+      return;
+    }
 
-    onConfirm({
+    onConfirm(initialData.id_pago, {
       fecha_pago: format(fecha, 'yyyy-MM-dd'),
       tipo_pago: tipoPago,
       tipo_documento: tipoDocumento,
+      correlativo: correlativo.trim() || '',
       anotaciones,
-      monto_total: monto,
+      monto_total: Number(monto),
       usuario_registro: initialData.usuario_registro,
     });
 
     onClose();
-  };
+  }, [
+    fecha,
+    monto,
+    tipoPago,
+    tipoDocumento,
+    correlativo,
+    anotaciones,
+    initialData.id_pago,
+    initialData.usuario_registro,
+    onConfirm,
+    onClose,
+  ]);
 
   return (
     <Modal
@@ -92,11 +115,15 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
             >
               Editar costo
             </Typography>
-
-            <Stack
-              spacing={3}
-              mt={2}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2 }}
             >
+              Modifica los campos necesarios y guarda los cambios
+            </Typography>
+
+            <Stack spacing={3}>
               <TextField
                 label="Monto total (Q)"
                 type="number"
@@ -124,40 +151,45 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
                 </LocalizationProvider>
               </Box>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  gap: 2,
-                }}
-              >
+              <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
-                  label="Tipo de costo"
+                  label="Tipo de pago"
                   select
-                  required
                   fullWidth
-                  sx={{ flex: 1 }}
+                  required
                   value={tipoPago}
-                  onChange={(e) => setTipoPago(e.target.value)}
+                  onChange={(e) => setTipoPago(Number(e.target.value))}
                 >
-                  <MenuItem value="Socio">Socio</MenuItem>
-                  <MenuItem value="Maestro de obra">Maestro de obra</MenuItem>
+                  {tiposPago.map((tipo) => (
+                    <MenuItem
+                      key={tipo.id}
+                      value={tipo.id}
+                    >
+                      {tipo.nombre}
+                    </MenuItem>
+                  ))}
                 </TextField>
 
                 <TextField
                   label="Tipo de documento"
                   select
-                  required
                   fullWidth
-                  sx={{ flex: 1 }}
+                  required
                   value={tipoDocumento}
                   onChange={(e) => setTipoDocumento(e.target.value)}
                 >
-                  <MenuItem value="Cheque">Cheque</MenuItem>
-                  <MenuItem value="Transferencia">Transferencia</MenuItem>
-                  <MenuItem value="Efectivo">Efectivo</MenuItem>
+                  <MenuItem value="cheque">Cheque</MenuItem>
+                  <MenuItem value="transferencia">Transferencia</MenuItem>
+                  <MenuItem value="efectivo">Efectivo</MenuItem>
                 </TextField>
               </Box>
+
+              <TextField
+                label="Correlativo"
+                fullWidth
+                value={correlativo}
+                onChange={(e) => setCorrelativo(e.target.value)}
+              />
 
               <TextField
                 label="Anotaciones"
@@ -176,8 +208,9 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
             <Button onClick={onClose}>Cancelar</Button>
             <Button
               variant="contained"
-              onClick={handleConfirm}
-              disabled={!fecha || !tipoPago || !tipoDocumento || !monto}
+              color="primary"
+              onClick={handleSave}
+              disabled={!fecha || !monto || !tipoPago || !tipoDocumento}
             >
               Guardar cambios
             </Button>

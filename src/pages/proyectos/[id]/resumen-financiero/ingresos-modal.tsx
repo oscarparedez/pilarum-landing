@@ -1,4 +1,4 @@
-import { FC, useState, useMemo } from 'react';
+import { FC, useState, useMemo, useCallback } from 'react';
 import {
   Box,
   Modal,
@@ -29,13 +29,17 @@ interface ModalListaIngresosProps {
   onClose: () => void;
   ingresos: Ingreso[];
   tiposIngreso: { id: number; nombre: string }[];
-  onActualizarIngreso: (id: number, data: {
-  monto_total: number;
-  tipo_ingreso: number;
-  tipo_documento: string;
-  fecha_ingreso: string;
-  anotaciones: string;
-}) => Promise<void>;
+  onActualizarIngreso: (
+    id: number,
+    data: {
+      monto_total: number;
+      tipo_ingreso: number;
+      tipo_documento: string;
+      fecha_ingreso: string;
+      anotaciones?: string;
+      correlativo?: string;
+    }
+  ) => Promise<void>;
   onEliminarIngreso: (ingreso_id: number) => Promise<void>;
 }
 
@@ -75,12 +79,40 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
     });
   }, [ingresos, filtros]);
 
-    const handleEliminarIngreso = () => {
+  const handleFiltrar = useCallback((f: typeof filtros) => {
+    setFiltros(f);
+  }, []);
+
+  const handleActualizarIngreso = useCallback(
+    async (
+      id: number,
+      data: {
+        monto_total: number;
+        tipo_ingreso: number;
+        tipo_documento: string;
+        fecha_ingreso: string;
+        anotaciones?: string;
+        correlativo?: string;
+      }
+    ) => {
+      await onActualizarIngreso(id, data);
+      setModalEditarAbierto(false);
+      setIngresoEditando(null);
+    },
+    [onActualizarIngreso]
+  );
+
+  const handleEliminarIngreso = useCallback(() => {
     if (ingresoAEliminar) {
       onEliminarIngreso(ingresoAEliminar.id_ingreso);
       setIngresoAEliminar(null);
     }
-  };
+  }, [ingresoAEliminar, onEliminarIngreso]);
+
+  const handleCloseEditarIngreso = useCallback(() => {
+    setIngresoEditando(null);
+    setModalEditarAbierto(false);
+  }, []);
 
   return (
     <>
@@ -107,7 +139,7 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
 
             <TablaPaginadaConFiltros
               totalItems={ingresosFiltrados.length}
-              onFiltrar={(f) => setFiltros(f)}
+              onFiltrar={handleFiltrar}
             >
               {(currentPage) => (
                 <Table>
@@ -191,10 +223,10 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
       {ingresoEditando && (
         <ModalEditarIngreso
           open={modalEditarAbierto}
-          onClose={() => setModalEditarAbierto(false)}
+          onClose={handleCloseEditarIngreso}
           initialData={ingresoEditando}
           tiposIngreso={tiposIngreso}
-          onConfirm={onActualizarIngreso}
+          onConfirm={handleActualizarIngreso}
         />
       )}
 

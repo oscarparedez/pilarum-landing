@@ -1,7 +1,7 @@
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { Box, Card, Grid, Stack, Typography, Button } from '@mui/material';
 import { ModalRegistrarIngreso } from './registrar-ingreso-modal';
-import { ModalRegistrarCobro } from './registrar-costo-modal';
+import { ModalRegistrarPago } from './registrar-costo-modal';
 import { ModalListaIngresos } from './ingresos-modal';
 import { ModalListaCostos } from './costos-modal';
 import { ModalMovimientos } from './movimientos-modal';
@@ -9,6 +9,9 @@ import { Ingreso, Costo } from '../index.d';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { TipoIngreso } from '../../configuracion/tipo-ingresos/index.d';
 import { TipoPago } from '../../configuracion/tipo-pagos/index.d';
+import { obtenerUltimoMovimiento, transformarMovimientos } from './utils';
+import { parseISO } from 'date-fns';
+import { formatearFecha } from 'src/utils/format-date';
 
 type ButtonColor = 'inherit' | 'success' | 'error' | 'info' | 'primary' | 'secondary' | 'warning';
 
@@ -17,6 +20,7 @@ const isValidButtonColor = (value: any): value is ButtonColor =>
 
 interface ResumenFinancieroProps {
   totalIngresos: number;
+  totalPagos: number;
   ingresos: Ingreso[];
   pagos: Costo[];
   tiposIngreso: TipoIngreso[];
@@ -27,7 +31,8 @@ interface ResumenFinancieroProps {
     tipo_ingreso: number;
     tipo_documento: string;
     fecha_ingreso: string;
-    anotaciones: string;
+    anotaciones?: string;
+    correlativo?: string;
   }) => void;
   onActualizarIngreso: (
     ingreso_id: number,
@@ -36,15 +41,36 @@ interface ResumenFinancieroProps {
       tipo_ingreso: number;
       tipo_documento: string;
       fecha_ingreso: string;
-      anotaciones: string;
+      anotaciones?: string;
+      correlativo?: string;
     }
   ) => Promise<void>;
   onEliminarIngreso: (ingreso_id: number) => Promise<void>;
-  onCrearPago: (data: any) => Promise<void>;
+  onCrearPago: (data: {
+    monto_total: number;
+    tipo_pago: number;
+    tipo_documento: string;
+    fecha_pago: string;
+    anotaciones?: string;
+    correlativo?: string;
+  }) => void;
+  onActualizarPago: (
+    pago_id: number,
+    data: {
+      monto_total: number;
+      tipo_pago: number;
+      tipo_documento: string;
+      fecha_pago: string;
+      anotaciones?: string;
+      correlativo?: string;
+    }
+  ) => Promise<void>;
+  onEliminarPago: (pago_id: number) => Promise<void>;
 }
 
 export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   totalIngresos,
+  totalPagos,
   ingresos,
   pagos: costos,
   tiposIngreso,
@@ -54,6 +80,8 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   onActualizarIngreso,
   onEliminarIngreso,
   onCrearPago,
+  onActualizarPago,
+  onEliminarPago,
 }) => {
   const [openIngreso, setOpenIngreso] = useState(false);
   const [openCosto, setOpenCosto] = useState(false);
@@ -61,19 +89,16 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   const [openListaCostos, setOpenListaCostos] = useState(false);
   const [openMovimientos, setOpenMovimientos] = useState(false);
 
-  const ultimoIngreso = ingresos.length
-    ? ingresos.reduce((latest, curr) =>
-        new Date(curr.fecha_ingreso) > new Date(latest.fecha_ingreso) ? curr : latest
-      ).fecha_ingreso
-    : '';
-  const totalCostos = costos.reduce((acc, curr) => acc + curr.monto_total, 0);
-  const progreso = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
-  const ganancia = totalIngresos - totalCostos;
+  const ultimoMovimiento = obtenerUltimoMovimiento(ingresos, costos);
+  const progresoIngresos = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
+  const progresoCostos = Math.min((totalPagos / presupuestoInicial) * 100, 100);
+  const ganancia = totalIngresos - totalPagos;
 
   const tarjetas = [
     {
       label: 'Ingresos',
       value: `${formatearQuetzales(totalIngresos)}`,
+      secondaryText: `${progresoIngresos.toFixed(0)} % del presupuesto alcanzado`,
       buttonLabel: 'Nuevo ingreso',
       secondaryButtonLabel: 'Ver ingresos',
       buttonColor: 'success',
@@ -81,7 +106,8 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     },
     {
       label: 'Costos',
-      value: `${formatearQuetzales(totalCostos)}`,
+      value: `${formatearQuetzales(totalPagos)}`,
+      secondaryText: `${progresoCostos.toFixed(0)} % del presupuesto gastado`,
       buttonLabel: 'Nuevo costo',
       secondaryButtonLabel: 'Ver costos',
       buttonColor: 'error',
@@ -90,10 +116,12 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     {
       label: 'Ganancia bruta',
       value: `${formatearQuetzales(ganancia)}`,
+      secondaryText: `${ingresos.length} ingresos - ${costos.length} costos`,
     },
     {
-      label: 'Último ingreso',
-      value: ultimoIngreso,
+      label: 'Último movimiento',
+      value: ultimoMovimiento ? formatearFecha(new Date(ultimoMovimiento.fecha)) : '-',
+      secondaryText: ultimoMovimiento ? formatearQuetzales(Number(ultimoMovimiento.monto)) : '-',
       buttonLabel: 'Ver movimientos',
       buttonColor: 'info',
       modalType: 'movimientos',
@@ -120,30 +148,47 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     }
   };
 
-  const handleCrearIngreso = (data: {
-    monto_total: number;
-    tipo_ingreso: number;
-    tipo_documento: string;
-    fecha_ingreso: string;
-    anotaciones: string;
-  }) => {
-    onCrearIngreso(data);
-    setOpenIngreso(false);
-  };
+  const handleCrearIngreso = useCallback(
+    (data: any) => {
+      onCrearIngreso(data);
+      setOpenIngreso(false);
+    },
+    [onCrearIngreso]
+  );
 
-  const handleActualizarIngreso = async (
-    id: number,
-    data: {
-      monto_total: number;
-      tipo_ingreso: number;
-      tipo_documento: string;
-      fecha_ingreso: string;
-      anotaciones: string;
-    }
-  ) => {
-    await onActualizarIngreso(id, data);
-    setOpenListaIngresos(false);
-  };
+  const handleActualizarIngreso = useCallback(
+    async (id: number, data: any) => {
+      await onActualizarIngreso(id, data);
+      setOpenListaIngresos(false);
+    },
+    [onActualizarIngreso]
+  );
+
+  const handleCrearPago = useCallback(
+    (data: any) => {
+      onCrearPago(data);
+      setOpenCosto(false);
+    },
+    [onCrearPago]
+  );
+
+  const handleActualizarPago = useCallback(
+    async (id: number, data: any) => {
+      await onActualizarPago(id, data);
+      setOpenListaCostos(false);
+    },
+    [onActualizarPago]
+  );
+
+  const handleEliminarPago = useCallback(
+    async (pagoId: number) => {
+      await onEliminarPago(pagoId);
+      setOpenListaIngresos(false);
+    },
+    [onEliminarPago]
+  );
+
+  const movimientos = transformarMovimientos(ingresos, costos);
 
   return (
     <>
@@ -180,9 +225,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                       variant="overline"
                       align="center"
                     >
-                      {item.label === 'Ingresos'
-                        ? `${progreso.toFixed(0)} % del presupuesto alcanzado`
-                        : '-'}
+                      {item.secondaryText ?? '-'}
                     </Typography>
                     <Typography
                       color="text.secondary"
@@ -233,11 +276,11 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
         onClose={() => setOpenIngreso(false)}
         onSave={handleCrearIngreso}
       />
-      <ModalRegistrarCobro
+      <ModalRegistrarPago
         open={openCosto}
-        // tiposPago={tiposPago}
+        tiposPago={tiposPago}
         onClose={() => setOpenCosto(false)}
-        // onConfirm={onCrearPago}
+        onSave={handleCrearPago}
       />
       <ModalListaIngresos
         open={openListaIngresos}
@@ -251,13 +294,14 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
         open={openListaCostos}
         onClose={() => setOpenListaCostos(false)}
         costos={costos}
-        fetchCostos={() => console.log('asd')}
+        tiposPago={tiposPago}
+        onActualizarCosto={handleActualizarPago}
+        onEliminarCosto={handleEliminarPago}
       />
       <ModalMovimientos
         open={openMovimientos}
         onClose={() => setOpenMovimientos(false)}
-        movimientos={[]}
-        fetchMovimientos={() => {}}
+        movimientos={movimientos}
       />
     </>
   );

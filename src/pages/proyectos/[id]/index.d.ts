@@ -1,5 +1,6 @@
 import { Usuario } from "src/api/planilla/usePlanillaApi/index.d";
 import { TipoIngreso } from "../configuracion/tipo-ingresos/index.d";
+import { TipoPago } from "../configuracion/tipo-pagos/index.d";
 
 // index.d.ts
 export interface MaterialItem {
@@ -11,14 +12,15 @@ export interface MaterialItem {
 }
 
 export interface Costo {
-  id_pago: string;
+  id_pago: number;
   proyecto_id: string;
   monto_total: number;
   fecha_pago: string;
-  tipo_pago: string;
+  tipo_pago: TipoPago;
   tipo_documento: string;
-  anotaciones: string;
-  usuario_registro: string;
+  anotaciones?: string;
+  correlativo?: string;
+  usuario_registro: any;
 }
 
 export interface Ingreso {
@@ -28,7 +30,8 @@ export interface Ingreso {
   fecha_ingreso: string;
   tipo_ingreso: TipoIngreso;
   tipo_documento: string;
-  anotaciones: string;
+  anotaciones?: string;
+  correlativo?: string;
   usuario_registro: any;
 }
 
@@ -120,6 +123,7 @@ export interface ConfigProyecto {
       nombre: string;
     }
     totalIngresos: number;
+    totalPagos: number;
   };
   ampliacionesPresupuesto: AmpliacionPresupuesto[];
   ampliacionesFecha: AmpliacionFecha[];

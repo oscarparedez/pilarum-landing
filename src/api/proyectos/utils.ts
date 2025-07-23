@@ -30,10 +30,6 @@ export const mapProyectoToConfig = (data: {
 }): ConfigProyecto => {
   const presupuestoInicial = data.presupuestos.reduce((total, p) => total + Number(p.monto), 0);
 
-  data.presupuestos.forEach((p, i) => {
-    console.log(`#${i + 1}`, `ID: ${p.id}`, `Monto: ${p.monto}`, `Tipo: ${p.tipo}`);
-  });
-
   const fechaMasReciente = (() => {
     if (data.ampliaciones.length === 0) {
       return data.fecha_fin;
@@ -45,6 +41,7 @@ export const mapProyectoToConfig = (data: {
   })();
 
   const totalIngresos = data.ingresos.reduce((sum, ingreso) => sum + Number(ingreso.monto_total), 0);
+  const totalPagos = data.pagos.reduce((sum, pago) => sum + Number(pago.monto_total), 0);
 
   return {
     datosBasicos: {
@@ -55,6 +52,7 @@ export const mapProyectoToConfig = (data: {
       presupuestoInicial,
       socio: { id: data.socioAsignado, nombre: 'Socio asignado' },
       totalIngresos,
+      totalPagos
     },
     tiposIngreso: data.tiposIngreso,
     tiposPago: data.tiposPago,

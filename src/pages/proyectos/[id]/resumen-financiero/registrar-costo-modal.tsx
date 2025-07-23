@@ -16,24 +16,51 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
+import { TipoPago } from '../../configuracion/tipo-pagos/index.d';
 
-export const ModalRegistrarCobro: FC<{ open: boolean; onClose: () => void }> = ({
+interface ModalRegistrarPagoProps {
+  open: boolean;
+  tiposPago: TipoPago[];
+  onClose: () => void;
+  onSave: (data: {
+    monto_total: number;
+    tipo_pago: number;
+    tipo_documento: string;
+    fecha_pago: string;
+    anotaciones?: string;
+    correlativo?: string;
+  }) => void;
+}
+
+export const ModalRegistrarPago: FC<ModalRegistrarPagoProps> = ({
   open,
+  tiposPago,
   onClose,
+  onSave,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [tipoPago, setTipoPago] = useState('');
-  const [socio, setSocio] = useState('');
-  const [monto, setMonto] = useState('');
-  const [documento, setDocumento] = useState('');
+  const [monto, setMonto] = useState<number | ''>('');
+  const [tipoPago, setTipoPago] = useState<number | ''>('');
+  const [tipoDocumento, setTipoDocumento] = useState('');
+  const [correlativo, setCorrelativo] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
 
-  const handleTipoPagoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setTipoPago(value);
-    if (value !== 'socio') {
-      setSocio('');
+  const handleSave = () => {
+    if (!selectedDate || !monto || tipoPago === '' || !tipoDocumento) {
+      alert('Por favor completa todos los campos requeridos');
+      return;
     }
+
+    onSave({
+      monto_total: Number(monto),
+      tipo_pago: tipoPago as number,
+      tipo_documento: tipoDocumento,
+      fecha_pago: selectedDate.toISOString().split('T')[0],
+      anotaciones,
+      correlativo: correlativo.trim() || undefined,
+    });
+
+    onClose();
   };
 
   return (
@@ -70,12 +97,12 @@ export const ModalRegistrarCobro: FC<{ open: boolean; onClose: () => void }> = (
 
             <Stack spacing={3}>
               <TextField
-                label="Monto (Q)"
+                label="Monto total (Q)"
                 type="number"
                 fullWidth
                 required
                 value={monto}
-                onChange={(e) => setMonto(e.target.value)}
+                onChange={(e) => setMonto(Number(e.target.value))}
               />
 
               <Box>
@@ -96,51 +123,51 @@ export const ModalRegistrarCobro: FC<{ open: boolean; onClose: () => void }> = (
                 </LocalizationProvider>
               </Box>
 
-              <TextField
-                label="Tipo de pago"
-                select
-                fullWidth
-                required
-                value={tipoPago}
-                onChange={handleTipoPagoChange}
-              >
-                <MenuItem value="maestro">Pago a maestro de obra</MenuItem>
-                <MenuItem value="socio">Pago a socio</MenuItem>
-              </TextField>
-
-              {tipoPago === 'socio' && (
+              <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
-                  label="Socio"
+                  label="Tipo de pago"
                   select
                   fullWidth
                   required
-                  value={socio}
-                  onChange={(e) => setSocio(e.target.value)}
+                  value={tipoPago}
+                  onChange={(e) => setTipoPago(Number(e.target.value))}
                 >
-                  <MenuItem value="socio1">Socio 1</MenuItem>
-                  <MenuItem value="socio2">Socio 2</MenuItem>
+                  {tiposPago.map((tipo) => (
+                    <MenuItem
+                      key={tipo.id}
+                      value={tipo.id}
+                    >
+                      {tipo.nombre}
+                    </MenuItem>
+                  ))}
                 </TextField>
-              )}
+
+                <TextField
+                  label="Tipo de documento"
+                  select
+                  fullWidth
+                  required
+                  value={tipoDocumento}
+                  onChange={(e) => setTipoDocumento(e.target.value)}
+                >
+                  <MenuItem value="cheque">Cheque</MenuItem>
+                  <MenuItem value="efectivo">Efectivo</MenuItem>
+                  <MenuItem value="transferencia">Transferencia</MenuItem>
+                </TextField>
+              </Box>
 
               <TextField
-                label="Tipo de documento"
-                select
+                label="Correlativo"
                 fullWidth
-                required
-                value={documento}
-                onChange={(e) => setDocumento(e.target.value)}
-              >
-                <MenuItem value="cheque">Cheque</MenuItem>
-                <MenuItem value="transferencia">Transferencia</MenuItem>
-                <MenuItem value="efectivo">Efectivo</MenuItem>
-              </TextField>
+                value={correlativo}
+                onChange={(e) => setCorrelativo(e.target.value)}
+              />
 
               <TextField
                 label="Anotaciones"
                 multiline
                 rows={3}
                 fullWidth
-                required
                 value={anotaciones}
                 onChange={(e) => setAnotaciones(e.target.value)}
               />
@@ -154,6 +181,8 @@ export const ModalRegistrarCobro: FC<{ open: boolean; onClose: () => void }> = (
             <Button
               variant="contained"
               color="primary"
+              onClick={handleSave}
+              disabled={!selectedDate || !monto || tipoPago === '' || !tipoDocumento}
             >
               Guardar pago
             </Button>
@@ -163,4 +192,3 @@ export const ModalRegistrarCobro: FC<{ open: boolean; onClose: () => void }> = (
     </Modal>
   );
 };
-export default ModalRegistrarCobro;

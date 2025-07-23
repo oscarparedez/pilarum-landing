@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -16,8 +16,8 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
-import { format } from 'date-fns';
 import { Ingreso } from '../index.d';
+import { format } from 'date-fns';
 
 interface ModalEditarIngresoProps {
   open: boolean;
@@ -31,7 +31,8 @@ interface ModalEditarIngresoProps {
       tipo_ingreso: number;
       tipo_documento: string;
       fecha_ingreso: string;
-      anotaciones: string;
+      anotaciones?: string;
+      correlativo?: string;
     }
   ) => Promise<void>;
 }
@@ -39,37 +40,53 @@ interface ModalEditarIngresoProps {
 export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
   open,
   onClose,
-  onConfirm,
   initialData,
   tiposIngreso,
+  onConfirm,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [monto, setMonto] = useState(0);
-  const [tipoIngreso, setTipoIngreso] = useState<number | null>(null);
+  const [monto, setMonto] = useState<number | ''>('');
+  const [tipoIngreso, setTipoIngreso] = useState<number | ''>('');
   const [tipoDocumento, setTipoDocumento] = useState('');
+  const [correlativo, setCorrelativo] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
 
   useEffect(() => {
-    setSelectedDate(new Date(initialData.fecha_ingreso));
+    setSelectedDate(new Date(initialData.fecha_ingreso + 'T12:00:00'));
     setMonto(initialData.monto_total);
     setTipoIngreso(initialData.tipo_ingreso.id);
     setTipoDocumento(initialData.tipo_documento);
-    setAnotaciones(initialData.anotaciones);
+    setCorrelativo(initialData.correlativo || '');
+    setAnotaciones(initialData.anotaciones || '');
   }, [initialData]);
 
-  const handleConfirm = () => {
-    if (!selectedDate || !monto || !tipoIngreso || !tipoDocumento) return;
+  const handleSave = useCallback(() => {
+    if (!selectedDate || !monto || tipoIngreso === '' || !tipoDocumento) {
+      alert('Por favor completa todos los campos requeridos');
+      return;
+    }
 
     onConfirm(initialData.id_ingreso, {
-      fecha_ingreso: format(selectedDate, 'yyyy-MM-dd'),
-      monto_total: monto,
-      tipo_ingreso: tipoIngreso,
+      monto_total: Number(monto),
+      tipo_ingreso: tipoIngreso as number,
       tipo_documento: tipoDocumento,
+      fecha_ingreso: format(selectedDate, 'yyyy-MM-dd'),
       anotaciones,
+      correlativo: correlativo.trim() || '',
     });
 
     onClose();
-  };
+  }, [
+    selectedDate,
+    monto,
+    tipoIngreso,
+    tipoDocumento,
+    anotaciones,
+    correlativo,
+    initialData.id_ingreso,
+    onConfirm,
+    onClose,
+  ]);
 
   return (
     <Modal
@@ -95,17 +112,22 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
             >
               Editar ingreso
             </Typography>
-            <Stack
-              spacing={3}
-              mt={2}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2 }}
             >
+              Modifica los campos necesarios y guarda los cambios
+            </Typography>
+
+            <Stack spacing={3}>
               <TextField
                 label="Monto total (Q)"
                 type="number"
                 fullWidth
                 required
                 value={monto}
-                onChange={(e) => setMonto(e.target.value === '' ? 0 : Number(e.target.value))}
+                onChange={(e) => setMonto(Number(e.target.value))}
               />
 
               <Box>
@@ -126,21 +148,14 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
                 </LocalizationProvider>
               </Box>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  gap: 2,
-                }}
-              >
+              <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
                   label="Tipo de ingreso"
                   select
+                  fullWidth
                   required
                   value={tipoIngreso}
                   onChange={(e) => setTipoIngreso(Number(e.target.value))}
-                  fullWidth
-                  sx={{ flex: 1 }}
                 >
                   {tiposIngreso.map((tipo) => (
                     <MenuItem
@@ -155,17 +170,23 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
                 <TextField
                   label="Tipo de documento"
                   select
+                  fullWidth
                   required
                   value={tipoDocumento}
                   onChange={(e) => setTipoDocumento(e.target.value)}
-                  fullWidth
-                  sx={{ flex: 1 }}
                 >
                   <MenuItem value="cheque">Cheque</MenuItem>
                   <MenuItem value="transferencia">Transferencia</MenuItem>
                   <MenuItem value="efectivo">Efectivo</MenuItem>
                 </TextField>
               </Box>
+
+              <TextField
+                label="Correlativo"
+                fullWidth
+                value={correlativo}
+                onChange={(e) => setCorrelativo(e.target.value)}
+              />
 
               <TextField
                 label="Anotaciones"
@@ -185,8 +206,8 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
             <Button
               variant="contained"
               color="primary"
-              onClick={handleConfirm}
-              disabled={!selectedDate || !monto || !tipoIngreso || !tipoDocumento}
+              onClick={handleSave}
+              disabled={!selectedDate || !monto || tipoIngreso === '' || !tipoDocumento}
             >
               Guardar cambios
             </Button>
