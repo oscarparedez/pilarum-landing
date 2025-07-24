@@ -15,6 +15,7 @@ import { useMaquinariasApi } from '../maquinaria/useMaquinariaApi';
 import { usePlanillaApi } from '../planilla/usePlanillaApi';
 import { useAsignacionesPersonalApi } from '../asignacionesPersonal/useAsignacionesPersonal';
 import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
+import { useRevisionesApi } from '../revisiones/useRevisionesApi';
 
 export interface Proyecto {
   id: number;
@@ -38,6 +39,7 @@ export const useProyectosApi = () => {
   const { getAsignaciones: getAsignacionesMaquinaria } = useAsignacionesMaquinariaApi();
   const { getUsuarios } = usePlanillaApi();
   const { getAsignaciones: getAsignacionesPersonal } = useAsignacionesPersonalApi();
+  const { getRevisiones } = useRevisionesApi();
 
   const getProyectos = useCallback(async (): Promise<Proyecto[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/`, { method: 'GET' });
@@ -132,7 +134,8 @@ export const useProyectosApi = () => {
         maquinaria,
         asignacionesMaquinaria,
         usuarios,
-        asignacionesPersonal
+        asignacionesPersonal,
+        revisiones
       ] = await Promise.all([
         getProyectoById(id),
         getIngresos(id),
@@ -144,7 +147,8 @@ export const useProyectosApi = () => {
         getMaquinarias(),
         getAsignacionesMaquinaria(id),
         getUsuarios(),
-        getAsignacionesPersonal(id)
+        getAsignacionesPersonal(id),
+        getRevisiones(id)
       ]);
 
       const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
@@ -165,6 +169,7 @@ export const useProyectosApi = () => {
         asignacionesMaquinaria,
         usuarios,
         asignacionesPersonal,
+        revisiones
       });
     } catch (error) {
       console.error('Error al obtener los datos del proyecto completo:', error);

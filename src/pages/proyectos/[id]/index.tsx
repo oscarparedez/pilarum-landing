@@ -25,6 +25,8 @@ import { useIngresosApi } from 'src/api/ingresos/useIngresosApi';
 import { usePagosApi } from 'src/api/pagos/usePagosApi';
 import { useAsignacionesMaquinariaApi } from 'src/api/asignacionesMaquinaria/useAsignacionesMaquinaria';
 import { useAsignacionesPersonalApi } from 'src/api/asignacionesPersonal/useAsignacionesPersonal';
+import { useRevisionesApi } from 'src/api/revisiones/useRevisionesApi';
+import { NuevaRevision } from 'src/api/types';
 
 export const tareasEjemplo: Tarea[] = [];
 
@@ -45,6 +47,8 @@ const Page: NextPage = () => {
     liberarAsignacion,
     eliminarAsignacion: eliminarAsignacionPersonal,
   } = useAsignacionesPersonalApi();
+
+  const { crearRevision, actualizarRevision, eliminarRevision } = useRevisionesApi();
 
   const [config, setConfig] = useState<ConfigProyecto | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
@@ -403,12 +407,15 @@ const Page: NextPage = () => {
   );
 
   const handleActualizarAsignacionPersonal = useCallback(
-    async (asignacion_id: number, data: {
-      usuario_id: number;
-      dias_asignados: string[];
-      fecha_entrada: string;
-      fecha_fin: string;
-    }) => {
+    async (
+      asignacion_id: number,
+      data: {
+        usuario_id: number;
+        dias_asignados: string[];
+        fecha_entrada: string;
+        fecha_fin: string;
+      }
+    ) => {
       const id = router.query.id;
       if (!id || Array.isArray(id)) return;
 
@@ -472,6 +479,70 @@ const Page: NextPage = () => {
     [router.query.id, eliminarAsignacionPersonal, getProyectoInfo]
   );
 
+  const handleCrearRevision = useCallback(
+    async (data: NuevaRevision) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+        const revision = await crearRevision(parseInt(id), data);
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Revisión creada correctamente');
+        return revision;
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al crear revisión');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, crearRevision, getProyectoInfo]
+  );
+
+  const handleActualizarRevision = useCallback(
+    async (revisionId: number, data: NuevaRevision) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+        const revision = await actualizarRevision(parseInt(id), revisionId, data);
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Revisión actualizada correctamente');
+        return revision;
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al actualizar revisión');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, actualizarRevision, getProyectoInfo]
+  );
+
+  const handleEliminarRevision = useCallback(
+    async (revisionId: number) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+      try {
+        setLoading(true);
+        await eliminarRevision(parseInt(id), revisionId);
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Revisión eliminada correctamente');
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al eliminar revisión');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, eliminarRevision, getProyectoInfo]
+  );
+
   if (!config) return null;
 
   const {
@@ -480,7 +551,6 @@ const Page: NextPage = () => {
     ampliacionesFecha,
     ingresos,
     pagos: costos,
-    revisiones,
     maquinaria,
     asignacionesMaquinaria,
     materialPlanificado,
@@ -488,6 +558,7 @@ const Page: NextPage = () => {
     tiposPago,
     usuarios,
     asignacionesPersonal,
+    revisiones,
   } = config;
 
   const {
@@ -581,7 +652,12 @@ const Page: NextPage = () => {
             handleEliminarAsignacionPersonal={handleEliminarAsignacionPersonal}
           />
           <MaterialPlanificado materialPlanificado={materialPlanificado} />
-          <Revisiones revisiones={revisiones} />
+          <Revisiones
+            revisiones={revisiones}
+            handleCrearRevision={handleCrearRevision}
+            handleActualizarRevision={handleActualizarRevision}
+            handleEliminarRevision={handleEliminarRevision}
+          />
         </Stack>
       </Container>
     </Box>

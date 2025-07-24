@@ -3,7 +3,7 @@ import { Proyecto } from './useProyectosApi';
 import { TipoIngreso } from 'src/pages/proyectos/configuracion/tipo-ingresos/index.d';
 import { TipoPago } from 'src/pages/proyectos/configuracion/tipo-pagos/index.d';
 import { Maquinaria } from '../maquinaria/useMaquinariaApi';
-import { AsignacionPersonal } from '../types';
+import { AsignacionPersonal, Revision } from '../types';
 
 
 export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
@@ -34,6 +34,7 @@ export const mapProyectoToConfig = (data: {
   asignacionesMaquinaria: any[];
   usuarios: any[];
   asignacionesPersonal: AsignacionPersonal[];
+  revisiones: Revision[];
 }): ConfigProyecto => {
   const presupuestoInicial = data.presupuestos.reduce((total, p) => total + Number(p.monto), 0);
 
@@ -72,6 +73,6 @@ export const mapProyectoToConfig = (data: {
     usuarios: data.usuarios,
     asignacionesPersonal: data.asignacionesPersonal,
     materialPlanificado: [],
-    revisiones: [],
+    revisiones: data.revisiones,
   };
 };

@@ -42,3 +42,34 @@ export interface NuevaAsignacionMaquinaria {
   dias_asignados: string[];
   fecha_fin: string;
 }
+
+export interface FotoRevision {
+  imagen: string;
+}
+
+export interface UsuarioPublico {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+}
+
+export interface Revision {
+  id: number;
+  proyecto: number;
+  titulo: string;
+  anotaciones: string;
+  fecha_review: string;
+  anotaciones: string;
+  fecha_creacion: string;
+  usuario_creador: UsuarioPublico;
+  fotos: FotoRevision[];
+}
+
+export interface NuevaRevision {
+  titulo: string;
+  anotaciones: string;
+  fecha_review: string;
+  anotaciones: string;
+  fotos: File[];
+}

@@ -15,16 +15,12 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { NuevaRevision } from 'src/api/types';
 
 interface ModalAgregarRevisionProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: {
-    titulo: string;
-    descripcion: string;
-    fechaRevision: string;
-    imagenes: File[];
-  }) => void;
+  onConfirm: (data: NuevaRevision) => void;
 }
 
 export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
@@ -33,37 +29,38 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
   onConfirm,
 }) => {
   const [titulo, setTitulo] = useState('');
-  const [descripcion, setDescripcion] = useState('');
+  const [anotaciones, setAnotaciones] = useState('');
   const [fecha, setFecha] = useState<Date | null>(new Date());
-  const [imagenes, setImagenes] = useState<File[]>([]);
+  const [fotos, setFotos] = useState<File[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selected = Array.from(e.target.files);
-    const nuevas = selected.slice(0, 3 - imagenes.length);
-    setImagenes((prev) => [...prev, ...nuevas]);
+    const nuevas = selected.slice(0, 3 - fotos.length);
+    setFotos((prev) => [...prev, ...nuevas]);
     setCargadas((prev) => [...prev, ...Array(nuevas.length).fill(false)]);
     e.target.value = '';
   };
 
   const handleClose = () => {
     setTitulo('');
-    setDescripcion('');
+    setAnotaciones('');
     setFecha(new Date());
-    setImagenes([]);
+    setFotos([]);
     setCargadas([]);
     onClose();
   };
 
   const handleConfirm = () => {
-    if (titulo && descripcion && fecha && imagenes.length > 0) {
-      onConfirm({
+    if (titulo && anotaciones && fecha && fotos.length > 0) {
+      const data: NuevaRevision = {
         titulo,
-        descripcion,
-        fechaRevision: fecha.toISOString().split('T')[0],
-        imagenes,
-      });
+        anotaciones,
+        fecha_review: fecha.toISOString().split('T')[0],
+        fotos,
+      };
+      onConfirm(data);
       handleClose();
     }
   };
@@ -89,11 +86,11 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
           />
           <TextField
             fullWidth
-            label="Descripción"
+            label="Anotaciones"
             multiline
             minRows={3}
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
+            value={anotaciones}
+            onChange={(e) => setAnotaciones(e.target.value)}
           />
 
           <Box>
@@ -125,18 +122,18 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
                 px: 2,
                 py: 4,
                 textAlign: 'center',
-                cursor: imagenes.length >= 3 ? 'not-allowed' : 'pointer',
+                cursor: fotos.length >= 3 ? 'not-allowed' : 'pointer',
                 backgroundColor: '#f9f9f9',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 1,
-                opacity: imagenes.length >= 3 ? 0.5 : 1,
-                pointerEvents: imagenes.length >= 3 ? 'none' : 'auto',
+                opacity: fotos.length >= 3 ? 0.5 : 1,
+                pointerEvents: fotos.length >= 3 ? 'none' : 'auto',
                 transition: 'all 0.2s',
                 '&:hover': {
-                  backgroundColor: imagenes.length >= 3 ? '#f9f9f9' : '#f0f0f0',
+                  backgroundColor: fotos.length >= 3 ? '#f9f9f9' : '#f0f0f0',
                 },
               }}
             >
@@ -160,13 +157,13 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
               />
             </Box>
 
-            {imagenes.length > 0 && (
+            {fotos.length > 0 && (
               <Stack
                 direction="row"
                 spacing={2}
                 mt={2}
               >
-                {imagenes.map((file, i) => {
+                {fotos.map((file, i) => {
                   const src = URL.createObjectURL(file);
                   return (
                     <Box
@@ -215,7 +212,7 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
                       <IconButton
                         size="small"
                         onClick={() => {
-                          setImagenes((prev) => prev.filter((_, idx) => idx !== i));
+                          setFotos((prev) => prev.filter((_, idx) => idx !== i));
                           setCargadas((prev) => prev.filter((_, idx) => idx !== i));
                         }}
                         sx={{
@@ -245,7 +242,7 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!titulo || !descripcion || !fecha || imagenes.length === 0}
+          disabled={!titulo || !anotaciones || !fecha || fotos.length === 0}
         >
           Guardar revisión
         </Button>
