@@ -19,19 +19,19 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { es } from 'date-fns/locale';
 
+const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
 interface ModalAgregarPersonalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (data: {
-    personal: string;
-    tipo: 'Ingeniero' | 'Arquitecto';
-    dias: string[];
-    hasta: string;
+    usuario_id: number;
+    dias_asignados: string[];
+    fecha_entrada: string;
+    fecha_fin: string;
   }) => void;
-  personalDisponible: { nombre: string; tipo: 'Ingeniero' | 'Arquitecto' }[];
+  personalDisponible: any[];
 }
-
-const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
 export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
   open,
@@ -39,9 +39,9 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
   onConfirm,
   personalDisponible,
 }) => {
-  const [personal, setPersonal] = useState('');
-  const [tipo, setTipo] = useState<'Ingeniero' | 'Arquitecto' | ''>('');
+  const [personalId, setPersonalId] = useState<number | null>(null);
   const [dias, setDias] = useState<string[]>([]);
+  const [desde, setDesde] = useState<Date | null>(null);
   const [hasta, setHasta] = useState<Date | null>(null);
 
   const toggleDia = (dia: string) => {
@@ -49,63 +49,50 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
   };
 
   const handleConfirm = () => {
-    if (personal && dias.length && hasta && tipo) {
+    if (personalId && dias.length && desde && hasta) {
+      const desdeString = desde.toISOString().split('T')[0];
       const hastaString = hasta.toISOString().split('T')[0];
-      onConfirm({ personal, tipo, dias, hasta: hastaString });
+      onConfirm({
+        usuario_id: personalId,
+        dias_asignados: dias,
+        fecha_entrada: desdeString,
+        fecha_fin: hastaString,
+      });
       onClose();
-      setPersonal('');
-      setTipo('');
+      setPersonalId(null);
       setDias([]);
+      setDesde(null);
       setHasta(null);
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-    >
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Asignar recurso técnico</DialogTitle>
       <DialogContent dividers>
-        <Stack
-          spacing={3}
-          mt={1}
-        >
+        <Stack spacing={3} mt={1}>
+          {/* Selector de personal */}
           <FormControl fullWidth>
             <InputLabel>Ingeniero o Arquitecto</InputLabel>
             <Select
-              value={personal}
+              value={personalId ?? ''}
               label="Ingeniero o Arquitecto"
-              onChange={(e) => {
-                const seleccionado = personalDisponible.find((p) => p.nombre === e.target.value);
-                setPersonal(e.target.value);
-                if (seleccionado) setTipo(seleccionado.tipo);
-              }}
+              onChange={(e) => setPersonalId(Number(e.target.value))}
             >
               {personalDisponible.map((p) => (
-                <MenuItem
-                  key={p.nombre}
-                  value={p.nombre}
-                >
-                  {p.nombre} ({p.tipo})
+                <MenuItem key={p.id} value={p.id}>
+                  {p.first_name} {p.last_name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
+          {/* Días de la semana */}
           <Box>
-            <Typography
-              variant="subtitle2"
-              gutterBottom
-            >
+            <Typography variant="subtitle2" gutterBottom>
               Días de asignación
             </Typography>
-            <Stack
-              direction="row"
-              flexWrap="wrap"
-            >
+            <Stack direction="row" flexWrap="wrap">
               {DIAS_SEMANA.map((dia) => (
                 <DiaToggle
                   key={dia}
@@ -117,21 +104,22 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
             </Stack>
           </Box>
 
+          {/* Fechas */}
           <Box>
-            <Typography
-              variant="subtitle2"
-              gutterBottom
-            >
-              Fecha hasta <span style={{ color: 'red' }}>*</span>
+            <Typography variant="subtitle2" gutterBottom>
+              Fechas de asignación <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={es}
-            >
-              <DateCalendar
-                value={hasta}
-                onChange={setHasta}
-              />
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+              <Stack direction="row" spacing={2}>
+                <Box flex={1}>
+                  <Typography variant="caption">Desde</Typography>
+                  <DateCalendar value={desde} onChange={setDesde} />
+                </Box>
+                <Box flex={1}>
+                  <Typography variant="caption">Hasta</Typography>
+                  <DateCalendar value={hasta} onChange={setHasta} />
+                </Box>
+              </Stack>
             </LocalizationProvider>
           </Box>
         </Stack>
@@ -142,7 +130,7 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!personal || !tipo || !dias.length || !hasta}
+          disabled={!personalId || !dias.length || !desde || !hasta}
         >
           Confirmar
         </Button>

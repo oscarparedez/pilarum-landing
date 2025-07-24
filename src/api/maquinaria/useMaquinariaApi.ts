@@ -3,15 +3,7 @@ import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { calcularTotalCombustibleUltimoMes, calcularTotalServicios } from './utils';
 import { ConfigMaquinaria, GastoMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
-
-export interface Maquinaria {
-  id: number;
-  tipo: 'maquinaria' | 'herramienta';
-  nombre: string;
-  identificador?: string;
-  costo: number;
-  [key: string]: any; // para permitir campos extra como asignaciones, servicios, etc.
-}
+import { Maquinaria } from '../types';
 
 export const useMaquinariasApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -20,7 +12,6 @@ export const useMaquinariasApi = () => {
     const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/`, {
       method: 'GET',
     });
-
     if (!res.ok) throw new Error('Error al obtener maquinarias');
     return await res.json();
   }, [fetchWithAuth]);
@@ -30,7 +21,6 @@ export const useMaquinariasApi = () => {
       const [maquinariaRes, gastosOperativosRes] = await Promise.all([
         fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}`),
         fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/gastos-operativos/`),
-        // fetchWithAuth(`${API_BASE_URL}/asignaciones/?maquinaria_id=${id}`),
       ]);
 
       if (!maquinariaRes.ok || !gastosOperativosRes.ok) {
@@ -39,7 +29,6 @@ export const useMaquinariasApi = () => {
 
       const maquinaria = await maquinariaRes.json();
       const gastosOperativos: GastoMaquinaria[] = await gastosOperativosRes.json();
-      // const asignaciones: Asignacion[] = await asignacionesRes.json();
 
       return {
         nombre: maquinaria.nombre,
@@ -50,10 +39,7 @@ export const useMaquinariasApi = () => {
         totalCombustibleUltimoMes: calcularTotalCombustibleUltimoMes(gastosOperativos),
         asignaciones: [],
         servicios: [],
-        consumos: []
-        // asignaciones,
-        // servicios,
-        // consumos,
+        consumos: [],
       };
     },
     [fetchWithAuth]
@@ -63,12 +49,9 @@ export const useMaquinariasApi = () => {
     async (maquinaria: Omit<Maquinaria, 'id'>): Promise<Maquinaria> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(maquinaria),
       });
-
       if (!res.ok) throw new Error('Error al crear maquinaria');
       return await res.json();
     },
@@ -76,27 +59,97 @@ export const useMaquinariasApi = () => {
   );
 
   const actualizarMaquinaria = useCallback(
-  async (id: number, maquinaria: Omit<Maquinaria, 'id'>): Promise<Maquinaria> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(maquinaria),
-    });
+    async (id: number, maquinaria: Omit<Maquinaria, 'id'>): Promise<Maquinaria> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(maquinaria),
+      });
 
-    console.log("RES RESPONSE JSON STRINGIFY:", JSON.stringify(maquinaria), JSON.stringify(res));
+      if (!res.ok) throw new Error('Error al actualizar la maquinaria');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
-    if (!res.ok) throw new Error('Error al actualizar la maquinaria');
-    return await res.json();
-  },
-  [fetchWithAuth]
-);
+  const eliminarMaquinaria = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Error al eliminar maquinaria');
+    },
+    [fetchWithAuth]
+  );
+
+  const crearGastoOperativo = useCallback(
+    async (maquinariaId: number, data: Omit<GastoMaquinaria, 'id'>): Promise<GastoMaquinaria> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }
+      );
+      if (!res.ok) throw new Error('Error al crear gasto operativo');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const getGastoOperativoById = useCallback(
+    async (maquinariaId: number, id: number): Promise<GastoMaquinaria> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/${id}/`,
+        { method: 'GET' }
+      );
+      if (!res.ok) throw new Error('Error al obtener gasto operativo');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const actualizarGastoOperativo = useCallback(
+    async (
+      maquinariaId: number,
+      id: number,
+      data: Partial<GastoMaquinaria>
+    ): Promise<GastoMaquinaria> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/${id}/`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }
+      );
+      if (!res.ok) throw new Error('Error al actualizar gasto operativo');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const eliminarGastoOperativo = useCallback(
+    async (maquinariaId: number, id: number): Promise<void> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/${id}/`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) throw new Error('Error al eliminar gasto operativo');
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getMaquinarias,
     getMaquinariaById,
     crearMaquinaria,
-    actualizarMaquinaria
+    actualizarMaquinaria,
+    eliminarMaquinaria,
+    crearGastoOperativo,
+    getGastoOperativoById,
+    actualizarGastoOperativo,
+    eliminarGastoOperativo,
   };
 };

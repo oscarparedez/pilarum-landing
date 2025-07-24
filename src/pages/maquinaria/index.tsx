@@ -13,6 +13,7 @@ import { paths } from 'src/paths';
 import { ModalAgregarRecurso } from './agregar-recurso-modal';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
+import toast from 'react-hot-toast';
 
 type Recurso = {
   id: number;
@@ -82,9 +83,11 @@ const Page: NextPage = () => {
   }) => {
     try {
       await crearMaquinaria(nuevoRecurso);
-      await cargarRecursos(); // refrescar la lista tras guardar
+      await cargarRecursos();
+      toast.success('Recurso creado exitosamente');
     } catch (err) {
       console.error('Error al crear recurso:', err);
+      toast.error('Error al crear recurso');
     } finally {
       setAgregarModalOpen(false);
     }

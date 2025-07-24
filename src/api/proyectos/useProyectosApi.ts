@@ -11,6 +11,10 @@ import { useTiposIngresoApi } from '../tipoIngresos/useTipoIngresosApi';
 import { useTiposPagoApi } from '../tipoPagos/useTipoPagosApi';
 import { TipoIngreso } from 'src/pages/proyectos/configuracion/tipo-ingresos/index.d';
 import { TipoPago } from 'src/pages/proyectos/configuracion/tipo-pagos/index.d';
+import { useMaquinariasApi } from '../maquinaria/useMaquinariaApi';
+import { usePlanillaApi } from '../planilla/usePlanillaApi';
+import { useAsignacionesPersonalApi } from '../asignacionesPersonal/useAsignacionesPersonal';
+import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
 
 export interface Proyecto {
   id: number;
@@ -30,6 +34,10 @@ export const useProyectosApi = () => {
   const { getAmpliaciones } = useAmpliacionesApi();
   const { getTiposIngreso } = useTiposIngresoApi();
   const { getTiposPago } = useTiposPagoApi();
+  const { getMaquinarias } = useMaquinariasApi();
+  const { getAsignaciones: getAsignacionesMaquinaria } = useAsignacionesMaquinariaApi();
+  const { getUsuarios } = usePlanillaApi();
+  const { getAsignaciones: getAsignacionesPersonal } = useAsignacionesPersonalApi();
 
   const getProyectos = useCallback(async (): Promise<Proyecto[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/`, { method: 'GET' });
@@ -121,6 +129,10 @@ export const useProyectosApi = () => {
         presupuestos,
         tiposIngreso,
         tiposPago,
+        maquinaria,
+        asignacionesMaquinaria,
+        usuarios,
+        asignacionesPersonal
       ] = await Promise.all([
         getProyectoById(id),
         getIngresos(id),
@@ -129,6 +141,10 @@ export const useProyectosApi = () => {
         getPresupuestos(id),
         getTiposIngreso(),
         getTiposPago(),
+        getMaquinarias(),
+        getAsignacionesMaquinaria(id),
+        getUsuarios(),
+        getAsignacionesPersonal(id)
       ]);
 
       const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
@@ -145,6 +161,10 @@ export const useProyectosApi = () => {
         presupuestos,
         tiposIngreso,
         tiposPago,
+        maquinaria,
+        asignacionesMaquinaria,
+        usuarios,
+        asignacionesPersonal,
       });
     } catch (error) {
       console.error('Error al obtener los datos del proyecto completo:', error);

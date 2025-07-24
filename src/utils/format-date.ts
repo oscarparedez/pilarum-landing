@@ -6,14 +6,12 @@ export const formatearFecha = (fecha: string | Date) => {
 };
 
 export const formatearFechaLocal = (dateString: string): Date => {
-  // Si es formato ISO con hora (contiene 'T'), usar new Date directamente
   if (dateString.includes('T')) {
     return new Date(dateString);
   }
 
-  // Si es formato YYYY-MM-DD, parsear manualmente
-  const [year, month, day] = dateString.split('-').map(Number);
-  return new Date(year, month - 1, day);
+  // Asumimos que es YYYY-MM-DD, agregamos T12:00:00 para evitar desfases
+  return new Date(dateString + 'T12:00:00');
 };
 
 

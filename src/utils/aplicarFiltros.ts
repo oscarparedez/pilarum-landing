@@ -1,14 +1,14 @@
-// src/utils/aplicarFiltros.ts
-
 interface FiltroConfig {
-  camposTexto: string[];     // ['first_name', 'tipo.nombre']
-  campoFecha?: string;       // 'fecha_ingreso' o similar
+  camposTexto: string[];
+  campoFecha?: string;
+  campoEstado?: string;
 }
 
 interface FiltrosGlobales {
   search: string;
   fechaInicio?: Date | null;
   fechaFin?: Date | null;
+  estado?: 'Activo' | 'Inactivo' | 'Todos';
 }
 
 export const aplicarFiltros = <T>(
@@ -19,7 +19,7 @@ export const aplicarFiltros = <T>(
   const texto = (filtros.search ?? '').toLowerCase().trim();
 
   return data.filter((item) => {
-    // 🔍 Texto combinado de todos los campos
+    // 🔍 Texto combinado
     const textoConcatenado = config.camposTexto
       .map((path) => {
         try {
@@ -34,7 +34,7 @@ export const aplicarFiltros = <T>(
 
     const coincideTexto = texto === '' || textoConcatenado.includes(texto);
 
-    // 📆 Validación de fecha
+    // 📆 Fecha
     let coincideFecha = true;
     if (config.campoFecha && filtros.fechaInicio && filtros.fechaFin) {
       const fechaItem = new Date((item as any)[config.campoFecha]);
@@ -44,6 +44,13 @@ export const aplicarFiltros = <T>(
         fechaItem <= filtros.fechaFin;
     }
 
-    return coincideTexto && coincideFecha;
+    // ✅ Estado
+    let coincideEstado = true;
+    if (config.campoEstado && filtros.estado && filtros.estado !== 'todos') {
+      const estadoItem = String((item as any)[config.campoEstado] ?? '').toLowerCase();
+      coincideEstado = estadoItem === filtros.estado;
+    }
+
+    return coincideTexto && coincideFecha && coincideEstado;
   });
 };

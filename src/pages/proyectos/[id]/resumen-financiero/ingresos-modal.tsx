@@ -167,7 +167,7 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
                               color="text.secondary"
                               variant="body2"
                             >
-                              {ingreso.tipo_ingreso.nombre} –{' '}
+                              {ingreso.tipo_ingreso.nombre} -{' '}
                               {formatTipoDocumento(ingreso.tipo_documento)}
                             </Typography>
                             {ingreso.anotaciones && (

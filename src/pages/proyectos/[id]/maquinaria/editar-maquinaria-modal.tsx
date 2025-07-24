@@ -17,18 +17,14 @@ import { FC, useEffect, useState } from 'react';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { format } from 'date-fns';
 import { DiaToggle } from './dia-toggle';
+import { AsignacionMaquinaria, Maquinaria, NuevaAsignacionMaquinaria } from 'src/api/types';
 
 interface ModalEditarMaquinariaProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { maquina: string; dias: string[]; hasta: string; asignadoA: string }) => void;
-  maquinasDisponibles: string[];
-  initialData: {
-    maquina: string;
-    diasBinarios: string;
-    hasta: string;
-    asignadoA: string;
-  };
+  onConfirm: (data: NuevaAsignacionMaquinaria) => void;
+  maquinasDisponibles: Maquinaria[];
+  initialData: AsignacionMaquinaria;
 }
 
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];

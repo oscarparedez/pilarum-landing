@@ -19,12 +19,13 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { es } from 'date-fns/locale';
+import { Maquinaria, NuevaAsignacionMaquinaria } from 'src/api/types';
 
 interface ModalAgregarMaquinariaProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { maquina: string; dias: string[]; hasta: string; asignadoA: string }) => void;
-  maquinasDisponibles: string[];
+  onConfirm: (data: NuevaAsignacionMaquinaria) => void;
+  maquinasDisponibles: Maquinaria[];
 }
 
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -47,7 +48,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
   const handleConfirm = () => {
     if (maquina && dias.length && hasta && asignadoA) {
       const hastaString = hasta.toISOString().split('T')[0];
-      onConfirm({ maquina, dias, hasta: hastaString, asignadoA });
+      onConfirm({ equipo: maquina, dias_asignados: dias, hasta: hastaString, asignadoA });
       onClose();
       setMaquina('');
       setDias([]);

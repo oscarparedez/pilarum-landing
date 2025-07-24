@@ -1,7 +1,10 @@
-import type { AmpliacionFecha, ConfigProyecto } from 'src/pages/proyectos/[id]/index.d';
+import type { AmpliacionFecha, ConfigProyecto, Personal } from 'src/pages/proyectos/[id]/index.d';
 import { Proyecto } from './useProyectosApi';
 import { TipoIngreso } from 'src/pages/proyectos/configuracion/tipo-ingresos/index.d';
 import { TipoPago } from 'src/pages/proyectos/configuracion/tipo-pagos/index.d';
+import { Maquinaria } from '../maquinaria/useMaquinariaApi';
+import { AsignacionPersonal } from '../types';
+
 
 export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
   return {
@@ -27,6 +30,10 @@ export const mapProyectoToConfig = (data: {
   presupuestos: any[];
   tiposIngreso: TipoIngreso[];
   tiposPago: TipoPago[];
+  maquinaria: Maquinaria[];
+  asignacionesMaquinaria: any[];
+  usuarios: any[];
+  asignacionesPersonal: AsignacionPersonal[];
 }): ConfigProyecto => {
   const presupuestoInicial = data.presupuestos.reduce((total, p) => total + Number(p.monto), 0);
 
@@ -60,9 +67,11 @@ export const mapProyectoToConfig = (data: {
     pagos: data.pagos,
     ampliacionesFecha: data.ampliaciones,
     ampliacionesPresupuesto: data.presupuestos,
-    revisiones: [],
-    maquinaria: [],
-    personal: [],
+    maquinaria: data.maquinaria,
+    asignacionesMaquinaria: data.asignacionesMaquinaria,
+    usuarios: data.usuarios,
+    asignacionesPersonal: data.asignacionesPersonal,
     materialPlanificado: [],
+    revisiones: [],
   };
 };

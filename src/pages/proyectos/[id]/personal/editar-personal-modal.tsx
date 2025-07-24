@@ -12,7 +12,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { format } from 'date-fns';
 import { DiaToggle } from '../maquinaria/dia-toggle';
@@ -20,13 +20,17 @@ import { DiaToggle } from '../maquinaria/dia-toggle';
 interface ModalEditarPersonalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { personal: string; dias: string[]; hasta: string }) => void;
-  personalDisponible: { nombre: string; tipo: 'Ingeniero' | 'Arquitecto' }[];
-  initialData: {
-    personal: string;
-    diasBinarios: string;
-    hasta: string;
-  };
+  onConfirm: (
+    asignacion_id: number,
+    data: {
+      usuario_id: number;
+      dias_asignados: string[];
+      fecha_entrada: string;
+      fecha_fin: string;
+    }
+  ) => void;
+  personalDisponible: { id: number; nombre: string; tipo: string }[];
+  initialData: any;
 }
 
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -38,42 +42,49 @@ export const ModalEditarPersonal: FC<ModalEditarPersonalProps> = ({
   personalDisponible,
   initialData,
 }) => {
-  const binarioToDias = (bin: string): string[] =>
-    bin
-      .split('')
-      .map((val, i) => (val === '1' ? DIAS_SEMANA[i] : null))
-      .filter(Boolean) as string[];
-
-  const [personal, setPersonal] = useState(initialData.personal);
-  const [dias, setDias] = useState<string[]>(binarioToDias(initialData.diasBinarios));
-  const [hastaDate, setHastaDate] = useState<Date | null>(new Date(initialData.hasta));
+  const [personalId, setPersonalId] = useState<number | null>(null);
+  const [dias, setDias] = useState<string[]>([]);
+  const [desdeDate, setDesdeDate] = useState<Date | null>(null);
+  const [hastaDate, setHastaDate] = useState<Date | null>(null);
 
   useEffect(() => {
-    setPersonal(initialData.personal);
-    setDias(binarioToDias(initialData.diasBinarios));
-    setHastaDate(new Date(initialData.hasta));
+    if (initialData) {
+      setPersonalId(initialData.usuario.id);
+      setDias(initialData.dias_asignados || []);
+      setDesdeDate(initialData.fecha_entrada ? new Date(initialData.fecha_entrada + 'T12:00:00') : null);
+      setHastaDate(initialData.fecha_fin ? new Date(initialData.fecha_fin + 'T12:00:00') : null);
+    }
   }, [initialData]);
 
   const toggleDia = (dia: string) => {
     setDias((prev) => (prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]));
   };
 
+  const handleCloseModal = useCallback(() => {
+    setPersonalId(null);
+    setDias([]);
+    setDesdeDate(null);
+    setHastaDate(null);
+    onClose();
+  }, [onClose]);
+
   const handleConfirm = () => {
-    if (personal && dias.length && hastaDate) {
-      onConfirm({
-        personal,
-        dias,
-        hasta: format(hastaDate, 'yyyy-MM-dd'),
+    if (dias.length && desdeDate && hastaDate) {
+      onConfirm(initialData.id, {
+        usuario_id: personalId!,
+        dias_asignados: dias,
+        fecha_entrada: format(desdeDate, 'yyyy-MM-dd'),
+        fecha_fin: format(hastaDate, 'yyyy-MM-dd'),
       });
-      onClose();
+      handleCloseModal();
     }
   };
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
-      maxWidth="sm"
+      onClose={handleCloseModal}
+      maxWidth="md"
       fullWidth
     >
       <DialogTitle>Editar técnico asignado</DialogTitle>
@@ -82,21 +93,19 @@ export const ModalEditarPersonal: FC<ModalEditarPersonalProps> = ({
           spacing={3}
           mt={1}
         >
-          <FormControl
-            fullWidth
-            disabled
-          >
-            <InputLabel>Técnico</InputLabel>
+          <FormControl fullWidth>
+            <InputLabel>Ingeniero o Arquitecto</InputLabel>
             <Select
-              value={personal}
-              label="Técnico"
+              value={personalId ?? ''}
+              label="Ingeniero o Arquitecto"
+              onChange={(e) => setPersonalId(Number(e.target.value))}
             >
               {personalDisponible.map((p) => (
                 <MenuItem
-                  key={p.nombre}
-                  value={p.nombre}
+                  key={p.id}
+                  value={p.id}
                 >
-                  {p.nombre} ({p.tipo})
+                  {p.first_name} {p.last_name}
                 </MenuItem>
               ))}
             </Select>
@@ -129,23 +138,37 @@ export const ModalEditarPersonal: FC<ModalEditarPersonalProps> = ({
               variant="subtitle2"
               gutterBottom
             >
-              Hasta
+              Fechas de asignación
             </Typography>
-            <DateCalendar
-              value={hastaDate}
-              onChange={(newDate) => setHastaDate(newDate)}
-              disablePast
-            />
+            <Stack
+              direction="row"
+              spacing={2}
+            >
+              <Box flex={1}>
+                <Typography variant="caption">Desde</Typography>
+                <DateCalendar
+                  value={desdeDate}
+                  onChange={setDesdeDate}
+                />
+              </Box>
+              <Box flex={1}>
+                <Typography variant="caption">Hasta</Typography>
+                <DateCalendar
+                  value={hastaDate}
+                  onChange={setHastaDate}
+                />
+              </Box>
+            </Stack>
           </Box>
         </Stack>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleCloseModal}>Cancelar</Button>
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!personal || !dias.length || !hastaDate}
+          disabled={!personalId || !dias.length || !desdeDate || !hastaDate}
         >
           Guardar cambios
         </Button>

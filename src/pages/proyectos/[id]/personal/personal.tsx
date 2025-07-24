@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -14,16 +14,124 @@ import {
   TableContainer,
   Paper,
 } from '@mui/material';
-import { diasBinarioToTexto, diasToBinario } from '../maquinaria/utils';
 import { ModalAgregarPersonal } from './agregar-personal-modal';
 import { ModalEditarPersonal } from './editar-personal-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
-import { Personal } from '../index.d';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
-export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => {
+interface PersonalAsignadoProps {
+  usuarios: any[];
+  asignacionesPersonal: any[];
+  handleCrearAsignacionPersonal: (data: {
+    usuario_id: number;
+    dias_asignados: string[];
+    fecha_entrada: string;
+    fecha_fin: string;
+  }) => void;
+  handleActualizarAsignacionPersonal: (
+    asignacion_id: number,
+    data: {
+      usuario_id: number;
+      dias_asignados: string[];
+      fecha_entrada: string;
+      fecha_fin: string;
+    }
+  ) => void;
+  handleLiberarAsignacionPersonal: (asignacion_id: number) => void;
+  handleEliminarAsignacionPersonal: (asignacion_id: number) => void;
+}
+
+export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
+  usuarios,
+  asignacionesPersonal,
+  handleCrearAsignacionPersonal,
+  handleActualizarAsignacionPersonal,
+  handleLiberarAsignacionPersonal,
+  handleEliminarAsignacionPersonal,
+}) => {
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
   const [editarModalOpen, setEditarModalOpen] = useState(false);
-  const [editando, setEditando] = useState<Personal | null>(null);
+  const [editando, setEditando] = useState<any | null>(null);
+  const [asignacionAEliminar, setAsignacionAEliminar] = useState<any | null>(null);
+
+  const [filtros, setFiltros] = useState<{
+    search: string;
+    estado?: 'Activo' | 'Inactivo' | 'Todos';
+  }>({ search: '', estado: 'Todos' });
+
+  const today = useMemo(() => new Date(), []);
+
+  const calcularEstado = (entrada: string, fin?: string): 'Activo' | 'Inactivo' => {
+    const hoy = today;
+    const finDate = fin ? new Date(fin + 'T12:00:00') : null;
+
+    if (finDate && finDate < hoy) return 'Inactivo';
+    return 'Activo';
+  };
+
+  const asignacionesConEstado = useMemo(() => {
+    return asignacionesPersonal.map((a) => ({
+      ...a,
+      estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
+    }));
+  }, [asignacionesPersonal]);
+
+  const asignacionesFiltradas = useMemo(() => {
+    return aplicarFiltros(asignacionesConEstado, filtros, {
+      camposTexto: ['usuario.first_name', 'usuario.last_name'],
+      campoEstado: 'estado',
+    });
+  }, [asignacionesConEstado, filtros]);
+
+  const handleFiltrar = useCallback((f: typeof filtros) => {
+    setFiltros(f);
+  }, []);
+
+  const onCrearAsignacionPersonal = useCallback(
+    (data: {
+      usuario_id: number;
+      dias_asignados: string[];
+      fecha_entrada: string;
+      fecha_fin: string;
+    }) => {
+      handleCrearAsignacionPersonal(data);
+      setAgregarModalOpen(false);
+    },
+    [handleCrearAsignacionPersonal]
+  );
+
+  const onActualizarAsignacionPersonal = useCallback(
+    (
+      asignacion_id: number,
+      data: {
+        usuario_id: number;
+        dias_asignados: string[];
+        fecha_entrada: string;
+        fecha_fin: string;
+      }
+    ) => {
+      handleActualizarAsignacionPersonal(asignacion_id, data);
+      setEditarModalOpen(false);
+      setEditando(null);
+    },
+    [handleActualizarAsignacionPersonal]
+  );
+
+  const onLiberarAsignacionPersonal = useCallback(
+    (asignacion: any) => {
+      const entrada = new Date(asignacion.fecha_entrada + 'T12:00:00');
+      const hoy = today;
+
+      if (entrada > hoy) {
+        // Mostrar modal de confirmación
+        setAsignacionAEliminar(asignacion);
+      } else {
+        handleLiberarAsignacionPersonal(asignacion.id);
+      }
+    },
+    [handleLiberarAsignacionPersonal, today]
+  );
 
   return (
     <Box sx={{ p: 3 }}>
@@ -45,8 +153,8 @@ export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => 
           </Stack>
 
           <TablaPaginadaConFiltros
-            totalItems={personal.length}
-            onFiltrar={() => {}}
+            totalItems={asignacionesFiltradas.length}
+            onFiltrar={handleFiltrar}
             filtrosFecha={false}
             filtrosEstado={true}
           >
@@ -65,45 +173,51 @@ export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => 
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {personal
+                    {asignacionesFiltradas
                       .filter((r) => (estadoFiltro ? r.estado === estadoFiltro : true))
                       .slice((currentPage - 1) * 5, currentPage * 5)
-                      .map((item, i) => (
-                        <TableRow
-                          key={i}
-                          hover
-                        >
-                          <TableCell>{item.nombre}</TableCell>
-                          <TableCell>{item.tipo}</TableCell>
-                          <TableCell>{item.fechaInicio}</TableCell>
-                          <TableCell>{item.fechaFin}</TableCell>
-                          <TableCell>{item.estado}</TableCell>
-                          <TableCell>{diasBinarioToTexto(item.diasAsignados)}</TableCell>
-                          <TableCell>
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                            >
-                              <Button
-                                size="small"
-                                onClick={() => {
-                                  setEditando(item);
-                                  setEditarModalOpen(true);
-                                }}
+                      .map((item, i) => {
+                        const esFutura = new Date(item.fecha_entrada + 'T12:00:00') > today;
+                        return (
+                          <TableRow
+                            key={i}
+                            hover
+                          >
+                            <TableCell>
+                              {item.usuario.first_name} {item.usuario.last_name}
+                            </TableCell>
+                            <TableCell>-</TableCell>
+                            <TableCell>{item.fecha_entrada}</TableCell>
+                            <TableCell>{item.fecha_fin}</TableCell>
+                            <TableCell>{item.estado}</TableCell>
+                            <TableCell>{item.dias_asignados.join(', ')}</TableCell>
+                            <TableCell>
+                              <Stack
+                                direction="row"
+                                spacing={1}
                               >
-                                Editar
-                              </Button>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                color="error"
-                              >
-                                Liberar
-                              </Button>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                                <Button
+                                  size="small"
+                                  onClick={() => {
+                                    setEditando(item);
+                                    setEditarModalOpen(true);
+                                  }}
+                                >
+                                  Editar
+                                </Button>
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  color="error"
+                                  onClick={() => onLiberarAsignacionPersonal(item)}
+                                >
+                                  {esFutura ? 'Eliminar' : 'Liberar'}
+                                </Button>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -113,14 +227,8 @@ export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => 
           <ModalAgregarPersonal
             open={agregarModalOpen}
             onClose={() => setAgregarModalOpen(false)}
-            personalDisponible={[
-              { nombre: 'Carlos Gómez', tipo: 'Ingeniero' },
-              { nombre: 'Sandra Herrera', tipo: 'Arquitecto' },
-              { nombre: 'Luis Méndez', tipo: 'Ingeniero' },
-            ]}
-            onConfirm={(data) => {
-              // logica para agregar personal
-            }}
+            personalDisponible={usuarios}
+            onConfirm={onCrearAsignacionPersonal}
           />
 
           {editando && (
@@ -130,20 +238,20 @@ export const PersonalAsignado: FC<{ personal: Personal[] }> = ({ personal }) => 
                 setEditarModalOpen(false);
                 setEditando(null);
               }}
-              personalDisponible={[
-                { nombre: 'Carlos Gómez', tipo: 'Ingeniero' },
-                { nombre: 'Sandra Herrera', tipo: 'Arquitecto' },
-                { nombre: 'Luis Méndez', tipo: 'Ingeniero' },
-              ]}
-              initialData={{
-                personal: editando.nombre,
-                diasBinarios: editando.diasAsignados,
-                hasta: editando.fechaFin,
-              }}
-              onConfirm={(data) => {
-                // lógica para editar personal
-                setEditarModalOpen(false);
-                setEditando(null);
+              personalDisponible={usuarios}
+              initialData={editando}
+              onConfirm={onActualizarAsignacionPersonal}
+            />
+          )}
+
+          {asignacionAEliminar && (
+            <ModalEliminar
+              type="asignación de personal"
+              open={!!asignacionAEliminar}
+              onClose={() => setAsignacionAEliminar(null)}
+              onConfirm={() => {
+                handleEliminarAsignacionPersonal(asignacionAEliminar.id);
+                setAsignacionAEliminar(null);
               }}
             />
           )}

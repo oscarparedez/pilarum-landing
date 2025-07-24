@@ -1,6 +1,8 @@
 import { Usuario } from "src/api/planilla/usePlanillaApi/index.d";
 import { TipoIngreso } from "../configuracion/tipo-ingresos/index.d";
 import { TipoPago } from "../configuracion/tipo-pagos/index.d";
+import { AsignacionPersonal } from "src/api/types";
+import { AsignacionMaquinaria } from "src/api/asignacionesMaquinaria/useAsignacionesMaquinaria";
 
 // index.d.ts
 export interface MaterialItem {
@@ -60,6 +62,7 @@ export interface ResumenFinancieroProps {
 }
 
 export interface Recurso {
+  id: number;
   nombre: string;
   tipo: 'Maquinaria' | 'Herramienta';
   fechaInicio: string;
@@ -84,7 +87,7 @@ export interface Personal {
   fechaInicio: string;
   fechaFin: string;
   estado: 'Activo' | 'Inactivo';
-  diasAsignados: string;
+  diasAsignados: any[];
 }
 
 export interface Revision {
@@ -132,7 +135,9 @@ export interface ConfigProyecto {
   pagos: Pago[];
   tiposPago: TipoPago[];
   revisiones: Revision[];
-  maquinaria: Recurso[];
-  personal: Personal[];
+  maquinaria: Maquinaria[];
+  asignacionesMaquinaria: AsignacionMaquinaria[];
+  usuarios: Personal[];
+  asignacionesPersonal: AsignacionPersonal[];
   materialPlanificado: MaterialItem[];
 }

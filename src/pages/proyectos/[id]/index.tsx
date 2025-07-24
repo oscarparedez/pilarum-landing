@@ -23,6 +23,8 @@ import toast from 'react-hot-toast';
 import { usePresupuestosApi } from 'src/api/presupuestos/usePresupuestosApi';
 import { useIngresosApi } from 'src/api/ingresos/useIngresosApi';
 import { usePagosApi } from 'src/api/pagos/usePagosApi';
+import { useAsignacionesMaquinariaApi } from 'src/api/asignacionesMaquinaria/useAsignacionesMaquinaria';
+import { useAsignacionesPersonalApi } from 'src/api/asignacionesPersonal/useAsignacionesPersonal';
 
 export const tareasEjemplo: Tarea[] = [];
 
@@ -36,11 +38,17 @@ const Page: NextPage = () => {
     usePresupuestosApi();
   const { crearIngreso, actualizarIngreso, eliminarIngreso } = useIngresosApi();
   const { crearPago, actualizarPago, eliminarPago } = usePagosApi();
+  const { crearAsignacion: crearAsignacionMaquinaria } = useAsignacionesMaquinariaApi();
+  const {
+    crearAsignacion: crearAsignacionPersonal,
+    actualizarAsignacion: actualizarAsignacionPersonal,
+    liberarAsignacion,
+    eliminarAsignacion: eliminarAsignacionPersonal,
+  } = useAsignacionesPersonalApi();
 
   const [config, setConfig] = useState<ConfigProyecto | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     const load = async () => {
@@ -333,6 +341,137 @@ const Page: NextPage = () => {
     [router.query.id, eliminarPago, getProyectoInfo]
   );
 
+  const handleCrearAsignacionMaquinaria = useCallback(
+    async (data: {
+      equipo: number;
+      dias_asignados: string[];
+      fecha_fin: string;
+      usuario_recibe: number;
+    }) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+
+        const dataConProyecto = {
+          ...data,
+          proyecto: parseInt(id),
+        };
+
+        await crearAsignacionMaquinaria(dataConProyecto);
+
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Maquinaria asignada correctamente');
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al asignar maquinaria');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, crearAsignacionMaquinaria, getProyectoInfo]
+  );
+
+  const handleCrearAsignacionPersonal = useCallback(
+    async (data: {
+      usuario_id: number;
+      dias_asignados: string[];
+      fecha_entrada: string;
+      fecha_fin: string;
+    }) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+
+        await crearAsignacionPersonal(parseInt(id), data);
+
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Personal asignado correctamente');
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al asignar personal');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, crearAsignacionPersonal, getProyectoInfo]
+  );
+
+  const handleActualizarAsignacionPersonal = useCallback(
+    async (asignacion_id: number, data: {
+      usuario_id: number;
+      dias_asignados: string[];
+      fecha_entrada: string;
+      fecha_fin: string;
+    }) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+
+        await actualizarAsignacionPersonal(parseInt(id), asignacion_id, data);
+
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Asignación de personal actualizada correctamente');
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al actualizar asignación de personal');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, actualizarAsignacionPersonal, getProyectoInfo]
+  );
+
+  const handleLiberarAsignacionPersonal = useCallback(
+    async (asignacion_id: number) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+        await liberarAsignacion(parseInt(id), asignacion_id);
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Asignación de personal liberada correctamente');
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al liberar asignación de personal');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, liberarAsignacion, getProyectoInfo]
+  );
+
+  const handleEliminarAsignacionPersonal = useCallback(
+    async (asignacion_id: number) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+        await eliminarAsignacionPersonal(parseInt(id), asignacion_id);
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Asignación de personal eliminada correctamente');
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al eliminar asignación de personal');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, eliminarAsignacionPersonal, getProyectoInfo]
+  );
+
   if (!config) return null;
 
   const {
@@ -343,10 +482,12 @@ const Page: NextPage = () => {
     pagos: costos,
     revisiones,
     maquinaria,
-    personal,
+    asignacionesMaquinaria,
     materialPlanificado,
     tiposIngreso,
     tiposPago,
+    usuarios,
+    asignacionesPersonal,
   } = config;
 
   const {
@@ -426,8 +567,19 @@ const Page: NextPage = () => {
             onConfirm={() => {}}
           />
 
-          <Maquinaria maquinaria={maquinaria} />
-          <PersonalAsignado personal={personal} />
+          <Maquinaria
+            maquinaria={maquinaria}
+            asignacionesMaquinaria={asignacionesMaquinaria}
+            handleCrearAsignacion={handleCrearAsignacionMaquinaria}
+          />
+          <PersonalAsignado
+            usuarios={usuarios}
+            asignacionesPersonal={asignacionesPersonal}
+            handleCrearAsignacionPersonal={handleCrearAsignacionPersonal}
+            handleActualizarAsignacionPersonal={handleActualizarAsignacionPersonal}
+            handleLiberarAsignacionPersonal={handleLiberarAsignacionPersonal}
+            handleEliminarAsignacionPersonal={handleEliminarAsignacionPersonal}
+          />
           <MaterialPlanificado materialPlanificado={materialPlanificado} />
           <Revisiones revisiones={revisiones} />
         </Stack>
