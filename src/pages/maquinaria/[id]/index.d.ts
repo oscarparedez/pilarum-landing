@@ -1,3 +1,5 @@
+import { AsignacionMaquinaria, GastoOperativo } from "src/api/types";
+
 export type TipoConsumo = 'combustible' | 'mantenimiento' | '';
 
 export type TipoMaquinaria = 'maquinaria' | 'herramienta';
@@ -25,7 +27,7 @@ export interface ConfigMaquinaria {
   costo: number;
   totalServicios: number;
   totalCombustibleUltimoMes: number;
-  asignaciones: Asignacion[];
-  servicios: GastoMaquinaria[];
-  consumos: GastoMaquinaria[];
+  asignaciones: AsignacionMaquinaria[];
+  servicios: GastoOperativo[];
+  consumos: GastoOperativo[];
 }

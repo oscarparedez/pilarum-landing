@@ -9,23 +9,25 @@ import {
   CardHeader,
   Divider,
 } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
+import { NuevaMarca } from 'src/api/types';
 
 interface ModalCrearMarcaProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { nombre: string }) => void;
+  onCrearMarca: (data: NuevaMarca) => void;
 }
 
-export const ModalCrearMarca: FC<ModalCrearMarcaProps> = ({ open, onClose, onConfirm }) => {
+export const ModalCrearMarca: FC<ModalCrearMarcaProps> = ({ open, onClose, onCrearMarca }) => {
   const [nombre, setNombre] = useState('');
 
-  const handleSubmit = () => {
-    if (!nombre.trim()) return;
-    onConfirm({ nombre: nombre.trim() });
-    setNombre('');
-    onClose();
-  };
+  const handleCrearMarca = useCallback(() => {
+    if (nombre.trim()) {
+      const nuevaMarca: NuevaMarca = { nombre };
+      onCrearMarca(nuevaMarca);
+      setNombre('');
+    }
+  }, [nombre, onCrearMarca]);
 
   return (
     <Modal
@@ -61,7 +63,7 @@ export const ModalCrearMarca: FC<ModalCrearMarcaProps> = ({ open, onClose, onCon
               <Button onClick={onClose}>Cancelar</Button>
               <Button
                 variant="contained"
-                onClick={handleSubmit}
+                onClick={handleCrearMarca}
                 disabled={!nombre.trim()}
               >
                 Crear

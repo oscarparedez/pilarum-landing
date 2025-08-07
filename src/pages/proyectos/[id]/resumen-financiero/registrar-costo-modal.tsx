@@ -17,6 +17,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
 import { TipoPago } from '../../configuracion/tipo-pagos/index.d';
+import { format } from 'date-fns';
 
 interface ModalRegistrarPagoProps {
   open: boolean;
@@ -55,7 +56,7 @@ export const ModalRegistrarPago: FC<ModalRegistrarPagoProps> = ({
       monto_total: Number(monto),
       tipo_pago: tipoPago as number,
       tipo_documento: tipoDocumento,
-      fecha_pago: selectedDate.toISOString().split('T')[0],
+      fecha_pago: format(selectedDate, 'yyyy-MM-dd'),
       anotaciones,
       correlativo: correlativo.trim() || undefined,
     });

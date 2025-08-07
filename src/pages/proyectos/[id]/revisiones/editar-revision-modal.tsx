@@ -16,6 +16,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { NuevaRevision, Revision } from 'src/api/types';
+import { format } from 'date-fns';
 
 interface ModalEditarRevisionProps {
   open: boolean;
@@ -40,7 +41,7 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
     if (revision) {
       setTitulo(revision.titulo);
       setAnotaciones(revision.anotaciones);
-      setFecha(revision.fecha_review ? new Date(revision.fecha_review + 'T12:00:00') : null);
+      setFecha(revision.fecha_review ? new Date(revision.fecha_review) : null);
       setFotos(revision.fotos.map((f) => f.imagen));
       setCargadas(revision.fotos.map(() => true));
     }
@@ -69,7 +70,7 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
     onConfirm(revision.id, {
       titulo,
       anotaciones,
-      fecha_review: fecha.toISOString().split('T')[0],
+      fecha_review: format(fecha, 'yyyy-MM-dd'),
       fotos: nuevasImagenes,
     });
 

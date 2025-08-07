@@ -6,13 +6,17 @@ import { AsignacionMaquinaria, NuevaAsignacionMaquinaria } from '../types';
 export const useAsignacionesMaquinariaApi = () => {
   const { fetchWithAuth } = useAuthApi();
 
-  const getAsignaciones = useCallback(async (): Promise<AsignacionMaquinaria[]> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/asignaciones-maquinaria/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener asignaciones de maquinaria');
-    return await res.json();
-  }, [fetchWithAuth]);
+  // Asignaciones generales
+  const getAsignacionesPorMaquinaria = useCallback(
+    async (equipoId: number): Promise<AsignacionMaquinaria[]> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${equipoId}/asignaciones/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener asignaciones de maquinaria');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   const getAsignacionById = useCallback(
     async (id: number): Promise<AsignacionMaquinaria> => {
@@ -25,47 +29,94 @@ export const useAsignacionesMaquinariaApi = () => {
     [fetchWithAuth]
   );
 
-  const crearAsignacion = useCallback(
-    async (data: NuevaAsignacionMaquinaria): Promise<AsignacionMaquinaria> => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/asignaciones-maquinaria/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Error al crear asignación de maquinaria');
+  // Asignaciones por proyecto
+  const getAsignacionesPorProyecto = useCallback(
+    async (proyectoId: number): Promise<AsignacionMaquinaria[]> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/proyectos/${proyectoId}/asignaciones-maquinaria/`,
+        {
+          method: 'GET',
+        }
+      );
+      if (!res.ok) throw new Error('Error al obtener asignaciones del proyecto');
       return await res.json();
     },
     [fetchWithAuth]
   );
 
-  const actualizarAsignacion = useCallback(
-    async (id: number, data: Partial<AsignacionMaquinaria>): Promise<AsignacionMaquinaria> => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/asignaciones-maquinaria/${id}/`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Error al actualizar asignación de maquinaria');
+  const crearAsignacionEnProyecto = useCallback(
+    async (proyectoId: number, data: NuevaAsignacionMaquinaria): Promise<AsignacionMaquinaria> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/proyectos/${proyectoId}/asignaciones-maquinaria/`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }
+      );
+      if (!res.ok) throw new Error('Error al crear asignación en el proyecto');
       return await res.json();
     },
     [fetchWithAuth]
   );
 
-  const eliminarAsignacion = useCallback(
-    async (id: number): Promise<void> => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/asignaciones-maquinaria/${id}/`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Error al eliminar asignación de maquinaria');
+  const getAsignacionByIdEnProyecto = useCallback(
+    async (proyectoId: number, id: number): Promise<AsignacionMaquinaria> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/proyectos/${proyectoId}/asignaciones-maquinaria/${id}/`,
+        {
+          method: 'GET',
+        }
+      );
+      if (!res.ok) throw new Error('Error al obtener asignación del proyecto');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const actualizarAsignacionEnProyecto = useCallback(
+    async (
+      proyectoId: number,
+      id: number,
+      data: Partial<AsignacionMaquinaria>
+    ): Promise<AsignacionMaquinaria> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/proyectos/${proyectoId}/asignaciones-maquinaria/${id}/`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }
+      );
+      if (!res.ok) throw new Error('Error al actualizar asignación del proyecto');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const eliminarAsignacionEnProyecto = useCallback(
+    async (proyectoId: number, id: number): Promise<void> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/proyectos/${proyectoId}/asignaciones-maquinaria/${id}/`,
+        {
+          method: 'DELETE',
+        }
+      );
+      if (!res.ok) throw new Error('Error al eliminar asignación del proyecto');
     },
     [fetchWithAuth]
   );
 
   return {
-    getAsignaciones,
+    // generales
+    getAsignacionesPorMaquinaria,
     getAsignacionById,
-    crearAsignacion,
-    actualizarAsignacion,
-    eliminarAsignacion,
+
+    // por proyecto
+    getAsignacionesPorProyecto,
+    crearAsignacionEnProyecto,
+    getAsignacionByIdEnProyecto,
+    actualizarAsignacionEnProyecto,
+    eliminarAsignacionEnProyecto,
   };
 };

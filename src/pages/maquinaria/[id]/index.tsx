@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { useSettings } from 'src/hooks/use-settings';
@@ -14,6 +14,8 @@ import { ConfigMaquinaria, TipoMaquinaria } from './index.d';
 import toast from 'react-hot-toast';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
+import { useGastosOperativosApi } from 'src/api/gastosOperativosMaquinaria/useGastosOperativosMaquinariaApi';
+import { NuevoGastoOperativo } from 'src/api/types';
 
 const Page: NextPage = () => {
   const settings = useSettings();
@@ -23,23 +25,25 @@ const Page: NextPage = () => {
   const [data, setData] = useState<ConfigMaquinaria | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { getMaquinariaById, actualizarMaquinaria } = useMaquinariasApi();
+  const { getMaquinariaInfo, actualizarMaquinaria } = useMaquinariasApi();
+  const { crearGastoOperativo, actualizarGastoOperativo, eliminarGastoOperativo } =
+    useGastosOperativosApi();
   usePageView();
 
   const fetchData = useCallback(async () => {
     try {
       if (!id) return;
       setLoading(true);
-      const res = await getMaquinariaById(Number(id));
+      const res = await getMaquinariaInfo(Number(id));
       setData(res);
     } catch (e) {
       toast.error('Error al obtener la maquinaria');
     } finally {
       setLoading(false);
     }
-  }, [id, setLoading, getMaquinariaById, setData]);
+  }, [id, setLoading, getMaquinariaInfo, setData]);
 
-  const handleConfirmEdit = async (updated: {
+  const handleActualizarDatosBasicosMaquinaria = async (updated: {
     tipo: TipoMaquinaria;
     nombre: string;
     identificador?: string;
@@ -58,6 +62,59 @@ const Page: NextPage = () => {
       setLoading(false);
     }
   };
+
+  const handleCrearGastoOperativo = useCallback(
+    async (data: NuevoGastoOperativo) => {
+      try {
+        if (!id) return;
+        setLoading(true);
+        await crearGastoOperativo(Number(id), data);
+        toast.success('Gasto operativo creado');
+        fetchData();
+      } catch (e) {
+        toast.error('Error al crear el gasto operativo');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id, crearGastoOperativo, fetchData]
+  );
+
+  const handleActualizarGastoOperativo = useCallback(
+    async (gastoId: number, data: NuevoGastoOperativo) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+      try {
+        setLoading(true);
+        await actualizarGastoOperativo(Number(id), gastoId, data);
+        toast.success('Gasto operativo actualizado');
+        fetchData();
+      } catch (e) {
+        toast.error('Error al actualizar el gasto operativo');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id, actualizarGastoOperativo, fetchData]
+  );
+
+  const handleEliminarGastoOperativo = useCallback(
+    async (gastoId: number) => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+      try {
+        setLoading(true);
+        await eliminarGastoOperativo(Number(id), gastoId);
+        toast.success('Gasto operativo eliminado');
+        fetchData();
+      } catch (e) {
+        toast.error('Error al eliminar el gasto operativo');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id, eliminarGastoOperativo, fetchData]
+  );
 
   useEffect(() => {
     fetchData();
@@ -113,7 +170,7 @@ const Page: NextPage = () => {
               costo,
               tipo,
             }}
-            onConfirm={handleConfirmEdit}
+            onConfirm={handleActualizarDatosBasicosMaquinaria}
           />
 
           <EstadisticasRapidas
@@ -123,8 +180,18 @@ const Page: NextPage = () => {
           />
 
           <Asignaciones asignaciones={asignaciones} />
-          <HistorialServicios servicios={servicios} />
-          <HistorialConsumos consumos={consumos} />
+          <HistorialServicios
+            servicios={servicios}
+            onCrearServicio={handleCrearGastoOperativo}
+            onActualizarServicio={handleActualizarGastoOperativo}
+            onEliminarServicio={handleEliminarGastoOperativo}
+          />
+          <HistorialConsumos
+            consumos={consumos}
+            onCrearConsumo={handleCrearGastoOperativo}
+            onActualizarConsumo={handleActualizarGastoOperativo}
+            onEliminarConsumo={handleEliminarGastoOperativo}
+          />
         </Stack>
       </Container>
     </Box>

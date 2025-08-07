@@ -12,30 +12,34 @@ import {
   MenuItem,
   Stack,
 } from '@mui/material';
-import { FC, useState } from 'react';
-
-const UNIDADES_MOCK = ['sacos', 'barras', 'm3', 'kg', 'litros'];
-const MARCAS_MOCK = ['Cemex', 'Holcim', 'Argos', 'Corona', 'Forsa'];
+import { on } from 'events';
+import { FC, use, useCallback, useState } from 'react';
+import { Marca, Material, NuevoMaterial, Unidad } from 'src/api/types';
 
 interface ModalCrearMaterialProps {
+  unidades: Unidad[];
+  marcas: Marca[];
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { nombre: string; unidad: string; marca: string }) => void;
+  onCrearMaterial: (data: NuevoMaterial[]) => void;
 }
 
-export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ open, onClose, onConfirm }) => {
-  const [nombre, setNombre] = useState('');
-  const [unidad, setUnidad] = useState(UNIDADES_MOCK[0]);
-  const [marca, setMarca] = useState(MARCAS_MOCK[0]);
+export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ unidades, marcas, open, onClose, onCrearMaterial }) => {
+  const [nombre, setNombre] = useState<string | null>(null);
+  const [unidad, setUnidad] = useState<string | null>(null);
+  const [marca, setMarca] = useState<string | null>(null);
 
-  const handleConfirm = () => {
-    if (!nombre.trim()) return;
-    onConfirm({ nombre: nombre.trim(), unidad, marca });
+  const handleCrearMaterial = useCallback(() => {
+     onCrearMaterial({
+      nombre,
+      unidad,
+      marca,
+    });
     setNombre('');
-    setUnidad(UNIDADES_MOCK[0]);
-    setMarca(MARCAS_MOCK[0]);
+    setUnidad(null);
+    setMarca(null);
     onClose();
-  };
+  }, [nombre, unidad, marca, onCrearMaterial, onClose]);
 
   return (
     <Modal
@@ -70,12 +74,12 @@ export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ open, onClose,
                 label="Unidad"
                 onChange={(e) => setUnidad(e.target.value)}
               >
-                {UNIDADES_MOCK.map((u) => (
+                {unidades.map((u) => (
                   <MenuItem
-                    key={u}
-                    value={u}
+                    key={u.id}
+                    value={u.id}
                   >
-                    {u}
+                    {u.nombre}
                   </MenuItem>
                 ))}
               </Select>
@@ -87,12 +91,12 @@ export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ open, onClose,
                 label="Marca"
                 onChange={(e) => setMarca(e.target.value)}
               >
-                {MARCAS_MOCK.map((m) => (
+                {marcas.map((m) => (
                   <MenuItem
-                    key={m}
-                    value={m}
+                    key={m.id}
+                    value={m.id}
                   >
-                    {m}
+                    {m.nombre}
                   </MenuItem>
                 ))}
               </Select>
@@ -111,7 +115,7 @@ export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ open, onClose,
               </Button>
               <Button
                 variant="contained"
-                onClick={handleConfirm}
+                onClick={handleCrearMaterial}
               >
                 Confirmar
               </Button>

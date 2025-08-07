@@ -52,7 +52,7 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
   const [anotaciones, setAnotaciones] = useState('');
 
   useEffect(() => {
-    setSelectedDate(new Date(initialData.fecha_ingreso + 'T12:00:00'));
+    setSelectedDate(new Date(initialData.fecha_ingreso));
     setMonto(initialData.monto_total);
     setTipoIngreso(initialData.tipo_ingreso.id);
     setTipoDocumento(initialData.tipo_documento);

@@ -1,31 +1,24 @@
-import {
-  Box,
-  Button,
-  Modal,
-  Stack,
-  TextField,
-  Typography,
-  Card,
-  CardHeader,
-  Divider,
-} from '@mui/material';
-import { FC, useState } from 'react';
+import { Box, Button, Modal, Stack, TextField, Card, CardHeader, Divider } from '@mui/material';
+import { FC, useCallback, useState } from 'react';
+import { NuevaUnidad } from 'src/api/types';
 
 interface ModalCrearUnidadProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { nombre: string }) => void;
+  onCrearUnidad: (data: NuevaUnidad) => void;
 }
 
-export const ModalCrearUnidad: FC<ModalCrearUnidadProps> = ({ open, onClose, onConfirm }) => {
+export const ModalCrearUnidad: FC<ModalCrearUnidadProps> = ({ open, onClose, onCrearUnidad }) => {
   const [nombre, setNombre] = useState('');
 
-  const handleSubmit = () => {
-    if (!nombre.trim()) return;
-    onConfirm({ nombre: nombre.trim() });
-    setNombre('');
-    onClose();
-  };
+  const handleCrearUnidad = useCallback(() => {
+    if (nombre.trim()) {
+      const nuevaUnidad: NuevaUnidad = { nombre };
+      onCrearUnidad(nuevaUnidad);
+      setNombre('');
+      onClose();
+    }
+  }, [nombre, onCrearUnidad, onClose]);
 
   return (
     <Modal
@@ -62,7 +55,7 @@ export const ModalCrearUnidad: FC<ModalCrearUnidadProps> = ({ open, onClose, onC
               <Button onClick={onClose}>Cancelar</Button>
               <Button
                 variant="contained"
-                onClick={handleSubmit}
+                onClick={handleCrearUnidad}
                 disabled={!nombre.trim()}
               >
                 Crear

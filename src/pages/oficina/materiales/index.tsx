@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -23,26 +23,76 @@ import { NextPage } from 'next';
 
 import { ModalEditarMaterial } from './editar-material-modal';
 import { ModalCrearMaterial } from './crear-material-modal';
-
-interface Material {
-  id: string;
-  nombre: string;
-  unidad: string;
-  marca: string;
-}
-
-const MATERIALES_MOCK: Material[] = [
-  { id: 'mat-001', nombre: 'Saco de cemento 20 kg', unidad: 'sacos', marca: 'Cemex' },
-  { id: 'mat-002', nombre: 'Vigas de hierro 6 metros', unidad: 'barras', marca: 'Holcim' },
-  { id: 'mat-003', nombre: 'Arena fina', unidad: 'm3', marca: 'Argos' },
-  { id: 'mat-004', nombre: 'Piedrín', unidad: 'm3', marca: 'Corona' },
-  { id: 'mat-005', nombre: 'Varilla #3', unidad: 'barras', marca: 'Forsa' },
-];
+import { useMaterialesApi } from 'src/api/materiales/useMaterialesApi';
+import { ConfigMaterial, Material, NuevoMaterial } from 'src/api/types';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import toast from 'react-hot-toast';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [materialSeleccionado, setMaterialSeleccionado] = useState<Material | null>(null);
+  const [configMaterial, setConfigMaterial] = useState<ConfigMaterial>({
+    materiales: [],
+    marcas: [],
+    unidades: [],
+  });
+  const [filtros, setFiltros] = useState({ search: '' });
+  const [paginaActual, setPaginaActual] = useState(1);
+  const rowsPerPage = 5;
+
+  const { getMaterialesInfo, crearMaterial, actualizarMaterial } = useMaterialesApi();
+
+  const handleGetMateriales = useCallback(async () => {
+    try {
+      const config = await getMaterialesInfo();
+      setConfigMaterial(config);
+    } catch (error) {
+      console.error('Error al obtener materiales:', error);
+      toast.error('Error al obtener materiales');
+    }
+  }, [getMaterialesInfo]);
+
+  const handleCrearMaterial = useCallback(
+    async (nuevoMaterial: NuevoMaterial) => {
+      try {
+        await crearMaterial(nuevoMaterial);
+        setModalCrearOpen(false);
+        await handleGetMateriales();
+        toast.success('Material creado exitosamente');
+      } catch (error) {
+        console.error('Error al crear material:', error);
+        toast.error('Error al crear material');
+      }
+    },
+    [crearMaterial, handleGetMateriales]
+  );
+
+  const handleActualizarMaterial = useCallback(
+    async (id: number, material: NuevaMaterial) => {
+      try {
+        await actualizarMaterial(id, material);
+        setModalEditarOpen(false);
+        setMaterialSeleccionado(null);
+        await handleGetMateriales();
+        toast.success('Material actualizado exitosamente');
+      } catch (error) {
+        console.error('Error al actualizar material:', error);
+        toast.error('Error al actualizar material');
+      }
+    },
+    [actualizarMaterial, handleGetMateriales]
+  );
+
+  useEffect(() => {
+    handleGetMateriales();
+  }, [handleGetMateriales]);
+
+  const materialesFiltrados = useMemo(() => {
+    return aplicarFiltros(configMaterial.materiales, filtros, {
+      camposTexto: ['nombre', 'unidad.nombre', 'marca.nombre'],
+    });
+  }, [configMaterial.materiales, filtros]);
 
   const abrirModalEditar = (material: Material) => {
     setMaterialSeleccionado(material);
@@ -69,15 +119,15 @@ const Page: NextPage = () => {
         </Stack>
 
         <TablaPaginadaConFiltros
-          totalItems={MATERIALES_MOCK.length}
-          onFiltrar={() => {}}
+          totalItems={materialesFiltrados.length}
+          onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
+          onPageChange={(page) => setPaginaActual(page)}
+          filtrosSearch
           filtrosFecha={false}
-          filtrosEstado={false}
         >
-          {(currentPage, orden) => {
-            const items = MATERIALES_MOCK.sort((a, b) =>
-              orden === 'asc' ? a.nombre.localeCompare(b.nombre) : b.nombre.localeCompare(a.nombre)
-            ).slice((currentPage - 1) * 5, currentPage * 5);
+          {(currentPage, estadoFiltro) => {
+            const start = (currentPage - 1) * rowsPerPage;
+            const paginated = materialesFiltrados.slice(start, start + rowsPerPage);
 
             return (
               <TableContainer component={Paper}>
@@ -91,14 +141,14 @@ const Page: NextPage = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {items.map((material) => (
+                    {paginated.map((material) => (
                       <TableRow
                         key={material.id}
                         hover
                       >
                         <TableCell>{material.nombre}</TableCell>
-                        <TableCell>{material.unidad}</TableCell>
-                        <TableCell>{material.marca}</TableCell>
+                        <TableCell>{material.unidad.nombre}</TableCell>
+                        <TableCell>{material.marca.nombre}</TableCell>
                         <TableCell align="center">
                           <IconButton onClick={() => abrirModalEditar(material)}>
                             <SvgIcon>
@@ -119,7 +169,9 @@ const Page: NextPage = () => {
       <ModalCrearMaterial
         open={modalCrearOpen}
         onClose={() => setModalCrearOpen(false)}
-        onConfirm={() => {}}
+        onCrearMaterial={handleCrearMaterial}
+        unidades={configMaterial.unidades}
+        marcas={configMaterial.marcas}
       />
 
       {materialSeleccionado && (
@@ -127,7 +179,9 @@ const Page: NextPage = () => {
           open={modalEditarOpen}
           onClose={() => setModalEditarOpen(false)}
           initialData={materialSeleccionado}
-          onConfirm={() => {}}
+          onActualizarMaterial={handleActualizarMaterial}
+          unidades={configMaterial.unidades}
+          marcas={configMaterial.marcas}
         />
       )}
     </Box>

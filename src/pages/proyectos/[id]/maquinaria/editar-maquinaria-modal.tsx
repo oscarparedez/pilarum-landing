@@ -18,12 +18,16 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { format } from 'date-fns';
 import { DiaToggle } from './dia-toggle';
 import { AsignacionMaquinaria, Maquinaria, NuevaAsignacionMaquinaria } from 'src/api/types';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es } from 'date-fns/locale';
 
 interface ModalEditarMaquinariaProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (data: NuevaAsignacionMaquinaria) => void;
   maquinasDisponibles: Maquinaria[];
+  usuarios: any[];
   initialData: AsignacionMaquinaria;
 }
 
@@ -34,24 +38,21 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
   onClose,
   onConfirm,
   maquinasDisponibles,
+  usuarios,
   initialData,
 }) => {
-  const binarioToDias = (bin: string): string[] =>
-    bin
-      .split('')
-      .map((val, i) => (val === '1' ? DIAS_SEMANA[i] : null))
-      .filter(Boolean) as string[];
-
-  const [maquina, setMaquina] = useState(initialData.maquina);
-  const [dias, setDias] = useState<string[]>(binarioToDias(initialData.diasBinarios));
-  const [hastaDate, setHastaDate] = useState<Date | null>(new Date(initialData.hasta));
-  const [asignadoA, setAsignadoA] = useState(initialData.asignadoA);
+  const [equipo, setEquipo] = useState<number | null>(null);
+  const [dias_asignados, setDias] = useState<string[]>([]);
+  const [desdeDate, setDesdeDate] = useState<Date | null>(null);
+  const [hastaDate, setHastaDate] = useState<Date | null>(null);
+  const [asignadoA, setAsignadoA] = useState<number | null>(null);
 
   useEffect(() => {
-    setMaquina(initialData.maquina);
-    setDias(binarioToDias(initialData.diasBinarios));
-    setHastaDate(new Date(initialData.hasta));
-    setAsignadoA(initialData.asignadoA);
+    setEquipo(initialData.equipo.id);
+    setDias(initialData.dias_asignados || []);
+    setDesdeDate(initialData.fecha_entrada ? new Date(initialData.fecha_entrada) : null);
+    setHastaDate(initialData.fecha_fin ? new Date(initialData.fecha_fin) : null);
+    setAsignadoA(initialData.usuario_recibe.id);
   }, [initialData]);
 
   const toggleDia = (dia: string) => {
@@ -59,13 +60,15 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
   };
 
   const handleConfirm = () => {
-    if (maquina && dias.length && hastaDate && asignadoA) {
+    if (equipo && dias_asignados.length && desdeDate && hastaDate && asignadoA !== null) {
       onConfirm({
-        maquina,
-        dias,
-        hasta: format(hastaDate, 'yyyy-MM-dd'),
-        asignadoA,
+        equipo,
+        dias_asignados,
+        fecha_entrada: format(desdeDate, 'yyyy-MM-dd'),
+        fecha_fin: format(hastaDate, 'yyyy-MM-dd'),
+        usuario_recibe: asignadoA,
       });
+
       onClose();
     }
   };
@@ -86,20 +89,19 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
           {/* Maquinaria */}
           <FormControl
             fullWidth
-            disabled
           >
-            <InputLabel>Maquinaria</InputLabel>
+            <InputLabel shrink>Maquinaria</InputLabel>
             <Select
-              value={maquina}
+              value={equipo}
               label="Maquinaria"
-              onChange={(e) => setMaquina(e.target.value)}
+              onChange={(e) => setEquipo(e.target.value)}
             >
               {maquinasDisponibles.map((m) => (
                 <MenuItem
-                  key={m}
-                  value={m}
+                  key={m.id}
+                  value={m.id}
                 >
-                  {m}
+                  {m.nombre}
                 </MenuItem>
               ))}
             </Select>
@@ -121,7 +123,7 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
                 <DiaToggle
                   key={dia}
                   dia={dia}
-                  selected={dias.includes(dia)}
+                  selected={dias_asignados.includes(dia)}
                   onClick={() => toggleDia(dia)}
                 />
               ))}
@@ -134,22 +136,52 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
               variant="subtitle2"
               gutterBottom
             >
-              Hasta
+              Fechas de asignación <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <DateCalendar
-              value={hastaDate}
-              onChange={(newDate) => setHastaDate(newDate)}
-              disablePast
-            />
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
+            >
+              <Stack
+                direction="row"
+                spacing={2}
+              >
+                <Box flex={1}>
+                  <Typography variant="caption">Desde</Typography>
+                  <DateCalendar
+                    value={desdeDate}
+                    onChange={setDesdeDate}
+                  />
+                </Box>
+                <Box flex={1}>
+                  <Typography variant="caption">Hasta</Typography>
+                  <DateCalendar
+                    value={hastaDate}
+                    onChange={setHastaDate}
+                  />
+                </Box>
+              </Stack>
+            </LocalizationProvider>
           </Box>
 
           {/* Asignado a */}
-          <TextField
-            fullWidth
-            label="Asignado a"
-            value={asignadoA}
-            onChange={(e) => setAsignadoA(e.target.value)}
-          />
+          <FormControl fullWidth>
+            <InputLabel shrink>Asignado a</InputLabel>
+            <Select
+              value={asignadoA}
+              label="Asignado a"
+              onChange={(e) => setAsignadoA(e.target.value)}
+            >
+              {usuarios.map((usuario) => (
+                <MenuItem
+                  key={usuario.id}
+                  value={usuario.id}
+                >
+                  {usuario.first_name} {usuario.last_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Stack>
       </DialogContent>
 
@@ -158,7 +190,7 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!maquina || !dias.length || !hastaDate || !asignadoA}
+          disabled={!equipo || !dias_asignados.length || !hastaDate || !asignadoA}
         >
           Guardar cambios
         </Button>

@@ -19,6 +19,7 @@ import { ModalEditarPersonal } from './editar-personal-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { ModalEliminar } from 'src/components/eliminar-modal';
+import { esHoy, formatearFechaHora } from 'src/utils/format-date';
 
 interface PersonalAsignadoProps {
   usuarios: any[];
@@ -64,7 +65,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
 
   const calcularEstado = (entrada: string, fin?: string): 'Activo' | 'Inactivo' => {
     const hoy = today;
-    const finDate = fin ? new Date(fin + 'T12:00:00') : null;
+    const finDate = fin ? new Date(fin) : null;
 
     if (finDate && finDate < hoy) return 'Inactivo';
     return 'Activo';
@@ -120,7 +121,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
 
   const onLiberarAsignacionPersonal = useCallback(
     (asignacion: any) => {
-      const entrada = new Date(asignacion.fecha_entrada + 'T12:00:00');
+      const entrada = new Date(asignacion.fecha_entrada);
       const hoy = today;
 
       if (entrada > hoy) {
@@ -177,7 +178,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                       .filter((r) => (estadoFiltro ? r.estado === estadoFiltro : true))
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((item, i) => {
-                        const esFutura = new Date(item.fecha_entrada + 'T12:00:00') > today;
+                        const esFutura = new Date(item.fecha_entrada) > today;
                         return (
                           <TableRow
                             key={i}
@@ -187,8 +188,8 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                               {item.usuario.first_name} {item.usuario.last_name}
                             </TableCell>
                             <TableCell>-</TableCell>
-                            <TableCell>{item.fecha_entrada}</TableCell>
-                            <TableCell>{item.fecha_fin}</TableCell>
+                            <TableCell>{formatearFechaHora(item.fecha_entrada)}</TableCell>
+                            <TableCell>{formatearFechaHora(item.fecha_fin)}</TableCell>
                             <TableCell>{item.estado}</TableCell>
                             <TableCell>{item.dias_asignados.join(', ')}</TableCell>
                             <TableCell>
@@ -206,6 +207,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                                   Editar
                                 </Button>
                                 <Button
+                                  disabled={esHoy(item.fecha_fin)}
                                   size="small"
                                   variant="outlined"
                                   color="error"

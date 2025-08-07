@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useCallback } from 'react';
 import {
   Modal,
   Box,
@@ -12,72 +12,47 @@ import {
   MenuItem,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { NuevoProyecto, Proyecto, Socio } from 'src/api/types';
+import { format } from 'date-fns';
 
 interface EditarDatosBasicosModalProps {
   open: boolean;
+  socios: Socio[];
   onClose: () => void;
-  initialData: {
-    nombre: string;
-    ubicacion: string;
-    fechaInicio: string;
-    fechaFin: string;
-    presupuestoInicial: number;
-    socio: {
-      nombre: string;
-      id: string;
-    };
-  };
-  onConfirm: (data: {
-    nombre: string;
-    ubicacion: string;
-    fechaInicio: string;
-    fechaFin: string;
-    presupuestoInicial: number;
-    socio: {
-      nombre: string;
-      id: string;
-    };
-  }) => void;
+  initialData: Proyecto;
+  onEditarDatosBasicos: (data: NuevoProyecto) => void;
 }
-
-const socios = [
-  { id: '1', nombre: 'Juan Pérez' },
-  { id: '2', nombre: 'Ana Gómez' },
-  { id: '3', nombre: 'Carlos Rodríguez' },
-];
 
 export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   open,
+  socios,
   onClose,
   initialData,
-  onConfirm,
+  onEditarDatosBasicos,
 }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
   const [ubicacion, setUbicacion] = useState(initialData.ubicacion);
-  const [presupuesto, setPresupuesto] = useState(initialData.presupuestoInicial);
-  const [socio, setSocio] = useState(initialData.socio);
+  const [presupuestoInicial, setPresupuestoInicial] = useState(initialData.presupuestoInicial);
+  const [socio, setSocio] = useState(initialData.socioAsignado);
   const [fechaInicio, setFechaInicio] = useState<Date | null>(new Date(initialData.fechaInicio));
   const [fechaFin, setFechaFin] = useState<Date | null>(new Date(initialData.fechaFin));
 
-  const handleConfirm = () => {
-    if (nombre && ubicacion && presupuesto && fechaInicio && fechaFin) {
-      onConfirm({
+  const handleEditarDatosBasicos = useCallback(() => {
+    if (nombre && ubicacion && presupuestoInicial && fechaInicio && fechaFin && socio) {
+      onEditarDatosBasicos({
         nombre,
         ubicacion,
-        presupuestoInicial: presupuesto,
-        fechaInicio: fechaInicio.toISOString().split('T')[0],
-        fechaFin: fechaFin.toISOString().split('T')[0],
-        socio: initialData.socio,
+        presupuestoInicial,
+        fecha_inicio: format(fechaInicio, 'yyyy-MM-dd'),
+        fecha_fin: format(fechaFin, 'yyyy-MM-dd'),
+        socioAsignado: socio.id,
       });
       onClose();
     }
-  };
+  }, [nombre, ubicacion, presupuestoInicial, fechaInicio, fechaFin, socio, onEditarDatosBasicos, onClose]);
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-    >
+    <Modal open={open} onClose={onClose}>
       <Box
         sx={{
           position: 'absolute',
@@ -91,10 +66,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
           p: 4,
         }}
       >
-        <Typography
-          variant="h6"
-          mb={2}
-        >
+        <Typography variant="h6" mb={2}>
           Editar datos básicos del proyecto
         </Typography>
 
@@ -116,15 +88,16 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
           <TextField
             label="Presupuesto inicial (Q)"
             fullWidth
-            value={presupuesto}
-            onChange={(e) => setPresupuesto(Number(e.target.value))}
+            type="number"
+            value={presupuestoInicial}
+            onChange={(e) => setPresupuestoInicial(Number(e.target.value))}
           />
 
           <FormControl fullWidth>
             <InputLabel id="socio-label">Socio asignado</InputLabel>
             <Select
               labelId="socio-label"
-              value={socio.id}
+              value={socio?.id || ''}
               label="Socio asignado"
               onChange={(e) => {
                 const selected = socios.find((s) => s.id === e.target.value);
@@ -132,49 +105,28 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
               }}
             >
               {socios.map((socio) => (
-                <MenuItem
-                  key={socio.id}
-                  value={socio.id}
-                >
+                <MenuItem key={socio.id} value={socio.id}>
                   {socio.nombre}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <Stack
-            direction="row"
-            spacing={2}
-            justifyContent="space-between"
-          >
+          <Stack direction="row" spacing={2} justifyContent="space-between">
             <Box>
               <Typography variant="subtitle2">Fecha de inicio</Typography>
-              <DateCalendar
-                value={fechaInicio}
-                onChange={(d) => setFechaInicio(d)}
-              />
+              <DateCalendar value={fechaInicio} onChange={(d) => setFechaInicio(d)} />
             </Box>
 
             <Box>
               <Typography variant="subtitle2">Fecha final</Typography>
-              <DateCalendar
-                value={fechaFin}
-                onChange={(d) => setFechaFin(d)}
-              />
+              <DateCalendar value={fechaFin} onChange={(d) => setFechaFin(d)} />
             </Box>
           </Stack>
 
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            spacing={2}
-            mt={2}
-          >
+          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
             <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              onClick={handleConfirm}
-            >
+            <Button variant="contained" onClick={handleEditarDatosBasicos}>
               Guardar
             </Button>
           </Stack>

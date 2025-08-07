@@ -16,69 +16,52 @@ import { FC, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { NuevoGastoOperativo } from 'src/api/types';
+import { format } from 'date-fns';
 
 interface ModalRegistrarConsumoProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: {
-    tipo: string;
-    fecha: string;
-    solicitadoPor: string;
-    anotaciones: string;
-    costo: number;
-    imagenes: File[];
-  }) => void;
+  onConfirm: (data: NuevoGastoOperativo) => void;
 }
-
-const usuarios = [
-  { id: 'user-001', nombre: 'Juan Pérez' },
-  { id: 'user-002', nombre: 'Ana Gómez' },
-  { id: 'user-003', nombre: 'Carlos Méndez' },
-  { id: 'user-004', nombre: 'Lucía Ramos' },
-];
 
 export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   open,
   onClose,
   onConfirm,
 }) => {
-  const [tipo, setTipo] = useState('Diesel');
   const [fecha, setFecha] = useState<Date | null>(new Date());
-  const [solicitadoPor, setSolicitadoPor] = useState('');
-  const [anotaciones, setAnotaciones] = useState('');
-  const [costo, setCosto] = useState('');
-  const [imagenes, setImagenes] = useState<File[]>([]);
+  const [descripcion, setDescripcion] = useState('');
+  const [costo, setCosto] = useState<number>(0);
+  const [fotos, setFotos] = useState<File[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selected = Array.from(e.target.files);
-    const nuevas = selected.slice(0, 3 - imagenes.length);
-    setImagenes((prev) => [...prev, ...nuevas]);
+    const nuevas = selected.slice(0, 3 - fotos.length);
+    setFotos((prev) => [...prev, ...nuevas]);
     setCargadas((prev) => [...prev, ...Array(nuevas.length).fill(false)]);
     e.target.value = '';
   };
 
   const handleClose = () => {
-    setTipo('Diesel');
     setFecha(new Date());
-    setSolicitadoPor('');
-    setAnotaciones('');
-    setCosto('');
-    setImagenes([]);
+    setDescripcion('');
+    setCosto(0);
+    setFotos([]);
     setCargadas([]);
     onClose();
   };
 
   const handleConfirm = () => {
-    if (tipo && fecha && solicitadoPor && costo) {
+    if (fecha && descripcion && costo) {
       onConfirm({
-        tipo,
-        fecha: fecha.toISOString().split('T')[0],
-        solicitadoPor,
-        anotaciones,
-        costo: parseFloat(costo),
-        imagenes,
+        fecha: format(fecha, 'yyyy-MM-dd'),
+        descripcion,
+        costo,
+        fotos,
+        tipo_gasto: 1, // 1 = combustible
       });
       handleClose();
     }
@@ -97,12 +80,6 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
           spacing={3}
           mt={1}
         >
-          <TextField
-            label="Tipo de consumo"
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value)}
-          />
-
           <Box>
             <Typography
               variant="subtitle2"
@@ -120,34 +97,17 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
             label="Costo (Q)"
             type="number"
             value={costo}
-            onChange={(e) => setCosto(e.target.value)}
+            onChange={(e) => setCosto(Number(e.target.value))}
             inputProps={{ min: 0 }}
             fullWidth
           />
 
           <TextField
-            select
-            label="Solicitado por"
-            value={solicitadoPor}
-            onChange={(e) => setSolicitadoPor(e.target.value)}
-            fullWidth
-          >
-            {usuarios.map((user) => (
-              <MenuItem
-                key={user.id}
-                value={user.id}
-              >
-                {user.nombre}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
             label="Anotaciones"
             multiline
             minRows={3}
-            value={anotaciones}
-            onChange={(e) => setAnotaciones(e.target.value)}
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
             fullWidth
           />
 
@@ -167,18 +127,18 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
                 px: 2,
                 py: 4,
                 textAlign: 'center',
-                cursor: imagenes.length >= 3 ? 'not-allowed' : 'pointer',
+                cursor: fotos.length >= 3 ? 'not-allowed' : 'pointer',
                 backgroundColor: '#f9f9f9',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 1,
-                opacity: imagenes.length >= 3 ? 0.5 : 1,
-                pointerEvents: imagenes.length >= 3 ? 'none' : 'auto',
+                opacity: fotos.length >= 3 ? 0.5 : 1,
+                pointerEvents: fotos.length >= 3 ? 'none' : 'auto',
                 transition: 'all 0.2s',
                 '&:hover': {
-                  backgroundColor: imagenes.length >= 3 ? '#f9f9f9' : '#f0f0f0',
+                  backgroundColor: fotos.length >= 3 ? '#f9f9f9' : '#f0f0f0',
                 },
               }}
             >
@@ -202,13 +162,13 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
               />
             </Box>
 
-            {imagenes.length > 0 && (
+            {fotos.length > 0 && (
               <Stack
                 direction="row"
                 spacing={2}
                 mt={2}
               >
-                {imagenes.map((file, i) => {
+                {fotos.map((file, i) => {
                   const src = URL.createObjectURL(file);
                   return (
                     <Box
@@ -257,7 +217,7 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
                       <IconButton
                         size="small"
                         onClick={() => {
-                          setImagenes((prev) => prev.filter((_, idx) => idx !== i));
+                          setFotos((prev) => prev.filter((_, idx) => idx !== i));
                           setCargadas((prev) => prev.filter((_, idx) => idx !== i));
                         }}
                         sx={{
@@ -287,7 +247,7 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!tipo || !fecha || !solicitadoPor || !costo}
+          disabled={!fecha || !descripcion || !costo}
         >
           Guardar consumo
         </Button>

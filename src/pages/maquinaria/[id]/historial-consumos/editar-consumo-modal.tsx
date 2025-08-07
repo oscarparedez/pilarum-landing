@@ -10,65 +10,67 @@ import {
   TextField,
   Typography,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import type { GastoMaquinaria, TipoConsumo } from '../index.d';
+import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
+import { format } from 'date-fns';
 
-interface Props {
+interface ModalEditarConsumoProps {
   open: boolean;
-  consumo: GastoMaquinaria | null;
+  consumo: GastoOperativo;
   onClose: () => void;
-  onConfirm: (data: GastoMaquinaria & { nuevasImagenes: File[]; fotos: string[] }) => void;
+  onConfirm: (id: number, data: NuevoGastoOperativo) => void;
 }
 
-const usuarios = [
-  { id: 'user-001', nombre: 'Juan Pérez' },
-  { id: 'user-002', nombre: 'Ana Gómez' },
-  { id: 'user-003', nombre: 'Carlos Méndez' },
-  { id: 'user-004', nombre: 'Lucía Ramos' },
-];
-
-export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfirm }) => {
-  const [tipo, setTipo] = useState<TipoConsumo>('');
+export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
+  open,
+  consumo,
+  onClose,
+  onConfirm,
+}) => {
   const [fecha, setFecha] = useState<Date | null>(new Date());
-  const [solicitadoPor, setSolicitadoPor] = useState<{ id: string; nombre: string } | null>(null);
-  const [anotaciones, setAnotaciones] = useState('');
-  const [costo, setCosto] = useState('');
-  const [imagenes, setImagenes] = useState<(string | File)[]>([]);
+  const [descripcion, setDescripcion] = useState('');
+  const [costo, setCosto] = useState<number>(0);
+  const [fotos, setFotos] = useState<(string | File)[]>([]);
+  const [cargadas, setCargadas] = useState<boolean[]>([]);
 
   useEffect(() => {
     if (consumo) {
-      setTipo(consumo.tipo_gasto);
-      setFecha(new Date(consumo.fecha_creacion));
-      setSolicitadoPor(consumo.solicitadoPor);
-      setAnotaciones(consumo.anotaciones);
-      setCosto(consumo.costo.toString());
-      setImagenes(consumo.fotos);
+      setFecha(consumo.fecha_gasto ? new Date(consumo.fecha_gasto) : null);
+      setDescripcion(consumo.descripcion);
+      setCosto(consumo.costo);
+      setFotos(consumo.fotos?.map((f) => f.imagen) ?? []);
+      setCargadas(consumo.fotos?.map(() => true) ?? []);
     }
   }, [consumo]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const nuevas = Array.from(e.target.files);
-    const restantes = 3 - imagenes.length;
-    setImagenes((prev) => [...prev, ...nuevas.slice(0, restantes)]);
+    const restantes = 3 - fotos.length;
+    setFotos((prev) => [...prev, ...nuevas.slice(0, restantes)]);
     e.target.value = '';
   };
 
+  const handleRemove = (index: number) => {
+    setFotos((prev) => prev.filter((_, i) => i !== index));
+    setCargadas((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleConfirm = () => {
-    if (tipo && fecha && solicitadoPor && costo) {
-      onConfirm({
-        ...consumo!,
-        tipo_gasto: tipo,
-        fecha_creacion: fecha.toISOString().split('T')[0],
-        solicitadoPor,
-        anotaciones,
-        costo: parseFloat(costo),
-        nuevasImagenes: imagenes.filter((img) => typeof img !== 'string') as File[],
-        fotos: imagenes.filter((img) => typeof img === 'string') as string[],
+    if (fecha && descripcion && costo) {
+      if (!descripcion || !fecha) return;
+      const nuevasImagenes = fotos.filter((f) => f instanceof File) as File[];
+      onConfirm(consumo.id, {
+        tipo_gasto: 1, // 1 = combustible
+        fecha: format(fecha, 'yyyy-MM-dd'),
+        descripcion,
+        costo,
+        fotos: nuevasImagenes,
       });
       onClose();
     }
@@ -87,13 +89,6 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
           spacing={3}
           mt={1}
         >
-          <TextField
-            label="Tipo de consumo"
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value as TipoConsumo)}
-            fullWidth
-          />
-
           <Box>
             <Typography
               variant="subtitle2"
@@ -111,37 +106,17 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
             label="Costo (Q)"
             type="number"
             value={costo}
-            onChange={(e) => setCosto(e.target.value)}
+            onChange={(e) => setCosto(Number(e.target.value))}
             inputProps={{ min: 0 }}
             fullWidth
           />
 
           <TextField
-            select
-            label="Solicitado por"
-            value={solicitadoPor?.id || ''}
-            onChange={(e) => {
-              const user = usuarios.find((u) => u.id === e.target.value);
-              if (user) setSolicitadoPor(user);
-            }}
-            fullWidth
-          >
-            {usuarios.map((user) => (
-              <MenuItem
-                key={user.id}
-                value={user.id}
-              >
-                {user.nombre}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            label="Anotaciones"
+            label="descripcion"
             multiline
             minRows={3}
-            value={anotaciones}
-            onChange={(e) => setAnotaciones(e.target.value)}
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
             fullWidth
           />
 
@@ -161,18 +136,18 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
                 px: 2,
                 py: 4,
                 textAlign: 'center',
-                cursor: imagenes.length >= 3 ? 'not-allowed' : 'pointer',
+                cursor: fotos.length >= 3 ? 'not-allowed' : 'pointer',
                 backgroundColor: '#f9f9f9',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 1,
-                opacity: imagenes.length >= 3 ? 0.5 : 1,
-                pointerEvents: imagenes.length >= 3 ? 'none' : 'auto',
+                opacity: fotos.length >= 3 ? 0.5 : 1,
+                pointerEvents: fotos.length >= 3 ? 'none' : 'auto',
                 transition: 'all 0.2s',
                 '&:hover': {
-                  backgroundColor: imagenes.length >= 3 ? '#f9f9f9' : '#f0f0f0',
+                  backgroundColor: fotos.length >= 3 ? '#f9f9f9' : '#f0f0f0',
                 },
               }}
             >
@@ -196,34 +171,63 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
               />
             </Box>
 
-            {imagenes.length > 0 && (
+            {fotos.length > 0 && (
               <Stack
                 direction="row"
                 spacing={2}
                 mt={2}
               >
-                {imagenes.map((item, i) => {
+                {fotos.map((item, i) => {
                   const src = typeof item === 'string' ? item : URL.createObjectURL(item);
                   return (
                     <Box
                       key={i}
                       sx={{ position: 'relative', width: 80, height: 80 }}
                     >
+                      {!cargadas[i] && item instanceof File && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: 1,
+                            border: '1px solid #ccc',
+                          }}
+                        >
+                          <CircularProgress size={24} />
+                        </Box>
+                      )}
                       <Box
                         component="img"
                         src={src}
-                        alt={`img-${i}`}
+                        alt={`preview-${i}`}
+                        onLoad={() => {
+                          if (item instanceof File) {
+                            setCargadas((prev) => {
+                              const updated = [...prev];
+                              updated[i] = true;
+                              return updated;
+                            });
+                          }
+                        }}
                         sx={{
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover',
                           borderRadius: 1,
                           border: '1px solid #ccc',
+                          display: cargadas[i] ? 'block' : 'none',
                         }}
                       />
                       <IconButton
                         size="small"
-                        onClick={() => setImagenes((prev) => prev.filter((_, idx) => idx !== i))}
+                        onClick={() => handleRemove(i)}
                         sx={{
                           position: 'absolute',
                           top: -10,
@@ -251,7 +255,7 @@ export const ModalEditarConsumo: FC<Props> = ({ open, consumo, onClose, onConfir
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!tipo || !fecha || !solicitadoPor || !costo}
+          disabled={!descripcion || !fecha || !costo}
         >
           Guardar cambios
         </Button>

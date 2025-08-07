@@ -12,41 +12,49 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { FC, useEffect, useState } from 'react';
-
-const UNIDADES_MOCK = ['sacos', 'barras', 'm3', 'kg', 'litros'];
-const MARCAS_MOCK = ['Cemex', 'Holcim', 'Argos', 'Corona', 'Forsa'];
+import { FC, useCallback, useEffect, useState } from 'react';
+import { Marca, Material, NuevoMaterial, Unidad } from 'src/api/types';
 
 interface ModalEditarMaterialProps {
+  unidades: Unidad[];
+  marcas: Marca[];
   open: boolean;
   onClose: () => void;
-  initialData: { id: string; nombre: string; unidad: string; marca: string };
-  onConfirm: (data: { id: string; nombre: string; unidad: string; marca: string }) => void;
+  initialData: Material;
+  onActualizarMaterial: (id: number, data: NuevoMaterial) => void;
 }
 
 export const ModalEditarMaterial: FC<ModalEditarMaterialProps> = ({
+  unidades,
+  marcas,
   open,
   onClose,
   initialData,
-  onConfirm,
+  onActualizarMaterial,
 }) => {
-  const [nombre, setNombre] = useState(initialData.nombre);
-  const [unidad, setUnidad] = useState(initialData.unidad);
-  const [marca, setMarca] = useState(initialData.marca);
+  const [nombre, setNombre] = useState('');
+  const [unidad, setUnidad] = useState<number | null>(null);
+  const [marca, setMarca] = useState<number | null>(null);
 
   useEffect(() => {
-    if (open) {
+    if (open && initialData) {
       setNombre(initialData.nombre);
-      setUnidad(initialData.unidad);
-      setMarca(initialData.marca);
+      setUnidad(initialData.unidad.id);
+      setMarca(initialData.marca.id);
     }
   }, [open, initialData]);
 
-  const handleSubmit = () => {
-    if (!nombre.trim()) return;
-    onConfirm({ id: initialData.id, nombre: nombre.trim(), unidad, marca });
+  const handleActualizarMaterial = useCallback(() => {
+    if (nombre.trim() === '' || unidad === null || marca === null) {
+      return;
+    }
+    onActualizarMaterial(initialData.id, {
+      nombre,
+      unidad,
+      marca,
+    });
     onClose();
-  };
+  }, [nombre, unidad, marca, initialData.id, onActualizarMaterial, onClose]);
 
   return (
     <Modal
@@ -75,35 +83,35 @@ export const ModalEditarMaterial: FC<ModalEditarMaterialProps> = ({
               onChange={(e) => setNombre(e.target.value)}
             />
             <FormControl fullWidth>
-              <InputLabel>Unidad</InputLabel>
+              <InputLabel shrink>Unidad</InputLabel>
               <Select
                 value={unidad}
                 label="Unidad"
                 onChange={(e) => setUnidad(e.target.value)}
               >
-                {UNIDADES_MOCK.map((u) => (
+                {unidades.map((u) => (
                   <MenuItem
-                    key={u}
-                    value={u}
+                    key={u.id}
+                    value={u.id}
                   >
-                    {u}
+                    {u.nombre}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel>Marca</InputLabel>
+              <InputLabel shrink>Marca</InputLabel>
               <Select
                 value={marca}
                 label="Marca"
                 onChange={(e) => setMarca(e.target.value)}
               >
-                {MARCAS_MOCK.map((m) => (
+                {marcas.map((m) => (
                   <MenuItem
-                    key={m}
-                    value={m}
+                    key={m.id}
+                    value={m.id}
                   >
-                    {m}
+                    {m.nombre}
                   </MenuItem>
                 ))}
               </Select>
@@ -117,7 +125,7 @@ export const ModalEditarMaterial: FC<ModalEditarMaterialProps> = ({
               <Button onClick={onClose}>Cancelar</Button>
               <Button
                 variant="contained"
-                onClick={handleSubmit}
+                onClick={handleActualizarMaterial}
                 disabled={!nombre.trim()}
               >
                 Guardar cambios

@@ -1,4 +1,3 @@
-import { FC, useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -8,61 +7,89 @@ import {
   TableHead,
   TableRow,
   Typography,
-  Stack,
-  Button,
   IconButton,
+  Button,
+  Stack,
 } from '@mui/material';
+import { FC, useCallback, useMemo, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
-
-import type { GastoMaquinaria } from '../index.d';
 import { ModalRegistrarConsumo } from './registrar-consumo-modal';
 import { ConsumoImagenesModal } from './consumo-imagenes-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarConsumo } from './editar-consumo-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
+import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
+import { formatearFechaHora } from 'src/utils/format-date';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 
-interface Props {
-  consumos: GastoMaquinaria[];
+interface HistorialConsumosProps {
+  consumos: GastoOperativo[];
+  onCrearConsumo: (data: NuevoGastoOperativo) => void;
+  onActualizarConsumo: (id: number, data: NuevoGastoOperativo) => void;
+  onEliminarConsumo: (id: number) => void;
 }
 
-export const HistorialConsumos: FC<Props> = ({ consumos }) => {
+export const HistorialConsumos: FC<HistorialConsumosProps> = ({
+  consumos,
+  onCrearConsumo,
+  onActualizarConsumo,
+  onEliminarConsumo,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [visorAbierto, setVisorAbierto] = useState(false);
-  const [fotosVisor, setFotosVisor] = useState<string[]>([]);
-  const [consumoEditando, setConsumoEditando] = useState<GastoMaquinaria | null>(null);
-  const [consumoAEliminar, setConsumoAEliminar] = useState<GastoMaquinaria | null>(null);
+  const [imagenes, setImagenes] = useState<string[]>([]);
+  const [agregarModalOpen, setAgregarModalOpen] = useState(false);
+  const [editarConsumo, setEditarConsumo] = useState<GastoOperativo | null>(null);
+  const [consumoAEliminar, setConsumoAEliminar] = useState<GastoOperativo | null>(null);
   const [filtros, setFiltros] = useState<{
-    search?: string;
+    search: string;
     fechaInicio?: Date | null;
     fechaFin?: Date | null;
-  }>({});
-
-  const [paginaActual, setPaginaActual] = useState(1);
-  const rowsPerPage = 5;
+  }>({ search: '' });
 
   const consumosFiltrados = useMemo(() => {
-    return consumos.filter((c) => {
-      const cumpleBusqueda =
-        !filtros.search ||
-        c.tipo_gasto.toLowerCase().includes(filtros.search.toLowerCase()) ||
-        c.solicitadoPor.nombre.toLowerCase().includes(filtros.search.toLowerCase()) ||
-        c.anotaciones.toLowerCase().includes(filtros.search.toLowerCase());
-
-      const cumpleFechaInicio =
-        !filtros.fechaInicio || new Date(c.fecha_creacion) >= new Date(filtros.fechaInicio);
-
-      const cumpleFechaFin = !filtros.fechaFin || new Date(c.fecha_creacion) <= new Date(filtros.fechaFin);
-
-      return cumpleBusqueda && cumpleFechaInicio && cumpleFechaFin;
+    return aplicarFiltros(consumos, filtros, {
+      camposTexto: ['descripcion'],
+      campoFecha: 'fecha_gasto',
     });
   }, [consumos, filtros]);
 
-  const paginatedConsumos = useMemo(() => {
-    const start = (paginaActual - 1) * rowsPerPage;
-    return consumosFiltrados.slice(start, start + rowsPerPage);
-  }, [consumosFiltrados, paginaActual]);
+  const handleFiltrar = useCallback((f: typeof filtros) => {
+    setFiltros(f);
+  }, []);
+
+  const abrirModal = (imgs: string[]) => {
+    setImagenes(imgs);
+    setModalOpen(true);
+  };
+
+  const cerrarModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleCrearConsumo = useCallback(
+    (data: NuevoGastoOperativo) => {
+      onCrearConsumo(data);
+      setAgregarModalOpen(false);
+    },
+    [onCrearConsumo]
+  );
+
+  const handleActualizarConsumo = useCallback(
+    (id: number, data: NuevoGastoOperativo) => {
+      onActualizarConsumo(id, data);
+      setEditarConsumo(null);
+    },
+    [onActualizarConsumo]
+  );
+
+  const handleEliminarConsumo = useCallback(() => {
+    if (!consumoAEliminar) return;
+    const id = consumoAEliminar.id;
+    onEliminarConsumo(id);
+    setConsumoAEliminar(null);
+  }, [consumoAEliminar, onEliminarConsumo]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -76,7 +103,7 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
           <Typography variant="h5">Historial de combustible</Typography>
           <Button
             variant="contained"
-            onClick={() => setModalOpen(true)}
+            onClick={() => setAgregarModalOpen(true)}
           >
             Registrar consumo
           </Button>
@@ -84,47 +111,40 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
 
         <TablaPaginadaConFiltros
           totalItems={consumosFiltrados.length}
-          onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
+          onFiltrar={handleFiltrar}
           filtrosSearch
           filtrosFecha
         >
-          {(page) => {
-            setPaginaActual(page);
+          {(currentPage) => {
             return (
               <Box sx={{ overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Tipo</TableCell>
-                      <TableCell>Fecha</TableCell>
-                      <TableCell>Solicitado por</TableCell>
+                      <TableCell>Fecha de creación</TableCell>
+                      <TableCell>Fecha de consumo</TableCell>
                       <TableCell>Costo</TableCell>
                       <TableCell>Anotaciones</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedConsumos.map((c, i) => (
+                    {consumosFiltrados.slice((currentPage - 1) * 5, currentPage * 5).map((c) => (
                       <TableRow
-                        key={i}
+                        key={c.id}
                         hover
                       >
-                        <TableCell>{c.tipo_gasto}</TableCell>
-                        <TableCell>{c.fecha_creacion}</TableCell>
-                        <TableCell>{c.solicitadoPor.nombre}</TableCell>
+                        <TableCell>{formatearFechaHora(c.fecha_creacion)}</TableCell>
+                        <TableCell>{formatearFechaHora(c.fecha_gasto)}</TableCell>
                         <TableCell>Q{c.costo.toLocaleString()}</TableCell>
-                        <TableCell>{c.anotaciones}</TableCell>
+                        <TableCell>{c.descripcion}</TableCell>
                         <TableCell>
                           <IconButton
-                            onClick={() => {
-                              setFotosVisor(c.fotos);
-                              setVisorAbierto(true);
-                            }}
-                            disabled={c.fotos.length === 0}
+                            onClick={() => c.fotos && abrirModal(c.fotos.map((f) => f.imagen))}
                           >
                             <VisibilityIcon />
                           </IconButton>
-                          <IconButton onClick={() => setConsumoEditando(c)}>
+                          <IconButton onClick={() => setEditarConsumo(c)}>
                             <EditIcon />
                           </IconButton>
                           <IconButton onClick={() => setConsumoAEliminar(c)}>
@@ -142,38 +162,31 @@ export const HistorialConsumos: FC<Props> = ({ consumos }) => {
       </Card>
 
       <ModalRegistrarConsumo
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onConfirm={(data) => {
-          console.log('Nuevo consumo registrado:', data);
-          setModalOpen(false);
-        }}
+        open={agregarModalOpen}
+        onClose={() => setAgregarModalOpen(false)}
+        onConfirm={handleCrearConsumo}
       />
 
-      <ModalEditarConsumo
-        open={!!consumoEditando}
-        consumo={consumoEditando}
-        onClose={() => setConsumoEditando(null)}
-        onConfirm={(data) => {
-          console.log('Consumo editado:', data);
-          setConsumoEditando(null);
-        }}
-      />
+      {editarConsumo && (
+        <ModalEditarConsumo
+          open={!!editarConsumo}
+          consumo={editarConsumo}
+          onClose={() => setEditarConsumo(null)}
+          onConfirm={handleActualizarConsumo}
+        />
+      )}
 
       <ModalEliminar
         type="consumo"
         open={!!consumoAEliminar}
         onClose={() => setConsumoAEliminar(null)}
-        onConfirm={() => {
-          console.log('Eliminando:', consumoAEliminar);
-          setConsumoAEliminar(null);
-        }}
+        onConfirm={handleEliminarConsumo}
       />
 
       <ConsumoImagenesModal
-        open={visorAbierto}
-        onClose={() => setVisorAbierto(false)}
-        images={fotosVisor}
+        open={modalOpen}
+        onClose={cerrarModal}
+        images={imagenes}
       />
     </Box>
   );

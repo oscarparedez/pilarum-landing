@@ -40,7 +40,6 @@ export const Revisiones: FC<RevisionesProps> = ({
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [imagenes, setImagenes] = useState<string[]>([]);
-  const [index, setIndex] = useState(0);
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
   const [editarRevision, setEditarRevision] = useState<Revision | null>(null);
   const [revisionAEliminar, setRevisionAEliminar] = useState<Revision | null>(null);
@@ -69,13 +68,11 @@ export const Revisiones: FC<RevisionesProps> = ({
 
   const abrirModal = (imgs: string[]) => {
     setImagenes(imgs);
-    setIndex(0);
     setModalOpen(true);
   };
 
   const cerrarModal = () => {
     setModalOpen(false);
-    setIndex(0);
   };
 
   const onCrearRevision = useCallback(

@@ -3,7 +3,7 @@ import { Proyecto } from './useProyectosApi';
 import { TipoIngreso } from 'src/pages/proyectos/configuracion/tipo-ingresos/index.d';
 import { TipoPago } from 'src/pages/proyectos/configuracion/tipo-pagos/index.d';
 import { Maquinaria } from '../maquinaria/useMaquinariaApi';
-import { AsignacionPersonal, Revision } from '../types';
+import { AsignacionMaquinaria, AsignacionPersonal, Revision, Socio } from '../types';
 
 
 export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
@@ -19,11 +19,13 @@ export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
 };
 
 export const mapProyectoToConfig = (data: {
+  id: number;              
   nombre: string;
   ubicacion: string;
   fecha_inicio: string;
   fecha_fin: string;
-  socioAsignado: string;
+  socios: Socio[];
+  socioAsignado: any;
   ingresos: any[];
   pagos: any[];
   ampliaciones: AmpliacionFecha[];
@@ -31,12 +33,15 @@ export const mapProyectoToConfig = (data: {
   tiposIngreso: TipoIngreso[];
   tiposPago: TipoPago[];
   maquinaria: Maquinaria[];
-  asignacionesMaquinaria: any[];
+  asignacionesMaquinaria: AsignacionMaquinaria[];
   usuarios: any[];
   asignacionesPersonal: AsignacionPersonal[];
   revisiones: Revision[];
 }): ConfigProyecto => {
-  const presupuestoInicial = data.presupuestos.reduce((total, p) => total + Number(p.monto), 0);
+
+  const presupuestoInicial = data.presupuestos.find(p => p.tipo === 'inicial')?.monto || 0;
+  const presupuestoTotal = data.presupuestos.reduce((total, p) => total + Number(p.monto), 0);
+
 
   const fechaMasReciente = (() => {
     if (data.ampliaciones.length === 0) {
@@ -53,15 +58,18 @@ export const mapProyectoToConfig = (data: {
 
   return {
     datosBasicos: {
+      id: data.id,
       nombre: data.nombre,
       ubicacion: data.ubicacion,
       fechaInicio: data.fecha_inicio,
       fechaFin: fechaMasReciente,
       presupuestoInicial,
-      socio: { id: data.socioAsignado, nombre: 'Socio asignado' },
-      totalIngresos,
-      totalPagos
+      socioAsignado: data.socioAsignado,
     },
+    presupuestoTotal: presupuestoTotal,
+    totalIngresos,
+    totalPagos,
+    socios: data.socios,
     tiposIngreso: data.tiposIngreso,
     tiposPago: data.tiposPago,
     ingresos: data.ingresos,

@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { NuevaRevision } from 'src/api/types';
+import { format } from 'date-fns';
 
 interface ModalAgregarRevisionProps {
   open: boolean;
@@ -57,7 +58,7 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
       const data: NuevaRevision = {
         titulo,
         anotaciones,
-        fecha_review: fecha.toISOString().split('T')[0],
+        fecha_review: format(fecha, 'yyyy-MM-dd'),
         fotos,
       };
       onConfirm(data);

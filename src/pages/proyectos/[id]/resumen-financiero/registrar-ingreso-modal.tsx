@@ -17,6 +17,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
 import { TipoIngreso } from '../../configuracion/tipo-ingresos/index.d';
+import { format } from 'date-fns';
 
 interface ModalRegistrarIngresoProps {
   open: boolean;
@@ -55,7 +56,7 @@ export const ModalRegistrarIngreso: FC<ModalRegistrarIngresoProps> = ({
       monto_total: Number(monto),
       tipo_ingreso: tipoIngreso as number,
       tipo_documento: tipoDocumento,
-      fecha_ingreso: selectedDate.toISOString().split('T')[0],
+      fecha_ingreso: format(selectedDate, 'yyyy-MM-dd'),
       anotaciones,
       correlativo: correlativo.trim() || '',
     });

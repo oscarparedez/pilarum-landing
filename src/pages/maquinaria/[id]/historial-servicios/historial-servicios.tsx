@@ -1,4 +1,3 @@
-import { FC, useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -12,56 +11,85 @@ import {
   Button,
   Stack,
 } from '@mui/material';
+import { FC, useCallback, useMemo, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
-import type { GastoMaquinaria } from '../index.d';
 import { ModalRegistrarServicio } from './registrar-servicio-modal';
 import { ServicioImagenesModal } from './servicio-imagenes-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarServicio } from './editar-servicio-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
+import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
+import { formatearFechaHora } from 'src/utils/format-date';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 
-interface Props {
-  servicios: GastoMaquinaria[];
+interface HistorialServiciosProps {
+  servicios: GastoOperativo[];
+  onCrearServicio: (data: NuevoGastoOperativo) => void;
+  onActualizarServicio: (id: number, data: NuevoGastoOperativo) => void;
+  onEliminarServicio: (id: number) => void;
 }
 
-export const HistorialServicios: FC<Props> = ({ servicios }) => {
+export const HistorialServicios: FC<HistorialServiciosProps> = ({
+  servicios,
+  onCrearServicio,
+  onActualizarServicio,
+  onEliminarServicio,
+}) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [imagenes, setImagenes] = useState<string[]>([]);
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
-  const [editarServicio, setEditarServicio] = useState<GastoMaquinaria | null>(null);
-  const [servicioAEliminar, setServicioAEliminar] = useState<GastoMaquinaria | null>(null);
-  const [visorAbierto, setVisorAbierto] = useState(false);
-  const [fotosVisor, setFotosVisor] = useState<string[]>([]);
+  const [editarServicio, setEditarServicio] = useState<GastoOperativo | null>(null);
+  const [servicioAEliminar, setServicioAEliminar] = useState<GastoOperativo | null>(null);
   const [filtros, setFiltros] = useState<{
-    search?: string;
+    search: string;
     fechaInicio?: Date | null;
     fechaFin?: Date | null;
-  }>({});
-
-  const [paginaActual, setPaginaActual] = useState(1);
-  const rowsPerPage = 5;
+  }>({ search: '' });
 
   const serviciosFiltrados = useMemo(() => {
-    return servicios.filter((s) => {
-      const cumpleBusqueda =
-        !filtros.search ||
-        s.tipo_gasto.toLowerCase().includes(filtros.search.toLowerCase()) ||
-        s.solicitadoPor.nombre.toLowerCase().includes(filtros.search.toLowerCase()) ||
-        s.anotaciones.toLowerCase().includes(filtros.search.toLowerCase());
-
-      const cumpleFechaInicio =
-        !filtros.fechaInicio || new Date(s.fecha_creacion) >= new Date(filtros.fechaInicio);
-
-      const cumpleFechaFin = !filtros.fechaFin || new Date(s.fecha_creacion) <= new Date(filtros.fechaFin);
-
-      return cumpleBusqueda && cumpleFechaInicio && cumpleFechaFin;
+    return aplicarFiltros(servicios, filtros, {
+      camposTexto: ['descripcion'],
+      campoFecha: 'fecha_gasto',
     });
   }, [servicios, filtros]);
 
-  const paginatedServicios = useMemo(() => {
-    const start = (paginaActual - 1) * rowsPerPage;
-    return serviciosFiltrados.slice(start, start + rowsPerPage);
-  }, [serviciosFiltrados, paginaActual]);
+  const handleFiltrar = useCallback((f: typeof filtros) => {
+    setFiltros(f);
+  }, []);
+
+  const abrirModal = (imgs: string[]) => {
+    setImagenes(imgs);
+    setModalOpen(true);
+  };
+
+  const cerrarModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleCrearServicio = useCallback(
+    (data: NuevoGastoOperativo) => {
+      onCrearServicio(data);
+      setAgregarModalOpen(false);
+    },
+    [onCrearServicio]
+  );
+
+  const handleActualizarServicio = useCallback(
+    (id: number, data: NuevoGastoOperativo) => {
+      onActualizarServicio(id, data);
+      setEditarServicio(null);
+    },
+    [onActualizarServicio]
+  );
+
+  const handleEliminarServicio = useCallback(() => {
+    if (!servicioAEliminar) return;
+    const id = servicioAEliminar.id;
+    onEliminarServicio(id);
+    setServicioAEliminar(null);
+  }, [servicioAEliminar, onEliminarServicio]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -72,7 +100,7 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
           alignItems="center"
           sx={{ px: 3, py: 3 }}
         >
-          <Typography variant="h5">Historial de mantenimiento</Typography>
+          <Typography variant="h5">Historial de servicios</Typography>
           <Button
             variant="contained"
             onClick={() => setAgregarModalOpen(true)}
@@ -83,42 +111,36 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
 
         <TablaPaginadaConFiltros
           totalItems={serviciosFiltrados.length}
-          onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
+          onFiltrar={handleFiltrar}
           filtrosSearch
           filtrosFecha
         >
-          {(page) => {
-            setPaginaActual(page);
+          {(currentPage) => {
             return (
               <Box sx={{ overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Tipo</TableCell>
-                      <TableCell>Fecha</TableCell>
-                      <TableCell>Solicitado por</TableCell>
+                      <TableCell>Fecha de creación</TableCell>
+                      <TableCell>Fecha de servicio</TableCell>
                       <TableCell>Costo</TableCell>
                       <TableCell>Anotaciones</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedServicios.map((s, i) => (
+                    {serviciosFiltrados.slice((currentPage - 1) * 5, currentPage * 5).map((s) => (
                       <TableRow
-                        key={i}
+                        key={s.id}
                         hover
                       >
-                        <TableCell>{s.tipo_gasto}</TableCell>
-                        <TableCell>{s.fecha_creacion}</TableCell>
-                        <TableCell>{s.solicitadoPor.nombre}</TableCell>
+                        <TableCell>{formatearFechaHora(s.fecha_creacion)}</TableCell>
+                        <TableCell>{formatearFechaHora(s.fecha_gasto)}</TableCell>
                         <TableCell>Q{s.costo.toLocaleString()}</TableCell>
-                        <TableCell>{s.anotaciones}</TableCell>
+                        <TableCell>{s.descripcion}</TableCell>
                         <TableCell>
                           <IconButton
-                            onClick={() => {
-                              setFotosVisor(s.fotos);
-                              setVisorAbierto(true);
-                            }}
+                            onClick={() => s.fotos && abrirModal(s.fotos.map((f) => f.imagen))}
                           >
                             <VisibilityIcon />
                           </IconButton>
@@ -142,36 +164,29 @@ export const HistorialServicios: FC<Props> = ({ servicios }) => {
       <ModalRegistrarServicio
         open={agregarModalOpen}
         onClose={() => setAgregarModalOpen(false)}
-        onConfirm={(data) => {
-          console.log('Nuevo servicio registrado:', data);
-          setAgregarModalOpen(false);
-        }}
+        onConfirm={handleCrearServicio}
       />
 
-      <ModalEditarServicio
-        open={!!editarServicio}
-        servicio={editarServicio}
-        onClose={() => setEditarServicio(null)}
-        onConfirm={(data) => {
-          console.log('Servicio editado:', data);
-          setEditarServicio(null);
-        }}
-      />
+      {editarServicio && (
+        <ModalEditarServicio
+          open={!!editarServicio}
+          servicio={editarServicio}
+          onClose={() => setEditarServicio(null)}
+          onConfirm={handleActualizarServicio}
+        />
+      )}
 
       <ModalEliminar
         type="servicio"
         open={!!servicioAEliminar}
         onClose={() => setServicioAEliminar(null)}
-        onConfirm={() => {
-          console.log('Eliminando:', servicioAEliminar);
-          setServicioAEliminar(null);
-        }}
+        onConfirm={handleEliminarServicio}
       />
 
       <ServicioImagenesModal
-        open={visorAbierto}
-        onClose={() => setVisorAbierto(false)}
-        images={fotosVisor}
+        open={modalOpen}
+        onClose={cerrarModal}
+        images={imagenes}
       />
     </Box>
   );

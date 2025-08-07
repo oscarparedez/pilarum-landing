@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -22,29 +22,75 @@ import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtr
 import { NextPage } from 'next';
 import { ModalCrearMarca } from './crear-marca-modal';
 import { ModalEditarMarca } from './editar-marca-modal';
-
-interface Marca {
-  id: string;
-  nombre: string;
-}
-
-const MARCAS_MOCK: Marca[] = [
-  { id: 'mar-001', nombre: 'Cemex' },
-  { id: 'mar-002', nombre: 'Holcim' },
-  { id: 'mar-003', nombre: 'Argos' },
-  { id: 'mar-004', nombre: 'Corona' },
-  { id: 'mar-005', nombre: 'Forsa' },
-];
+import { Marca, NuevaMarca } from 'src/api/types';
+import { useMarcasApi } from 'src/api/marcas/useMarcasApi';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import toast from 'react-hot-toast';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [marcaSeleccionada, setMarcaSeleccionada] = useState<Marca | null>(null);
+  const [marcas, setMarcas] = useState<Marca[]>([]);
+  const [filtros, setFiltros] = useState({ search: '' });
+  const [paginaActual, setPaginaActual] = useState(1);
+  const rowsPerPage = 5;
+
+  const { getMarcas, crearMarca, actualizarMarca } = useMarcasApi();
+
+  const handleGetMarcas = useCallback(async () => {
+    try {
+      const data = await getMarcas();
+      setMarcas(data);
+    } catch (error) {
+      console.error('Error al obtener marcas:', error);
+    }
+  }, [getMarcas]);
+
+  const handleCrearMarca = useCallback(
+    async (nuevaMarca: NuevaMarca) => {
+      try {
+        await crearMarca(nuevaMarca);
+        setModalCrearOpen(false);
+        await handleGetMarcas();
+        toast.success('Marca creada exitosamente');
+      } catch (error) {
+        toast.error('Error al crear marca');
+      }
+    },
+    [crearMarca, handleGetMarcas]
+  );
+
+  const handleActualizarMarca = useCallback(
+    async (id: number, marca: NuevaMarca) => {
+      try {
+        await actualizarMarca(id, marca);
+        setModalEditarOpen(false);
+        await handleGetMarcas();
+        toast.success('Marca actualizada exitosamente');
+      } catch (error) {
+      }
+    },
+    [actualizarMarca, handleGetMarcas]
+  );
+
+  useEffect(() => {
+    handleGetMarcas();
+  }, [handleGetMarcas]);
 
   const abrirModalEditar = (marca: Marca) => {
     setMarcaSeleccionada(marca);
     setModalEditarOpen(true);
   };
+
+  const marcasFiltradas = useMemo(() => {
+    return aplicarFiltros(marcas, filtros, {
+      camposTexto: ['nombre'],
+    });
+  }, [marcas, filtros]);
+
+  const start = (paginaActual - 1) * rowsPerPage;
+  const paginadas = marcasFiltradas.slice(start, start + rowsPerPage);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -66,53 +112,46 @@ const Page: NextPage = () => {
         </Stack>
 
         <TablaPaginadaConFiltros
-          totalItems={MARCAS_MOCK.length}
-          onFiltrar={() => {}}
-          filtrosFecha={false}
+          totalItems={marcasFiltradas.length}
+          onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
+          onPageChange={(page) => setPaginaActual(page)}
+          filtrosSearch
           filtrosEstado={false}
+          filtrosFecha={false}
         >
-          {(currentPage, orden) => {
-            const items = MARCAS_MOCK.sort((a, b) =>
-              orden === 'asc' ? a.nombre.localeCompare(b.nombre) : b.nombre.localeCompare(a.nombre)
-            ).slice((currentPage - 1) * 5, currentPage * 5);
-
-            return (
-              <TableContainer component={Paper}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Nombre</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
+          {(currentPage) => (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nombre</TableCell>
+                    <TableCell align="center">Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginadas.map((marca) => (
+                    <TableRow key={marca.id} hover>
+                      <TableCell>{marca.nombre}</TableCell>
+                      <TableCell align="center">
+                        <IconButton onClick={() => abrirModalEditar(marca)}>
+                          <SvgIcon>
+                            <EditIcon />
+                          </SvgIcon>
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {items.map((marca) => (
-                      <TableRow
-                        key={marca.id}
-                        hover
-                      >
-                        <TableCell>{marca.nombre}</TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(marca)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            );
-          }}
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </TablaPaginadaConFiltros>
       </Card>
 
       <ModalCrearMarca
         open={modalCrearOpen}
         onClose={() => setModalCrearOpen(false)}
-        onConfirm={() => {}}
+        onCrearMarca={handleCrearMarca}
       />
 
       {marcaSeleccionada && (
@@ -120,7 +159,7 @@ const Page: NextPage = () => {
           open={modalEditarOpen}
           onClose={() => setModalEditarOpen(false)}
           initialData={marcaSeleccionada}
-          onConfirm={() => {}}
+          onActualizarMarca={handleActualizarMarca}
         />
       )}
     </Box>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -22,29 +22,76 @@ import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtr
 import { NextPage } from 'next';
 import { ModalCrearUnidad } from './crear-unidad-modal';
 import { ModalEditarUnidad } from './editar-unidad-modal';
-
-interface Unidad {
-  id: string;
-  nombre: string;
-}
-
-const UNIDADES_MOCK: Unidad[] = [
-  { id: 'uni-001', nombre: 'sacos' },
-  { id: 'uni-002', nombre: 'barras' },
-  { id: 'uni-003', nombre: 'm3' },
-  { id: 'uni-004', nombre: 'litros' },
-  { id: 'uni-005', nombre: 'toneladas' },
-];
+import { NuevaUnidad, Unidad } from 'src/api/types';
+import { useUnidadesApi } from 'src/api/unidades/useUnidadesApi';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import toast from 'react-hot-toast';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
+  const [unidades, setUnidades] = useState<Unidad[]>([]);
+  const [filtros, setFiltros] = useState({ search: '' });
+  const [paginaActual, setPaginaActual] = useState(1);
+  const rowsPerPage = 5;
+
+  const { getUnidades, crearUnidad, actualizarUnidad } = useUnidadesApi();
+
+  const handleGetUnidades = useCallback(async () => {
+    try {
+      const data = await getUnidades();
+      setUnidades(data);
+    } catch (error) {
+      console.error('Error al obtener unidades:', error);
+    }
+  }, [getUnidades]);
+
+  const handleCrearUnidad = useCallback(
+    async (nuevaUnidad: Unidad) => {
+      try {
+        await crearUnidad(nuevaUnidad);
+        setModalCrearOpen(false);
+        await handleGetUnidades();
+        toast.success('Unidad creada exitosamente');
+      } catch (error) {
+        console.error('Error al crear unidad:', error);
+      }
+    },
+    [crearUnidad, handleGetUnidades]
+  );
+
+  const handleActualizarUnidad = useCallback(
+    async (id: number, unidad: NuevaUnidad) => {
+      try {
+        await actualizarUnidad(id, unidad);
+        setModalEditarOpen(false);
+        await handleGetUnidades();
+        toast.success('Unidad actualizada exitosamente');
+      } catch (error) {
+        toast.error('Error al actualizar unidad');
+      }
+    },
+    [actualizarUnidad, handleGetUnidades]
+  );
+
+  useEffect(() => {
+    handleGetUnidades();
+  }, [handleGetUnidades]);
 
   const abrirModalEditar = (unidad: Unidad) => {
     setUnidadSeleccionada(unidad);
     setModalEditarOpen(true);
   };
+
+  const unidadesFiltradas = useMemo(() => {
+    return aplicarFiltros(unidades, filtros, {
+      camposTexto: ['nombre'],
+    });
+  }, [unidades, filtros]);
+
+  const start = (paginaActual - 1) * rowsPerPage;
+  const paginadas = unidadesFiltradas.slice(start, start + rowsPerPage);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -66,53 +113,46 @@ const Page: NextPage = () => {
         </Stack>
 
         <TablaPaginadaConFiltros
-          totalItems={UNIDADES_MOCK.length}
-          onFiltrar={() => {}}
-          filtrosFecha={false}
+          totalItems={unidadesFiltradas.length}
+          onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
+          onPageChange={(page) => setPaginaActual(page)}
+          filtrosSearch
           filtrosEstado={false}
+          filtrosFecha={false}
         >
-          {(currentPage, orden) => {
-            const items = UNIDADES_MOCK.sort((a, b) =>
-              orden === 'asc' ? a.nombre.localeCompare(b.nombre) : b.nombre.localeCompare(a.nombre)
-            ).slice((currentPage - 1) * 5, currentPage * 5);
-
-            return (
-              <TableContainer component={Paper}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Nombre</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
+          {(currentPage) => (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nombre</TableCell>
+                    <TableCell align="center">Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginadas.map((unidad) => (
+                    <TableRow key={unidad.id} hover>
+                      <TableCell>{unidad.nombre}</TableCell>
+                      <TableCell align="center">
+                        <IconButton onClick={() => abrirModalEditar(unidad)}>
+                          <SvgIcon>
+                            <EditIcon />
+                          </SvgIcon>
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {items.map((unidad) => (
-                      <TableRow
-                        key={unidad.id}
-                        hover
-                      >
-                        <TableCell>{unidad.nombre}</TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(unidad)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            );
-          }}
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </TablaPaginadaConFiltros>
       </Card>
 
       <ModalCrearUnidad
         open={modalCrearOpen}
         onClose={() => setModalCrearOpen(false)}
-        onConfirm={() => {}}
+        onCrearUnidad={handleCrearUnidad}
       />
 
       {unidadSeleccionada && (
@@ -120,7 +160,7 @@ const Page: NextPage = () => {
           open={modalEditarOpen}
           onClose={() => setModalEditarOpen(false)}
           initialData={unidadSeleccionada}
-          onConfirm={() => {}}
+          onActualizarUnidad={handleActualizarUnidad}
         />
       )}
     </Box>

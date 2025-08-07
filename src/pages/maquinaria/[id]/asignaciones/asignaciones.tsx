@@ -8,58 +8,51 @@ import {
   TableHead,
   TableRow,
   Typography,
+  TableContainer,
+  Paper,
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
-
-interface Asignacion {
-  proyecto: string;
-  fechaInicio: string;
-  fechaFin: string;
-  dias: string;
-}
+import { AsignacionMaquinaria } from 'src/api/types';
+import { formatearFechaHora } from 'src/utils/format-date';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 
 interface Props {
-  asignaciones: Asignacion[];
+  asignaciones: AsignacionMaquinaria[];
 }
 
 export const Asignaciones: FC<Props> = ({ asignaciones }) => {
-  const [filtros, setFiltros] = useState<{
-    search?: string;
-    fechaInicio?: Date | null;
-    fechaFin?: Date | null;
-  }>({});
+  const [filtros, setFiltros] = useState({
+    search: '',
+  });
 
   const [paginaActual, setPaginaActual] = useState(1);
   const rowsPerPage = 5;
+  const today = useMemo(() => new Date(), []);
+
+  const calcularEstado = (entrada: string, fin?: string): 'Activo' | 'Inactivo' => {
+    const finDate = fin ? new Date(fin) : null;
+    if (finDate && finDate < today) return 'Inactivo';
+    return 'Activo';
+  };
+
+  const asignacionesConEstado = useMemo(() => {
+    return asignaciones.map((a) => ({
+      ...a,
+      estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
+    }));
+  }, [asignaciones, today]);
 
   const asignacionesFiltradas = useMemo(() => {
-    return asignaciones.filter((a) => {
-      const cumpleBusqueda =
-        !filtros.search || a.proyecto.toLowerCase().includes(filtros.search.toLowerCase());
-      const cumpleFechaInicio =
-        !filtros.fechaInicio || new Date(a.fechaInicio) >= new Date(filtros.fechaInicio);
-      const cumpleFechaFin =
-        !filtros.fechaFin || new Date(a.fechaFin) <= new Date(filtros.fechaFin);
-
-      return cumpleBusqueda && cumpleFechaInicio && cumpleFechaFin;
+    return aplicarFiltros(asignacionesConEstado, filtros, {
+      camposTexto: ['proyecto.nombre'],
     });
-  }, [asignaciones, filtros]);
-
-  const paginatedAsignaciones = useMemo(() => {
-    const start = (paginaActual - 1) * rowsPerPage;
-    return asignacionesFiltradas.slice(start, start + rowsPerPage);
-  }, [asignacionesFiltradas, paginaActual]);
+  }, [asignacionesConEstado, filtros]);
 
   return (
     <Box sx={{ p: 3 }}>
       <Card>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ px: 3, py: 3 }}
-        >
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 3 }}>
           <Typography variant="h5">Asignaciones</Typography>
         </Stack>
 
@@ -68,35 +61,44 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
           onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
           onPageChange={(page) => setPaginaActual(page)}
           filtrosSearch
-          filtrosFecha
+          filtrosEstado
+          filtrosFecha={false}
         >
-          {() => (
-            <Box sx={{ overflowX: 'auto' }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Proyecto</TableCell>
-                    <TableCell>Inicio</TableCell>
-                    <TableCell>Fin</TableCell>
-                    <TableCell>Días</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedAsignaciones.map((a, i) => (
-                    <TableRow
-                      key={i}
-                      hover
-                    >
-                      <TableCell>{a.proyecto}</TableCell>
-                      <TableCell>{a.fechaInicio}</TableCell>
-                      <TableCell>{a.fechaFin}</TableCell>
-                      <TableCell>{a.dias}</TableCell>
+          {(currentPage, estadoFiltro) => {
+            const asignacionesVisibles = estadoFiltro && estadoFiltro !== 'Todos'
+              ? asignacionesFiltradas.filter((a) => a.estado === estadoFiltro)
+              : asignacionesFiltradas;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const paginated = asignacionesVisibles.slice(start, start + rowsPerPage);
+
+            return (
+              <TableContainer component={Paper} sx={{ overflowX: 'auto', maxHeight: 600 }}>
+                <Table size="small" stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Proyecto</TableCell>
+                      <TableCell>Inicio</TableCell>
+                      <TableCell>Fin</TableCell>
+                      <TableCell>Estado</TableCell>
+                      <TableCell>Días</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          )}
+                  </TableHead>
+                  <TableBody>
+                    {paginated.map((a, i) => (
+                      <TableRow key={i} hover>
+                        <TableCell>{a.proyecto.nombre} - #{a.proyecto.id}</TableCell>
+                        <TableCell>{formatearFechaHora(a.fecha_entrada)}</TableCell>
+                        <TableCell>{formatearFechaHora(a.fecha_fin)}</TableCell>
+                        <TableCell>{a.estado}</TableCell>
+                        <TableCell>{a.dias_asignados.join(', ')}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            );
+          }}
         </TablaPaginadaConFiltros>
       </Card>
     </Box>

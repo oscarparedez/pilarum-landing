@@ -16,6 +16,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { format } from 'date-fns';
 import { DiaToggle } from '../maquinaria/dia-toggle';
+import { Personal } from '../index.d';
 
 interface ModalEditarPersonalProps {
   open: boolean;
@@ -29,7 +30,7 @@ interface ModalEditarPersonalProps {
       fecha_fin: string;
     }
   ) => void;
-  personalDisponible: { id: number; nombre: string; tipo: string }[];
+  personalDisponible: Personal[];
   initialData: any;
 }
 
@@ -51,8 +52,8 @@ export const ModalEditarPersonal: FC<ModalEditarPersonalProps> = ({
     if (initialData) {
       setPersonalId(initialData.usuario.id);
       setDias(initialData.dias_asignados || []);
-      setDesdeDate(initialData.fecha_entrada ? new Date(initialData.fecha_entrada + 'T12:00:00') : null);
-      setHastaDate(initialData.fecha_fin ? new Date(initialData.fecha_fin + 'T12:00:00') : null);
+      setDesdeDate(initialData.fecha_entrada ? new Date(initialData.fecha_entrada) : null);
+      setHastaDate(initialData.fecha_fin ? new Date(initialData.fecha_fin) : null);
     }
   }, [initialData]);
 
@@ -94,7 +95,7 @@ export const ModalEditarPersonal: FC<ModalEditarPersonalProps> = ({
           mt={1}
         >
           <FormControl fullWidth>
-            <InputLabel>Ingeniero o Arquitecto</InputLabel>
+            <InputLabel shrink>Ingeniero o Arquitecto</InputLabel>
             <Select
               value={personalId ?? ''}
               label="Ingeniero o Arquitecto"

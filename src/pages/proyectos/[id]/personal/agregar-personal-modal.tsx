@@ -18,6 +18,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { es } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
@@ -50,8 +51,8 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
 
   const handleConfirm = () => {
     if (personalId && dias.length && desde && hasta) {
-      const desdeString = desde.toISOString().split('T')[0];
-      const hastaString = hasta.toISOString().split('T')[0];
+      const desdeString = format(desde, 'yyyy-MM-dd')
+      const hastaString = format(hasta, 'yyyy-MM-dd')
       onConfirm({
         usuario_id: personalId,
         dias_asignados: dias,

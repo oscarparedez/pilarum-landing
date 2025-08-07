@@ -1,7 +1,7 @@
 import { Usuario } from "src/api/planilla/usePlanillaApi/index.d";
 import { TipoIngreso } from "../configuracion/tipo-ingresos/index.d";
 import { TipoPago } from "../configuracion/tipo-pagos/index.d";
-import { AsignacionPersonal, Revision } from "src/api/types";
+import { AsignacionPersonal, Revision, Socio } from "src/api/types";
 import { AsignacionMaquinaria } from "src/api/asignacionesMaquinaria/useAsignacionesMaquinaria";
 
 // index.d.ts
@@ -82,7 +82,9 @@ export interface Movimiento {
 }
 
 export interface Personal {
-  nombre: string;
+  id: number;
+  first_name: string;
+  last_name: string;
   tipo: 'Ingeniero' | 'Arquitecto';
   fechaInicio: string;
   fechaFin: string;
@@ -108,18 +110,18 @@ export interface AmpliacionPresupuesto {
 
 export interface ConfigProyecto {
   datosBasicos: {
+    id: number;
     nombre: string;
     ubicacion: string;
     fechaInicio: string;
     fechaFin: string;
     presupuestoInicial: number;
-    socio: {
-      id: string;
-      nombre: string;
-    }
-    totalIngresos: number;
-    totalPagos: number;
+    socioAsignado: Socio;
   };
+  presupuestoTotal: number;
+  totalIngresos: number;
+  totalPagos: number;
+  socios: Socio[];
   ampliacionesPresupuesto: AmpliacionPresupuesto[];
   ampliacionesFecha: AmpliacionFecha[];
   ingresos: Ingreso[];

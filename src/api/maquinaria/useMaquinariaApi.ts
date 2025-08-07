@@ -2,11 +2,15 @@ import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { calcularTotalCombustibleUltimoMes, calcularTotalServicios } from './utils';
-import { ConfigMaquinaria, GastoMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
-import { Maquinaria } from '../types';
+import { ConfigMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
+import { GastoOperativo, Maquinaria, NuevoGastoOperativo } from '../types';
+import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
 
 export const useMaquinariasApi = () => {
   const { fetchWithAuth } = useAuthApi();
+  const { getAsignacionesPorMaquinaria } = useAsignacionesMaquinariaApi();
+
+  // --- 📦 MAQUINARIA ---
 
   const getMaquinarias = useCallback(async (): Promise<Maquinaria[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/`, {
@@ -17,30 +21,12 @@ export const useMaquinariasApi = () => {
   }, [fetchWithAuth]);
 
   const getMaquinariaById = useCallback(
-    async (id: number): Promise<ConfigMaquinaria> => {
-      const [maquinariaRes, gastosOperativosRes] = await Promise.all([
-        fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}`),
-        fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/gastos-operativos/`),
-      ]);
-
-      if (!maquinariaRes.ok || !gastosOperativosRes.ok) {
-        throw new Error('Error al obtener datos de la maquinaria');
-      }
-
-      const maquinaria = await maquinariaRes.json();
-      const gastosOperativos: GastoMaquinaria[] = await gastosOperativosRes.json();
-
-      return {
-        nombre: maquinaria.nombre,
-        identificador: maquinaria.identificador,
-        tipo: maquinaria.tipo,
-        costo: maquinaria.costo,
-        totalServicios: calcularTotalServicios(gastosOperativos),
-        totalCombustibleUltimoMes: calcularTotalCombustibleUltimoMes(gastosOperativos),
-        asignaciones: [],
-        servicios: [],
-        consumos: [],
-      };
+    async (id: number): Promise<Maquinaria> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener datos de la maquinaria');
+      return await res.json();
     },
     [fetchWithAuth]
   );
@@ -65,7 +51,6 @@ export const useMaquinariasApi = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(maquinaria),
       });
-
       if (!res.ok) throw new Error('Error al actualizar la maquinaria');
       return await res.json();
     },
@@ -82,8 +67,36 @@ export const useMaquinariasApi = () => {
     [fetchWithAuth]
   );
 
+  // --- 📊 GASTOS OPERATIVOS ---
+
+  const getGastosOperativosByMaquinaria = useCallback(
+    async (maquinariaId: number): Promise<GastoOperativo[]> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/`,
+        {
+          method: 'GET',
+        }
+      );
+      if (!res.ok) throw new Error('Error al obtener gastos operativos');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const getGastoOperativoById = useCallback(
+    async (maquinariaId: number, id: number): Promise<GastoOperativo> => {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/${id}/`,
+        { method: 'GET' }
+      );
+      if (!res.ok) throw new Error('Error al obtener gasto operativo');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
   const crearGastoOperativo = useCallback(
-    async (maquinariaId: number, data: Omit<GastoMaquinaria, 'id'>): Promise<GastoMaquinaria> => {
+    async (maquinariaId: number, data: NuevoGastoOperativo): Promise<GastoOperativo> => {
       const res = await fetchWithAuth(
         `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/`,
         {
@@ -98,24 +111,12 @@ export const useMaquinariasApi = () => {
     [fetchWithAuth]
   );
 
-  const getGastoOperativoById = useCallback(
-    async (maquinariaId: number, id: number): Promise<GastoMaquinaria> => {
-      const res = await fetchWithAuth(
-        `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/${id}/`,
-        { method: 'GET' }
-      );
-      if (!res.ok) throw new Error('Error al obtener gasto operativo');
-      return await res.json();
-    },
-    [fetchWithAuth]
-  );
-
   const actualizarGastoOperativo = useCallback(
     async (
       maquinariaId: number,
       id: number,
-      data: Partial<GastoMaquinaria>
-    ): Promise<GastoMaquinaria> => {
+      data: NuevoGastoOperativo
+    ): Promise<GastoOperativo> => {
       const res = await fetchWithAuth(
         `${API_BASE_URL}/maquinarias/${maquinariaId}/gastos-operativos/${id}/`,
         {
@@ -141,15 +142,50 @@ export const useMaquinariasApi = () => {
     [fetchWithAuth]
   );
 
+  // --- 🧠 INFO COMPUESTA ---
+
+  const getMaquinariaInfo = useCallback(
+    async (id: number): Promise<ConfigMaquinaria> => {
+      const [maquinaria, gastosOperativos, asignaciones] = await Promise.all([
+        getMaquinariaById(id),
+        getGastosOperativosByMaquinaria(id),
+        getAsignacionesPorMaquinaria(id),
+      ]);
+
+      const servicios = gastosOperativos.filter((g) => g.tipo_gasto === 2);
+      const consumos = gastosOperativos.filter((g) => g.tipo_gasto === 1);
+
+      return {
+        nombre: maquinaria.nombre,
+        identificador: maquinaria.identificador,
+        tipo: maquinaria.tipo,
+        costo: maquinaria.costo,
+        totalServicios: calcularTotalServicios(gastosOperativos),
+        totalCombustibleUltimoMes: calcularTotalCombustibleUltimoMes(gastosOperativos),
+        asignaciones,
+        servicios,
+        consumos,
+      };
+    },
+    [getMaquinariaById, getGastosOperativosByMaquinaria, getAsignacionesPorMaquinaria]
+  );
+
   return {
+    // 📦 Maquinaria
     getMaquinarias,
     getMaquinariaById,
     crearMaquinaria,
     actualizarMaquinaria,
     eliminarMaquinaria,
-    crearGastoOperativo,
+
+    // 📊 Gastos operativos
+    getGastosOperativosByMaquinaria,
     getGastoOperativoById,
+    crearGastoOperativo,
     actualizarGastoOperativo,
     eliminarGastoOperativo,
+
+    // 🧠 Info compuesta
+    getMaquinariaInfo,
   };
 };

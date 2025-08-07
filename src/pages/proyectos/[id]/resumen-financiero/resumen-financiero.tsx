@@ -10,8 +10,7 @@ import { formatearQuetzales } from 'src/utils/format-currency';
 import { TipoIngreso } from '../../configuracion/tipo-ingresos/index.d';
 import { TipoPago } from '../../configuracion/tipo-pagos/index.d';
 import { obtenerUltimoMovimiento, transformarMovimientos } from './utils';
-import { parseISO } from 'date-fns';
-import { formatearFecha } from 'src/utils/format-date';
+import { formatearFechaHora } from 'src/utils/format-date';
 
 type ButtonColor = 'inherit' | 'success' | 'error' | 'info' | 'primary' | 'secondary' | 'warning';
 
@@ -120,7 +119,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     },
     {
       label: 'Último movimiento',
-      value: ultimoMovimiento ? formatearFecha(new Date(ultimoMovimiento.fecha)) : '-',
+      value: ultimoMovimiento ? formatearFechaHora(ultimoMovimiento.fecha) : '-',
       secondaryText: ultimoMovimiento ? formatearQuetzales(Number(ultimoMovimiento.monto)) : '-',
       buttonLabel: 'Ver movimientos',
       buttonColor: 'info',

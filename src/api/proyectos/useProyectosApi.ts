@@ -16,19 +16,13 @@ import { usePlanillaApi } from '../planilla/usePlanillaApi';
 import { useAsignacionesPersonalApi } from '../asignacionesPersonal/useAsignacionesPersonal';
 import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
 import { useRevisionesApi } from '../revisiones/useRevisionesApi';
+import { useSociosApi } from '../socios/useSociosApi';
+import { NuevoProyecto, Proyecto } from '../types';
 
-export interface Proyecto {
-  id: number;
-  nombre: string;
-  ubicacion: string;
-  presupuestoInicial: number;
-  socioAsignado: string;
-  fechaInicio: string;
-  fechaFin: string;
-}
 
 export const useProyectosApi = () => {
   const { fetchWithAuth } = useAuthApi();
+  const { getSociosInternos } = useSociosApi();
   const { crearPresupuestoInicial, getPresupuestos } = usePresupuestosApi();
   const { getIngresos } = useIngresosApi();
   const { getPagos } = usePagosApi();
@@ -36,7 +30,7 @@ export const useProyectosApi = () => {
   const { getTiposIngreso } = useTiposIngresoApi();
   const { getTiposPago } = useTiposPagoApi();
   const { getMaquinarias } = useMaquinariasApi();
-  const { getAsignaciones: getAsignacionesMaquinaria } = useAsignacionesMaquinariaApi();
+  const { getAsignacionesPorProyecto: getAsignacionesMaquinaria } = useAsignacionesMaquinariaApi();
   const { getUsuarios } = usePlanillaApi();
   const { getAsignaciones: getAsignacionesPersonal } = useAsignacionesPersonalApi();
   const { getRevisiones } = useRevisionesApi();
@@ -65,7 +59,7 @@ export const useProyectosApi = () => {
   );
 
   const crearProyecto = useCallback(
-    async (data: Omit<Proyecto, 'id'>): Promise<Proyecto> => {
+    async (data: NuevoProyecto): Promise<Proyecto> => {
       // 1. Crear el proyecto
       const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/`, {
         method: 'POST',
@@ -73,8 +67,8 @@ export const useProyectosApi = () => {
         body: JSON.stringify({
           nombre: data.nombre,
           ubicacion: data.ubicacion,
-          fecha_inicio: data.fechaInicio,
-          fecha_fin: data.fechaFin,
+          fecha_inicio: data.fecha_inicio,
+          fecha_fin: data.fecha_fin,
           socio_asignado: data.socioAsignado,
         }),
       });
@@ -108,7 +102,7 @@ export const useProyectosApi = () => {
   );
 
   const actualizarProyecto = useCallback(
-    async (id: number, data: Omit<Proyecto, 'id'>): Promise<Proyecto> => {
+    async (id: number, data: NuevoProyecto): Promise<Proyecto> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${id}/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -125,6 +119,7 @@ export const useProyectosApi = () => {
     try {
       const [
         proyectoRaw,
+        socios,
         ingresos,
         pagos,
         ampliaciones,
@@ -138,6 +133,7 @@ export const useProyectosApi = () => {
         revisiones
       ] = await Promise.all([
         getProyectoById(id),
+        getSociosInternos(),
         getIngresos(id),
         getPagos(id),
         getAmpliaciones(id),
@@ -154,11 +150,13 @@ export const useProyectosApi = () => {
       const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
 
       return mapProyectoToConfig({
+        id: proyecto.id,
         nombre: proyecto.nombre,
         ubicacion: proyecto.ubicacion,
         fecha_inicio: proyecto.fechaInicio,
         fecha_fin: proyecto.fechaFin,
         socioAsignado: proyecto.socioAsignado,
+        socios: socios,
         ingresos,
         pagos,
         ampliaciones,

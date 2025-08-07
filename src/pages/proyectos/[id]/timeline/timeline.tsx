@@ -6,6 +6,7 @@ import { ModalAmpliacionesPresupuesto } from './ampliaciones-presupuesto-modal';
 import { ModalAmpliarPresupuesto } from './ampliar-presupuesto-modal';
 import { AmpliacionPresupuesto, AmpliacionFecha } from '../index.d';
 import { formatearQuetzales } from 'src/utils/format-currency';
+import { formatearFechaHora } from 'src/utils/format-date';
 
 interface TimelineProps {
   fechaInicio: string;
@@ -103,7 +104,7 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  {fechaInicio}
+                  {formatearFechaHora(fechaInicio)}
                 </Typography>
                 <Typography
                   color="text.secondary"
@@ -128,7 +129,7 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  {fechaFin}
+                  {formatearFechaHora(fechaFin)}
                 </Typography>
                 <Typography
                   color="text.secondary"

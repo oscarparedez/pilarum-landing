@@ -53,7 +53,7 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
   const [anotaciones, setAnotaciones] = useState('');
 
   useEffect(() => {
-    setFecha(new Date(initialData.fecha_pago + 'T12:00:00'));
+    setFecha(new Date(initialData.fecha_pago));
     setMonto(initialData.monto_total);
     setTipoPago(initialData.tipo_pago.id);
     setTipoDocumento(initialData.tipo_documento);

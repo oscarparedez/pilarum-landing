@@ -4,25 +4,25 @@ import {
   Modal,
   Stack,
   TextField,
-  Typography,
   Card,
   CardHeader,
   Divider,
 } from '@mui/material';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, use, useCallback } from 'react';
+import { Marca, NuevaMarca } from 'src/api/types';
 
 interface ModalEditarMarcaProps {
   open: boolean;
   onClose: () => void;
-  initialData: { id: string; nombre: string };
-  onConfirm: (data: { id: string; nombre: string }) => void;
+  initialData: Marca;
+  onActualizarMarca: (id: number, data: NuevaMarca) => void;
 }
 
 export const ModalEditarMarca: FC<ModalEditarMarcaProps> = ({
   open,
   onClose,
   initialData,
-  onConfirm,
+  onActualizarMarca,
 }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
 
@@ -32,11 +32,14 @@ export const ModalEditarMarca: FC<ModalEditarMarcaProps> = ({
     }
   }, [open, initialData]);
 
-  const handleSubmit = () => {
-    if (!nombre.trim()) return;
-    onConfirm({ id: initialData.id, nombre: nombre.trim() });
-    onClose();
-  };
+  const handleActualizarMarca = useCallback(() => {
+    if (nombre.trim()) {
+      const updatedMarca: NuevaMarca = { nombre };
+      onActualizarMarca(initialData.id, updatedMarca);
+      setNombre('');
+      onClose();
+    }
+  }, [nombre, onActualizarMarca, onClose]);
 
   return (
     <Modal
@@ -72,7 +75,7 @@ export const ModalEditarMarca: FC<ModalEditarMarcaProps> = ({
               <Button onClick={onClose}>Cancelar</Button>
               <Button
                 variant="contained"
-                onClick={handleSubmit}
+                onClick={handleActualizarMarca}
                 disabled={!nombre.trim()}
               >
                 Guardar cambios

@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { useSociosApi } from 'src/api/socios/useSociosApi';
+import { format } from 'date-fns';
 
 interface CrearProyectoModalProps {
   open: boolean;
@@ -22,8 +23,8 @@ interface CrearProyectoModalProps {
     ubicacion: string;
     presupuestoInicial: number;
     socioAsignado: string;
-    fechaInicio: string;
-    fechaFin: string;
+    fecha_inicio: string;
+    fecha_fin: string;
   }) => void;
 }
 
@@ -65,8 +66,8 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
         ubicacion,
         presupuestoInicial: Number(presupuesto),
         socioAsignado,
-        fechaInicio: fechaInicio.toISOString().split('T')[0],
-        fechaFin: fechaFin.toISOString().split('T')[0],
+        fecha_inicio: format(fechaInicio, 'yyyy-MM-dd'),
+        fecha_fin: format(fechaFin, 'yyyy-MM-dd')
       });
       onClose();
     }
