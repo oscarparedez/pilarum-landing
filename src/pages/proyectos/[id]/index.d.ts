@@ -116,7 +116,7 @@ export interface ConfigProyecto {
     fechaInicio: string;
     fechaFin: string;
     presupuestoInicial: number;
-    socioAsignado: Socio;
+    socio_asignado: Socio;
   };
   presupuestoTotal: number;
   totalIngresos: number;

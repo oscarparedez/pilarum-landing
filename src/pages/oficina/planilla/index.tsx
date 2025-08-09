@@ -21,6 +21,7 @@ import { ModalEditarPersona } from './editar-personal-modal';
 import { NextPage } from 'next';
 import { Usuario } from './index.d';
 import { usePlanillaApi } from 'src/api/planilla/usePlanillaApi';
+import toast from 'react-hot-toast';
 
 const Page: NextPage = () => {
   const { getUsuarios } = usePlanillaApi();
@@ -38,7 +39,7 @@ const Page: NextPage = () => {
         const transformados = usuarios;
         setPersonal(transformados);
       } catch (error) {
-        console.error('Error al cargar usuarios', error);
+        toast.error('Error al cargar usuarios');
       }
     };
 

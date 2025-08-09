@@ -14,6 +14,7 @@ import {
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { useSociosApi } from 'src/api/socios/useSociosApi';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 
 interface CrearProyectoModalProps {
   open: boolean;
@@ -22,7 +23,7 @@ interface CrearProyectoModalProps {
     nombre: string;
     ubicacion: string;
     presupuestoInicial: number;
-    socioAsignado: string;
+    socio_asignado: string;
     fecha_inicio: string;
     fecha_fin: string;
   }) => void;
@@ -50,7 +51,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
         const socios = await getSociosInternos();
         setSocios(socios);
       } catch (error) {
-        console.error('Error fetching socios:', error);
+        toast.error('Error al cargar socios internos');
       }
     };
 
@@ -65,7 +66,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
         nombre,
         ubicacion,
         presupuestoInicial: Number(presupuesto),
-        socioAsignado,
+        socio_asignado: socioAsignado,
         fecha_inicio: format(fechaInicio, 'yyyy-MM-dd'),
         fecha_fin: format(fechaFin, 'yyyy-MM-dd')
       });

@@ -48,7 +48,6 @@ const Page: NextPage = () => {
       const config = await getMaterialesInfo();
       setConfigMaterial(config);
     } catch (error) {
-      console.error('Error al obtener materiales:', error);
       toast.error('Error al obtener materiales');
     }
   }, [getMaterialesInfo]);
@@ -61,7 +60,6 @@ const Page: NextPage = () => {
         await handleGetMateriales();
         toast.success('Material creado exitosamente');
       } catch (error) {
-        console.error('Error al crear material:', error);
         toast.error('Error al crear material');
       }
     },
@@ -69,7 +67,7 @@ const Page: NextPage = () => {
   );
 
   const handleActualizarMaterial = useCallback(
-    async (id: number, material: NuevaMaterial) => {
+    async (id: number, material: NuevoMaterial) => {
       try {
         await actualizarMaterial(id, material);
         setModalEditarOpen(false);
@@ -77,7 +75,6 @@ const Page: NextPage = () => {
         await handleGetMateriales();
         toast.success('Material actualizado exitosamente');
       } catch (error) {
-        console.error('Error al actualizar material:', error);
         toast.error('Error al actualizar material');
       }
     },

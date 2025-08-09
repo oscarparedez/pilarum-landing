@@ -43,7 +43,7 @@ const Page: NextPage = () => {
       const data = await getUnidades();
       setUnidades(data);
     } catch (error) {
-      console.error('Error al obtener unidades:', error);
+      toast.error('Error al cargar unidades');
     }
   }, [getUnidades]);
 
@@ -55,7 +55,7 @@ const Page: NextPage = () => {
         await handleGetUnidades();
         toast.success('Unidad creada exitosamente');
       } catch (error) {
-        console.error('Error al crear unidad:', error);
+        toast.error('Error al crear unidad');
       }
     },
     [crearUnidad, handleGetUnidades]

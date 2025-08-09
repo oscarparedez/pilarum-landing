@@ -10,12 +10,13 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  MenuItem,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
+import { GastoOperativo, NuevoGastoOperativo, TipoDocumento } from 'src/api/types';
 import { format } from 'date-fns';
 
 interface ModalEditarServicioProps {
@@ -36,12 +37,15 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   const [costo, setCosto] = useState<number>(0);
   const [fotos, setFotos] = useState<(string | File)[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
+  const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento | ''>('');
+
 
   useEffect(() => {
     if (servicio) {
       setFecha(servicio.fecha_gasto ? new Date(servicio.fecha_gasto) : null);
       setDescripcion(servicio.descripcion);
       setCosto(servicio.costo);
+      setTipoDocumento(servicio.tipo_documento);
       setFotos(servicio.fotos?.map((f) => f.imagen) ?? []);
       setCargadas(servicio.fotos?.map(() => true) ?? []);
     }
@@ -61,7 +65,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   };
 
   const handleConfirm = () => {
-    if (fecha && descripcion && costo) {
+    if (fecha && descripcion && costo && tipoDocumento) {
       const nuevasImagenes = fotos.filter((f) => f instanceof File) as File[];
       onConfirm(servicio.id, {
         tipo_gasto: 2, // 2 = servicio
@@ -69,22 +73,50 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
         descripcion,
         costo,
         fotos: nuevasImagenes,
+        tipo_documento: tipoDocumento,
       });
       onClose();
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar servicio</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha del servicio
             </Typography>
-            <DateCalendar value={fecha} onChange={(newValue) => setFecha(newValue)} />
+            <DateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
+
+          <TextField
+            label="Tipo de documento"
+            select
+            fullWidth
+            required
+            value={tipoDocumento}
+            onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
+          >
+            <MenuItem value="cheque">Cheque</MenuItem>
+            <MenuItem value="efectivo">Efectivo</MenuItem>
+            <MenuItem value="transferencia">Transferencia</MenuItem>
+          </TextField>
 
           <TextField
             label="Costo (Q)"
@@ -105,7 +137,10 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
           />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Subir imágenes (máximo 3)
             </Typography>
             <Box
@@ -136,7 +171,10 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
               <Typography color="text.secondary">
                 Arrastra o haz clic para subir imágenes
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 Máximo 3 archivos (.jpg, .png)
               </Typography>
               <input
@@ -150,11 +188,18 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
             </Box>
 
             {fotos.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {fotos.map((item, i) => {
                   const src = typeof item === 'string' ? item : URL.createObjectURL(item);
                   return (
-                    <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                    <Box
+                      key={i}
+                      sx={{ position: 'relative', width: 80, height: 80 }}
+                    >
                       {!cargadas[i] && item instanceof File && (
                         <Box
                           sx={{

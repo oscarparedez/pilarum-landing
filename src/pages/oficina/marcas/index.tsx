@@ -43,7 +43,7 @@ const Page: NextPage = () => {
       const data = await getMarcas();
       setMarcas(data);
     } catch (error) {
-      console.error('Error al obtener marcas:', error);
+      toast.error('Error al cargar marcas');
     }
   }, [getMarcas]);
 

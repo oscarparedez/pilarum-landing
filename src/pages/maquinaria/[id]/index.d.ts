@@ -1,17 +1,8 @@
-import { AsignacionMaquinaria, GastoOperativo } from "src/api/types";
+import { AsignacionMaquinaria, GastoOperativo, TipoDocumento } from "src/api/types";
 
 export type TipoConsumo = 'combustible' | 'mantenimiento' | '';
 
 export type TipoMaquinaria = 'maquinaria' | 'herramienta';
-
-export interface GastoMaquinaria {
-  tipo_gasto: TipoConsumo;
-  fecha_creacion: string;
-  anotaciones: string;
-  solicitadoPor: { nombre: string; id: string };
-  costo: number;
-  fotos: string[];
-}
 
 export interface Asignacion {
   proyecto: string;
@@ -21,10 +12,14 @@ export interface Asignacion {
 }
 
 export interface ConfigMaquinaria {
+  id: number;
   nombre: string;
-  identificador?: string;
+  identificador: string;
   tipo: TipoMaquinaria;
   costo: number;
+  fecha_compra: string;
+  tipo_documento: TipoDocumento;
+  anotaciones?: string;
   totalServicios: number;
   totalCombustibleUltimoMes: number;
   asignaciones: AsignacionMaquinaria[];

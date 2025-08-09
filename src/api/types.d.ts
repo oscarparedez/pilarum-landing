@@ -1,13 +1,8 @@
-export interface Maquinaria {
+export interface Usuario {
   id: number;
-  tipo: 'maquinaria' | 'herramienta';
-  nombre: string;
-  identificador?: string;
-  costo: number;
-  fecha_creacion: string;
-  fecha_inicio: string;
-  fecha_fin: string;
-  [key: string]: any;
+  username: string;
+  first_name: string;
+  last_name: string;
 }
 
 export interface AsignacionPersonal {
@@ -122,7 +117,7 @@ export interface Proyecto {
   nombre: string;
   ubicacion: string;
   presupuestoInicial: number;
-  socioAsignado: Socio;
+  socio_asignado: Socio;
   fechaInicio: string;
   fechaFin: string;
 }
@@ -131,18 +126,21 @@ export interface NuevoProyecto {
   nombre: string;
   ubicacion: string;
   presupuestoInicial: number;
-  socioAsignado: number;
+  socio_asignado: number;
   fecha_inicio: string;
   fecha_fin: string;
 }
 
 export type TipoGastoOperativo = 1 | 2; // 1 = combustible, 2 = servicio
 
+export type TipoDocumento = 'cheque' | 'efectivo' | 'transferencia';
+
 export interface NuevoGastoOperativo {
   descripcion: string;
   fecha: string;
   costo: number;
   tipo_gasto: TipoGastoOperativo;
+  tipo_documento: TipoDocumento;
   fotos?: File[];
 }
 
@@ -151,8 +149,72 @@ export interface GastoOperativo {
   equipo: number;
   descripcion: string;
   fecha_creacion: string;
+  tipo_documento: TipoDocumento;
   fecha_gasto: string;
   costo: number;
   tipo_gasto: number;
   fotos?: FotoRevision[];
+}
+
+export interface TipoIngreso {
+  id: number;
+  nombre: string;
+  fecha_creacion: string;
+}
+
+export interface IngresoGeneral {
+  id: number;
+  tipo_ingreso: TipoIngreso;
+  usuario_creador: Usuario;
+  monto_total: number;
+  fecha_ingreso: string;
+  fecha_creacion: string;
+  tipo_documento: string;
+  anotaciones: string;
+  correlativo: string;
+  proyecto: Proyecto;
+}
+
+export type TipoOrigenCosto =
+  | 'proyecto'
+  | 'orden de compra'
+  | 'maquinaria'
+  | 'equipo';
+
+export interface CostoGeneral {
+  origen_id: number;
+  tipo_origen: TipoOrigenCosto;
+  origen: string | null;      // nombre del proyecto, maquinaria, equipo o num. factura
+  tipo_pago: string | number; // string en la mayoría, number (1|2) en maquinaria
+  tipo_documento: string;
+  monto: number;
+  descripcion: string;
+  fecha: string;              // ISO date
+  usuario_registro: Usuario;  // ya tienes esta interface definida
+}
+
+export type TipoMaquinaria = 'maquinaria' | 'herramienta';
+export type TipoDocumento = 'efectivo' | 'cheque' | 'transferencia';
+
+export interface Maquinaria {
+  id: number;
+  nombre: string;
+  tipo: TipoMaquinaria;
+  identificador: string;
+  costo: number;
+  fecha_compra: string;      // formato 'YYYY-MM-DD'
+  tipo_documento: TipoDocumento;
+  anotaciones?: string;
+  fecha_creacion: string;     // ISO date-time
+  usuario_creador: Usuario;   // Ya tienes esta interface
+}
+
+export interface NuevaMaquinaria {
+  nombre: string;
+  tipo: TipoMaquinaria;
+  identificador: string;
+  costo: number;
+  fecha_compra: string;      // 'YYYY-MM-DD'
+  tipo_documento: TipoDocumento;
+  anotaciones?: string;
 }

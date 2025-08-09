@@ -89,7 +89,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Datos del proyecto actualizados correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al actualizar los datos del proyecto');
       } finally {
         setLoading(false);
@@ -113,7 +112,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Fecha ampliada exitosamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al ampliar la fecha');
       } finally {
         setLoading(false);
@@ -134,7 +132,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Ampliación editada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al editar la ampliación');
       } finally {
         setLoading(false);
@@ -155,7 +152,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Ampliación eliminada');
       } catch (error) {
-        console.error(error);
         toast.error('Error al eliminar la ampliación');
       } finally {
         setLoading(false);
@@ -176,7 +172,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Presupuesto ampliado exitosamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al ampliar presupuesto');
       } finally {
         setLoading(false);
@@ -197,7 +192,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Ampliación de presupuesto editada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al editar ampliación de presupuesto');
       } finally {
         setLoading(false);
@@ -218,7 +212,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Ampliación de presupuesto eliminada');
       } catch (error) {
-        console.error(error);
         toast.error('Error al eliminar ampliación de presupuesto');
       } finally {
         setLoading(false);
@@ -244,7 +237,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Ingreso registrado correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al registrar ingreso');
       }
     },
@@ -271,7 +263,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Ingreso actualizado correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al actualizar ingreso');
       }
     },
@@ -290,7 +281,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Ingreso eliminado correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al eliminar ingreso');
       } finally {
         setLoading(false);
@@ -316,7 +306,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Pago registrado correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al registrar pago');
       }
     },
@@ -343,7 +332,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Pago actualizado correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al actualizar pago');
       }
     },
@@ -362,7 +350,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Pago eliminado correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al eliminar pago');
       } finally {
         setLoading(false);
@@ -390,7 +377,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Maquinaria asignada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al asignar maquinaria');
       } finally {
         setLoading(false);
@@ -411,7 +397,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Asignación de maquinaria actualizada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al actualizar asignación de maquinaria');
       } finally {
         setLoading(false);
@@ -438,7 +423,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Asignación de maquinaria liberada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al liberar asignación de maquinaria');
       } finally {
         setLoading(false);
@@ -459,7 +443,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Asignación de maquinaria eliminada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al eliminar asignación de maquinaria');
       } finally {
         setLoading(false);
@@ -487,7 +470,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Personal asignado correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al asignar personal');
       } finally {
         setLoading(false);
@@ -518,7 +500,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Asignación de personal actualizada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al actualizar asignación de personal');
       } finally {
         setLoading(false);
@@ -539,7 +520,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Asignación de personal liberada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al liberar asignación de personal');
       } finally {
         setLoading(false);
@@ -560,7 +540,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Asignación de personal eliminada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al eliminar asignación de personal');
       } finally {
         setLoading(false);
@@ -582,7 +561,6 @@ const Page: NextPage = () => {
         toast.success('Revisión creada correctamente');
         return revision;
       } catch (error) {
-        console.error(error);
         toast.error('Error al crear revisión');
       } finally {
         setLoading(false);
@@ -604,7 +582,6 @@ const Page: NextPage = () => {
         toast.success('Revisión actualizada correctamente');
         return revision;
       } catch (error) {
-        console.error(error);
         toast.error('Error al actualizar revisión');
       } finally {
         setLoading(false);
@@ -624,7 +601,6 @@ const Page: NextPage = () => {
         setConfig(updated);
         toast.success('Revisión eliminada correctamente');
       } catch (error) {
-        console.error(error);
         toast.error('Error al eliminar revisión');
       } finally {
         setLoading(false);
@@ -655,7 +631,7 @@ const Page: NextPage = () => {
     totalPagos,
   } = config;
 
-  const { id, nombre, ubicacion, fechaInicio, fechaFin, socioAsignado, presupuestoInicial } =
+  const { id, nombre, ubicacion, fechaInicio, fechaFin, socio_asignado, presupuestoInicial } =
     datosBasicos;
 
   return (
@@ -675,7 +651,7 @@ const Page: NextPage = () => {
             <Box>
               <Typography variant="h4">{nombre}</Typography>
               <Typography color="text.secondary">{ubicacion}</Typography>
-              <Typography color="text.secondary">Empresa - {socioAsignado.nombre}</Typography>
+              <Typography color="text.secondary">Empresa - {socio_asignado.nombre}</Typography>
             </Box>
             <Button
               variant="outlined"

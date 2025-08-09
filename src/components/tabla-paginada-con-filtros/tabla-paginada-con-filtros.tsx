@@ -31,6 +31,7 @@ interface TablaPaginadaConFiltrosProps {
   filtrosEstado?: boolean;
   filtrosRol?: boolean;
   filtrosEmpresa?: boolean;
+  empresas?: { id: number; nombre: string }[];
   children: (
     currentPage: number,
     estadoFiltro?: string,
@@ -49,6 +50,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   filtrosEstado = false,
   filtrosRol = false,
   filtrosEmpresa = false,
+  empresas,
   children,
 }) => {
   const [search, setSearch] = useState('');
@@ -146,7 +148,10 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
           )}
 
           {filtrosEstado && (
-            <FormControl sx={{ minWidth: 190 }} size="medium">
+            <FormControl
+              sx={{ minWidth: 190 }}
+              size="medium"
+            >
               <InputLabel>Estado</InputLabel>
               <Select
                 value={estado}
@@ -164,7 +169,10 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
           )}
 
           {filtrosRol && (
-            <FormControl sx={{ minWidth: 190 }} size="medium">
+            <FormControl
+              sx={{ minWidth: 190 }}
+              size="medium"
+            >
               <InputLabel>Rol</InputLabel>
               <Select
                 value={rol}
@@ -183,7 +191,10 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
           )}
 
           {filtrosEmpresa && (
-            <FormControl sx={{ minWidth: 190 }} size="medium">
+            <FormControl
+              sx={{ minWidth: 190 }}
+              size="medium"
+            >
               <InputLabel>Empresa</InputLabel>
               <Select
                 value={empresa}
@@ -194,18 +205,21 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
                 }}
               >
                 <MenuItem value="">Todas</MenuItem>
-                <MenuItem value="Empresa A">Empresa A</MenuItem>
-                <MenuItem value="Empresa B">Empresa B</MenuItem>
-                <MenuItem value="Empresa C">Empresa C</MenuItem>
+                {(empresas ?? []).map((empresa) => (
+                  <MenuItem
+                    key={empresa.id}
+                    value={empresa.nombre}
+                  >
+                    {empresa.nombre}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           )}
         </Stack>
       </Box>
 
-      <Box sx={{ px: 2, pt: 3 }}>
-        {renderedChildren}
-      </Box>
+      <Box sx={{ px: 2, pt: 3 }}>{renderedChildren}</Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 2 }}>
         <Pagination

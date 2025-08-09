@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -19,80 +19,105 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { formatearQuetzales } from 'src/utils/format-currency';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import { formatearFecha } from 'src/utils/format-date';
+import { useCostosGeneralesApi } from 'src/api/costosGenerales/useCostosGeneralesApi';
+import { useSociosApi } from 'src/api/socios/useSociosApi';
+import { CostoGeneral, Socio } from 'src/api/types';
+import toast from 'react-hot-toast';
 
-interface Costo {
-  id_pago: string;
-  proyecto: {
-    id: string;
-    nombre: string;
-  };
-  monto_total: number;
-  fecha_pago: string;
-  tipo_pago: 'Pago a maestro de obra' | 'Pago a socio';
-  tipo_documento: 'Transferencia' | 'Cheque' | 'Efectivo';
-  anotaciones: string;
-  usuario_registro: string;
-  empresa: string;
-}
-
-const mockCostos: Costo[] = [
-  {
-    id_pago: 'pag-101',
-    proyecto: {
-      id: 'proy-001',
-      nombre: 'Residencial La Cumbre',
-    },
-    monto_total: 20000,
-    fecha_pago: '2025-05-01',
-    tipo_pago: 'Pago a maestro de obra',
-    tipo_documento: 'Efectivo',
-    anotaciones: 'Pago semanal',
-    usuario_registro: 'Karla S.',
-    empresa: 'Constructora Alfa',
-  },
-  {
-    id_pago: 'pag-102',
-    proyecto: {
-      id: 'proy-002',
-      nombre: 'Torre Roble',
-    },
-    monto_total: 50000,
-    fecha_pago: '2025-05-03',
-    tipo_pago: 'Pago a socio',
-    tipo_documento: 'Transferencia',
-    anotaciones: 'Distribución de utilidad',
-    usuario_registro: 'Luis G.',
-    empresa: 'Inversiones Roble',
-  },
-];
+const rutasPorTipo: Record<
+  string,
+  { pagos?: string[]; ruta: (id: number) => string }[]
+> = {
+  proyecto: [
+    { ruta: (id) => `/proyectos/${id}` }
+  ],
+  maquinaria: [
+    {
+      pagos: ['Combustible de recurso', 'Mantenimiento de recurso'],
+      ruta: (id) => `/maquinaria/${id}`
+    }
+  ],
+  equipo: [
+    {
+      pagos: ['Compra de maquinaria', 'Compra de herramienta'],
+      ruta: (id) => `/maquinaria/${id}`
+    }
+  ]
+};
 
 const Page: NextPage = () => {
   const router = useRouter();
+  const { getSociosInternos } = useSociosApi();
+  const { getCostosGenerales } = useCostosGeneralesApi();
+
+  const [costos, setCostos] = useState<CostoGeneral[]>([]);
+  const [socios, setSocios] = useState<Socio[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [filtros, setFiltros] = useState<{
     search: string;
     fechaInicio?: Date | null;
     fechaFin?: Date | null;
-    empresa?: string;
   }>({
     search: '',
     fechaInicio: null,
     fechaFin: null,
-    empresa: '',
   });
 
-  const costosFiltrados = mockCostos.filter((c) => {
-    const matchSearch = filtros.search
-      ? c.anotaciones.toLowerCase().includes(filtros.search.toLowerCase()) ||
-        c.empresa.toLowerCase().includes(filtros.search.toLowerCase())
-      : true;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [costosData, sociosData] = await Promise.all([
+          getCostosGenerales(),
+          getSociosInternos(),
+        ]);
+        setCostos(costosData);
+        setSocios(sociosData);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const fecha = new Date(c.fecha_pago);
-    const matchInicio = filtros.fechaInicio ? fecha >= filtros.fechaInicio : true;
-    const matchFin = filtros.fechaFin ? fecha <= filtros.fechaFin : true;
-    const matchEmpresa = filtros.empresa ? c.empresa === filtros.empresa : true;
+    fetchData();
+  }, [getCostosGenerales, getSociosInternos]);
 
-    return matchSearch && matchInicio && matchFin && matchEmpresa;
-  });
+  const costosFiltrados = useMemo(() => {
+    return aplicarFiltros(costos, filtros, {
+      camposTexto: [
+        'origen',
+        'tipo_pago',
+        'tipo_documento',
+        'descripcion',
+        'usuario_registro.first_name',
+        'usuario_registro.last_name',
+      ],
+      campoFecha: 'fecha',
+    });
+  }, [costos, filtros]);
+
+  const handleVerDetalle = useCallback((costo: CostoGeneral) => {
+  const reglas = rutasPorTipo[costo.tipo_origen];
+
+  if (!reglas) {
+    toast.error('No hay una vista asignada para este tipo de origen');
+    return;
+  }
+
+  const regla = reglas.find(
+    (r) => !r.pagos || r.pagos.includes(String(costo.tipo_pago))
+  );
+
+  if (regla) {
+    router.push(regla.ruta(costo.origen_id));
+  } else {
+    toast.error('No hay una vista asignada para este tipo de origen');
+  }
+}, [router]);
+
 
   return (
     <Box sx={{ p: 3 }}>
@@ -105,14 +130,6 @@ const Page: NextPage = () => {
             sx={{ px: 3, py: 3 }}
           >
             <Typography variant="h5">Costos Generales</Typography>
-            <Button
-              variant="contained"
-              onClick={() => {
-                // lógica para abrir modal de nuevo costo
-              }}
-            >
-              Registrar costo
-            </Button>
           </Stack>
 
           <TablaPaginadaConFiltros
@@ -120,7 +137,6 @@ const Page: NextPage = () => {
             onFiltrar={setFiltros}
             filtrosEstado={false}
             filtrosRol={false}
-            filtrosEmpresa={true}
           >
             {(currentPage) => (
               <TableContainer
@@ -131,46 +147,48 @@ const Page: NextPage = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Fecha</TableCell>
-                      <TableCell>Proyecto</TableCell>
-                      <TableCell>Empresa</TableCell>
-                      <TableCell>Cantidad</TableCell>
-                      <TableCell>Tipo de costo</TableCell>
+                      <TableCell>Origen</TableCell>
+                      <TableCell>Usuario</TableCell>
+                      <TableCell>Monto</TableCell>
+                      <TableCell>Motivo</TableCell>
                       <TableCell>Documento</TableCell>
-                      <TableCell>Anotaciones</TableCell>
+                      <TableCell>Descripción</TableCell>
                       <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {costosFiltrados.slice((currentPage - 1) * 5, currentPage * 5).map((costo) => (
-                      <TableRow
-                        key={costo.id_pago}
-                        hover
-                      >
-                        <TableCell>
-                          {new Date(costo.fecha_pago).toLocaleDateString('es-GT')}
-                        </TableCell>
-                        <TableCell>{costo.proyecto.nombre}</TableCell>
-                        <TableCell>{costo.empresa}</TableCell>
-                        <TableCell>{formatearQuetzales(costo.monto_total)}</TableCell>
-                        <TableCell>{costo.tipo_pago}</TableCell>
-                        <TableCell>{costo.tipo_documento}</TableCell>
-                        <TableCell>{costo.anotaciones}</TableCell>
-                        <TableCell>
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                          >
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              onClick={() => router.push(`/proyectos/${costo.proyecto.id}`)}
+                    {costosFiltrados
+                      .slice((currentPage - 1) * 5, currentPage * 5)
+                      .map((costo, index) => (
+                        <TableRow
+                          key={index}
+                          hover
+                        >
+                          <TableCell>{formatearFecha(costo.fecha)}</TableCell>
+                          <TableCell>{costo.origen}</TableCell>
+                          <TableCell>
+                            {costo.usuario_registro.first_name} {costo.usuario_registro.last_name}
+                          </TableCell>
+                          <TableCell>{formatearQuetzales(costo.monto)}</TableCell>
+                          <TableCell>{String(costo.tipo_pago)}</TableCell>
+                          <TableCell>{costo.tipo_documento}</TableCell>
+                          <TableCell>{costo.descripcion}</TableCell>
+                          <TableCell>
+                            <Stack
+                              direction="row"
+                              spacing={1}
                             >
-                              Ver
-                            </Button>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => handleVerDetalle(costo)}
+                              >
+                                Ver
+                              </Button>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>

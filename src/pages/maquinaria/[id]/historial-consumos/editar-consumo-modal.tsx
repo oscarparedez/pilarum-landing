@@ -16,7 +16,7 @@ import { FC, useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
+import { GastoOperativo, NuevoGastoOperativo, TipoDocumento } from 'src/api/types';
 import { format } from 'date-fns';
 
 interface ModalEditarConsumoProps {
@@ -37,6 +37,7 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
   const [costo, setCosto] = useState<number>(0);
   const [fotos, setFotos] = useState<(string | File)[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
+  const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento | ''>('');
 
   useEffect(() => {
     if (consumo) {
@@ -45,6 +46,7 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
       setCosto(consumo.costo);
       setFotos(consumo.fotos?.map((f) => f.imagen) ?? []);
       setCargadas(consumo.fotos?.map(() => true) ?? []);
+      setTipoDocumento(consumo.tipo_documento);
     }
   }, [consumo]);
 
@@ -62,7 +64,7 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
   };
 
   const handleConfirm = () => {
-    if (fecha && descripcion && costo) {
+    if (fecha && descripcion && costo && tipoDocumento) {
       if (!descripcion || !fecha) return;
       const nuevasImagenes = fotos.filter((f) => f instanceof File) as File[];
       onConfirm(consumo.id, {
@@ -71,6 +73,7 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
         descripcion,
         costo,
         fotos: nuevasImagenes,
+        tipo_documento: tipoDocumento,
       });
       onClose();
     }
@@ -101,6 +104,19 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
               onChange={(newValue) => setFecha(newValue)}
             />
           </Box>
+
+          <TextField
+            label="Tipo de documento"
+            select
+            fullWidth
+            required
+            value={tipoDocumento}
+            onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
+          >
+            <MenuItem value="cheque">Cheque</MenuItem>
+            <MenuItem value="efectivo">Efectivo</MenuItem>
+            <MenuItem value="transferencia">Transferencia</MenuItem>
+          </TextField>
 
           <TextField
             label="Costo (Q)"

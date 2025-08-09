@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { use, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { useSettings } from 'src/hooks/use-settings';
@@ -20,7 +20,7 @@ import { NuevoGastoOperativo } from 'src/api/types';
 const Page: NextPage = () => {
   const settings = useSettings();
   const router = useRouter();
-  const { id } = router.query;
+  const { id: maquinariaId } = router.query;
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [data, setData] = useState<ConfigMaquinaria | null>(null);
   const [loading, setLoading] = useState(false);
@@ -32,25 +32,24 @@ const Page: NextPage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      if (!id) return;
+      if (!maquinariaId) return;
       setLoading(true);
-      const res = await getMaquinariaInfo(Number(id));
+      const res = await getMaquinariaInfo(Number(maquinariaId));
       setData(res);
     } catch (e) {
       toast.error('Error al obtener la maquinaria');
     } finally {
       setLoading(false);
     }
-  }, [id, setLoading, getMaquinariaInfo, setData]);
+  }, [maquinariaId, setLoading, getMaquinariaInfo, setData]);
 
   const handleActualizarDatosBasicosMaquinaria = async (updated: {
     tipo: TipoMaquinaria;
     nombre: string;
-    identificador?: string;
+    identificador: string;
     costo: number;
   }) => {
     try {
-      if (!id) return;
       setLoading(true);
       await actualizarMaquinaria(Number(id), updated);
       toast.success('Recurso actualizado');
@@ -66,9 +65,9 @@ const Page: NextPage = () => {
   const handleCrearGastoOperativo = useCallback(
     async (data: NuevoGastoOperativo) => {
       try {
-        if (!id) return;
+        if (!maquinariaId) return;
         setLoading(true);
-        await crearGastoOperativo(Number(id), data);
+        await crearGastoOperativo(Number(maquinariaId), data);
         toast.success('Gasto operativo creado');
         fetchData();
       } catch (e) {
@@ -77,16 +76,15 @@ const Page: NextPage = () => {
         setLoading(false);
       }
     },
-    [id, crearGastoOperativo, fetchData]
+    [maquinariaId, crearGastoOperativo, fetchData]
   );
 
   const handleActualizarGastoOperativo = useCallback(
     async (gastoId: number, data: NuevoGastoOperativo) => {
-      const id = router.query.id;
-      if (!id || Array.isArray(id)) return;
+      if (!maquinariaId || Array.isArray(maquinariaId)) return;
       try {
         setLoading(true);
-        await actualizarGastoOperativo(Number(id), gastoId, data);
+        await actualizarGastoOperativo(Number(maquinariaId), gastoId, data);
         toast.success('Gasto operativo actualizado');
         fetchData();
       } catch (e) {
@@ -95,16 +93,15 @@ const Page: NextPage = () => {
         setLoading(false);
       }
     },
-    [id, actualizarGastoOperativo, fetchData]
+    [maquinariaId, actualizarGastoOperativo, fetchData]
   );
 
   const handleEliminarGastoOperativo = useCallback(
     async (gastoId: number) => {
-      const id = router.query.id;
-      if (!id || Array.isArray(id)) return;
+      if (!maquinariaId || Array.isArray(maquinariaId)) return;
       try {
         setLoading(true);
-        await eliminarGastoOperativo(Number(id), gastoId);
+        await eliminarGastoOperativo(Number(maquinariaId), gastoId);
         toast.success('Gasto operativo eliminado');
         fetchData();
       } catch (e) {
@@ -113,7 +110,7 @@ const Page: NextPage = () => {
         setLoading(false);
       }
     },
-    [id, eliminarGastoOperativo, fetchData]
+    [maquinariaId, eliminarGastoOperativo, fetchData]
   );
 
   useEffect(() => {
@@ -123,16 +120,31 @@ const Page: NextPage = () => {
   if (!data) return null;
 
   const {
+    id,
     nombre,
     identificador,
     tipo,
     costo,
+    fecha_compra,
+    tipo_documento,
+    anotaciones,
     totalServicios,
     totalCombustibleUltimoMes,
     asignaciones,
     servicios,
     consumos,
   } = data;
+
+  const dataMaquinaria = {
+    id,
+    nombre,
+    identificador,
+    tipo,
+    costo: costo,
+    fecha_compra: fecha_compra,
+    tipo_documento,
+    anotaciones,
+  }
 
   return (
     <Box
@@ -164,12 +176,7 @@ const Page: NextPage = () => {
           <EditarDatosBasicosModal
             open={modalEditarOpen}
             onClose={() => setModalEditarOpen(false)}
-            initialData={{
-              nombre,
-              identificador,
-              costo,
-              tipo,
-            }}
+            initialData={dataMaquinaria}
             onConfirm={handleActualizarDatosBasicosMaquinaria}
           />
 

@@ -12,7 +12,7 @@ export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
     nombre: proyecto.nombre,
     ubicacion: proyecto.ubicacion,
     presupuestoInicial: proyecto.presupuesto_inicial ?? 0,
-    socioAsignado: proyecto.socio_asignado,
+    socio_asignado: proyecto.socio_asignado,
     fechaInicio: proyecto.fecha_inicio,
     fechaFin: proyecto.fecha_fin
   };
@@ -25,7 +25,7 @@ export const mapProyectoToConfig = (data: {
   fecha_inicio: string;
   fecha_fin: string;
   socios: Socio[];
-  socioAsignado: any;
+  socio_asignado: any;
   ingresos: any[];
   pagos: any[];
   ampliaciones: AmpliacionFecha[];
@@ -64,7 +64,7 @@ export const mapProyectoToConfig = (data: {
       fechaInicio: data.fecha_inicio,
       fechaFin: fechaMasReciente,
       presupuestoInicial,
-      socioAsignado: data.socioAsignado,
+      socio_asignado: data.socio_asignado,
     },
     presupuestoTotal: presupuestoTotal,
     totalIngresos,

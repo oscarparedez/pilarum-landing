@@ -10,12 +10,13 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  MenuItem,
 } from '@mui/material';
 import { FC, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { NuevoGastoOperativo } from 'src/api/types';
+import { NuevoGastoOperativo, TipoDocumento } from 'src/api/types';
 import { format } from 'date-fns';
 
 interface ModalRegistrarServicioProps {
@@ -34,6 +35,7 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
   const [costo, setCosto] = useState<number>(0);
   const [fotos, setFotos] = useState<File[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
+  const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento | ''>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -54,25 +56,37 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
   };
 
   const handleConfirm = () => {
-    if (fecha && descripcion && costo) {
+    if (fecha && descripcion && costo && tipoDocumento) {
       onConfirm({
         fecha: format(fecha, 'yyyy-MM-dd'),
         descripcion,
         costo,
         fotos,
         tipo_gasto: 2, // 2 = servicio
+        tipo_documento: tipoDocumento,
       });
       handleClose();
     }
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Registrar servicio</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha del servicio
             </Typography>
             <DateCalendar
@@ -80,6 +94,18 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
               onChange={(newValue) => setFecha(newValue)}
             />
           </Box>
+          <TextField
+            label="Tipo de documento"
+            select
+            fullWidth
+            required
+            value={tipoDocumento}
+            onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
+          >
+            <MenuItem value="cheque">Cheque</MenuItem>
+            <MenuItem value="efectivo">Efectivo</MenuItem>
+            <MenuItem value="transferencia">Transferencia</MenuItem>
+          </TextField>
 
           <TextField
             label="Costo (Q)"
@@ -100,7 +126,10 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
           />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Subir imágenes (máximo 3)
             </Typography>
             <Box
@@ -131,7 +160,10 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
               <Typography color="text.secondary">
                 Arrastra o haz clic para subir imágenes
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 Máximo 3 archivos (.jpg, .png)
               </Typography>
               <input
@@ -145,11 +177,18 @@ export const ModalRegistrarServicio: FC<ModalRegistrarServicioProps> = ({
             </Box>
 
             {fotos.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {fotos.map((file, i) => {
                   const src = URL.createObjectURL(file);
                   return (
-                    <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                    <Box
+                      key={i}
+                      sx={{ position: 'relative', width: 80, height: 80 }}
+                    >
                       {!cargadas[i] && (
                         <Box
                           sx={{

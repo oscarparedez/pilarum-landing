@@ -156,10 +156,14 @@ export const useMaquinariasApi = () => {
       const consumos = gastosOperativos.filter((g) => g.tipo_gasto === 1);
 
       return {
+        id: maquinaria.id,
         nombre: maquinaria.nombre,
         identificador: maquinaria.identificador,
         tipo: maquinaria.tipo,
         costo: maquinaria.costo,
+        fecha_compra: maquinaria.fecha_compra,
+        tipo_documento: maquinaria.tipo_documento,
+        anotaciones: maquinaria.anotaciones,
         totalServicios: calcularTotalServicios(gastosOperativos),
         totalCombustibleUltimoMes: calcularTotalCombustibleUltimoMes(gastosOperativos),
         asignaciones,

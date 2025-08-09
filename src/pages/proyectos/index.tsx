@@ -30,7 +30,7 @@ const Page: NextPage = () => {
       const data = await getProyectos();
       setProyectos(data);
     } catch (error) {
-      console.error('Error cargando proyectos:', error);
+      toast.error('Error al cargar proyectos');
     }
   }, [getProyectos, setProyectos]);
 
@@ -45,7 +45,6 @@ const Page: NextPage = () => {
       setModalCrearProyectoOpen(false);
       cargarProyectos();
     } catch (error) {
-      console.error('Error al crear proyecto:', error);
       toast.error('Error al crear proyecto');
     }
   };

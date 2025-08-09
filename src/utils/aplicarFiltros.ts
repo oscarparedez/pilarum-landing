@@ -2,6 +2,7 @@ interface FiltroConfig {
   camposTexto: string[];
   campoFecha?: string;
   campoEstado?: string;
+  campoEmpresa?: string;
 }
 
 interface FiltrosGlobales {
@@ -9,6 +10,7 @@ interface FiltrosGlobales {
   fechaInicio?: Date | null;
   fechaFin?: Date | null;
   estado?: 'Activo' | 'Inactivo' | 'Todos';
+  empresa?: string;
 }
 
 export const aplicarFiltros = <T>(
@@ -46,11 +48,20 @@ export const aplicarFiltros = <T>(
 
     // ✅ Estado
     let coincideEstado = true;
-    if (config.campoEstado && filtros.estado && filtros.estado !== 'todos') {
+    if (config.campoEstado && filtros.estado && filtros.estado !== 'Todos') {
       const estadoItem = String((item as any)[config.campoEstado] ?? '').toLowerCase();
-      coincideEstado = estadoItem === filtros.estado;
+      coincideEstado = estadoItem === filtros.estado.toLowerCase();
     }
 
-    return coincideTexto && coincideFecha && coincideEstado;
+    // 🏢 Empresa
+    let coincideEmpresa = true;
+    if (config.campoEmpresa && filtros.empresa && filtros.empresa !== '') {
+      const empresaValor = String(
+        config.campoEmpresa.split('.').reduce((acc, key) => acc?.[key], item as any) ?? ''
+      ).toLowerCase();
+      coincideEmpresa = empresaValor === filtros.empresa.toLowerCase();
+    }
+
+    return coincideTexto && coincideFecha && coincideEstado && coincideEmpresa;
   });
 };

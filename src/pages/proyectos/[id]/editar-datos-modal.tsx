@@ -33,7 +33,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   const [nombre, setNombre] = useState(initialData.nombre);
   const [ubicacion, setUbicacion] = useState(initialData.ubicacion);
   const [presupuestoInicial, setPresupuestoInicial] = useState(initialData.presupuestoInicial);
-  const [socio, setSocio] = useState(initialData.socioAsignado);
+  const [socio, setSocio] = useState(initialData.socio_asignado);
   const [fechaInicio, setFechaInicio] = useState<Date | null>(new Date(initialData.fechaInicio));
   const [fechaFin, setFechaFin] = useState<Date | null>(new Date(initialData.fechaFin));
 
@@ -45,7 +45,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
         presupuestoInicial,
         fecha_inicio: format(fechaInicio, 'yyyy-MM-dd'),
         fecha_fin: format(fechaFin, 'yyyy-MM-dd'),
-        socioAsignado: socio.id,
+        socio_asignado: socio.id,
       });
       onClose();
     }

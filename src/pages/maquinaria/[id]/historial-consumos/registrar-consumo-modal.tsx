@@ -16,7 +16,7 @@ import { FC, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { NuevoGastoOperativo } from 'src/api/types';
+import { NuevoGastoOperativo, TipoDocumento } from 'src/api/types';
 import { format } from 'date-fns';
 
 interface ModalRegistrarConsumoProps {
@@ -35,6 +35,7 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   const [costo, setCosto] = useState<number>(0);
   const [fotos, setFotos] = useState<File[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
+  const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento | ''>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -51,17 +52,19 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
     setCosto(0);
     setFotos([]);
     setCargadas([]);
+    setTipoDocumento(undefined);
     onClose();
   };
 
   const handleConfirm = () => {
-    if (fecha && descripcion && costo) {
+    if (fecha && descripcion && costo && tipoDocumento) {
       onConfirm({
         fecha: format(fecha, 'yyyy-MM-dd'),
         descripcion,
         costo,
         fotos,
         tipo_gasto: 1, // 1 = combustible
+        tipo_documento: tipoDocumento,
       });
       handleClose();
     }
@@ -92,6 +95,19 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
               onChange={(newValue) => setFecha(newValue)}
             />
           </Box>
+
+          <TextField
+            label="Tipo de documento"
+            select
+            fullWidth
+            required
+            value={tipoDocumento}
+            onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
+          >
+            <MenuItem value="cheque">Cheque</MenuItem>
+            <MenuItem value="efectivo">Efectivo</MenuItem>
+            <MenuItem value="transferencia">Transferencia</MenuItem>
+          </TextField>
 
           <TextField
             label="Costo (Q)"

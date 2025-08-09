@@ -69,7 +69,7 @@ export const useProyectosApi = () => {
           ubicacion: data.ubicacion,
           fecha_inicio: data.fecha_inicio,
           fecha_fin: data.fecha_fin,
-          socio_asignado: data.socioAsignado,
+          socio_asignado: data.socio_asignado,
         }),
       });
 
@@ -155,7 +155,7 @@ export const useProyectosApi = () => {
         ubicacion: proyecto.ubicacion,
         fecha_inicio: proyecto.fechaInicio,
         fecha_fin: proyecto.fechaFin,
-        socioAsignado: proyecto.socioAsignado,
+        socio_asignado: proyecto.socio_asignado,
         socios: socios,
         ingresos,
         pagos,
