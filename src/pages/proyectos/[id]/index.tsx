@@ -28,6 +28,7 @@ import { useAsignacionesPersonalApi } from 'src/api/asignacionesPersonal/useAsig
 import { useRevisionesApi } from 'src/api/revisiones/useRevisionesApi';
 import { NuevaAsignacionMaquinaria, NuevaRevision, NuevoProyecto, Proyecto } from 'src/api/types';
 import { format } from 'date-fns';
+import { PizarronPendientes } from 'src/components/pendientes/pizarron-pendientes';
 
 export const tareasEjemplo: Tarea[] = [];
 
@@ -675,7 +676,7 @@ const Page: NextPage = () => {
             onEliminarAmpliacionPresupuesto={handleEliminarAmpliacionPresupuesto}
           />
 
-          <Pizarron tareas={tareasEjemplo} />
+          <PizarronPendientes tipo="proyecto" />
 
           <ResumenFinanciero
             totalIngresos={totalIngresos}

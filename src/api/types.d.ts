@@ -218,3 +218,27 @@ export interface NuevaMaquinaria {
   tipo_documento: TipoDocumento;
   anotaciones?: string;
 }
+
+export type CategoriaPendiente = 'proyecto' | 'maquinaria' | 'oficina' | 'otro';
+export type EstadoPendiente = 'no_iniciado' | 'pendiente' | 'completado';
+
+export interface NuevoPendiente {
+  titulo: string;
+  descripcion?: string;
+  categoria: CategoriaPendiente;
+  referencia_id: number | null;
+  estado?: EstadoPendiente;
+}
+
+export interface Pendiente {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  categoria: CategoriaPendiente;
+  referencia_id: number;
+  estado: EstadoPendiente;
+  fecha_creacion: string; // ISO date string
+  fecha_completado: string | null; // puede ser null si no está completado
+  usuario_creador: Usuario | null;
+  usuario_completo: Usuario | null;
+}
