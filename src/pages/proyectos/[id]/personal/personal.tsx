@@ -20,6 +20,8 @@ import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtr
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 import { esHoy, formatearFechaHora } from 'src/utils/format-date';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface PersonalAsignadoProps {
   usuarios: any[];
@@ -55,6 +57,10 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
   const [editarModalOpen, setEditarModalOpen] = useState(false);
   const [editando, setEditando] = useState<any | null>(null);
   const [asignacionAEliminar, setAsignacionAEliminar] = useState<any | null>(null);
+
+  const canAsignarPersonal = useHasPermission(PermissionId.CREAR_ASIG_PERSONAL);
+  const canEditAsignacionPersonal = useHasPermission(PermissionId.EDITAR_ASIG_PERSONAL);
+  const canLiberarAsignacionPersonal = useHasPermission(PermissionId.LIBERAR_ASIG_PERSONAL);
 
   const [filtros, setFiltros] = useState<{
     search: string;
@@ -145,12 +151,14 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
             sx={{ px: 3, py: 3 }}
           >
             <Typography variant="h5">Ingenieros y arquitectos asignados</Typography>
-            <Button
-              variant="contained"
-              onClick={() => setAgregarModalOpen(true)}
-            >
-              Asignar recurso
-            </Button>
+            {canAsignarPersonal && (
+              <Button
+                variant="contained"
+                onClick={() => setAgregarModalOpen(true)}
+              >
+                Asignar recurso
+              </Button>
+            )}
           </Stack>
 
           <TablaPaginadaConFiltros
@@ -170,7 +178,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                       <TableCell>Fin</TableCell>
                       <TableCell>Estado</TableCell>
                       <TableCell>Días</TableCell>
-                      <TableCell>Acciones</TableCell>
+                      {(canEditAsignacionPersonal || canLiberarAsignacionPersonal) && <TableCell>Acciones</TableCell> }
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -197,24 +205,28 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                                 direction="row"
                                 spacing={1}
                               >
-                                <Button
-                                  size="small"
-                                  onClick={() => {
-                                    setEditando(item);
-                                    setEditarModalOpen(true);
-                                  }}
-                                >
-                                  Editar
-                                </Button>
-                                <Button
-                                  disabled={esHoy(item.fecha_fin)}
-                                  size="small"
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={() => onLiberarAsignacionPersonal(item)}
-                                >
-                                  {esFutura ? 'Eliminar' : 'Liberar'}
-                                </Button>
+                                {canEditAsignacionPersonal && (
+                                  <Button
+                                    size="small"
+                                    onClick={() => {
+                                      setEditando(item);
+                                      setEditarModalOpen(true);
+                                    }}
+                                  >
+                                    Editar
+                                  </Button>
+                                )}
+                                {canLiberarAsignacionPersonal && (
+                                  <Button
+                                    disabled={esHoy(item.fecha_fin)}
+                                    size="small"
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={() => onLiberarAsignacionPersonal(item)}
+                                  >
+                                    {esFutura ? 'Eliminar' : 'Liberar'}
+                                  </Button>
+                                )}
                               </Stack>
                             </TableCell>
                           </TableRow>

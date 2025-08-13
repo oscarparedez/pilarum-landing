@@ -23,6 +23,8 @@ import { ModalEliminar } from 'src/components/eliminar-modal';
 import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
 import { formatearFechaHora } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface HistorialServiciosProps {
   servicios: GastoOperativo[];
@@ -47,6 +49,10 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
     fechaInicio?: Date | null;
     fechaFin?: Date | null;
   }>({ search: '' });
+
+  const canRegistrarServicios = useHasPermission(PermissionId.REGISTRAR_SERVICIO);
+  const canEditarServicios = useHasPermission(PermissionId.EDITAR_SERVICIO);
+  const canEliminarServicios = useHasPermission(PermissionId.ELIMINAR_SERVICIO);
 
   const serviciosFiltrados = useMemo(() => {
     return aplicarFiltros(servicios, filtros, {
@@ -101,12 +107,14 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Historial de servicios</Typography>
-          <Button
-            variant="contained"
-            onClick={() => setAgregarModalOpen(true)}
-          >
-            Registrar servicio
-          </Button>
+          {canRegistrarServicios && (
+            <Button
+              variant="contained"
+              onClick={() => setAgregarModalOpen(true)}
+            >
+              Registrar servicio
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -125,7 +133,7 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
                       <TableCell>Fecha de servicio</TableCell>
                       <TableCell>Costo</TableCell>
                       <TableCell>Anotaciones</TableCell>
-                      <TableCell>Acciones</TableCell>
+                      {(canEliminarServicios || canEliminarServicios) && <TableCell>Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -144,12 +152,16 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
                           >
                             <VisibilityIcon />
                           </IconButton>
-                          <IconButton onClick={() => setEditarServicio(s)}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton onClick={() => setServicioAEliminar(s)}>
-                            <DeleteIcon />
-                          </IconButton>
+                          {canEditarServicios && (
+                            <IconButton onClick={() => setEditarServicio(s)}>
+                              <EditIcon />
+                            </IconButton>
+                          )}
+                          {canEliminarServicios && (
+                            <IconButton onClick={() => setServicioAEliminar(s)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

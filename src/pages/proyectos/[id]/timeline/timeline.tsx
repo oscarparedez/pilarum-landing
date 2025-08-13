@@ -7,6 +7,8 @@ import { ModalAmpliarPresupuesto } from './ampliar-presupuesto-modal';
 import { AmpliacionPresupuesto, AmpliacionFecha } from '../index.d';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFechaHora } from 'src/utils/format-date';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface TimelineProps {
   fechaInicio: string;
@@ -45,6 +47,15 @@ export const Timeline: FC<TimelineProps> = ({
   const [showHistorialFechas, setShowHistorialFechas] = useState(false);
   const [showHistorialPresupuesto, setShowHistorialPresupuesto] = useState(false);
   const [showAmpliarPresupuesto, setShowAmpliarPresupuesto] = useState(false);
+
+  const canViewPresupuestoInicial = useHasPermission(PermissionId.VER_PRESUPUESTO_INICIAL);
+  const canAmpliarPresupuesto = useHasPermission(PermissionId.AMPLIAR_PRESUPUESTO_INICIAL);
+  const canViewAmpliacionesPresupuesto = useHasPermission(
+    PermissionId.VER_AMPLIACIONES_PRESUPUESTO
+  );
+  const canViewFechaFin = useHasPermission(PermissionId.VER_FECHA_FIN);
+  const canAmpliarFechaFin = useHasPermission(PermissionId.AMPLIAR_FECHA_FIN);
+  const canViewAmpliacionesFechaFin = useHasPermission(PermissionId.VER_AMPLIACIONES_FECHA_FIN);
 
   const handleAmpliarFecha = async (nuevaFecha: Date, motivo: string) => {
     setShowAmpliarFecha(false);
@@ -129,7 +140,7 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  {formatearFechaHora(fechaFin)}
+                  {canViewFechaFin ? formatearFechaHora(fechaFin) : '** *** ****'}
                 </Typography>
                 <Typography
                   color="text.secondary"
@@ -143,22 +154,26 @@ export const Timeline: FC<TimelineProps> = ({
                   spacing={2}
                   sx={{ mt: 3, width: '100%' }}
                 >
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    size="large"
-                    onClick={() => setShowAmpliarFecha(true)}
-                  >
-                    Ampliar fecha
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    size="large"
-                    onClick={() => setShowHistorialFechas(true)}
-                  >
-                    Ampliaciones
-                  </Button>
+                  {canAmpliarFechaFin && (
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      size="large"
+                      onClick={() => setShowAmpliarFecha(true)}
+                    >
+                      Ampliar fecha
+                    </Button>
+                  )}
+                  {canViewAmpliacionesFechaFin && (
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      size="large"
+                      onClick={() => setShowHistorialFechas(true)}
+                    >
+                      Ampliaciones
+                    </Button>
+                  )}
                 </Stack>
               </Stack>
             </Grid>
@@ -177,7 +192,9 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  Q{formatearQuetzales(presupuestoInicial)}
+                  {canViewPresupuestoInicial
+                    ? formatearQuetzales(presupuestoInicial)
+                    : 'GTQ *******'}
                 </Typography>
                 <Typography
                   color="text.secondary"
@@ -191,22 +208,26 @@ export const Timeline: FC<TimelineProps> = ({
                   spacing={2}
                   sx={{ mt: 3, width: '100%' }}
                 >
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    size="large"
-                    onClick={() => setShowAmpliarPresupuesto(true)}
-                  >
-                    Ampliar presupuesto
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    size="large"
-                    onClick={() => setShowHistorialPresupuesto(true)}
-                  >
-                    Ampliaciones
-                  </Button>
+                  {canAmpliarPresupuesto && (
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      size="large"
+                      onClick={() => setShowAmpliarPresupuesto(true)}
+                    >
+                      Ampliar presupuesto
+                    </Button>
+                  )}
+                  {canViewAmpliacionesPresupuesto && (
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      size="large"
+                      onClick={() => setShowHistorialPresupuesto(true)}
+                    >
+                      Ampliaciones
+                    </Button>
+                  )}
                 </Stack>
               </Stack>
             </Grid>

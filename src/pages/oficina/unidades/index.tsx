@@ -26,6 +26,8 @@ import { NuevaUnidad, Unidad } from 'src/api/types';
 import { useUnidadesApi } from 'src/api/unidades/useUnidadesApi';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -37,6 +39,8 @@ const Page: NextPage = () => {
   const rowsPerPage = 5;
 
   const { getUnidades, crearUnidad, actualizarUnidad } = useUnidadesApi();
+  const canCreateUnidad = useHasPermission(PermissionId.CREAR_UNIDAD);
+  const canEditUnidad = useHasPermission(PermissionId.EDITAR_UNIDAD);
 
   const handleGetUnidades = useCallback(async () => {
     try {
@@ -48,7 +52,7 @@ const Page: NextPage = () => {
   }, [getUnidades]);
 
   const handleCrearUnidad = useCallback(
-    async (nuevaUnidad: Unidad) => {
+    async (nuevaUnidad: NuevaUnidad) => {
       try {
         await crearUnidad(nuevaUnidad);
         setModalCrearOpen(false);
@@ -103,13 +107,15 @@ const Page: NextPage = () => {
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Unidades</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setModalCrearOpen(true)}
-          >
-            Crear unidad
-          </Button>
+          {canCreateUnidad && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setModalCrearOpen(true)}
+            >
+              Crear unidad
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -126,20 +132,25 @@ const Page: NextPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Nombre</TableCell>
-                    <TableCell align="center">Acciones</TableCell>
+                    {canEditUnidad && <TableCell align="center">Acciones</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {paginadas.map((unidad) => (
-                    <TableRow key={unidad.id} hover>
+                    <TableRow
+                      key={unidad.id}
+                      hover
+                    >
                       <TableCell>{unidad.nombre}</TableCell>
-                      <TableCell align="center">
-                        <IconButton onClick={() => abrirModalEditar(unidad)}>
-                          <SvgIcon>
-                            <EditIcon />
-                          </SvgIcon>
-                        </IconButton>
-                      </TableCell>
+                      {canEditUnidad && (
+                        <TableCell align="center">
+                          <IconButton onClick={() => abrirModalEditar(unidad)}>
+                            <SvgIcon>
+                              <EditIcon />
+                            </SvgIcon>
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>

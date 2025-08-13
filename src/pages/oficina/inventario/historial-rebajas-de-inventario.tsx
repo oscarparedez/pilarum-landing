@@ -15,6 +15,8 @@ import { useRouter } from 'next/router';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { paths } from 'src/paths';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../roles/permissions';
 
 const REBAJAS_MOCK = [
   {
@@ -31,6 +33,7 @@ const REBAJAS_MOCK = [
 
 export const HistorialRebajasInventario = () => {
   const router = useRouter();
+  const canViewDetalleHistorialRebaja = useHasPermission(PermissionId.VER_DETALLE_REBAJA);
 
   return (
     <Card sx={{ mt: 4 }}>
@@ -57,7 +60,9 @@ export const HistorialRebajasInventario = () => {
                   <TableRow>
                     <TableCell>Fecha</TableCell>
                     <TableCell>Motivo</TableCell>
-                    <TableCell align="center">Ver detalles</TableCell>
+                    {canViewDetalleHistorialRebaja && (
+                      <TableCell align="center">Ver detalles</TableCell>
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -65,17 +70,19 @@ export const HistorialRebajasInventario = () => {
                     <TableRow key={rebaja.id}>
                       <TableCell>{rebaja.fecha}</TableCell>
                       <TableCell>{rebaja.motivo}</TableCell>
-                      <TableCell align="center">
-                        <IconButton
-                          onClick={() =>
-                            router.push(`${paths.dashboard.oficina.rebaja(rebaja.id)}`)
-                          }
-                        >
-                          <SvgIcon>
-                            <VisibilityIcon />
-                          </SvgIcon>
-                        </IconButton>
-                      </TableCell>
+                      {canViewDetalleHistorialRebaja && (
+                        <TableCell align="center">
+                          <IconButton
+                            onClick={() =>
+                              router.push(`${paths.dashboard.oficina.rebaja(rebaja.id)}`)
+                            }
+                          >
+                            <SvgIcon>
+                              <VisibilityIcon />
+                            </SvgIcon>
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>

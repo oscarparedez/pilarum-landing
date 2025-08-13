@@ -1,61 +1,90 @@
-// src/hooks/usePermisosPorGrupo.ts
+import { useCallback, useRef, useState } from 'react';
+import { PERMISSION_LABEL_TO_ID } from './permissions';
 
-import { useRef, useState } from 'react';
+export type PermisosAgrupados = Record<string, Record<string, string[]>>;
+export type Seleccionados = { [subgrupo: string]: string[] };
 
 export const usePermisosPorGrupo = (
-  permisos: Record<string, Record<string, string[]>>,
-  initialSeleccionados: { [key: string]: string[] } = {}
+  permisos: PermisosAgrupados,
+  initialIds: number[] = []
 ) => {
-  const [seleccionados, setSeleccionados] = useState<{ [key: string]: string[] }>(initialSeleccionados);
-  const originalRef = useRef(initialSeleccionados);
+  const idsToSeleccionados = useCallback((ids: number[]): Seleccionados => {
+    const next: Seleccionados = {};
+    Object.entries(permisos).forEach(([_, subgrupos]) => {
+      Object.entries(subgrupos).forEach(([subgrupo, labels]) => {
+        const presentes = labels.filter((l) => ids.includes(PERMISSION_LABEL_TO_ID[l]));
+        if (presentes.length) next[subgrupo] = presentes;
+      });
+    });
+    return next;
+  }, [permisos]);
 
-  const togglePermiso = (grupo: string, permiso: string) => {
-    setSeleccionados(prev => {
+  const [seleccionados, setSeleccionados] = useState<Seleccionados>(
+    idsToSeleccionados(initialIds)
+  );
+  const originalRef = useRef(idsToSeleccionados(initialIds));
+
+  const togglePermiso = useCallback((grupo: string, permiso: string) => {
+    setSeleccionados((prev) => {
       const actual = prev[grupo] || [];
       return {
         ...prev,
         [grupo]: actual.includes(permiso)
-          ? actual.filter(p => p !== permiso)
+          ? actual.filter((p) => p !== permiso)
           : [...actual, permiso],
       };
     });
-  };
+  }, []);
 
-  const seleccionarTodos = (grupo: string, lista: string[]) => {
-    setSeleccionados(prev => ({
-      ...prev,
-      [grupo]: lista
-    }));
-  };
+  const seleccionarTodos = useCallback((grupo: string, lista: string[]) => {
+    setSeleccionados((prev) => ({ ...prev, [grupo]: lista }));
+  }, []);
 
-  const deseleccionarTodos = (grupo: string) => {
-    setSeleccionados(prev => ({
-      ...prev,
-      [grupo]: []
-    }));
-  };
+  const deseleccionarTodos = useCallback((grupo: string) => {
+    setSeleccionados((prev) => ({ ...prev, [grupo]: [] }));
+  }, []);
 
-  const estaSeleccionado = (grupo: string, permiso: string) =>
-    seleccionados[grupo]?.includes(permiso) || false;
+  const estaSeleccionado = useCallback(
+    (grupo: string, permiso: string) => seleccionados[grupo]?.includes(permiso) || false,
+    [seleccionados]
+  );
 
-  const todosSeleccionados = (grupo: string, total: string[]) =>
-    (seleccionados[grupo] || []).length === total.length;
+  const todosSeleccionados = useCallback(
+    (grupo: string, total: string[]) => (seleccionados[grupo] || []).length === total.length,
+    [seleccionados]
+  );
 
-  const cantidadSeleccionados = (grupo: string) =>
-    seleccionados[grupo]?.length || 0;
+  const cantidadSeleccionados = useCallback(
+    (grupo: string) => seleccionados[grupo]?.length || 0,
+    [seleccionados]
+  );
 
-  const isEqualToOriginal = () =>
-    JSON.stringify(seleccionados) === JSON.stringify(originalRef.current);
+  const isEqualToOriginal = useCallback(
+    () => JSON.stringify(seleccionados) === JSON.stringify(originalRef.current),
+    [seleccionados]
+  );
+
+  const selectedIds = useCallback((): number[] => {
+    const ids = new Set<number>();
+    Object.values(seleccionados).forEach((labels) => {
+      labels.forEach((label) => {
+        const id = PERMISSION_LABEL_TO_ID[label];
+        if (id !== undefined) ids.add(id);
+      });
+    });
+    return Array.from(ids).sort((a, b) => a - b);
+  }, [seleccionados]);
 
   return {
     seleccionados,
+    setSeleccionados,
     togglePermiso,
     seleccionarTodos,
     deseleccionarTodos,
     estaSeleccionado,
     todosSeleccionados,
     cantidadSeleccionados,
-    setSeleccionados,
-    isEqualToOriginal
+    isEqualToOriginal,
+    selectedIds,
   };
 };

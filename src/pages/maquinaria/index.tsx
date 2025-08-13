@@ -14,6 +14,8 @@ import { ModalAgregarRecurso } from './agregar-recurso-modal';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../oficina/roles/permissions';
 
 type Recurso = {
   id: number;
@@ -41,6 +43,7 @@ const Page: NextPage = () => {
   const [loading, setLoading] = useState(true);
 
   const { crearMaquinaria, getMaquinarias } = useMaquinariasApi();
+  const canCreateMaquinaria = useHasPermission(PermissionId.CREAR_MAQUINARIA);
 
   const cargarRecursos = useCallback(async () => {
     try {
@@ -120,17 +123,19 @@ const Page: NextPage = () => {
                 spacing={4}
               >
                 <Typography variant="h4">Maquinaria y Herramientas</Typography>
-                <Button
-                  startIcon={
-                    <SvgIcon>
-                      <PlusIcon />
-                    </SvgIcon>
-                  }
-                  variant="contained"
-                  onClick={handleCrear}
-                >
-                  Agregar recurso
-                </Button>
+                {canCreateMaquinaria && (
+                  <Button
+                    startIcon={
+                      <SvgIcon>
+                        <PlusIcon />
+                      </SvgIcon>
+                    }
+                    variant="contained"
+                    onClick={handleCrear}
+                  >
+                    Agregar recurso
+                  </Button>
+                )}
               </Stack>
             </Grid>
 

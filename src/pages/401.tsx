@@ -12,13 +12,13 @@ import { usePageView } from 'src/hooks/use-page-view';
 import { paths } from 'src/paths';
 
 const Page: NextPage = () => {
-  const mdUp = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
+  const mdDown = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
   usePageView();
 
   return (
     <>
-      <Seo title="Error: Authorization Required" />
+      <Seo title="Error: Autorización requerida" />
       <Box
         component="main"
         sx={{
@@ -37,7 +37,7 @@ const Page: NextPage = () => {
             }}
           >
             <Box
-              alt="Not authorized"
+              alt="No autorizado"
               component="img"
               src="/assets/errors/error-401.png"
               sx={{
@@ -49,17 +49,17 @@ const Page: NextPage = () => {
           </Box>
           <Typography
             align="center"
-            variant={mdUp ? 'h1' : 'h4'}
+            variant={mdDown ? 'h4' : 'h1'}
           >
-            401: Authorization required
+            401: Autorización requerida
           </Typography>
           <Typography
             align="center"
             color="text.secondary"
             sx={{ mt: 0.5 }}
           >
-            You either tried some shady route or you came here by mistake. Whichever it is, try
-            using the navigation.
+            No tienes permisos para acceder a esta página o intentaste ingresar por error.
+            Utiliza el menú de navegación para continuar.
           </Typography>
           <Box
             sx={{
@@ -70,9 +70,9 @@ const Page: NextPage = () => {
           >
             <Button
               component={RouterLink}
-              href={paths.index}
+              href={paths.dashboard.inicio}
             >
-              Back to Home
+              Volver al inicio
             </Button>
           </Box>
         </Container>

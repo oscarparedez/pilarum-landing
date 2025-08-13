@@ -27,6 +27,8 @@ import { useMaterialesApi } from 'src/api/materiales/useMaterialesApi';
 import { ConfigMaterial, Material, NuevoMaterial } from 'src/api/types';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -42,6 +44,8 @@ const Page: NextPage = () => {
   const rowsPerPage = 5;
 
   const { getMaterialesInfo, crearMaterial, actualizarMaterial } = useMaterialesApi();
+  const canCreateMaterial = useHasPermission(PermissionId.CREAR_MATERIAL);
+  const canEditMaterial = useHasPermission(PermissionId.EDITAR_MATERIAL);
 
   const handleGetMateriales = useCallback(async () => {
     try {
@@ -106,13 +110,15 @@ const Page: NextPage = () => {
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Materiales</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setModalCrearOpen(true)}
-          >
-            Crear material
-          </Button>
+          {canCreateMaterial && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setModalCrearOpen(true)}
+            >
+              Crear material
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -134,7 +140,7 @@ const Page: NextPage = () => {
                       <TableCell>Nombre</TableCell>
                       <TableCell>Unidad</TableCell>
                       <TableCell>Marca</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
+                      {canEditMaterial && <TableCell align="center">Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -146,13 +152,15 @@ const Page: NextPage = () => {
                         <TableCell>{material.nombre}</TableCell>
                         <TableCell>{material.unidad.nombre}</TableCell>
                         <TableCell>{material.marca.nombre}</TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(material)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>
+                        {canEditMaterial && (
+                          <TableCell align="center">
+                            <IconButton onClick={() => abrirModalEditar(material)}>
+                              <SvgIcon>
+                                <EditIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

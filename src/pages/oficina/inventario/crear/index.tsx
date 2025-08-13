@@ -18,95 +18,137 @@ import {
   Paper,
   Tooltip,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { NextPage } from 'next';
-import debounce from 'lodash.debounce';
-
-interface Material {
-  id: string;
-  nombre: string;
-  unidad: string;
-}
+import { useMaterialesApi } from 'src/api/materiales/useMaterialesApi';
+import { Material, NuevaCompraMaterial, NuevaCompraMaterialForm, Proveedor } from 'src/api/types';
+import { FullPageLoader } from 'src/components/loader/Loader';
+import { useProveedoresApi } from 'src/api/proveedores/useProveedoresApi';
+import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/router';
 
 const Page: NextPage = () => {
-  const [factura, setFactura] = useState('');
-  const [items, setItems] = useState<
-    { material: Material | null; cantidad: string; costoUnitario: string }[]
-  >([]);
+  const router = useRouter();
+  const { getMateriales } = useMaterialesApi();
+  const { getProveedores } = useProveedoresApi();
+  const { crearOrdenCompra } = useOrdenesCompraApi();
 
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [materialesFiltrados, setMaterialesFiltrados] = useState<Material[]>([]);
+  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+  const [materiales, setMateriales] = useState<Material[]>([]);
 
-  const fetchMateriales = async (query: string) => {
+  const [proveedor, setProveedor] = useState<Proveedor | null>(null);
+  const [numeroFactura, setNumeroFactura] = useState('');
+  const [fechaFactura, setFechaFactura] = useState<Date>(new Date());
+
+  const [compras, setCompras] = useState<NuevaCompraMaterialForm[]>([]);
+
+  // Fetch inicial
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const data = [
-        { id: 'mat-001', nombre: 'Saco de cemento 20 kg', unidad: 'sacos' },
-        { id: 'mat-002', nombre: 'Vigas de hierro 6 metros', unidad: 'barras' },
-        { id: 'mat-003', nombre: 'Arena fina', unidad: 'm³' },
-        { id: 'mat-004', nombre: 'Clavos 3"', unidad: 'libras' },
-      ].filter((m) => m.nombre.toLowerCase().includes(query.toLowerCase()));
-
-      setMaterialesFiltrados(data);
+      const [prov, mats] = await Promise.all([getProveedores(), getMateriales()]);
+      setProveedores(prov);
+      setMateriales(mats);
+    } catch (error) {
+      console.error('Error cargando datos iniciales', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [getProveedores, getMateriales]);
 
-  const debouncedFetch = useMemo(
-    () => debounce((query: string) => fetchMateriales(query), 400),
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const ultimoItemIncompleto = useCallback(() => {
+    if (compras.length === 0) return false;
+    const ultimo = compras[compras.length - 1];
+    return !ultimo.material || !ultimo.cantidad || !ultimo.precio_unitario;
+  }, [compras]);
+
+  const puedeAgregarCompra = useMemo(
+    () => compras.length === 0 || !ultimoItemIncompleto(),
+    [compras, ultimoItemIncompleto]
+  );
+
+  const agregarCompra = useCallback(() => {
+    if (!puedeAgregarCompra) return;
+    setCompras((prev) => [...prev, { material: null, cantidad: '', precio_unitario: '' }]);
+  }, [puedeAgregarCompra]);
+
+  const eliminarCompra = useCallback((index: number) => {
+    setCompras((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const actualizarCompra = useCallback(
+    (index: number, campo: keyof (typeof compras)[number], valor: any) => {
+      setCompras((prev) => {
+        const nuevos = [...prev];
+        nuevos[index][campo] = valor;
+        return nuevos;
+      });
+    },
     []
   );
 
-  useEffect(() => {
-    if (searchTerm.length > 1) {
-      debouncedFetch(searchTerm);
-    } else {
-      setMaterialesFiltrados([]);
+  const calcularTotal = useMemo(
+    () => compras.reduce((total, item) => total + (+item.cantidad * +item.precio_unitario || 0), 0),
+    [compras]
+  );
+
+  const formularioValido = useMemo(
+    () =>
+      proveedor &&
+      numeroFactura.trim() &&
+      fechaFactura &&
+      compras.length > 0 &&
+      compras.every((c) => c.material && c.cantidad && c.precio_unitario),
+    [proveedor, numeroFactura, fechaFactura, compras]
+  );
+
+  const guardarOrdenCompra = useCallback(async () => {
+    if (!formularioValido) return;
+    setLoading(true);
+    try {
+      const body = {
+        fecha_factura: fechaFactura?.toISOString(),
+        proveedor: proveedor!.id,
+        numero_factura: numeroFactura,
+        compras: compras.map((c) => ({
+          material: c.material!.id,
+          cantidad: c.cantidad,
+          precio_unitario: c.precio_unitario,
+        })),
+      };
+
+      await crearOrdenCompra(body);
+      toast.success('Orden de compra creada correctamente');
+      // Reset form
+      setProveedor(null);
+      setNumeroFactura('');
+      setFechaFactura(new Date());
+      setCompras([]);
+
+      // Delay de 3 segundos antes de redirigir
+      router.push('/oficina/inventario');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al crear la orden de compra');
+    } finally {
+      setLoading(false);
     }
-  }, [searchTerm, debouncedFetch]);
-
-  const ultimoItemIncompleto = () => {
-    if (items.length === 0) return false;
-    const ultimo = items[items.length - 1];
-    return !ultimo.material || !ultimo.cantidad || !ultimo.costoUnitario;
-  };
-
-  const puedeAgregarMaterial = () => {
-    return items.length === 0 || !ultimoItemIncompleto();
-  };
-
-  const agregarMaterial = () => {
-    if (!puedeAgregarMaterial()) return;
-    setItems((prev) => [...prev, { material: null, cantidad: '', costoUnitario: '' }]);
-  };
-
-  const eliminarItem = (index: number) => {
-    const nuevos = [...items];
-    nuevos.splice(index, 1);
-    setItems(nuevos);
-  };
-
-  const actualizarItem = (index: number, campo: keyof (typeof items)[number], valor: any) => {
-    const nuevos = [...items];
-    nuevos[index][campo] = valor;
-    setItems(nuevos);
-  };
-
-  const calcularTotal = () =>
-    items.reduce((total, item) => total + (+item.cantidad * +item.costoUnitario || 0), 0);
-
-  const formularioValido =
-    factura.trim() &&
-    items.length > 0 &&
-    items.every((item) => item.material && item.cantidad && item.costoUnitario);
+  }, [formularioValido, fechaFactura, proveedor, numeroFactura, compras, crearOrdenCompra]);
 
   return (
     <Box sx={{ p: 3 }}>
+      {loading && <FullPageLoader />}
+
       <Card sx={{ p: 3 }}>
         <Stack
           direction="row"
@@ -114,12 +156,9 @@ const Page: NextPage = () => {
           alignItems="center"
         >
           <Typography variant="h5">Nueva orden de compra</Typography>
-
           <Tooltip
             title={
-              puedeAgregarMaterial()
-                ? 'Agregar nuevo material'
-                : 'Debes completar el último registro de la orden de compra'
+              puedeAgregarCompra ? 'Agregar nuevo material' : 'Debes completar el último registro'
             }
             arrow
           >
@@ -127,8 +166,8 @@ const Page: NextPage = () => {
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={agregarMaterial}
-                disabled={!puedeAgregarMaterial()}
+                onClick={agregarCompra}
+                disabled={!puedeAgregarCompra}
               >
                 Agregar material
               </Button>
@@ -138,15 +177,45 @@ const Page: NextPage = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <TextField
-          label="Número de factura"
-          value={factura}
-          onChange={(e) => setFactura(e.target.value)}
-          placeholder="Ej. FAC-00123"
-          fullWidth
-          sx={{ mb: 4 }}
-        />
+        {/* Proveedor y Número de factura */}
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ mb: 3 }}
+        >
+          <Autocomplete
+            options={proveedores}
+            getOptionLabel={(option) => option.nombre}
+            value={proveedor}
+            onChange={(_, newValue) => setProveedor(newValue)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Proveedor"
+                fullWidth
+              />
+            )}
+            sx={{ flex: 1 }}
+          />
+          <TextField
+            label="Número de factura"
+            value={numeroFactura}
+            onChange={(e) => setNumeroFactura(e.target.value)}
+            sx={{ flex: 1 }}
+            fullWidth
+          />
+        </Stack>
 
+        {/* Fecha factura */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2">Fecha de factura</Typography>
+          <DateCalendar
+            value={fechaFactura}
+            onChange={(d) => setFechaFactura(d)}
+          />
+        </Box>
+
+        {/* Tabla de compras */}
         <TableContainer component={Paper}>
           <Table
             size="small"
@@ -157,7 +226,7 @@ const Page: NextPage = () => {
                 <TableCell sx={{ width: '40%' }}>Material</TableCell>
                 <TableCell sx={{ width: '10%' }}>Unidad</TableCell>
                 <TableCell sx={{ width: '15%' }}>Cantidad</TableCell>
-                <TableCell sx={{ width: '20%' }}>Costo Unitario (Q)</TableCell>
+                <TableCell sx={{ width: '20%' }}>Precio Unitario (Q)</TableCell>
                 <TableCell sx={{ width: '15%' }}>Subtotal</TableCell>
                 <TableCell
                   align="center"
@@ -166,71 +235,53 @@ const Page: NextPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((item, index) => {
-                const subtotal = +item.cantidad * +item.costoUnitario || 0;
-
+              {compras.map((item, index) => {
+                const subtotal = +item.cantidad * +item.precio_unitario || 0;
                 return (
                   <TableRow key={index}>
                     <TableCell>
                       <Autocomplete
-                        options={materialesFiltrados}
+                        options={materiales}
                         getOptionLabel={(option) => option.nombre}
                         value={item.material}
-                        onInputChange={(_, value) => setSearchTerm(value)}
-                        onChange={(_, newValue) => actualizarItem(index, 'material', newValue)}
-                        loading={loading}
+                        onChange={(_, newValue) => actualizarCompra(index, 'material', newValue)}
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Buscar material"
-                            placeholder="Ej. cemento"
+                            label="Material"
                             fullWidth
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <>
-                                  {loading ? <CircularProgress size={18} /> : null}
-                                  {params.InputProps.endAdornment}
-                                </>
-                              ),
-                            }}
                           />
                         )}
                         isOptionEqualToValue={(option, value) => option.id === value?.id}
                       />
                     </TableCell>
-
                     <TableCell>
-                      <Typography>{item.material?.unidad || '—'}</Typography>
+                      <Typography>{item.material?.unidad.nombre || '—'}</Typography>
                     </TableCell>
-
                     <TableCell>
                       <TextField
                         type="number"
                         value={item.cantidad}
-                        onChange={(e) => actualizarItem(index, 'cantidad', e.target.value)}
+                        onChange={(e) => actualizarCompra(index, 'cantidad', e.target.value)}
                         inputProps={{ min: 0 }}
                         fullWidth
                       />
                     </TableCell>
-
                     <TableCell>
                       <TextField
                         type="number"
-                        value={item.costoUnitario}
-                        onChange={(e) => actualizarItem(index, 'costoUnitario', e.target.value)}
+                        value={item.precio_unitario}
+                        onChange={(e) => actualizarCompra(index, 'precio_unitario', e.target.value)}
                         inputProps={{ min: 0 }}
                         fullWidth
                       />
                     </TableCell>
-
                     <TableCell>
                       <Typography fontWeight="medium">Q{subtotal.toFixed(2)}</Typography>
                     </TableCell>
-
                     <TableCell align="center">
                       <IconButton
-                        onClick={() => eliminarItem(index)}
+                        onClick={() => eliminarCompra(index)}
                         color="error"
                       >
                         <RemoveCircleOutlineIcon />
@@ -249,11 +300,12 @@ const Page: NextPage = () => {
           alignItems="center"
           sx={{ mt: 4 }}
         >
-          <Typography variant="h6">Total: Q{calcularTotal().toFixed(2)}</Typography>
+          <Typography variant="h6">Total: Q{calcularTotal.toFixed(2)}</Typography>
           <Button
             variant="contained"
             color="primary"
             disabled={!formularioValido}
+            onClick={guardarOrdenCompra}
           >
             Guardar orden de compra
           </Button>

@@ -15,16 +15,17 @@ import {
 } from '@mui/material';
 import { FC, useState } from 'react';
 import { usePermisosPorGrupo } from './usePermisosPorGrupo';
-import permisosAgrupados from './permisos.json';
+import { mapSeleccionadosToIds, permisosAgrupados } from './permissions';
+import { NuevoRol } from 'src/api/types';
 
 interface CrearRolModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (nombre: string, permisos: { [key: string]: string[] }) => void;
+  onConfirm: (data: NuevoRol) => void;
 }
 
 export const CrearRolModal: FC<CrearRolModalProps> = ({ open, onClose, onConfirm }) => {
-  const [nombreRol, setNombreRol] = useState('');
+  const [name, setNombreRol] = useState('');
 
   const {
     seleccionados,
@@ -37,11 +38,12 @@ export const CrearRolModal: FC<CrearRolModalProps> = ({ open, onClose, onConfirm
     setSeleccionados,
   } = usePermisosPorGrupo(permisosAgrupados);
 
-  const nombreValido = nombreRol.trim().length > 0;
+  const nombreValido = name.trim().length > 0;
   const hayPermisos = Object.values(seleccionados).some((arr) => arr.length > 0);
 
   const handleGuardar = () => {
-    onConfirm(nombreRol, seleccionados);
+    const permissions = mapSeleccionadosToIds(seleccionados);
+    onConfirm({ name, permissions });
     setNombreRol('');
     setSeleccionados({});
   };
@@ -58,7 +60,7 @@ export const CrearRolModal: FC<CrearRolModalProps> = ({ open, onClose, onConfirm
         <TextField
           label="Nombre del rol"
           fullWidth
-          value={nombreRol}
+          value={name}
           onChange={(e) => setNombreRol(e.target.value)}
           margin="normal"
         />

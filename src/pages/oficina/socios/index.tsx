@@ -26,6 +26,8 @@ import { useSociosApi, Socio } from 'src/api/socios/useSociosApi';
 import { ModalCrearSocio } from './crear-socio-modal';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { ModalEditarSocio } from './editar-socio-modal';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -34,6 +36,9 @@ const Page: NextPage = () => {
   const [socios, setSocios] = useState<Socio[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+
+  const canCreateSocios = useHasPermission(PermissionId.CREAR_SOCIOS);
+  const canEditSocios = useHasPermission(PermissionId.EDITAR_SOCIOS);
 
   const { getSocios, crearSocio, actualizarSocio } = useSociosApi();
 
@@ -94,13 +99,15 @@ const Page: NextPage = () => {
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Socios</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setModalCrearOpen(true)}
-          >
-            Crear socio
-          </Button>
+          {canCreateSocios && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setModalCrearOpen(true)}
+            >
+              Crear socio
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -126,7 +133,7 @@ const Page: NextPage = () => {
                     <TableRow>
                       <TableCell>Nombre</TableCell>
                       <TableCell>Tipo</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
+                      {canEditSocios && <TableCell align="center">Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -137,13 +144,15 @@ const Page: NextPage = () => {
                       >
                         <TableCell>{socio.nombre}</TableCell>
                         <TableCell>{socio.tipo === 'interno' ? 'Interno' : 'Externo'}</TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(socio)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>
+                        {canEditSocios && (
+                          <TableCell align="center">
+                            <IconButton onClick={() => abrirModalEditar(socio)}>
+                              <SvgIcon>
+                                <EditIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

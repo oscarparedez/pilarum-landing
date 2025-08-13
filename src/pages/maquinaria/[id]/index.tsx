@@ -16,6 +16,8 @@ import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { useGastosOperativosApi } from 'src/api/gastosOperativosMaquinaria/useGastosOperativosMaquinariaApi';
 import { NuevoGastoOperativo } from 'src/api/types';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 const Page: NextPage = () => {
   const settings = useSettings();
@@ -29,6 +31,11 @@ const Page: NextPage = () => {
   const { crearGastoOperativo, actualizarGastoOperativo, eliminarGastoOperativo } =
     useGastosOperativosApi();
   usePageView();
+
+  const canEditDatosBasicosMaquinaria = useHasPermission(PermissionId.EDITAR_MAQUINARIA_BASICO);
+  const canViewAsignacionesMaquinaria = useHasPermission(PermissionId.VER_ASIGNACIONES_MAQUINARIA);
+  const canViewHistorialServicios = useHasPermission(PermissionId.VER_HIST_SERVICIOS);
+  const canViewHistorialConsumos = useHasPermission(PermissionId.VER_HIST_CONSUMOS);
 
   const fetchData = useCallback(async () => {
     try {
@@ -144,7 +151,7 @@ const Page: NextPage = () => {
     fecha_compra: fecha_compra,
     tipo_documento,
     anotaciones,
-  }
+  };
 
   return (
     <Box
@@ -165,12 +172,14 @@ const Page: NextPage = () => {
                 {`${tipo.charAt(0).toUpperCase()}${tipo.slice(1)} #${identificador}`}
               </Typography>
             </Box>
-            <Button
-              variant="outlined"
-              onClick={() => setModalEditarOpen(true)}
-            >
-              Editar datos
-            </Button>
+            {canEditDatosBasicosMaquinaria && (
+              <Button
+                variant="outlined"
+                onClick={() => setModalEditarOpen(true)}
+              >
+                Editar datos
+              </Button>
+            )}
           </Stack>
 
           <EditarDatosBasicosModal
@@ -186,19 +195,23 @@ const Page: NextPage = () => {
             totalCombustibleUltimoMes={totalCombustibleUltimoMes}
           />
 
-          <Asignaciones asignaciones={asignaciones} />
-          <HistorialServicios
-            servicios={servicios}
-            onCrearServicio={handleCrearGastoOperativo}
-            onActualizarServicio={handleActualizarGastoOperativo}
-            onEliminarServicio={handleEliminarGastoOperativo}
-          />
-          <HistorialConsumos
-            consumos={consumos}
-            onCrearConsumo={handleCrearGastoOperativo}
-            onActualizarConsumo={handleActualizarGastoOperativo}
-            onEliminarConsumo={handleEliminarGastoOperativo}
-          />
+          {canViewAsignacionesMaquinaria && <Asignaciones asignaciones={asignaciones} />}
+          {canViewHistorialServicios && (
+            <HistorialServicios
+              servicios={servicios}
+              onCrearServicio={handleCrearGastoOperativo}
+              onActualizarServicio={handleActualizarGastoOperativo}
+              onEliminarServicio={handleEliminarGastoOperativo}
+            />
+          )}
+          {canViewHistorialConsumos && (
+            <HistorialConsumos
+              consumos={consumos}
+              onCrearConsumo={handleCrearGastoOperativo}
+              onActualizarConsumo={handleActualizarGastoOperativo}
+              onEliminarConsumo={handleEliminarGastoOperativo}
+            />
+          )}
         </Stack>
       </Container>
     </Box>

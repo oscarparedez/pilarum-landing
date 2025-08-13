@@ -14,6 +14,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SearchMdIcon from '@untitled-ui/icons-react/build/esm/SearchMd';
 import debounce from 'lodash.debounce';
+import { Rol } from 'src/api/types';
 
 interface Filtros {
   search: string;
@@ -32,6 +33,7 @@ interface TablaPaginadaConFiltrosProps {
   filtrosRol?: boolean;
   filtrosEmpresa?: boolean;
   empresas?: { id: number; nombre: string }[];
+  roles?: Rol[]
   children: (
     currentPage: number,
     estadoFiltro?: string,
@@ -51,6 +53,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   filtrosRol = false,
   filtrosEmpresa = false,
   empresas,
+  roles,
   children,
 }) => {
   const [search, setSearch] = useState('');
@@ -168,29 +171,34 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
             </FormControl>
           )}
 
-          {filtrosRol && (
+          {roles && filtrosRol && (
             <FormControl
               sx={{ minWidth: 190 }}
               size="medium"
             >
-              <InputLabel>Rol</InputLabel>
+              <InputLabel>Empresa</InputLabel>
               <Select
                 value={rol}
-                label="Rol"
+                label="rol"
                 onChange={(e) => {
                   setPage(1);
                   setRol(e.target.value);
                 }}
               >
-                <MenuItem value="">Todos</MenuItem>
-                <MenuItem value="Ingeniero">Ingeniero</MenuItem>
-                <MenuItem value="Arquitecto">Arquitecto</MenuItem>
-                <MenuItem value="Supervisor">Supervisor</MenuItem>
+                <MenuItem value="">Todas</MenuItem>
+                {(roles ?? []).map((rol) => (
+                  <MenuItem
+                    key={rol.id}
+                    value={rol.name}
+                  >
+                    {rol.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           )}
 
-          {filtrosEmpresa && (
+          {empresas && filtrosEmpresa && (
             <FormControl
               sx={{ minWidth: 190 }}
               size="medium"

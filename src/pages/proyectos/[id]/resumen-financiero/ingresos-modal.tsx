@@ -23,6 +23,8 @@ import { formatearFecha } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { Ingreso } from '../index.d';
 import { ModalEliminar } from 'src/components/eliminar-modal';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface ModalListaIngresosProps {
   open: boolean;
@@ -65,6 +67,9 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
   const [ingresoEditando, setIngresoEditando] = useState<Ingreso | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [ingresoAEliminar, setIngresoAEliminar] = useState<Ingreso | null>(null);
+
+  const canEditIngreso = useHasPermission(PermissionId.EDITAR_INGRESOS_COSTOS_PROYECTO);
+  const canDeleteIngreso = useHasPermission(PermissionId.ELIMINAR_INGRESOS_COSTOS_PROYECTO);
 
   const ingresosFiltrados = useMemo(() => {
     return aplicarFiltros(ingresos, filtros, {
@@ -192,22 +197,26 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
                               direction="row"
                               justifyContent="flex-end"
                             >
-                              <IconButton
-                                onClick={() => {
-                                  setIngresoEditando(ingreso);
-                                  setModalEditarAbierto(true);
-                                }}
-                              >
-                                <EditIcon />
-                              </IconButton>
+                              {canEditIngreso && (
+                                <IconButton
+                                  onClick={() => {
+                                    setIngresoEditando(ingreso);
+                                    setModalEditarAbierto(true);
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              )}
 
-                              <IconButton
-                                onClick={() => {
-                                  setIngresoAEliminar(ingreso);
-                                }}
-                              >
-                                <DeleteIcon />
-                              </IconButton>
+                              {canDeleteIngreso && (
+                                <IconButton
+                                  onClick={() => {
+                                    setIngresoAEliminar(ingreso);
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              )}
                             </Stack>
                           </TableCell>
                         </TableRow>

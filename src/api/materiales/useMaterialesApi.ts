@@ -31,6 +31,14 @@ export const useMaterialesApi = () => {
     };
   }, [fetchWithAuth, getUnidades, getMarcas]);
 
+    const getMateriales = useCallback(async (): Promise<Material[]> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/material/`, {
+      method: 'GET',
+    });
+    if (!res.ok) throw new Error('Error al obtener datos de los materiales');
+    return await res.json();
+  }, [fetchWithAuth]);
+
   const getMaterialById = useCallback(async (id: number): Promise<Material> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/material/${id}/`, {
       method: 'GET',
@@ -71,6 +79,7 @@ export const useMaterialesApi = () => {
 
   return {
     getMaterialesInfo,
+    getMateriales,
     getMaterialById,
     crearMaterial,
     actualizarMaterial,

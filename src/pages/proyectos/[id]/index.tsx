@@ -29,6 +29,8 @@ import { useRevisionesApi } from 'src/api/revisiones/useRevisionesApi';
 import { NuevaAsignacionMaquinaria, NuevaRevision, NuevoProyecto, Proyecto } from 'src/api/types';
 import { format } from 'date-fns';
 import { PizarronPendientes } from 'src/components/pendientes/pizarron-pendientes';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 export const tareasEjemplo: Tarea[] = [];
 
@@ -55,6 +57,14 @@ const Page: NextPage = () => {
   } = useAsignacionesPersonalApi();
 
   const { crearRevision, actualizarRevision, eliminarRevision } = useRevisionesApi();
+
+  const canEditDatosBasicos = useHasPermission(PermissionId.EDITAR_PROYECTO_BASICO);
+  const canViewPizarronProyecto = useHasPermission(PermissionId.VER_TAREAS_PROYECTO);
+  const canViewResumenFinanciero = useHasPermission(PermissionId.VER_INGRESOS_COSTOS_PROYECTO);
+  const canViewAsignacionesMaquinaria = useHasPermission(PermissionId.VER_ASIGNACIONES_MAQUINARIA);
+  const canViewAsignacionesPersonal = useHasPermission(PermissionId.VER_ASIG_PERSONAL);
+  const canViewMaterialPlanificado = useHasPermission(PermissionId.VER_MATERIALES_PLANIFICADOS);
+  const canViewRevisiones = useHasPermission(PermissionId.VER_REVISIONES);
 
   const [config, setConfig] = useState<ConfigProyecto | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
@@ -654,13 +664,23 @@ const Page: NextPage = () => {
               <Typography color="text.secondary">{ubicacion}</Typography>
               <Typography color="text.secondary">Empresa - {socio_asignado.nombre}</Typography>
             </Box>
-            <Button
-              variant="outlined"
-              onClick={() => setModalEditarAbierto(true)}
-            >
-              Editar datos básicos
-            </Button>
+            {canEditDatosBasicos && (
+              <Button
+                variant="outlined"
+                onClick={() => setModalEditarAbierto(true)}
+              >
+                Editar datos básicos
+              </Button>
+            )}
           </Stack>
+
+          <EditarDatosBasicosModal
+            open={modalEditarAbierto}
+            onClose={() => setModalEditarAbierto(false)}
+            initialData={datosBasicos}
+            socios={socios}
+            onEditarDatosBasicos={handleActualizarProyecto}
+          />
 
           <Timeline
             fechaInicio={fechaInicio}
@@ -676,56 +696,56 @@ const Page: NextPage = () => {
             onEliminarAmpliacionPresupuesto={handleEliminarAmpliacionPresupuesto}
           />
 
-          <PizarronPendientes tipo="proyecto" />
+          {canViewPizarronProyecto && <PizarronPendientes tipo="proyecto" />}
 
-          <ResumenFinanciero
-            totalIngresos={totalIngresos}
-            totalPagos={totalPagos}
-            ingresos={ingresos}
-            pagos={costos}
-            tiposIngreso={tiposIngreso}
-            tiposPago={tiposPago}
-            presupuestoInicial={presupuestoInicial}
-            onCrearIngreso={handleCrearIngreso}
-            onActualizarIngreso={handleActualizarIngreso}
-            onEliminarIngreso={handleEliminarIngreso}
-            onCrearPago={handleCrearPago}
-            onActualizarPago={handleActualizarPago}
-            onEliminarPago={handleEliminarPago}
-          />
+          {canViewResumenFinanciero && (
+            <ResumenFinanciero
+              totalIngresos={totalIngresos}
+              totalPagos={totalPagos}
+              ingresos={ingresos}
+              pagos={costos}
+              tiposIngreso={tiposIngreso}
+              tiposPago={tiposPago}
+              presupuestoInicial={presupuestoInicial}
+              onCrearIngreso={handleCrearIngreso}
+              onActualizarIngreso={handleActualizarIngreso}
+              onEliminarIngreso={handleEliminarIngreso}
+              onCrearPago={handleCrearPago}
+              onActualizarPago={handleActualizarPago}
+              onEliminarPago={handleEliminarPago}
+            />
+          )}
 
-          <EditarDatosBasicosModal
-            open={modalEditarAbierto}
-            onClose={() => setModalEditarAbierto(false)}
-            initialData={datosBasicos}
-            socios={socios}
-            onEditarDatosBasicos={handleActualizarProyecto}
-          />
-
-          <Maquinaria
-            maquinaria={maquinaria}
-            usuarios={usuarios}
-            asignacionesMaquinaria={asignacionesMaquinaria}
-            handleCrearAsignacion={handleCrearAsignacionMaquinaria}
-            handleActualizarAsignacion={handleActualizarAsignacionMaquinaria}
-            handleLiberarAsignacion={handleLiberarAsignacionMaquinaria}
-            handleEliminarAsignacion={handleEliminarAsignacionMaquinaria}
-          />
-          <PersonalAsignado
-            usuarios={usuarios}
-            asignacionesPersonal={asignacionesPersonal}
-            handleCrearAsignacionPersonal={handleCrearAsignacionPersonal}
-            handleActualizarAsignacionPersonal={handleActualizarAsignacionPersonal}
-            handleLiberarAsignacionPersonal={handleLiberarAsignacionPersonal}
-            handleEliminarAsignacionPersonal={handleEliminarAsignacionPersonal}
-          />
-          <MaterialPlanificado materialPlanificado={materialPlanificado} />
-          <Revisiones
-            revisiones={revisiones}
-            handleCrearRevision={handleCrearRevision}
-            handleActualizarRevision={handleActualizarRevision}
-            handleEliminarRevision={handleEliminarRevision}
-          />
+          {canViewAsignacionesMaquinaria && (
+            <Maquinaria
+              maquinaria={maquinaria}
+              usuarios={usuarios}
+              asignacionesMaquinaria={asignacionesMaquinaria}
+              handleCrearAsignacion={handleCrearAsignacionMaquinaria}
+              handleActualizarAsignacion={handleActualizarAsignacionMaquinaria}
+              handleLiberarAsignacion={handleLiberarAsignacionMaquinaria}
+              handleEliminarAsignacion={handleEliminarAsignacionMaquinaria}
+            />
+          )}
+          {canViewAsignacionesPersonal && (
+            <PersonalAsignado
+              usuarios={usuarios}
+              asignacionesPersonal={asignacionesPersonal}
+              handleCrearAsignacionPersonal={handleCrearAsignacionPersonal}
+              handleActualizarAsignacionPersonal={handleActualizarAsignacionPersonal}
+              handleLiberarAsignacionPersonal={handleLiberarAsignacionPersonal}
+              handleEliminarAsignacionPersonal={handleEliminarAsignacionPersonal}
+            />
+          )}
+          {canViewMaterialPlanificado && <MaterialPlanificado material={materialPlanificado} />}
+          {canViewRevisiones && (
+            <Revisiones
+              revisiones={revisiones}
+              handleCrearRevision={handleCrearRevision}
+              handleActualizarRevision={handleActualizarRevision}
+              handleEliminarRevision={handleEliminarRevision}
+            />
+          )}
         </Stack>
       </Container>
     </Box>

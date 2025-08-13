@@ -23,6 +23,8 @@ import { ModalEliminar } from 'src/components/eliminar-modal';
 import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
 import { formatearFechaHora } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface HistorialConsumosProps {
   consumos: GastoOperativo[];
@@ -47,6 +49,10 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
     fechaInicio?: Date | null;
     fechaFin?: Date | null;
   }>({ search: '' });
+
+  const canRegistrarConsumo = useHasPermission(PermissionId.REGISTRAR_CONSUMO);
+  const canEditarConsumo = useHasPermission(PermissionId.EDITAR_CONSUMO);
+  const canEliminarConsumo = useHasPermission(PermissionId.ELIMINAR_CONSUMO);
 
   const consumosFiltrados = useMemo(() => {
     return aplicarFiltros(consumos, filtros, {
@@ -101,12 +107,14 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Historial de combustible</Typography>
-          <Button
-            variant="contained"
-            onClick={() => setAgregarModalOpen(true)}
-          >
-            Registrar consumo
-          </Button>
+          {canRegistrarConsumo && (
+            <Button
+              variant="contained"
+              onClick={() => setAgregarModalOpen(true)}
+            >
+              Registrar consumo
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -125,7 +133,7 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
                       <TableCell>Fecha de consumo</TableCell>
                       <TableCell>Costo</TableCell>
                       <TableCell>Anotaciones</TableCell>
-                      <TableCell>Acciones</TableCell>
+                      {(canEditarConsumo || canEliminarConsumo) && <TableCell>Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -144,12 +152,16 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
                           >
                             <VisibilityIcon />
                           </IconButton>
-                          <IconButton onClick={() => setEditarConsumo(c)}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton onClick={() => setConsumoAEliminar(c)}>
-                            <DeleteIcon />
-                          </IconButton>
+                          {canEditarConsumo && (
+                            <IconButton onClick={() => setEditarConsumo(c)}>
+                              <EditIcon />
+                            </IconButton>
+                          )}
+                          {canEliminarConsumo && (
+                            <IconButton onClick={() => setConsumoAEliminar(c)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

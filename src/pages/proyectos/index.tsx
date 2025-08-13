@@ -14,11 +14,15 @@ import { toast } from 'react-hot-toast';
 
 import { CrearProyectoModal } from './crear/crear-proyecto-modal';
 import { useProyectosApi } from 'src/api/proyectos/useProyectosApi';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../oficina/roles/permissions';
 
 const Page: NextPage = () => {
   const settings = useSettings();
   const router = useRouter();
   const { getProyectos, crearProyecto } = useProyectosApi();
+
+  const canCreateProyecto = useHasPermission(PermissionId.CREAR_PROYECTO)
 
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [modalCrearProyectoOpen, setModalCrearProyectoOpen] = useState(false);
@@ -49,7 +53,7 @@ const Page: NextPage = () => {
     }
   };
 
-  const handleVerDetalles = (id: string) => {
+  const handleVerDetalles = (id: number) => {
     router.push(paths.dashboard.proyectos.detalle(id));
   };
 
@@ -73,7 +77,7 @@ const Page: NextPage = () => {
                 spacing={4}
               >
                 <Typography variant="h4">Proyectos</Typography>
-                <Button
+                { canCreateProyecto && <Button
                   startIcon={
                     <SvgIcon>
                       <PlusIcon />
@@ -83,7 +87,7 @@ const Page: NextPage = () => {
                   onClick={() => setModalCrearProyectoOpen(true)}
                 >
                   Crear nuevo proyecto
-                </Button>
+                </Button>}
               </Stack>
             </Grid>
 

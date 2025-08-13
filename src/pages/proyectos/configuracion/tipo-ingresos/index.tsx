@@ -27,6 +27,8 @@ import { ModalCrearTipoIngreso } from './crear-tipo-ingreso-modal';
 import { ModalEditarTipoIngreso } from './editar-tipo-ingreso-modal';
 import { TipoIngreso } from './index.d';
 import { useTiposIngresoApi } from 'src/api/tipoIngresos/useTipoIngresosApi';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -35,6 +37,9 @@ const Page: NextPage = () => {
   const [tiposIngreso, setTiposIngreso] = useState<TipoIngreso[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+
+  const canCreateTipoIngreso = useHasPermission(PermissionId.CREAR_TIPO_INGRESO)
+  const canEditTipoIngreso = useHasPermission(PermissionId.EDITAR_TIPO_INGRESO);
 
   const { getTiposIngreso, crearTipoIngreso, actualizarTipoIngreso } = useTiposIngresoApi();
 
@@ -95,13 +100,13 @@ const Page: NextPage = () => {
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Tipos de ingreso</Typography>
-          <Button
+          {canCreateTipoIngreso && <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setModalCrearOpen(true)}
           >
-            Crear tipo
-          </Button>
+            Crear tipo de ingreso
+          </Button>}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -136,13 +141,13 @@ const Page: NextPage = () => {
                         hover
                       >
                         <TableCell>{tipo.nombre}</TableCell>
-                        <TableCell align="center">
+                        { canEditTipoIngreso && <TableCell align="center">
                           <IconButton onClick={() => abrirModalEditar(tipo)}>
                             <SvgIcon>
                               <EditIcon />
                             </SvgIcon>
                           </IconButton>
-                        </TableCell>
+                        </TableCell>}
                       </TableRow>
                     ))}
                   </TableBody>

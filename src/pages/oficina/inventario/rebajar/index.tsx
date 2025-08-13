@@ -1,273 +1,144 @@
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Card,
-  CircularProgress,
-  Divider,
-  IconButton,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  Paper,
-  Tooltip,
-} from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { Box, Button, Card, Divider, Stack, TextField, Typography, Tooltip } from '@mui/material';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import { NextPage } from 'next';
-import debounce from 'lodash.debounce';
+import type { NextPage } from 'next';
+import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
+import { useRebajasInventarioApi } from 'src/api/rebajas/useRebajasApi';
+import type { Inventario, NuevaRebaja } from 'src/api/types';
+import { FullPageLoader } from 'src/components/loader/Loader';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/router';
 
-interface Material {
-  id: string;
-  nombre: string;
-  unidad: string;
-  marca: string;
-  cantidadDisponible: number;
-}
-
-const MOCK_MATERIALES: Material[] = [
-  {
-    id: 'mat-001',
-    nombre: 'Saco de cemento',
-    unidad: 'sacos',
-    marca: 'CEMEX',
-    cantidadDisponible: 50,
-  },
-  {
-    id: 'mat-002',
-    nombre: 'Vigas de hierro',
-    unidad: 'barras',
-    marca: 'Hierro GT',
-    cantidadDisponible: 30,
-  },
-  {
-    id: 'mat-003',
-    nombre: 'Arena fina',
-    unidad: 'm³',
-    marca: 'ARENA S.A.',
-    cantidadDisponible: 80,
-  },
-];
+import {
+  TablaLineasInventario,
+  useLineasInventario,
+  LineaInventarioUI,
+} from '../components/tabla-lineas-inventario';
 
 const Page: NextPage = () => {
-  const [motivo, setMotivo] = useState('');
-  const [items, setItems] = useState<{ material: Material | null; cantidad: string }[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [materialesFiltrados, setMaterialesFiltrados] = useState<Material[]>([]);
+  const router = useRouter();
+  const { getInventario } = useInventarioApi();
+  const { crearRebaja } = useRebajasInventarioApi();
 
-  const fetchMateriales = async (query: string) => {
+  const [loading, setLoading] = useState(false);
+  const [inventario, setInventario] = useState<Inventario[]>([]);
+  const [fechaRebaja, setFechaRebaja] = useState<Date>(new Date());
+  const [motivo, setMotivo] = useState('');
+
+  const { lineas, setLineas } = useLineasInventario();
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const filtered = MOCK_MATERIALES.filter((m) =>
-        m.nombre.toLowerCase().includes(query.toLowerCase())
-      );
-      setMaterialesFiltrados(filtered);
+      const inv = await getInventario();
+      setInventario(inv);
+    } catch (error) {
+      console.error(error);
+      toast.error('Error cargando inventario');
     } finally {
       setLoading(false);
     }
-  };
-
-  const debouncedFetch = useMemo(() => debounce(fetchMateriales, 400), []);
+  }, [getInventario]);
 
   useEffect(() => {
-    if (searchTerm.length > 1) {
-      debouncedFetch(searchTerm);
-    } else {
-      setMaterialesFiltrados([]);
+    fetchData();
+  }, [fetchData]);
+
+  const formValido = useMemo(() => {
+    if (!motivo.trim() || !fechaRebaja || lineas.length === 0) return false;
+    return lineas.every((l: LineaInventarioUI) => {
+      const cant = Number(l.cantidad);
+      const stock = l.item?.cantidad ?? 0;
+      return l.item && Number.isFinite(cant) && cant > 0 && cant <= stock;
+    });
+  }, [motivo, fechaRebaja, lineas]);
+
+  const guardarRebaja = useCallback(async () => {
+    if (!formValido) return;
+    setLoading(true);
+    try {
+      const payload: NuevaRebaja = {
+        fecha_rebaja: fechaRebaja.toISOString().split('T')[0],
+        motivo: motivo.trim(),
+        materiales: lineas.map((l) => ({
+          inventario: l.item!.id,
+          cantidad: Number(l.cantidad),
+        })),
+      };
+
+      await crearRebaja(payload);
+      toast.success('Rebaja registrada correctamente');
+      setMotivo('');
+      setFechaRebaja(new Date());
+      setLineas([]);
+      router.push('/oficina/inventario');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al registrar rebaja');
+    } finally {
+      setLoading(false);
     }
-  }, [searchTerm, debouncedFetch]);
-
-  const ultimoItemIncompleto = () => {
-    if (items.length === 0) return false;
-    const ultimo = items[items.length - 1];
-    return !ultimo.material || !ultimo.cantidad;
-  };
-
-  const puedeAgregarMaterial = () => {
-    return items.length === 0 || !ultimoItemIncompleto();
-  };
-
-  const agregarMaterial = () => {
-    if (!puedeAgregarMaterial()) return;
-    setItems((prev) => [...prev, { material: null, cantidad: '' }]);
-  };
-
-  const eliminarItem = (index: number) => {
-    const nuevos = [...items];
-    nuevos.splice(index, 1);
-    setItems(nuevos);
-  };
-
-  const actualizarItem = (index: number, campo: keyof (typeof items)[number], valor: any) => {
-    const nuevos = [...items];
-    nuevos[index][campo] = valor;
-    setItems(nuevos);
-  };
-
-  const formularioValido =
-    motivo.trim() &&
-    items.length > 0 &&
-    items.every(
-      (item) =>
-        item.material &&
-        item.cantidad &&
-        +item.cantidad > 0 &&
-        +item.cantidad <= (item.material?.cantidadDisponible ?? 0)
-    );
+  }, [formValido, fechaRebaja, motivo, lineas, crearRebaja, router, setLineas]);
 
   return (
     <Box sx={{ p: 3 }}>
+      {loading && <FullPageLoader />}
       <Card sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h5">Rebajar inventario</Typography>
-
-          <Tooltip
-            title={
-              puedeAgregarMaterial()
-                ? 'Agregar nuevo material'
-                : 'Debes completar el último registro de la rebaja'
-            }
-            arrow
-          >
-            <span>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={agregarMaterial}
-                disabled={!puedeAgregarMaterial()}
-              >
-                Agregar material
-              </Button>
-            </span>
-          </Tooltip>
-        </Stack>
-
+        <Typography variant="h5">Rebaja de inventario</Typography>
         <Divider sx={{ my: 3 }} />
 
-        <TextField
-          label="Motivo de la rebaja"
-          value={motivo}
-          onChange={(e) => setMotivo(e.target.value)}
-          placeholder="Ej. material dañado, pérdida, ajuste..."
-          fullWidth
-          multiline
-          rows={2}
-          sx={{ mb: 4 }}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2">Motivo</Typography>
+          <TextField
+            fullWidth
+            value={motivo}
+            onChange={(e) => setMotivo(e.target.value)}
+            placeholder="Motivo de la rebaja"
+          />
+        </Box>
+
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2">Fecha de rebaja</Typography>
+          <DateCalendar
+            value={fechaRebaja}
+            onChange={(d) => d && setFechaRebaja(d)}
+          />
+        </Box>
+
+        <TablaLineasInventario
+          lineas={lineas}
+          onChange={setLineas}
+          options={inventario}
+          labels={{
+            titulo: 'Materiales a rebajar',
+            columnaCantidad: 'Cantidad a rebajar',
+          }}
+          excludeDuplicates
+          allowZero={false}
+          withToolbar
         />
-
-        <TableContainer component={Paper}>
-          <Table
-            size="small"
-            stickyHeader
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ width: '40%' }}>Material</TableCell>
-                <TableCell>Unidad</TableCell>
-                <TableCell>Marca</TableCell>
-                <TableCell>Disponible</TableCell>
-                <TableCell>Cantidad a rebajar</TableCell>
-                <TableCell align="center"></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {items.map((item, index) => {
-                const disponible = item.material?.cantidadDisponible ?? 0;
-
-                return (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Autocomplete
-                        options={materialesFiltrados}
-                        getOptionLabel={(option) => option.nombre}
-                        value={item.material}
-                        onInputChange={(_, value) => setSearchTerm(value)}
-                        onChange={(_, newValue) => actualizarItem(index, 'material', newValue)}
-                        loading={loading}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Buscar material"
-                            placeholder="Ej. cemento"
-                            fullWidth
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <>
-                                  {loading ? <CircularProgress size={18} /> : null}
-                                  {params.InputProps.endAdornment}
-                                </>
-                              ),
-                            }}
-                          />
-                        )}
-                        isOptionEqualToValue={(option, value) => option.id === value?.id}
-                      />
-                    </TableCell>
-
-                    <TableCell>
-                      <Typography>{item.material?.unidad || '—'}</Typography>
-                    </TableCell>
-
-                    <TableCell>
-                      <Typography>{item.material?.marca || '—'}</Typography>
-                    </TableCell>
-
-                    <TableCell>
-                      <Typography>{disponible}</Typography>
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField
-                        type="number"
-                        value={item.cantidad}
-                        onChange={(e) => actualizarItem(index, 'cantidad', e.target.value)}
-                        inputProps={{ min: 1, max: disponible }}
-                        fullWidth
-                        error={+item.cantidad > disponible}
-                      />
-                    </TableCell>
-
-                    <TableCell align="center">
-                      <IconButton
-                        onClick={() => eliminarItem(index)}
-                        color="error"
-                      >
-                        <RemoveCircleOutlineIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
 
         <Stack
           direction="row"
           justifyContent="flex-end"
           sx={{ mt: 4 }}
         >
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={!formularioValido}
+          <Tooltip
+            title={formValido ? '' : 'Completa motivo, fecha y al menos una línea válida'}
+            arrow
           >
-            Guardar rebaja
-          </Button>
+            <span>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={!formValido}
+                onClick={guardarRebaja}
+              >
+                Guardar rebaja
+              </Button>
+            </span>
+          </Tooltip>
         </Stack>
       </Card>
     </Box>
@@ -275,5 +146,4 @@ const Page: NextPage = () => {
 };
 
 Page.getLayout = (page: React.ReactNode) => <DashboardLayout>{page}</DashboardLayout>;
-
 export default Page;

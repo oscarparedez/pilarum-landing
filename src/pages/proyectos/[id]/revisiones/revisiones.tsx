@@ -24,6 +24,8 @@ import { ModalEliminar } from 'src/components/eliminar-modal';
 import { NuevaRevision, Revision } from 'src/api/types';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { formatearFecha } from 'src/utils/format-date';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface RevisionesProps {
   revisiones: Revision[];
@@ -43,6 +45,10 @@ export const Revisiones: FC<RevisionesProps> = ({
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
   const [editarRevision, setEditarRevision] = useState<Revision | null>(null);
   const [revisionAEliminar, setRevisionAEliminar] = useState<Revision | null>(null);
+
+  const canCreateRevision = useHasPermission(PermissionId.REGISTRAR_REVISION);
+  const canEditRevision = useHasPermission(PermissionId.EDITAR_REVISION);
+  const canDeleteRevision = useHasPermission(PermissionId.ELIMINAR_REVISION);
 
   const [filtros, setFiltros] = useState<{
     search: string;
@@ -109,13 +115,15 @@ export const Revisiones: FC<RevisionesProps> = ({
             sx={{ px: 3, py: 3 }}
           >
             <Typography variant="h5">Revisiones</Typography>
-            <Button
-              size="large"
-              variant="contained"
-              onClick={() => setAgregarModalOpen(true)}
-            >
-              Agregar revisión
-            </Button>
+            {canCreateRevision && (
+              <Button
+                size="large"
+                variant="contained"
+                onClick={() => setAgregarModalOpen(true)}
+              >
+                Agregar revisión
+              </Button>
+            )}
           </Stack>
 
           <TablaPaginadaConFiltros
@@ -149,12 +157,16 @@ export const Revisiones: FC<RevisionesProps> = ({
                         <IconButton onClick={() => abrirModal(rev.fotos.map((f) => f.imagen))}>
                           <VisibilityIcon />
                         </IconButton>
-                        <IconButton onClick={() => setEditarRevision(rev)}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => setRevisionAEliminar(rev)}>
-                          <DeleteIcon />
-                        </IconButton>
+                        {canEditRevision && (
+                          <IconButton onClick={() => setEditarRevision(rev)}>
+                            <EditIcon />
+                          </IconButton>
+                        )}
+                        {canDeleteRevision && (
+                          <IconButton onClick={() => setRevisionAEliminar(rev)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

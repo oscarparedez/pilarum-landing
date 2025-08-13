@@ -11,6 +11,8 @@ import { TipoIngreso } from '../../configuracion/tipo-ingresos/index.d';
 import { TipoPago } from '../../configuracion/tipo-pagos/index.d';
 import { obtenerUltimoMovimiento, transformarMovimientos } from './utils';
 import { formatearFechaHora } from 'src/utils/format-date';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 type ButtonColor = 'inherit' | 'success' | 'error' | 'info' | 'primary' | 'secondary' | 'warning';
 
@@ -87,6 +89,9 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   const [openListaIngresos, setOpenListaIngresos] = useState(false);
   const [openListaCostos, setOpenListaCostos] = useState(false);
   const [openMovimientos, setOpenMovimientos] = useState(false);
+
+
+  const canRegistrarIngresosCostos = useHasPermission(PermissionId.REGISTRAR_INGRESOS_COSTOS_PROYECTO)
 
   const ultimoMovimiento = obtenerUltimoMovimiento(ingresos, costos);
   const progresoIngresos = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
@@ -239,7 +244,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                         spacing={1}
                         sx={{ flexWrap: 'wrap', width: '100%' }}
                       >
-                        <Button
+                        { canRegistrarIngresosCostos && <Button
                           size="large"
                           variant="contained"
                           color={color}
@@ -247,7 +252,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                           sx={{ flex: 1, minWidth: 130 }}
                         >
                           {item.buttonLabel}
-                        </Button>
+                        </Button>}
                         {item.secondaryButtonLabel && (
                           <Button
                             size="large"

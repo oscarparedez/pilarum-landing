@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -12,125 +12,177 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
 } from '@mui/material';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { ModalRegistrarPersona } from './crear-personal-modal';
 import { ModalEditarPersona } from './editar-personal-modal';
 import { NextPage } from 'next';
-import { Usuario } from './index.d';
 import { usePlanillaApi } from 'src/api/planilla/usePlanillaApi';
 import toast from 'react-hot-toast';
+import { NuevoUsuario, Rol, Usuario } from 'src/api/types';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import { useRolesApi } from 'src/api/roles/useRolesApi';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../roles/permissions';
 
 const Page: NextPage = () => {
-  const { getUsuarios } = usePlanillaApi();
+  const { getUsuarios, actualizarUsuario } = usePlanillaApi();
+  const { getRoles } = useRolesApi();
+
+  const canCreateUsuarios = useHasPermission(PermissionId.CREAR_USUARIO_PLANILLA);
+  const canEditUsuarios = useHasPermission(PermissionId.EDITAR_USUARIO_PLANILLA);
+
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
-  const [personaSeleccionada, setPersonaSeleccionada] = useState<Usuario | null>(
-    null
-  );
+  const [personaSeleccionada, setPersonaSeleccionada] = useState<Usuario | null>(null);
   const [personal, setPersonal] = useState<Usuario[]>([]);
+  const [roles, setRoles] = useState<Rol[]>([]);
+  const [filtros, setFiltros] = useState<{
+    search: string;
+    rol?: string;
+  }>({ search: '' });
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [usuarios, roles] = await Promise.all([getUsuarios(), getRoles()]);
+      setPersonal(usuarios);
+      setRoles(roles);
+    } catch (error) {
+      toast.error('Error al cargar datos');
+    }
+  }, [getUsuarios, getRoles, setPersonal, setRoles]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const usuarios = await getUsuarios();
-        const transformados = usuarios;
-        setPersonal(transformados);
-      } catch (error) {
-        toast.error('Error al cargar usuarios');
-      }
-    };
-
     fetchData();
-  }, [getUsuarios]);
+  }, [fetchData]);
+
+  const handleGuardarEdicion = useCallback(
+    async (usuario: NuevoUsuario) => {
+      if (!personaSeleccionada) return;
+      try {
+        await actualizarUsuario(personaSeleccionada.id, usuario);
+        toast.success('Usuario actualizado');
+        await fetchData();
+        setModalEditarOpen(false);
+      } catch {
+        toast.error('No se pudo actualizar el usuario');
+      }
+    },
+    [actualizarUsuario, personaSeleccionada, fetchData]
+  );
+
+  const handleFiltrar = useCallback((f: typeof filtros) => {
+    setFiltros(f);
+  }, []);
+
+  const personalFiltrado = useMemo(() => {
+    return aplicarFiltros(personal, filtros, {
+      camposTexto: ['first_name', 'last_name', 'username'],
+      campoRol: 'groups[0].name',
+    });
+  }, [personal, filtros]);
 
   return (
     <Box sx={{ p: 3 }}>
       <Card>
         <CardContent sx={{ p: 0 }}>
+          {/* Header */}
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="center"
             sx={{ px: 3, py: 3 }}
           >
-            <Typography variant="h5">Planilla de personal</Typography>
-            <Button
-              variant="contained"
-              onClick={() => setModalCrearOpen(true)}
+            <Typography
+              variant="h5"
+              fontWeight={600}
             >
-              Agregar persona
-            </Button>
+              Planilla de personal
+            </Typography>
+            {canCreateUsuarios && (
+              <Button
+                variant="contained"
+                onClick={() => setModalCrearOpen(true)}
+              >
+                Agregar persona
+              </Button>
+            )}
           </Stack>
 
+          {/* Tabla con filtros */}
           <TablaPaginadaConFiltros
-            totalItems={personal.length}
-            onFiltrar={() => {}}
+            totalItems={personalFiltrado.length}
+            onFiltrar={handleFiltrar}
             filtrosFecha={false}
-            filtrosEstado
             filtrosRol
+            roles={roles}
           >
-            {(currentPage, estadoFiltro, rolFiltro, search) => (
-              <TableContainer
-                component={Paper}
-                sx={{ maxHeight: 600 }}
-              >
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Nombre</TableCell>
-                      <TableCell>Usuario</TableCell>
-                      <TableCell>Teléfono</TableCell>
-                      <TableCell>Rol</TableCell>
-                      {/* <TableCell>Estado</TableCell> */}
-                      <TableCell>Acciones</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {personal
-                      .filter(
-                        (p) =>
-                          (estadoFiltro ? p.estado === estadoFiltro : true) &&
-                          (rolFiltro ? p.rol === rolFiltro : true) &&
-                          (search
-                            ? `${p.first_name} ${p.last_name}`
-                                .toLowerCase()
-                                .includes(search.toLowerCase())
-                            : true)
-                      )
-                      .slice((currentPage - 1) * 5, currentPage * 5)
-                      .map((persona) => (
+            {(currentPage) => {
+              const pagina = personalFiltrado.slice((currentPage - 1) * 5, currentPage * 5);
+
+              return (
+                <TableContainer
+                  sx={{
+                    maxHeight: 600,
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Table
+                    stickyHeader
+                    sx={{
+                      borderCollapse: 'separate',
+                      borderSpacing: '0 8px',
+                    }}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Nombre</TableCell>
+                        <TableCell>Usuario</TableCell>
+                        <TableCell>Teléfono</TableCell>
+                        <TableCell>Rol</TableCell>
+                        {canEditUsuarios && <TableCell align="center">Acciones</TableCell>}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {pagina.map((persona) => (
                         <TableRow
-                          key={persona.username}
+                          key={persona.id}
                           hover
+                          sx={{
+                            backgroundColor: 'background.paper',
+                            boxShadow: 1,
+                          }}
                         >
                           <TableCell>{`${persona.first_name} ${persona.last_name}`}</TableCell>
                           <TableCell>{persona.username}</TableCell>
-                          <TableCell>{persona.telefono}</TableCell>
-                          <TableCell>{persona.rol}</TableCell>
-                          {/* <TableCell>{persona.estado}</TableCell> */}
-                          <TableCell>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              onClick={() => {
-                                setPersonaSeleccionada(persona);
-                                setModalEditarOpen(true);
-                              }}
-                            >
-                              Ver detalles
-                            </Button>
-                          </TableCell>
+                          <TableCell>{persona.telefono ?? '—'}</TableCell>
+                          <TableCell>{persona.groups?.[0]?.name || '—'}</TableCell>
+                          {canEditUsuarios && (
+                            <TableCell align="center">
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => {
+                                  setPersonaSeleccionada(persona);
+                                  setModalEditarOpen(true);
+                                }}
+                              >
+                                Ver detalles
+                              </Button>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              );
+            }}
           </TablaPaginadaConFiltros>
 
+          {/* Modales */}
           <ModalRegistrarPersona
             open={modalCrearOpen}
             onClose={() => setModalCrearOpen(false)}
@@ -145,12 +197,7 @@ const Page: NextPage = () => {
               open={modalEditarOpen}
               onClose={() => setModalEditarOpen(false)}
               initialData={personaSeleccionada}
-              onConfirm={(actualizada) => {
-                setPersonal((prev) =>
-                  prev.map((p) => (p.username === actualizada.username ? actualizada : p))
-                );
-                setModalEditarOpen(false);
-              }}
+              onConfirm={handleGuardarEdicion}
             />
           )}
         </CardContent>
@@ -160,5 +207,4 @@ const Page: NextPage = () => {
 };
 
 Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
-
 export default Page;

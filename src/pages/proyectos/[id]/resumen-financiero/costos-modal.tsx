@@ -23,6 +23,8 @@ import { formatearFecha } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { Costo } from '../index.d';
 import { ModalEliminar } from 'src/components/eliminar-modal';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface ModalListaCostosProps {
   open: boolean;
@@ -66,6 +68,9 @@ export const ModalListaCostos: FC<ModalListaCostosProps> = ({
   const [costoEditando, setCostoEditando] = useState<Costo | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [costoAEliminar, setCostoAEliminar] = useState<Costo | null>(null);
+
+  const canEditCosto = useHasPermission(PermissionId.EDITAR_INGRESOS_COSTOS_PROYECTO);
+  const canDeleteCosto = useHasPermission(PermissionId.ELIMINAR_INGRESOS_COSTOS_PROYECTO);
 
   const costosFiltrados = useMemo(() => {
     return aplicarFiltros(costos, filtros, {
@@ -194,22 +199,26 @@ export const ModalListaCostos: FC<ModalListaCostosProps> = ({
                             direction="row"
                             justifyContent="flex-end"
                           >
-                            <IconButton
-                              onClick={() => {
-                                setCostoEditando(costo);
-                                setModalEditarAbierto(true);
-                              }}
-                            >
-                              <EditIcon />
-                            </IconButton>
+                            {canEditCosto && (
+                              <IconButton
+                                onClick={() => {
+                                  setCostoEditando(costo);
+                                  setModalEditarAbierto(true);
+                                }}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            )}
 
-                            <IconButton
-                              onClick={() => {
-                                setCostoAEliminar(costo);
-                              }}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+                            {canDeleteCosto && (
+                              <IconButton
+                                onClick={() => {
+                                  setCostoAEliminar(costo);
+                                }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            )}
                           </Stack>
                         </TableCell>
                       </TableRow>

@@ -3,7 +3,20 @@ export interface Usuario {
   username: string;
   first_name: string;
   last_name: string;
+  is_active: boolean;
+  telefono?: string;
+  groups?: { id: number; name: string }[];
 }
+
+export interface NuevoUsuario {
+  username: string;
+  first_name: string;
+  last_name: string;
+  is_active: boolean;
+  groups?: number[];
+  telefono: string;
+}
+
 
 export interface AsignacionPersonal {
   id: number;
@@ -98,6 +111,15 @@ export interface NuevoMaterial {
   nombre: string;
   unidad: number;
   marca: number;
+}
+
+export interface Proveedor {
+  id: number;
+  nombre: string;
+}
+
+export interface NuevoProveedor {
+  nombre: string;
 }
 
 export interface ConfigMaterial {
@@ -242,3 +264,163 @@ export interface Pendiente {
   usuario_creador: Usuario | null;
   usuario_completo: Usuario | null;
 }
+
+export interface Rol {
+  id: number;
+  name: string;
+  permissions: number[];
+}
+
+export interface NuevoRol {
+  name: string;
+  permissions: number[];
+}
+
+export interface Inventario {
+  id: number;
+  material: Material;
+  cantidad: number;
+  precio_unitario: number;
+  fecha_creacion: string;
+  usuario_creador: UsuarioPublico;
+  movimientos: MovimientoInventario[];
+}
+
+export type TipoMovimiento = 1 | 2; // 1: Entrada, 2: Salida
+
+export interface MovimientoInventario {
+  id: number;
+  inventario: number;
+  tipo_movimiento: TipoMovimiento;
+  cantidad: number;
+  proyecto?: number | null;
+  fecha_creacion: string;
+  usuario_creador: UsuarioPublico;
+}
+
+
+export interface CompraMaterial {
+  id: number;
+  cantidad: string;
+  precio_unitario: string;
+  orden_compra: number;
+  material: Material;
+  usuario_creador: number;
+}
+
+export interface NuevaCompraMaterial {
+  cantidad: string;
+  precio_unitario: string;
+  material: number;
+}
+interface NuevaCompraMaterialForm {
+  cantidad: string;
+  precio_unitario: string;
+  material: Material | null; // objeto Material mientras editas
+}
+
+export interface OrdenCompra {
+  id: number;
+  fecha_factura: string;
+  numero_factura: string;
+  usuario_creador: UsuarioPublico;
+  proveedor: Proveedor;
+  fecha_creacion: string;
+  compras: CompraMaterial[];
+}
+
+export interface NuevaOrdenCompra {
+  proveedor: number;
+  fecha_factura: string; 
+  numero_factura: string;
+  compras: NuevaCompraMaterial[];
+}
+
+interface MovimientoMaterialUI {
+  material?: Inventario | null; // Objeto para UI
+  cantidad: string;             // En string para TextField
+}
+
+export interface NuevaRebajaMaterial {
+  inventario: number;
+  cantidad: number;
+}
+
+export interface Rebaja {
+  id: number;
+  fecha_factura: string;
+  numero_factura: string;
+  usuario_creador: UsuarioPublico;
+  proveedor: Proveedor;
+  fecha_creacion: string;
+  compras: CompraMaterial[];
+}
+
+interface NuevaRebajaMaterialForm {
+  cantidad: string;
+  material: number;
+}
+
+export interface NuevaRebaja {
+  fecha_rebaja: string;
+  motivo: string;
+  materiales: NuevaRebajaMaterial[];
+}
+
+// Un único elemento de movimiento (material + cantidad)
+export interface MovimientoMaterial {
+  inventario: number;  // ID del inventario
+  cantidad: number;
+}
+
+// Movimiento para crear en backend (entrada, salida, traslado, rebaja...)
+export interface NuevoMovimientoInventario {
+  fecha_movimiento: string;  // Fecha en formato YYYY-MM-DD
+  proyecto?: number;         // Solo aplica si el movimiento involucra un proyecto
+  motivo?: string;           // Solo aplica en rebajas (o devoluciones con motivo)
+  tipo_movimiento?: 1 | 2;   // 1 = Entrada, 2 = Salida (opcional si el backend infiere)
+  materiales: MovimientoMaterial[];
+}
+
+// Movimiento registrado (respuesta del backend)
+export interface MovimientoInventario {
+  id: number;
+  inventario: number;
+  tipo_movimiento: 1 | 2;
+  cantidad: number;
+  proyecto?: number | null;
+  fecha_creacion: string;
+  usuario_creador: UsuarioPublico;
+}
+
+// ejemplo json de nueva rebaja
+// {
+//   "fecha_rebaja": "2023-10-01",
+//   "motivo": "Devolución de material defectuoso",
+//   "materiales": [
+//     {
+//       "inventario": 1,
+//       "cantidad": 10
+//     },
+//     {
+//       "inventario": 2,
+//       "cantidad": 5
+//     }
+//   ]
+// }
+
+// ejemplo json de nuevo traslado
+// {
+//   "fecha_movimiento": "2023-10-01",
+//   "proyecto": 4,
+//   "materiales": [
+//     {
+//       "inventario": 1,
+//       "cantidad": 10
+//     },
+//     {
+//       "inventario": 2,
+//       "cantidad": 5
+//     }
+//   ]
+// }

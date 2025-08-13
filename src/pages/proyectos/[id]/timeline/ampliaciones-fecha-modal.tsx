@@ -20,6 +20,8 @@ import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtr
 import { ModalEditarAmpliacionFecha } from './editar-ampliacion-fecha-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 import { formatearFecha } from 'src/utils/format-date';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface Ampliacion {
   id: number;
@@ -46,6 +48,9 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [eliminando, setEliminando] = useState<Ampliacion | null>(null);
+
+  const canEditAmpliacionesFecha = useHasPermission(PermissionId.EDITAR_AMPLIACION_FECHA_FIN);
+  const canEliminarAmpliacionesFecha = useHasPermission(PermissionId.ELIMINAR_AMPLIACION_FECHA_FIN);
 
   const nombreUsuario = (usuario: any) =>
     usuario ? `${usuario.first_name} ${usuario.last_name}` : 'Desconocido';
@@ -131,17 +136,21 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
                                 direction="row"
                                 justifyContent="flex-end"
                               >
-                                <IconButton
-                                  onClick={() => {
-                                    setEditandoIndex(globalIndex);
-                                    setEditModalOpen(true);
-                                  }}
-                                >
-                                  <EditIcon />
-                                </IconButton>
-                                <IconButton onClick={() => setEliminando(item)}>
-                                  <DeleteIcon />
-                                </IconButton>
+                                {canEditAmpliacionesFecha && (
+                                  <IconButton
+                                    onClick={() => {
+                                      setEditandoIndex(globalIndex);
+                                      setEditModalOpen(true);
+                                    }}
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                )}
+                                {canEliminarAmpliacionesFecha && (
+                                  <IconButton onClick={() => setEliminando(item)}>
+                                    <DeleteIcon />
+                                  </IconButton>
+                                )}
                               </Stack>
                             </TableCell>
                           </TableRow>

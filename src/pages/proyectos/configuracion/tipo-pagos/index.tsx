@@ -27,6 +27,8 @@ import { ModalCrearTipoPago } from './crear-tipo-pago-modal';
 import { ModalEditarTipoPago } from './editar-tipo-pago-modal';
 import { useTiposPagoApi } from 'src/api/tipoPagos/useTipoPagosApi';
 import { TipoPago } from './index.d';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -35,6 +37,9 @@ const Page: NextPage = () => {
   const [tiposPago, setTiposPago] = useState<TipoPago[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+
+  const canCreateTipoPago = useHasPermission(PermissionId.CREAR_TIPO_COSTO);
+  const canEditTipoPago = useHasPermission(PermissionId.EDITAR_TIPO_COSTO);
 
   const { getTiposPago, crearTipoPago, actualizarTipoPago } = useTiposPagoApi();
 
@@ -95,13 +100,15 @@ const Page: NextPage = () => {
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Tipos de pago</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setModalCrearOpen(true)}
-          >
-            Crear tipo
-          </Button>
+          {canCreateTipoPago && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setModalCrearOpen(true)}
+            >
+              Crear tipo de pago
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -126,7 +133,7 @@ const Page: NextPage = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Nombre</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
+                      {canEditTipoPago && <TableCell align="center">Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -136,13 +143,15 @@ const Page: NextPage = () => {
                         hover
                       >
                         <TableCell>{tipo.nombre}</TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(tipo)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>
+                        {canEditTipoPago && (
+                          <TableCell align="center">
+                            <IconButton onClick={() => abrirModalEditar(tipo)}>
+                              <SvgIcon>
+                                <EditIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

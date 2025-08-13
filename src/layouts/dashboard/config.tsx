@@ -14,6 +14,8 @@ import BuildingIcon from 'src/icons/untitled-ui/duocolor/building-04';
 
 import { tokens } from 'src/locales/tokens';
 import { paths } from 'src/paths';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 export interface Item {
   disabled?: boolean;
@@ -33,8 +35,121 @@ export interface Section {
 export const useSections = (): Section[] => {
   const { t } = useTranslation();
 
-  return useMemo(
-    () => [
+  const canViewSocios = useHasPermission(PermissionId.VER_SOCIOS);
+  const canViewPlanilla = useHasPermission(PermissionId.VER_PLANILLA);
+  const canViewRoles = useHasPermission(PermissionId.VER_ROLES_PERMISOS);
+  const canViewIngresos = useHasPermission(PermissionId.VER_INGRESOS_GENERALES);
+  const canViewCostos = useHasPermission(PermissionId.VER_COSTOS_GENERALES);
+  const canViewInventario = useHasPermission(PermissionId.VER_INVENTARIO);
+  const canViewMateriales = useHasPermission(PermissionId.VER_MATERIALES);
+  const canViewUnidades = useHasPermission(PermissionId.VER_UNIDADES);
+  const canViewMarcas = useHasPermission(PermissionId.VER_MARCAS);
+  const canViewProveedores = useHasPermission(PermissionId.VER_PROVEEDORES);
+  const canViewProyectos = useHasPermission(PermissionId.VER_PROYECTOS);
+  const canViewTipoIngresos = useHasPermission(PermissionId.VER_TIPOS_INGRESO);
+  const canViewTipoCostos = useHasPermission(PermissionId.VER_TIPOS_COSTO);
+  const canViewMaquinaria = useHasPermission(PermissionId.VER_LISTA_MAQUINARIA);
+
+  return useMemo(() => {
+    // ----- Oficina -----
+    const oficinaItems: Item[] = [];
+    if (canViewSocios) {
+      oficinaItems.push({
+        title: t(tokens.nav.socios),
+        path: paths.dashboard.oficina.socios,
+        icon: <SvgIcon fontSize="small"><BuildingIcon /></SvgIcon>,
+      });
+    }
+    if (canViewPlanilla) {
+      oficinaItems.push({
+        title: t(tokens.nav.personal),
+        path: paths.dashboard.oficina.planilla,
+        icon: <SvgIcon fontSize="small"><Users03Icon /></SvgIcon>,
+      });
+    }
+    if (canViewRoles) {
+      oficinaItems.push({
+        title: t(tokens.nav.roles),
+        path: paths.dashboard.oficina.roles,
+        icon: <SvgIcon fontSize="small"><Settings03Icon /></SvgIcon>,
+      });
+    }
+
+    const finanzasItems: Item[] = [];
+    if (canViewIngresos) {
+      finanzasItems.push({ title: t(tokens.nav.ingresosOficina), path: paths.dashboard.oficina.ingresos });
+    }
+    if (canViewCostos) {
+      finanzasItems.push({ title: t(tokens.nav.costos), path: paths.dashboard.oficina.costos });
+    }
+    if (finanzasItems.length > 0) {
+      oficinaItems.push({
+        title: t(tokens.nav.finanzas),
+        icon: <SvgIcon fontSize="small"><ClipboardIcon /></SvgIcon>,
+        items: finanzasItems,
+      });
+    }
+
+    const bodegaItems: Item[] = [];
+    if (canViewInventario) {
+      bodegaItems.push({ title: t(tokens.nav.inventario), path: paths.dashboard.oficina.inventario });
+    }
+    if (canViewMateriales) {
+      bodegaItems.push({ title: t(tokens.nav.materiales), path: paths.dashboard.oficina.materiales });
+    }
+    if (canViewUnidades) {
+      bodegaItems.push({ title: t(tokens.nav.unidades), path: paths.dashboard.oficina.unidades });
+    }
+    if (canViewMarcas) {
+      bodegaItems.push({ title: t(tokens.nav.marcas), path: paths.dashboard.oficina.marcas });
+    }
+    if (canViewProveedores) {
+      bodegaItems.push({ title: t(tokens.nav.proveedores), path: paths.dashboard.oficina.proveedores });
+    }
+    if (bodegaItems.length > 0) {
+      oficinaItems.push({
+        title: t(tokens.nav.bodega),
+        icon: <SvgIcon fontSize="small"><ShoppingBag03Icon /></SvgIcon>,
+        items: bodegaItems,
+      });
+    }
+
+    // ----- Proyectos -----
+    const proyectosItems: Item[] = [];
+    if (canViewProyectos) {
+      proyectosItems.push({
+        title: t(tokens.nav.proyectos),
+        path: paths.dashboard.proyectos.index,
+        icon: <SvgIcon><ClipboardIcon /></SvgIcon>,
+      });
+    }
+    const configProyectosItems: Item[] = [];
+    if (canViewTipoIngresos) {
+      configProyectosItems.push({ title: t(tokens.nav.tipoIngresos), path: paths.dashboard.proyectos.configuracion.tipoIngresos });
+    }
+    if (canViewTipoCostos) {
+      configProyectosItems.push({ title: t(tokens.nav.tipoPagos), path: paths.dashboard.proyectos.configuracion.tipoPagos });
+    }
+    if (configProyectosItems.length > 0) {
+      proyectosItems.push({
+        title: t(tokens.nav.configuracion),
+        icon: <SvgIcon fontSize="small"><Settings02Icon /></SvgIcon>,
+        items: configProyectosItems,
+      });
+    }
+
+    // ----- Maquinaria -----
+    const maquinariaItems: Item[] = [];
+    if (canViewMaquinaria) {
+      maquinariaItems.push({
+        title: t(tokens.nav.maquinaria),
+        path: paths.dashboard.maquinaria.index,
+        icon: <SvgIcon fontSize="small"><Truck01Icon /></SvgIcon>,
+      });
+    }
+
+    // ----- Secciones finales -----
+    const sections: Section[] = [
       {
         subheader: 'General',
         items: [
@@ -45,74 +160,27 @@ export const useSections = (): Section[] => {
           },
         ],
       },
-      {
-        subheader: t(tokens.nav.oficina),
-        items: [
-          {
-            title: t(tokens.nav.socios),
-            path: paths.dashboard.oficina.socios,
-            icon: <SvgIcon fontSize="small"><BuildingIcon /></SvgIcon>,
-          },
-          {
-            title: t(tokens.nav.personal),
-            path: paths.dashboard.oficina.planilla,
-            icon: <SvgIcon fontSize="small"><Users03Icon /></SvgIcon>,
-          },
-          {
-            title: t(tokens.nav.roles),
-            path: paths.dashboard.oficina.roles,
-            icon: <SvgIcon fontSize="small"><Settings03Icon /></SvgIcon>,
-          },
-          {
-            title: t(tokens.nav.finanzas),
-            icon: <SvgIcon fontSize="small"><ClipboardIcon /></SvgIcon>,
-            items: [
-              { title: t(tokens.nav.ingresosOficina), path: paths.dashboard.oficina.ingresos },
-              { title: t(tokens.nav.costos), path: paths.dashboard.oficina.costos },
-            ],
-          },
-          {
-            title: t(tokens.nav.bodega),
-            icon: <SvgIcon fontSize="small"><ShoppingBag03Icon /></SvgIcon>,
-            items: [
-              { title: t(tokens.nav.inventario), path: paths.dashboard.oficina.inventario },
-              { title: t(tokens.nav.materiales), path: paths.dashboard.oficina.materiales },
-              { title: t(tokens.nav.unidades), path: paths.dashboard.oficina.unidades },
-              { title: t(tokens.nav.marcas), path: paths.dashboard.oficina.marcas },
-            ],
-          },
-        ],
-      },
-      {
-        subheader: t(tokens.nav.proyectos),
-        items: [
-          {
-            title: t(tokens.nav.proyectos),
-            path: paths.dashboard.proyectos.index,
-            icon: <SvgIcon><ClipboardIcon /></SvgIcon>,
-          },
-          {
-            title: t(tokens.nav.configuracion),
-            icon: <SvgIcon fontSize="small"><Settings02Icon /></SvgIcon>,
-            items: [
-              { title: t(tokens.nav.tipoIngresos), path: paths.dashboard.proyectos.configuracion.tipoIngresos },
-              { title: t(tokens.nav.tipoPagos), path: paths.dashboard.proyectos.configuracion.tipoPagos },
-            ],
-          },
-        ],
-      },
-      {
-        subheader: t(tokens.nav.maquinaria),
-        items: [
-          {
-            title: t(tokens.nav.maquinaria),
-            path: paths.dashboard.maquinaria.index,
-            icon: <SvgIcon fontSize="small"><Truck01Icon /></SvgIcon>,
-          },
-        ],
-      },
-    ],
-    [t]
-  );
-};
+      ...(oficinaItems.length > 0 ? [{ subheader: t(tokens.nav.oficina), items: oficinaItems }] : []),
+      ...(proyectosItems.length > 0 ? [{ subheader: t(tokens.nav.proyectos), items: proyectosItems }] : []),
+      ...(maquinariaItems.length > 0 ? [{ subheader: t(tokens.nav.maquinaria), items: maquinariaItems }] : []),
+    ];
 
+    return sections;
+  }, [
+    t,
+    canViewSocios,
+    canViewPlanilla,
+    canViewRoles,
+    canViewIngresos,
+    canViewCostos,
+    canViewInventario,
+    canViewMateriales,
+    canViewUnidades,
+    canViewMarcas,
+    canViewProveedores,
+    canViewProyectos,
+    canViewTipoIngresos,
+    canViewTipoCostos,
+    canViewMaquinaria,
+  ]);
+};

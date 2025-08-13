@@ -7,12 +7,14 @@ export interface State {
   isInitialized: boolean;
   isAuthenticated: boolean;
   user: User | null;
+  permissions: number[];
 }
 
 export const initialState: State = {
   isAuthenticated: false,
   isInitialized: false,
   user: null,
+  permissions: [],
 };
 
 export interface AuthContextType extends State {

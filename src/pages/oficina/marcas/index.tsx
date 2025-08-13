@@ -26,6 +26,8 @@ import { Marca, NuevaMarca } from 'src/api/types';
 import { useMarcasApi } from 'src/api/marcas/useMarcasApi';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -37,6 +39,8 @@ const Page: NextPage = () => {
   const rowsPerPage = 5;
 
   const { getMarcas, crearMarca, actualizarMarca } = useMarcasApi();
+  const canCreateMarca = useHasPermission(PermissionId.CREAR_MARCA);
+  const canEditMarca = useHasPermission(PermissionId.EDITAR_MARCA);
 
   const handleGetMarcas = useCallback(async () => {
     try {
@@ -68,8 +72,7 @@ const Page: NextPage = () => {
         setModalEditarOpen(false);
         await handleGetMarcas();
         toast.success('Marca actualizada exitosamente');
-      } catch (error) {
-      }
+      } catch (error) {}
     },
     [actualizarMarca, handleGetMarcas]
   );
@@ -102,13 +105,15 @@ const Page: NextPage = () => {
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Marcas</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setModalCrearOpen(true)}
-          >
-            Crear marca
-          </Button>
+          {canCreateMarca && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setModalCrearOpen(true)}
+            >
+              Crear marca
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -125,20 +130,25 @@ const Page: NextPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Nombre</TableCell>
-                    <TableCell align="center">Acciones</TableCell>
+                    {canEditMarca && <TableCell align="center">Acciones</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {paginadas.map((marca) => (
-                    <TableRow key={marca.id} hover>
+                    <TableRow
+                      key={marca.id}
+                      hover
+                    >
                       <TableCell>{marca.nombre}</TableCell>
-                      <TableCell align="center">
-                        <IconButton onClick={() => abrirModalEditar(marca)}>
-                          <SvgIcon>
-                            <EditIcon />
-                          </SvgIcon>
-                        </IconButton>
-                      </TableCell>
+                      {canEditMarca && (
+                        <TableCell align="center">
+                          <IconButton onClick={() => abrirModalEditar(marca)}>
+                            <SvgIcon>
+                              <EditIcon />
+                            </SvgIcon>
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>

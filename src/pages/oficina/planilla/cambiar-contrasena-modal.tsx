@@ -11,11 +11,18 @@ import {
 interface Props {
   open: boolean;
   onClose: () => void;
-  onConfirm: (nuevaContrasena: string) => void;
+  onConfirm: (data: { new_password: string; old_password: string }) => void;
 }
 
 export const ModalCambiarContrasena: FC<Props> = ({ open, onClose, onConfirm }) => {
-  const [contrasena, setContrasena] = useState('');
+  const [password, setPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+
+  const handleGuardar = () => {
+    onConfirm({ new_password: password, old_password: oldPassword });
+    setPassword('');
+    setOldPassword('');
+  };
 
   return (
     <Dialog
@@ -28,10 +35,18 @@ export const ModalCambiarContrasena: FC<Props> = ({ open, onClose, onConfirm }) 
       <DialogContent>
         <TextField
           fullWidth
+          label="Contraseña actual"
+          type="password"
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
           label="Nueva contraseña"
           type="password"
-          value={contrasena}
-          onChange={(e) => setContrasena(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           margin="normal"
         />
       </DialogContent>
@@ -39,8 +54,8 @@ export const ModalCambiarContrasena: FC<Props> = ({ open, onClose, onConfirm }) 
         <Button onClick={onClose}>Cancelar</Button>
         <Button
           variant="contained"
-          onClick={() => onConfirm(contrasena)}
-          disabled={!contrasena.trim()}
+          onClick={handleGuardar}
+          disabled={!password.trim() || (!oldPassword.trim())}
         >
           Guardar contraseña
         </Button>

@@ -23,6 +23,7 @@ export const es = {
   [tokens.nav.materiales]: 'Materiales',
   [tokens.nav.unidades]: 'Unidades de medida',
   [tokens.nav.marcas]: 'Marcas',
+  [tokens.nav.proveedores]: 'Proveedores',
   [tokens.nav.inventario]: 'Inventario',
   [tokens.nav.pendientes]: 'Pizarrón de pendientes',
   [tokens.nav.maquinaria]: 'Maquinaria',

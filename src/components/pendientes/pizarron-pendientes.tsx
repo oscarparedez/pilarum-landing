@@ -13,6 +13,8 @@ import { ModalCrearPendiente } from './crear-pendiente-modal';
 import { ModalPendientesPorEstado } from './pendientes-por-estado-modal';
 import { Box } from '@mui/system';
 import { useRouter } from 'next/router';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface Props {
   tipo: 'oficina' | 'proyecto';
@@ -20,11 +22,17 @@ interface Props {
 
 export const PizarronPendientes: FC<Props> = ({ tipo }) => {
   const router = useRouter();
-  const { getPendientesOficina, getPendientesProyecto, patchEstadoPendiente, eliminarPendiente } = usePendientesApi();
+  const { getPendientesOficina, getPendientesProyecto, patchEstadoPendiente, eliminarPendiente } =
+    usePendientesApi();
   const [pendientes, setPendientes] = useState<Pendiente[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalEstado, setModalEstado] = useState<'no_iniciado' | 'pendiente' | 'completado' | null>(null);
+  const [modalEstado, setModalEstado] = useState<'no_iniciado' | 'pendiente' | 'completado' | null>(
+    null
+  );
   const [crearModalOpen, setCrearModalOpen] = useState(false);
+
+  const canCreateTareaProyecto = useHasPermission(PermissionId.CREAR_TAREA_PROYECTO);
+  const canCreateTareaGeneral = useHasPermission(PermissionId.CREAR_TAREA_GENERAL);
 
   const referenciaId = useMemo(
     () => (tipo === 'proyecto' ? Number(router.query.id) || null : null),
@@ -96,34 +104,60 @@ export const PizarronPendientes: FC<Props> = ({ tipo }) => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="flex-end" alignItems="center" mb={3}>
-        <Button
-          startIcon={
-            <SvgIcon>
-              <PlusIcon />
-            </SvgIcon>
-          }
-          onClick={() => setCrearModalOpen(true)}
-          variant="contained"
-        >
-          Nueva tarea
-        </Button>
+      <Stack
+        direction="row"
+        justifyContent="flex-end"
+        alignItems="center"
+        mb={3}
+      >
+        {(tipo === 'oficina' && canCreateTareaGeneral) ||
+          (tipo === 'proyecto' && canCreateTareaProyecto && (
+            <Button
+              startIcon={
+                <SvgIcon>
+                  <PlusIcon />
+                </SvgIcon>
+              }
+              onClick={() => setCrearModalOpen(true)}
+              variant="contained"
+            >
+              Nueva tarea
+            </Button>
+          ))}
       </Stack>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6} md={4}>
+      <Grid
+        container
+        spacing={2}
+      >
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={4}
+        >
           <OverviewPendingIssues
             amount={counts.no_iniciado}
             onClick={() => handleOpenModal('no_iniciado')}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={4}
+        >
           <OverviewOpenTickets
             amount={counts.pendiente}
             onClick={() => handleOpenModal('pendiente')}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={4}
+        >
           <OverviewDoneTasks
             amount={counts.completado}
             onClick={() => handleOpenModal('completado')}
@@ -145,6 +179,7 @@ export const PizarronPendientes: FC<Props> = ({ tipo }) => {
         pendientes={pendientesFiltrados}
         onChangeEstado={handleChangeEstado}
         onDeletePendiente={handleDeletePendiente}
+        tipo={tipo}
       />
     </Box>
   );

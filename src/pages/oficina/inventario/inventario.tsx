@@ -14,132 +14,124 @@ import {
   Button,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import SendIcon from '@mui/icons-material/SendRounded';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
-import { useState } from 'react';
-import { ModalMovimientosBodega } from './movimientos-bodega-modal';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-
-const INVENTARIO_MOCK = [
-  {
-    id: 'mat-001',
-    nombre: 'Saco de cemento 20 kg',
-    tipo: 'Construcción',
-    cantidad: 50,
-    unidad: 'sacos',
-    movimientos: [
-      {
-        id: 'mov-001',
-        tipo: 'entrada',
-        cantidad: 30,
-        usuario: 'Luis Gómez',
-        fecha: '2025-05-12T08:00:00',
-        origen: 'Proveedor XYZ',
-      },
-      {
-        id: 'mov-002',
-        tipo: 'salida',
-        cantidad: 10,
-        usuario: 'Ana Pérez',
-        fecha: '2025-06-20T08:00:00',
-        destino: 'Proyecto Oasis',
-      },
-    ],
-  },
-];
+import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
+import toast from 'react-hot-toast';
+import { Inventario as InventarioInterface } from 'src/api/types';
+import { formatearQuetzales } from 'src/utils/format-currency';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from '../roles/permissions';
 
 export const Inventario = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<any | null>(null);
+  const [inventario, setInventario] = useState<InventarioInterface[]>([]);
   const router = useRouter();
+  const { getInventario } = useInventarioApi();
+  const canCreateOrdenCompra = useHasPermission(PermissionId.GENERAR_ORDEN_COMPRA)
+  const canCreateRebajarInventario = useHasPermission(PermissionId.REBAJAR_INVENTARIO)
+  const canTrasladarMateriales = useHasPermission(PermissionId.GENERAR_TRASLADO)
 
-  const abrirModal = (producto: any) => {
-    setProductoSeleccionado(producto);
-    setModalOpen(true);
+  const fetchInventario = useCallback(async () => {
+    try {
+      const data = await getInventario();
+      setInventario(data);
+    } catch (error) {
+      console.error(error);
+      toast.error('Error al obtener inventario');
+    }
+  }, [getInventario]);
+
+  useEffect(() => {
+    fetchInventario();
+  }, [fetchInventario]);
+
+  const verMovimientos = (productoId: number) => {
+    router.push(`/oficina/inventario/movimientos-material/${productoId}`);
   };
 
   return (
-    <>
-      <Card sx={{ mb: 4 }}>
+    <Card sx={{ mb: 4 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ px: 3, py: 3 }}
+      >
+        <Typography variant="h5">Inventario en bodega central</Typography>
         <Stack
           direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ px: 3, py: 3 }}
+          spacing={2}
         >
-          <Typography variant="h5">Inventario en bodega central</Typography>
-          <Stack
-            direction="row"
-            spacing={2}
+          { canCreateRebajarInventario && <Button
+            variant="outlined"
+            onClick={() => router.push('/oficina/inventario/rebajar')}
           >
-            <Button
-              variant="outlined"
-              onClick={() => router.push('/oficina/inventario/rebajar')}
-            >
-              Rebajar inventario
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => router.push('/oficina/inventario/crear')}
-            >
-              Crear orden de compra
-            </Button>
-          </Stack>
+            Rebajar inventario
+          </Button>}
+          { canCreateOrdenCompra && <Button
+            variant="contained"
+            onClick={() => router.push('/oficina/inventario/crear')}
+          >
+            Crear orden de compra
+          </Button>}
+          { canTrasladarMateriales && <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => router.push('/oficina/inventario/trasladar')}
+            endIcon={<SendIcon />}
+          >
+            Trasladar materiales
+          </Button>}
         </Stack>
+      </Stack>
 
-        <TablaPaginadaConFiltros
-          totalItems={INVENTARIO_MOCK.length}
-          onFiltrar={() => {}}
-          filtrosFecha={false}
-          filtrosEstado={false}
-        >
-          {(currentPage, orden) => {
-            const items = INVENTARIO_MOCK.slice((currentPage - 1) * 5, currentPage * 5);
-            return (
-              <TableContainer component={Paper}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Material</TableCell>
-                      <TableCell>Unidad</TableCell>
-                      <TableCell>Cantidad</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
+      <TablaPaginadaConFiltros
+        totalItems={inventario.length}
+        onFiltrar={() => {}}
+        filtrosFecha={false}
+        filtrosEstado={false}
+      >
+        {(currentPage) => {
+          const items = inventario.slice((currentPage - 1) * 5, currentPage * 5);
+          return (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Material</TableCell>
+                    <TableCell>Unidad</TableCell>
+                    <TableCell>Cantidad</TableCell>
+                    <TableCell>Precio Unitario</TableCell>
+                    <TableCell align="center">Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {items.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      hover
+                    >
+                      <TableCell>{item.material?.nombre || '-'}</TableCell>
+                      <TableCell>{item.material?.unidad?.nombre || '-'}</TableCell>
+                      <TableCell>{item.cantidad}</TableCell>
+                      <TableCell>{formatearQuetzales(Number(item.precio_unitario))}</TableCell>
+                      <TableCell align="center">
+                        <IconButton onClick={() => verMovimientos(item.id)}>
+                          <SvgIcon>
+                            <VisibilityIcon />
+                          </SvgIcon>
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {items.map((item) => (
-                      <TableRow
-                        key={item.id}
-                        hover
-                      >
-                        <TableCell>{item.nombre}</TableCell>
-                        <TableCell>{item.unidad}</TableCell>
-                        <TableCell>{item.cantidad}</TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={() => abrirModal(item)}>
-                            <SvgIcon>
-                              <VisibilityIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            );
-          }}
-        </TablaPaginadaConFiltros>
-      </Card>
-
-      {productoSeleccionado && (
-        <ModalMovimientosBodega
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          producto={productoSeleccionado.nombre}
-          unidad={productoSeleccionado.unidad}
-          movimientos={productoSeleccionado.movimientos}
-        />
-      )}
-    </>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          );
+        }}
+      </TablaPaginadaConFiltros>
+    </Card>
   );
 };

@@ -3,6 +3,7 @@ interface FiltroConfig {
   campoFecha?: string;
   campoEstado?: string;
   campoEmpresa?: string;
+  campoRol?: string;
 }
 
 interface FiltrosGlobales {

@@ -25,6 +25,8 @@ import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { ModalEditarMaquinaria } from './editar-maquinaria-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 import { esHoy, formatearFechaHora } from 'src/utils/format-date';
+import { useHasPermission } from 'src/hooks/use-has-permissions';
+import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
 interface MaquinariaProps {
   maquinaria: MaquinariaInterface[];
@@ -50,7 +52,14 @@ export const Maquinaria: FC<MaquinariaProps> = ({
   const [editando, setEditando] = useState<AsignacionMaquinaria | null>(null);
   const [asignacionAEliminar, setAsignacionAEliminar] = useState<AsignacionMaquinaria | null>(null);
 
-  const [filtros, setFiltros] = useState({ search: '', estado: 'Todos' as 'Activo' | 'Inactivo' | 'Todos' });
+  const canAsignarMaquinaria = useHasPermission(PermissionId.ASIGNAR_MAQ_PROYECTO);
+  const canEditarAsignacionMaquinaria = useHasPermission(PermissionId.EDITAR_ASIG_MAQ_PROYECTO);
+  const canLiberarMaquinaria = useHasPermission(PermissionId.LIBERAR_ASIG_MAQ_PROYECTO);
+
+  const [filtros, setFiltros] = useState({
+    search: '',
+    estado: 'Todos' as 'Activo' | 'Inactivo' | 'Todos',
+  });
 
   const today = useMemo(() => new Date(), []);
 
@@ -79,36 +88,55 @@ export const Maquinaria: FC<MaquinariaProps> = ({
     setFiltros(f);
   }, []);
 
-  const onCrearAsignacion = useCallback((data: NuevaAsignacionMaquinaria) => {
-    handleCrearAsignacion(data);
-    setAgregarModalOpen(false);
-  }, [handleCrearAsignacion]);
+  const onCrearAsignacion = useCallback(
+    (data: NuevaAsignacionMaquinaria) => {
+      handleCrearAsignacion(data);
+      setAgregarModalOpen(false);
+    },
+    [handleCrearAsignacion]
+  );
 
-  const onActualizarAsignacion = useCallback((id: number, data: NuevaAsignacionMaquinaria) => {
-    handleActualizarAsignacion(id, data);
-    setEditarModalOpen(false);
-    setEditando(null);
-  }, [handleActualizarAsignacion]);
+  const onActualizarAsignacion = useCallback(
+    (id: number, data: NuevaAsignacionMaquinaria) => {
+      handleActualizarAsignacion(id, data);
+      setEditarModalOpen(false);
+      setEditando(null);
+    },
+    [handleActualizarAsignacion]
+  );
 
-  const onLiberarAsignacion = useCallback((asignacion: AsignacionMaquinaria) => {
-    const entrada = new Date(asignacion.fecha_entrada);
-    const hoy = today;
-    if (entrada > hoy) {
-      setAsignacionAEliminar(asignacion);
-    } else {
-      handleLiberarAsignacion(asignacion.id);
-    }
-  }, [handleLiberarAsignacion, today]);
+  const onLiberarAsignacion = useCallback(
+    (asignacion: AsignacionMaquinaria) => {
+      const entrada = new Date(asignacion.fecha_entrada);
+      const hoy = today;
+      if (entrada > hoy) {
+        setAsignacionAEliminar(asignacion);
+      } else {
+        handleLiberarAsignacion(asignacion.id);
+      }
+    },
+    [handleLiberarAsignacion, today]
+  );
 
   return (
     <Box sx={{ p: 3 }}>
       <Card>
         <CardContent sx={{ p: 0 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 3 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ px: 3, py: 3 }}
+          >
             <Typography variant="h5">Maquinaria y herramientas</Typography>
-            <Button variant="contained" onClick={() => setAgregarModalOpen(true)}>
-              Asignar maquinaria
-            </Button>
+            {canAsignarMaquinaria && (
+              <Button
+                variant="contained"
+                onClick={() => setAgregarModalOpen(true)}
+              >
+                Asignar maquinaria
+              </Button>
+            )}
           </Stack>
 
           <TablaPaginadaConFiltros
@@ -118,7 +146,10 @@ export const Maquinaria: FC<MaquinariaProps> = ({
             filtrosEstado={true}
           >
             {(currentPage, estadoFiltro) => (
-              <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+              <TableContainer
+                component={Paper}
+                sx={{ maxHeight: 600 }}
+              >
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
@@ -129,7 +160,7 @@ export const Maquinaria: FC<MaquinariaProps> = ({
                       <TableCell>Estado</TableCell>
                       <TableCell>Días</TableCell>
                       <TableCell>Asignado a</TableCell>
-                      <TableCell>Acciones</TableCell>
+                      {( canEditarAsignacionMaquinaria || canLiberarMaquinaria ) && <TableCell>Acciones</TableCell> }
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -139,12 +170,13 @@ export const Maquinaria: FC<MaquinariaProps> = ({
                       .map((item, i) => {
                         const esFutura = new Date(item.fecha_entrada) > today;
                         return (
-                          <TableRow key={i} hover>
+                          <TableRow
+                            key={i}
+                            hover
+                          >
                             <TableCell>{item.equipo.nombre}</TableCell>
                             <TableCell>{item.equipo.tipo}</TableCell>
-                            <TableCell>
-                              {formatearFechaHora(item.fecha_entrada)}
-                            </TableCell>
+                            <TableCell>{formatearFechaHora(item.fecha_entrada)}</TableCell>
                             <TableCell>{formatearFechaHora(item.fecha_fin)}</TableCell>
                             <TableCell>{item.estado}</TableCell>
                             <TableCell>{item.dias_asignados.join(', ')}</TableCell>
@@ -152,26 +184,33 @@ export const Maquinaria: FC<MaquinariaProps> = ({
                               {item.usuario_recibe?.first_name} {item.usuario_recibe?.last_name}
                             </TableCell>
                             <TableCell>
-                              <Stack direction="row" spacing={1}>
-                                <Button
-                                  size="small"
-                                  variant="text"
-                                  onClick={() => {
-                                    setEditando(item);
-                                    setEditarModalOpen(true);
-                                  }}
-                                >
-                                  Editar
-                                </Button>
-                                <Button
-                                  disabled={esHoy(item.fecha_fin)}
-                                  size="small"
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={() => onLiberarAsignacion(item)}
-                                >
-                                  {esFutura ? 'Eliminar' : 'Liberar'}
-                                </Button>
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                              >
+                                {canEditarAsignacionMaquinaria && (
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    onClick={() => {
+                                      setEditando(item);
+                                      setEditarModalOpen(true);
+                                    }}
+                                  >
+                                    Editar
+                                  </Button>
+                                )}
+                                {canLiberarMaquinaria && (
+                                  <Button
+                                    disabled={esHoy(item.fecha_fin)}
+                                    size="small"
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={() => onLiberarAsignacion(item)}
+                                  >
+                                    {esFutura ? 'Eliminar' : 'Liberar'}
+                                  </Button>
+                                )}
                               </Stack>
                             </TableCell>
                           </TableRow>
