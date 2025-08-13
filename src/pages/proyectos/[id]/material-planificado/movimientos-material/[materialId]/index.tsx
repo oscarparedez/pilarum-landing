@@ -47,7 +47,7 @@ const Page: NextPage = () => {
     };
 
     fetchInventario();
-  }, [materialId, getInventarioPorProyectoYMaterial]);
+  }, [materialId, proyectoId, getInventarioPorProyectoYMaterial]);
 
   if (loading) {
     return (

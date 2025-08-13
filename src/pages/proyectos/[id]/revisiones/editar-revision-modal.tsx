@@ -78,10 +78,18 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar revisión</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <TextField
             fullWidth
             label="Título"
@@ -98,14 +106,23 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
           />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha de la revisión
             </Typography>
-            <DateCalendar value={fecha} onChange={(newValue) => setFecha(newValue)} />
+            <DateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Subir imágenes (máximo 3)
             </Typography>
             <Box
@@ -136,7 +153,10 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
               <Typography color="text.secondary">
                 Arrastra o haz clic para subir imágenes
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 Máximo 3 archivos (.jpg, .png)
               </Typography>
               <input
@@ -150,11 +170,18 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
             </Box>
 
             {fotos.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {fotos.map((item, i) => {
                   const src = typeof item === 'string' ? item : URL.createObjectURL(item);
                   return (
-                    <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                    <Box
+                      key={i}
+                      sx={{ position: 'relative', width: 80, height: 80 }}
+                    >
                       {!cargadas[i] && item instanceof File && (
                         <Box
                           sx={{

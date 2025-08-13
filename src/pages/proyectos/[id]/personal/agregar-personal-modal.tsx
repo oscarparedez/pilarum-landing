@@ -51,8 +51,8 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
 
   const handleConfirm = () => {
     if (personalId && dias.length && desde && hasta) {
-      const desdeString = format(desde, 'yyyy-MM-dd')
-      const hastaString = format(hasta, 'yyyy-MM-dd')
+      const desdeString = format(desde, 'yyyy-MM-dd');
+      const hastaString = format(hasta, 'yyyy-MM-dd');
       onConfirm({
         usuario_id: personalId,
         dias_asignados: dias,
@@ -68,10 +68,18 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+    >
       <DialogTitle>Asignar recurso técnico</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           {/* Selector de personal */}
           <FormControl fullWidth>
             <InputLabel>Ingeniero o Arquitecto</InputLabel>
@@ -81,7 +89,10 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
               onChange={(e) => setPersonalId(Number(e.target.value))}
             >
               {personalDisponible.map((p) => (
-                <MenuItem key={p.id} value={p.id}>
+                <MenuItem
+                  key={p.id}
+                  value={p.id}
+                >
                   {p.first_name} {p.last_name}
                 </MenuItem>
               ))}
@@ -90,10 +101,16 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
 
           {/* Días de la semana */}
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Días de asignación
             </Typography>
-            <Stack direction="row" flexWrap="wrap">
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+            >
               {DIAS_SEMANA.map((dia) => (
                 <DiaToggle
                   key={dia}
@@ -107,18 +124,33 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
 
           {/* Fechas */}
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fechas de asignación <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-              <Stack direction="row" spacing={2}>
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
+            >
+              <Stack
+                direction="row"
+                spacing={2}
+              >
                 <Box flex={1}>
                   <Typography variant="caption">Desde</Typography>
-                  <DateCalendar value={desde} onChange={setDesde} />
+                  <DateCalendar
+                    value={desde}
+                    onChange={setDesde}
+                  />
                 </Box>
                 <Box flex={1}>
                   <Typography variant="caption">Hasta</Typography>
-                  <DateCalendar value={hasta} onChange={setHasta} />
+                  <DateCalendar
+                    value={hasta}
+                    onChange={setHasta}
+                  />
                 </Box>
               </Stack>
             </LocalizationProvider>

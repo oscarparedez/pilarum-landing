@@ -143,7 +143,7 @@ const Page: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [formularioValido, fechaFactura, proveedor, numeroFactura, compras, crearOrdenCompra]);
+  }, [formularioValido, fechaFactura, proveedor, numeroFactura, compras, router, crearOrdenCompra]);
 
   return (
     <Box sx={{ p: 3 }}>

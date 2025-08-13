@@ -23,7 +23,7 @@ interface EditarDatosBasicosModalProps {
   open: boolean;
   onClose: () => void;
   initialData: NuevaMaquinaria;
-  onConfirm: (data: Maquinaria) => void;
+  onConfirm: (data: NuevaMaquinaria) => void;
 }
 
 export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
@@ -70,7 +70,10 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -84,7 +87,10 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
       >
         <Card>
           <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 'bold', mb: 2 }}
+            >
               Editar recurso
             </Typography>
 
@@ -101,7 +107,10 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
               </TextField>
 
               {/* Nombre + Identificador */}
-              <Stack direction="row" spacing={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+              >
                 <TextField
                   label="Nombre"
                   value={nombre}
@@ -117,16 +126,28 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
               </Stack>
 
               <Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 1 }}
+                >
                   Fecha de compra <span style={{ color: 'red' }}>*</span>
                 </Typography>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                  <DateCalendar value={fechaCompra} onChange={setFechaCompra} />
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
+                >
+                  <DateCalendar
+                    value={fechaCompra}
+                    onChange={setFechaCompra}
+                  />
                 </LocalizationProvider>
               </Box>
 
               {/* Tipo de documento + Costo */}
-              <Stack direction="row" spacing={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+              >
                 <TextField
                   label="Tipo de documento"
                   select

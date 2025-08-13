@@ -23,7 +23,7 @@ import { AutocompleteMaterial } from './autocomplete-material';
  */
 export interface LineaInventarioUI {
   item: Inventario | null; // inventario seleccionado
-  cantidad: string;        // string para TextField numérico
+  cantidad: string; // string para TextField numérico
 }
 
 type Labels = {
@@ -74,9 +74,10 @@ export const TablaLineasInventario: FC<TablaLineasInventarioProps> = ({
   labels,
   withToolbar = true,
 }) => {
-  const idsSeleccionados = useMemo(() =>
-    lineas.map((l) => l.item?.id).filter((id): id is number => id !== undefined),
-  [lineas]);
+  const idsSeleccionados = useMemo(
+    () => lineas.map((l) => l.item?.id).filter((id): id is number => id !== undefined),
+    [lineas]
+  );
 
   const ultimoIncompleto = useMemo(() => {
     if (lineas.length === 0) return false;
@@ -86,29 +87,41 @@ export const TablaLineasInventario: FC<TablaLineasInventarioProps> = ({
     return !last.item || !hasCantidad;
   }, [lineas, allowZero]);
 
-  const puedeAgregar = useMemo(() => lineas.length === 0 || !ultimoIncompleto, [lineas, ultimoIncompleto]);
+  const puedeAgregar = useMemo(
+    () => lineas.length === 0 || !ultimoIncompleto,
+    [lineas, ultimoIncompleto]
+  );
 
-  const setLinea = useCallback((idx: number, patch: Partial<LineaInventarioUI>) => {
-    const n = [...lineas];
-    n[idx] = { ...n[idx], ...patch };
-    onChange(n);
-  }, [lineas, onChange]);
+  const setLinea = useCallback(
+    (idx: number, patch: Partial<LineaInventarioUI>) => {
+      const n = [...lineas];
+      n[idx] = { ...n[idx], ...patch };
+      onChange(n);
+    },
+    [lineas, onChange]
+  );
 
   const agregar = useCallback(() => {
     if (!puedeAgregar) return;
     onChange([...lineas, { item: null, cantidad: '' }]);
   }, [lineas, onChange, puedeAgregar]);
 
-  const eliminar = useCallback((idx: number) => {
-    const n = lineas.filter((_, i) => i !== idx);
-    onChange(n);
-  }, [lineas, onChange]);
+  const eliminar = useCallback(
+    (idx: number) => {
+      const n = lineas.filter((_, i) => i !== idx);
+      onChange(n);
+    },
+    [lineas, onChange]
+  );
 
-  const getOptionsForRow = useCallback((rowIndex: number) => {
-    if (!excludeDuplicates) return options;
-    const idsUsados = new Set(idsSeleccionados.filter((_, i) => i !== rowIndex));
-    return options.filter((opt) => !idsUsados.has(opt.id));
-  }, [options, idsSeleccionados, excludeDuplicates]);
+  const getOptionsForRow = useCallback(
+    (rowIndex: number) => {
+      if (!excludeDuplicates) return options;
+      const idsUsados = new Set(idsSeleccionados.filter((_, i) => i !== rowIndex));
+      return options.filter((opt) => !idsUsados.has(opt.id));
+    },
+    [options, idsSeleccionados, excludeDuplicates]
+  );
 
   const t = {
     titulo: labels?.titulo ?? 'Materiales',
@@ -124,11 +137,26 @@ export const TablaLineasInventario: FC<TablaLineasInventarioProps> = ({
   return (
     <TableContainer component={Paper}>
       {withToolbar && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 16 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 16,
+          }}
+        >
           <Typography variant="h6">{t.titulo}</Typography>
-          <Tooltip title={puedeAgregar ? t.tooltipAgregar : t.tooltipCompletar} arrow>
+          <Tooltip
+            title={puedeAgregar ? t.tooltipAgregar : t.tooltipCompletar}
+            arrow
+          >
             <span>
-              <Button variant="contained" startIcon={<AddIcon />} onClick={agregar} disabled={!puedeAgregar}>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={agregar}
+                disabled={!puedeAgregar}
+              >
                 {t.botonAgregar}
               </Button>
             </span>
@@ -136,14 +164,20 @@ export const TablaLineasInventario: FC<TablaLineasInventarioProps> = ({
         </div>
       )}
 
-      <Table size="small" stickyHeader>
+      <Table
+        size="small"
+        stickyHeader
+      >
         <TableHead>
           <TableRow>
             <TableCell style={{ width: '45%' }}>{t.columnaMaterial}</TableCell>
             <TableCell style={{ width: 120 }}>{t.columnaUnidad}</TableCell>
             <TableCell style={{ width: 140 }}>{t.columnaStock}</TableCell>
             <TableCell style={{ width: 160 }}>{t.columnaCantidad}</TableCell>
-            <TableCell align="center" style={{ width: 64 }} />
+            <TableCell
+              align="center"
+              style={{ width: 64 }}
+            />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -159,7 +193,9 @@ export const TablaLineasInventario: FC<TablaLineasInventarioProps> = ({
                     value={row.item}
                     onChange={(val) => setLinea(idx, { item: val })}
                     options={optionsForRow}
-                    excluirIds={excludeDuplicates ? idsSeleccionados.filter((id) => id !== row.item?.id) : []}
+                    excluirIds={
+                      excludeDuplicates ? idsSeleccionados.filter((id) => id !== row.item?.id) : []
+                    }
                   />
                 </TableCell>
                 <TableCell>
@@ -197,7 +233,10 @@ export const TablaLineasInventario: FC<TablaLineasInventarioProps> = ({
                   />
                 </TableCell>
                 <TableCell align="center">
-                  <IconButton onClick={() => eliminar(idx)} color="error">
+                  <IconButton
+                    onClick={() => eliminar(idx)}
+                    color="error"
+                  >
                     <RemoveCircleOutlineIcon />
                   </IconButton>
                 </TableCell>
@@ -223,7 +262,10 @@ export const useLineasInventario = (initial: LineaInventarioUI[] = []) => {
     return !last.item || !(cant > 0);
   }, [lineas]);
 
-  const puedeAgregar = React.useMemo(() => lineas.length === 0 || !ultimoIncompleto, [lineas, ultimoIncompleto]);
+  const puedeAgregar = React.useMemo(
+    () => lineas.length === 0 || !ultimoIncompleto,
+    [lineas, ultimoIncompleto]
+  );
 
   const agregarLinea = React.useCallback(() => {
     if (!puedeAgregar) return;

@@ -20,7 +20,13 @@ export const AutocompleteMaterial = ({ value, options, excluirIds = [], onChange
       }
       value={value}
       onChange={(_, newValue) => onChange(newValue)}
-      renderInput={(params) => <TextField {...params} label="Material" fullWidth />}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Material"
+          fullWidth
+        />
+      )}
       isOptionEqualToValue={(option, val) => option.id === val?.id}
     />
   );

@@ -41,7 +41,7 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
       ...a,
       estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
     }));
-  }, [asignaciones, today]);
+  }, [asignaciones, today, calcularEstado]);
 
   const asignacionesFiltradas = useMemo(() => {
     return aplicarFiltros(asignacionesConEstado, filtros, {
@@ -52,7 +52,12 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
   return (
     <Box sx={{ p: 3 }}>
       <Card>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ px: 3, py: 3 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ px: 3, py: 3 }}
+        >
           <Typography variant="h5">Asignaciones</Typography>
         </Stack>
 
@@ -65,16 +70,23 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
           filtrosFecha={false}
         >
           {(currentPage, estadoFiltro) => {
-            const asignacionesVisibles = estadoFiltro && estadoFiltro !== 'Todos'
-              ? asignacionesFiltradas.filter((a) => a.estado === estadoFiltro)
-              : asignacionesFiltradas;
+            const asignacionesVisibles =
+              estadoFiltro && estadoFiltro !== 'Todos'
+                ? asignacionesFiltradas.filter((a) => a.estado === estadoFiltro)
+                : asignacionesFiltradas;
 
             const start = (currentPage - 1) * rowsPerPage;
             const paginated = asignacionesVisibles.slice(start, start + rowsPerPage);
 
             return (
-              <TableContainer component={Paper} sx={{ overflowX: 'auto', maxHeight: 600 }}>
-                <Table size="small" stickyHeader>
+              <TableContainer
+                component={Paper}
+                sx={{ overflowX: 'auto', maxHeight: 600 }}
+              >
+                <Table
+                  size="small"
+                  stickyHeader
+                >
                   <TableHead>
                     <TableRow>
                       <TableCell>Proyecto</TableCell>
@@ -86,8 +98,13 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
                   </TableHead>
                   <TableBody>
                     {paginated.map((a, i) => (
-                      <TableRow key={i} hover>
-                        <TableCell>{a.proyecto.nombre} - #{a.proyecto.id}</TableCell>
+                      <TableRow
+                        key={i}
+                        hover
+                      >
+                        <TableCell>
+                          {a.proyecto.nombre} - #{a.proyecto.id}
+                        </TableCell>
                         <TableCell>{formatearFechaHora(a.fecha_entrada)}</TableCell>
                         <TableCell>{formatearFechaHora(a.fecha_fin)}</TableCell>
                         <TableCell>{a.estado}</TableCell>

@@ -39,7 +39,7 @@ export const ModalEditarProveedor: FC<ModalEditarProveedorProps> = ({
       setNombre('');
       onClose();
     }
-  }, [nombre, onActualizarProveedor, onClose]);
+  }, [nombre, initialData.id, onActualizarProveedor, onClose]);
 
   return (
     <Modal

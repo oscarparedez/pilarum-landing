@@ -82,7 +82,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
       ...a,
       estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
     }));
-  }, [asignacionesPersonal]);
+  }, [asignacionesPersonal, calcularEstado]);
 
   const asignacionesFiltradas = useMemo(() => {
     return aplicarFiltros(asignacionesConEstado, filtros, {

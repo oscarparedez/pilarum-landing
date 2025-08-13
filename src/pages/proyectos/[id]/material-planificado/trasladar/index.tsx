@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Card,
-  Divider,
-  Stack,
-  TextField,
-  Typography,
-  Tooltip,
-} from '@mui/material';
+import { Box, Button, Card, Divider, Stack, TextField, Typography, Tooltip } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
@@ -73,8 +64,8 @@ const Page: NextPage = () => {
     try {
       const body: NuevoMovimientoInventario = {
         fecha_movimiento: fecha.toISOString().split('T')[0],
-        proyecto: proyectoId,  // origen del movimiento (proyecto)
-        tipo_movimiento: 1,    // ENTRADA a bodega
+        proyecto: proyectoId, // origen del movimiento (proyecto)
+        tipo_movimiento: 1, // ENTRADA a bodega
         materiales: lineas.map((l) => ({
           inventario: l.item!.id,
           cantidad: Number(l.cantidad),
@@ -103,7 +94,10 @@ const Page: NextPage = () => {
 
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2">Fecha</Typography>
-          <DateCalendar value={fecha} onChange={(d) => d && setFecha(d)} />
+          <DateCalendar
+            value={fecha}
+            onChange={(d) => d && setFecha(d)}
+          />
         </Box>
 
         <TablaLineasInventario
@@ -119,8 +113,15 @@ const Page: NextPage = () => {
           withToolbar
         />
 
-        <Stack direction="row" justifyContent="flex-end" sx={{ mt: 4 }}>
-          <Tooltip title={formValido ? '' : 'Completa fecha y al menos una línea válida'} arrow>
+        <Stack
+          direction="row"
+          justifyContent="flex-end"
+          sx={{ mt: 4 }}
+        >
+          <Tooltip
+            title={formValido ? '' : 'Completa fecha y al menos una línea válida'}
+            arrow
+          >
             <span>
               <Button
                 variant="contained"

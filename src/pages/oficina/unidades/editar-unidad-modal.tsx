@@ -28,7 +28,7 @@ export const ModalEditarUnidad: FC<ModalEditarUnidadProps> = ({
       setNombre('');
       onClose();
     }
-  }, [nombre, onActualizarUnidad, onClose]);
+  }, [nombre, initialData.id, onActualizarUnidad, onClose]);
 
   return (
     <Modal

@@ -39,7 +39,7 @@ export const ModalEditarMarca: FC<ModalEditarMarcaProps> = ({
       setNombre('');
       onClose();
     }
-  }, [nombre, onActualizarMarca, onClose]);
+  }, [nombre, onActualizarMarca, onClose, initialData.id]);
 
   return (
     <Modal

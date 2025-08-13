@@ -49,10 +49,22 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
       });
       onClose();
     }
-  }, [nombre, ubicacion, presupuestoInicial, fechaInicio, fechaFin, socio, onEditarDatosBasicos, onClose]);
+  }, [
+    nombre,
+    ubicacion,
+    presupuestoInicial,
+    fechaInicio,
+    fechaFin,
+    socio,
+    onEditarDatosBasicos,
+    onClose,
+  ]);
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -66,7 +78,10 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
           p: 4,
         }}
       >
-        <Typography variant="h6" mb={2}>
+        <Typography
+          variant="h6"
+          mb={2}
+        >
           Editar datos básicos del proyecto
         </Typography>
 
@@ -105,28 +120,49 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
               }}
             >
               {socios.map((socio) => (
-                <MenuItem key={socio.id} value={socio.id}>
+                <MenuItem
+                  key={socio.id}
+                  value={socio.id}
+                >
                   {socio.nombre}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <Stack direction="row" spacing={2} justifyContent="space-between">
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="space-between"
+          >
             <Box>
               <Typography variant="subtitle2">Fecha de inicio</Typography>
-              <DateCalendar value={fechaInicio} onChange={(d) => setFechaInicio(d)} />
+              <DateCalendar
+                value={fechaInicio}
+                onChange={(d) => setFechaInicio(d)}
+              />
             </Box>
 
             <Box>
               <Typography variant="subtitle2">Fecha final</Typography>
-              <DateCalendar value={fechaFin} onChange={(d) => setFechaFin(d)} />
+              <DateCalendar
+                value={fechaFin}
+                onChange={(d) => setFechaFin(d)}
+              />
             </Box>
           </Stack>
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={2}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            spacing={2}
+            mt={2}
+          >
             <Button onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" onClick={handleEditarDatosBasicos}>
+            <Button
+              variant="contained"
+              onClick={handleEditarDatosBasicos}
+            >
               Guardar
             </Button>
           </Stack>

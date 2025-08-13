@@ -75,7 +75,7 @@ export const Maquinaria: FC<MaquinariaProps> = ({
       ...a,
       estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
     }));
-  }, [asignacionesMaquinaria]);
+  }, [asignacionesMaquinaria, calcularEstado]);
 
   const asignacionesFiltradas = useMemo(() => {
     return aplicarFiltros(asignacionesConEstado, filtros, {
