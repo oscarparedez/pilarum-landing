@@ -28,7 +28,7 @@ export const useRebajasInventarioApi = () => {
   const crearRebaja = useCallback(
     async (data: NuevaRebaja): Promise<Rebaja[]> => {
       const res = await fetchWithAuth(
-        `${API_BASE_URL}/inventario/rebaja-inventario/orden/`,
+        `${API_BASE_URL}/inventario/rebaja-inventario/orden`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

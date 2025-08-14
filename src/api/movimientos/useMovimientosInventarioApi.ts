@@ -15,7 +15,7 @@ export const useMovimientosInventarioApi = () => {
   const crearMovimientosOrden = useCallback(
     async (data: NuevoMovimientoInventario): Promise<MovimientoInventario[]> => {
       const res = await fetchWithAuth(
-        `${API_BASE_URL}/inventario/movimientos-inventario/orden/`,
+        `${API_BASE_URL}/inventario/movimientos-inventario/orden`,
         {
           method: 'POST',
           headers: {
