@@ -69,18 +69,20 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
 
   const today = useMemo(() => new Date(), []);
 
-  const calcularEstado = (entrada: string, fin?: string): 'Activo' | 'Inactivo' => {
-    const hoy = today;
-    const finDate = fin ? new Date(fin) : null;
-
-    if (finDate && finDate < hoy) return 'Inactivo';
-    return 'Activo';
-  };
+  const calcularEstado = useCallback(
+    (fin: string): 'Activo' | 'Inactivo' => {
+      const hoy = today;
+      const finDate = fin ? new Date(fin) : null;
+      if (finDate && finDate < hoy) return 'Inactivo';
+      return 'Activo';
+    },
+    [today]
+  );
 
   const asignacionesConEstado = useMemo(() => {
     return asignacionesPersonal.map((a) => ({
       ...a,
-      estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
+      estado: calcularEstado(a.fecha_fin),
     }));
   }, [asignacionesPersonal, calcularEstado]);
 
@@ -178,7 +180,9 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                       <TableCell>Fin</TableCell>
                       <TableCell>Estado</TableCell>
                       <TableCell>Días</TableCell>
-                      {(canEditAsignacionPersonal || canLiberarAsignacionPersonal) && <TableCell>Acciones</TableCell> }
+                      {(canEditAsignacionPersonal || canLiberarAsignacionPersonal) && (
+                        <TableCell>Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>

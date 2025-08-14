@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { useGastosOperativosApi } from 'src/api/gastosOperativosMaquinaria/useGastosOperativosMaquinariaApi';
-import { NuevoGastoOperativo } from 'src/api/types';
+import { NuevaMaquinaria, NuevoGastoOperativo } from 'src/api/types';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
@@ -50,12 +50,7 @@ const Page: NextPage = () => {
     }
   }, [maquinariaId, setLoading, getMaquinariaInfo, setData]);
 
-  const handleActualizarDatosBasicosMaquinaria = async (updated: {
-    tipo: TipoMaquinaria;
-    nombre: string;
-    identificador: string;
-    costo: number;
-  }) => {
+  const handleActualizarDatosBasicosMaquinaria = async (updated: NuevaMaquinaria) => {
     try {
       setLoading(true);
       await actualizarMaquinaria(Number(id), updated);

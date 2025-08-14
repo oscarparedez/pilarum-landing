@@ -87,7 +87,7 @@ export const ModalEditarMaterial: FC<ModalEditarMaterialProps> = ({
               <Select
                 value={unidad}
                 label="Unidad"
-                onChange={(e) => setUnidad(e.target.value)}
+                onChange={(e) => setUnidad(e.target.value as number)}
               >
                 {unidades.map((u) => (
                   <MenuItem
@@ -104,7 +104,7 @@ export const ModalEditarMaterial: FC<ModalEditarMaterialProps> = ({
               <Select
                 value={marca}
                 label="Marca"
-                onChange={(e) => setMarca(e.target.value)}
+                onChange={(e) => setMarca(e.target.value as number)}
               >
                 {marcas.map((m) => (
                   <MenuItem

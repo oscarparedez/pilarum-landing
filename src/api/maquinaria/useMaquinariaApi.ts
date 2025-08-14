@@ -3,7 +3,7 @@ import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { calcularTotalCombustibleUltimoMes, calcularTotalServicios } from './utils';
 import { ConfigMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
-import { GastoOperativo, Maquinaria, NuevoGastoOperativo } from '../types';
+import { GastoOperativo, Maquinaria, NuevaMaquinaria, NuevoGastoOperativo } from '../types';
 import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
 
 export const useMaquinariasApi = () => {
@@ -32,7 +32,7 @@ export const useMaquinariasApi = () => {
   );
 
   const crearMaquinaria = useCallback(
-    async (maquinaria: Omit<Maquinaria, 'id'>): Promise<Maquinaria> => {
+    async (maquinaria: NuevaMaquinaria): Promise<Maquinaria> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,7 +45,7 @@ export const useMaquinariasApi = () => {
   );
 
   const actualizarMaquinaria = useCallback(
-    async (id: number, maquinaria: Omit<Maquinaria, 'id'>): Promise<Maquinaria> => {
+    async (id: number, maquinaria: NuevaMaquinaria): Promise<Maquinaria> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

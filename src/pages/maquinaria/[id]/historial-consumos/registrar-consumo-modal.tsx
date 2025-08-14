@@ -52,7 +52,7 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
     setCosto(0);
     setFotos([]);
     setCargadas([]);
-    setTipoDocumento(undefined);
+    setTipoDocumento('');
     onClose();
   };
 

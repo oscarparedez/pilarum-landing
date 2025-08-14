@@ -182,6 +182,12 @@ export const useProyectosApi = () => {
     getPresupuestos,
     getTiposIngreso,
     getTiposPago,
+    getAsignacionesMaquinaria,
+    getMaquinarias,
+    getUsuarios,
+    getAsignacionesPersonal,
+    getRevisiones,
+    getSociosInternos
   ]
 );
 

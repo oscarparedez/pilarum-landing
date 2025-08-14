@@ -16,7 +16,6 @@ import { Maquinaria } from './maquinaria/maquinaria';
 import { PersonalAsignado } from './personal/personal';
 import { EditarDatosBasicosModal } from './editar-datos-modal';
 import { ConfigProyecto, Tarea } from './index.d';
-import { Pizarron } from './pizarron/pizarron';
 import { useAmpliacionesApi } from 'src/api/ampliaciones/useAmpliacionesApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
@@ -48,6 +47,7 @@ const Page: NextPage = () => {
     crearAsignacionEnProyecto: crearAsignacionMaquinaria,
     actualizarAsignacionEnProyecto: actualizarAsignacionMaquinaria,
     eliminarAsignacionEnProyecto: eliminarAsignacionMaquinaria,
+    liberarAsignacionEnProyecto: liberarAsignacionMaquinaria,
   } = useAsignacionesMaquinariaApi();
   const {
     crearAsignacion: crearAsignacionPersonal,
@@ -370,12 +370,7 @@ const Page: NextPage = () => {
   );
 
   const handleCrearAsignacionMaquinaria = useCallback(
-    async (data: {
-      equipo: number;
-      dias_asignados: string[];
-      fecha_fin: string;
-      usuario_recibe: number;
-    }) => {
+    async (data: NuevaAsignacionMaquinaria) => {
       const id = router.query.id;
       if (!id || Array.isArray(id)) return;
 
@@ -400,9 +395,8 @@ const Page: NextPage = () => {
     async (asignacion_id: number, data: NuevaAsignacionMaquinaria) => {
       const id = router.query.id;
       if (!id || Array.isArray(id)) return;
-
+      setLoading(true);
       try {
-        setLoading(true);
         await actualizarAsignacionMaquinaria(parseInt(id), asignacion_id, data);
         const updated = await getProyectoInfo(parseInt(id));
         setConfig(updated);
@@ -424,11 +418,7 @@ const Page: NextPage = () => {
       try {
         setLoading(true);
 
-        const hoy = format(new Date(), 'yyyy-MM-dd');
-
-        await actualizarAsignacionMaquinaria(parseInt(id), asignacion_id, {
-          fecha_fin: hoy,
-        });
+        await liberarAsignacionMaquinaria(parseInt(id), asignacion_id);
 
         const updated = await getProyectoInfo(parseInt(id));
         setConfig(updated);
@@ -439,7 +429,7 @@ const Page: NextPage = () => {
         setLoading(false);
       }
     },
-    [router.query.id, actualizarAsignacionMaquinaria, getProyectoInfo]
+    [router.query.id, liberarAsignacionMaquinaria, getProyectoInfo]
   );
 
   const handleEliminarAsignacionMaquinaria = useCallback(
@@ -632,7 +622,6 @@ const Page: NextPage = () => {
     pagos: costos,
     maquinaria,
     asignacionesMaquinaria,
-    materialPlanificado,
     tiposIngreso,
     tiposPago,
     usuarios,
@@ -737,7 +726,7 @@ const Page: NextPage = () => {
               handleEliminarAsignacionPersonal={handleEliminarAsignacionPersonal}
             />
           )}
-          {canViewMaterialPlanificado && <MaterialPlanificado material={materialPlanificado} />}
+          {canViewMaterialPlanificado && <MaterialPlanificado />}
           {canViewRevisiones && (
             <Revisiones
               revisiones={revisiones}

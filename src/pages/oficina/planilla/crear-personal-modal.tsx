@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, use, useCallback, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -8,48 +8,49 @@ import {
   Button,
   MenuItem,
 } from '@mui/material';
-import { Usuario } from './index.d';
+import { NuevoUsuarioConPassword, Rol, Usuario } from 'src/api/types';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: Usuario) => void;
+  onConfirm: (data: NuevoUsuarioConPassword) => Promise<void>;
+  roles: Rol[];
 }
 
-const ROLES = ['Ingeniero', 'Arquitecto', 'Supervisor'];
-const ROL_GRUPO_MAP: Record<string, number> = {
-  Ingeniero: 1,
-  Arquitecto: 2,
-  Supervisor: 3,
-};
-
-export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) => {
-  const [form, setForm] = useState<Omit<Usuario, 'groups'>>({
+export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfirm }) => {
+  const [form, setForm] = useState<NuevoUsuarioConPassword>({
     username: '',
     password: '',
     first_name: '',
     last_name: '',
     telefono: '',
-    rol: '',
-    estado: 'Activo',
+    rol: undefined,
+    is_active: true,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setForm((prev) => ({
+        ...prev,
+        [name]: name === 'rol' ? Number(value) : value,
+      }));
+    },
+    [setForm]
+  );
 
-  const handleGuardar = () => {
-    const groups = form.rol ? [ROL_GRUPO_MAP[form.rol]] : [];
-    const data: Usuario = {
-      ...form,
-      groups,
-    };
-    onConfirm(data);
-  };
+  const handleGuardar = useCallback(async () => {
+    await onConfirm(form);
+    setForm({
+      username: '',
+      password: '',
+      first_name: '',
+      last_name: '',
+      telefono: '',
+      rol: undefined,
+      is_active: true,
+    });
+  }, [form, onConfirm]);
 
   return (
     <Dialog
@@ -58,7 +59,7 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) =
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle>Registrar nueva persona</DialogTitle>
+      <DialogTitle>Registrar nuevo usuario</DialogTitle>
       <DialogContent>
         <TextField
           fullWidth
@@ -104,32 +105,20 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, onClose, onConfirm }) =
         <TextField
           select
           fullWidth
-          label="Rol / especialidad"
+          label="Rol"
           name="rol"
           value={form.rol}
           onChange={handleChange}
           margin="normal"
         >
-          {ROLES.map((rol) => (
+          {roles.map((rol) => (
             <MenuItem
-              key={rol}
-              value={rol}
+              key={rol.id}
+              value={rol.id}
             >
-              {rol}
+              {rol.name}
             </MenuItem>
           ))}
-        </TextField>
-        <TextField
-          select
-          fullWidth
-          label="Estado"
-          name="estado"
-          value={form.estado}
-          onChange={handleChange}
-          margin="normal"
-        >
-          <MenuItem value="Activo">Activo</MenuItem>
-          <MenuItem value="Inactivo">Inactivo</MenuItem>
         </TextField>
       </DialogContent>
       <DialogActions>

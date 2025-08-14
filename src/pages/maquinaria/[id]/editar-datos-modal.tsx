@@ -153,7 +153,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
                   select
                   fullWidth
                   value={tipoDocumento}
-                  onChange={(e) => setTipoDocumento(e.target.value)}
+                  onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
                 >
                   <MenuItem value="cheque">Cheque</MenuItem>
                   <MenuItem value="efectivo">Efectivo</MenuItem>

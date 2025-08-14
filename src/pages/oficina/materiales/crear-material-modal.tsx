@@ -21,20 +21,29 @@ interface ModalCrearMaterialProps {
   marcas: Marca[];
   open: boolean;
   onClose: () => void;
-  onCrearMaterial: (data: NuevoMaterial[]) => void;
+  onCrearMaterial: (data: NuevoMaterial) => void;
 }
 
-export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ unidades, marcas, open, onClose, onCrearMaterial }) => {
-  const [nombre, setNombre] = useState<string | null>(null);
-  const [unidad, setUnidad] = useState<string | null>(null);
-  const [marca, setMarca] = useState<string | null>(null);
+export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({
+  unidades,
+  marcas,
+  open,
+  onClose,
+  onCrearMaterial,
+}) => {
+  const [nombre, setNombre] = useState<string>('');
+  const [unidad, setUnidad] = useState<number | null>(null);
+  const [marca, setMarca] = useState<number | null>(null);
 
   const handleCrearMaterial = useCallback(() => {
-     onCrearMaterial({
+    if (!nombre || !unidad || !marca) return;
+
+    onCrearMaterial({
       nombre,
-      unidad,
-      marca,
+      unidad: Number(unidad),
+      marca: Number(marca),
     });
+
     setNombre('');
     setUnidad(null);
     setMarca(null);
@@ -72,7 +81,7 @@ export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ unidades, marc
               <Select
                 value={unidad}
                 label="Unidad"
-                onChange={(e) => setUnidad(e.target.value)}
+                onChange={(e) => setUnidad(e.target.value as number)}
               >
                 {unidades.map((u) => (
                   <MenuItem
@@ -89,7 +98,7 @@ export const ModalCrearMaterial: FC<ModalCrearMaterialProps> = ({ unidades, marc
               <Select
                 value={marca}
                 label="Marca"
-                onChange={(e) => setMarca(e.target.value)}
+                onChange={(e) => setMarca(e.target.value as number)}
               >
                 {marcas.map((m) => (
                   <MenuItem

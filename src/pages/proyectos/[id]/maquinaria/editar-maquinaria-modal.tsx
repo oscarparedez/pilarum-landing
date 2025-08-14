@@ -94,7 +94,7 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
             <Select
               value={equipo}
               label="Maquinaria"
-              onChange={(e) => setEquipo(e.target.value)}
+              onChange={(e) => setEquipo(e.target.value as number)}
             >
               {maquinasDisponibles.map((m) => (
                 <MenuItem
@@ -170,7 +170,7 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
             <Select
               value={asignadoA}
               label="Asignado a"
-              onChange={(e) => setAsignadoA(e.target.value)}
+              onChange={(e) => setAsignadoA(e.target.value as number)}
             >
               {usuarios.map((usuario) => (
                 <MenuItem

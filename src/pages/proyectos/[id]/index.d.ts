@@ -4,15 +4,6 @@ import { TipoPago } from "../configuracion/tipo-pagos/index.d";
 import { AsignacionPersonal, Revision, Socio } from "src/api/types";
 import { AsignacionMaquinaria } from "src/api/asignacionesMaquinaria/useAsignacionesMaquinaria";
 
-// index.d.ts
-export interface MaterialItem {
-  id: string;
-  nombre: string;
-  tipo: string;
-  cantidad: number;
-  unidad: string;
-}
-
 export interface Costo {
   id_pago: number;
   proyecto_id: string;
@@ -132,6 +123,5 @@ export interface ConfigProyecto {
   asignacionesMaquinaria: AsignacionMaquinaria[];
   usuarios: Personal[];
   asignacionesPersonal: AsignacionPersonal[];
-  materialPlanificado: MaterialItem[];
   revisiones: Revision[];
 }

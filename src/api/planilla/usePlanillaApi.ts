@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-import { NuevoUsuario, Usuario } from '../types';
+import { NuevoUsuario, NuevoUsuarioConPassword, Usuario } from '../types';
 
 export const usePlanillaApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -16,7 +16,7 @@ export const usePlanillaApi = () => {
   }, [fetchWithAuth]);
 
   const crearUsuario = useCallback(
-    async (usuario: NuevoUsuario): Promise<Usuario> => {
+    async (usuario: NuevoUsuarioConPassword): Promise<Usuario> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/usuarios/`, {
         method: 'POST',
         headers: {

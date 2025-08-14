@@ -56,37 +56,51 @@ export const Maquinaria: FC<MaquinariaProps> = ({
   const canEditarAsignacionMaquinaria = useHasPermission(PermissionId.EDITAR_ASIG_MAQ_PROYECTO);
   const canLiberarMaquinaria = useHasPermission(PermissionId.LIBERAR_ASIG_MAQ_PROYECTO);
 
-  const [filtros, setFiltros] = useState({
+  const [filtros, setFiltros] = useState<{
+    search: string;
+    estado?: 'Activo' | 'Inactivo' | 'Todos';
+  }>({
     search: '',
-    estado: 'Todos' as 'Activo' | 'Inactivo' | 'Todos',
+    estado: 'Todos',
   });
 
   const today = useMemo(() => new Date(), []);
 
-  const calcularEstado = (entrada: string, fin?: string): 'Activo' | 'Inactivo' => {
-    const hoy = today;
-    const finDate = fin ? new Date(fin) : null;
-    if (finDate && finDate < hoy) return 'Inactivo';
-    return 'Activo';
-  };
+  const calcularEstado = useCallback(
+    (fin: string): 'Activo' | 'Inactivo' => {
+      const hoy = today;
+      const finDate = fin ? new Date(fin) : null;
+      if (finDate && finDate < hoy) return 'Inactivo';
+      return 'Activo';
+    },
+    [today]
+  );
 
   const asignacionesConEstado = useMemo(() => {
     return asignacionesMaquinaria.map((a) => ({
       ...a,
-      estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
+      estado: calcularEstado(a.fecha_fin),
     }));
   }, [asignacionesMaquinaria, calcularEstado]);
 
   const asignacionesFiltradas = useMemo(() => {
     return aplicarFiltros(asignacionesConEstado, filtros, {
-      camposTexto: ['equipo.nombre', 'usuario_recibe.first_name'],
+      camposTexto: [
+        'equipo.nombre',
+        'usuario_recibe.first_name',
+        'usuario_recibe.last_name',
+        'equipo.tipo',
+      ],
       campoEstado: 'estado',
     });
   }, [asignacionesConEstado, filtros]);
 
-  const handleFiltrar = useCallback((f: typeof filtros) => {
-    setFiltros(f);
-  }, []);
+  const handleFiltrar = useCallback(
+    (f: typeof filtros) => {
+      setFiltros(f);
+    },
+    [setFiltros]
+  );
 
   const onCrearAsignacion = useCallback(
     (data: NuevaAsignacionMaquinaria) => {
@@ -160,7 +174,9 @@ export const Maquinaria: FC<MaquinariaProps> = ({
                       <TableCell>Estado</TableCell>
                       <TableCell>Días</TableCell>
                       <TableCell>Asignado a</TableCell>
-                      {( canEditarAsignacionMaquinaria || canLiberarMaquinaria ) && <TableCell>Acciones</TableCell> }
+                      {(canEditarAsignacionMaquinaria || canLiberarMaquinaria) && (
+                        <TableCell>Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>

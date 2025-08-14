@@ -16,6 +16,7 @@ import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from '../oficina/roles/permissions';
+import { NuevaMaquinaria } from 'src/api/types';
 
 type Recurso = {
   id: number;
@@ -78,12 +79,7 @@ const Page: NextPage = () => {
     router.push(paths.dashboard.maquinaria.detalle(id));
   };
 
-  const crearRecurso = async (nuevoRecurso: {
-    tipo: 'maquinaria' | 'herramienta';
-    nombre: string;
-    identificador?: string;
-    costo: number;
-  }) => {
+  const crearRecurso = async (nuevoRecurso: NuevaMaquinaria) => {
     try {
       await crearMaquinaria(nuevoRecurso);
       await cargarRecursos();

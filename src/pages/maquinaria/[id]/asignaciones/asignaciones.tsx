@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -30,18 +30,22 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
   const rowsPerPage = 5;
   const today = useMemo(() => new Date(), []);
 
-  const calcularEstado = (entrada: string, fin?: string): 'Activo' | 'Inactivo' => {
-    const finDate = fin ? new Date(fin) : null;
-    if (finDate && finDate < today) return 'Inactivo';
-    return 'Activo';
-  };
+  const calcularEstado = useCallback(
+    (entrada: string, fin?: string): 'Activo' | 'Inactivo' => {
+      const hoy = today;
+      const finDate = fin ? new Date(fin) : null;
+      if (finDate && finDate < hoy) return 'Inactivo';
+      return 'Activo';
+    },
+    [today]
+  );
 
   const asignacionesConEstado = useMemo(() => {
     return asignaciones.map((a) => ({
       ...a,
-      estado: calcularEstado(a.fecha_entrada, a.fecha_fin),
+      estado: calcularEstado(a.fecha_fin),
     }));
-  }, [asignaciones, today, calcularEstado]);
+  }, [asignaciones, calcularEstado]);
 
   const asignacionesFiltradas = useMemo(() => {
     return aplicarFiltros(asignacionesConEstado, filtros, {

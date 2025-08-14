@@ -85,7 +85,7 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
       toast.error('Error al crear el pendiente');
       setLoading(false);
     }
-  }, [id, form, crearPendiente, onCreated, onClose]);
+  }, [id, form, tipo, crearPendiente, onCreated, onClose]);
 
   const mostrarSelectorCategoria = useMemo(() => !['oficina', 'proyecto'].includes(tipo), [tipo]);
 

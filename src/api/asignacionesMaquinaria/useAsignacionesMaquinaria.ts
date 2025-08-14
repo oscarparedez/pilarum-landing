@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { AsignacionMaquinaria, NuevaAsignacionMaquinaria } from '../types';
+import { format } from 'date-fns';
 
 export const useAsignacionesMaquinariaApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -78,7 +79,7 @@ export const useAsignacionesMaquinariaApi = () => {
     async (
       proyectoId: number,
       id: number,
-      data: Partial<AsignacionMaquinaria>
+      data: NuevaAsignacionMaquinaria
     ): Promise<AsignacionMaquinaria> => {
       const res = await fetchWithAuth(
         `${API_BASE_URL}/proyectos/${proyectoId}/asignaciones-maquinaria/${id}/`,
@@ -90,6 +91,22 @@ export const useAsignacionesMaquinariaApi = () => {
       );
       if (!res.ok) throw new Error('Error al actualizar asignación del proyecto');
       return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const liberarAsignacionEnProyecto = useCallback(
+    async (proyectoId: number, id: number): Promise<void> => {
+      const hoy = format(new Date(), 'yyyy-MM-dd');
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/proyectos/${proyectoId}/asignaciones-maquinaria/${id}/`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fecha_fin: hoy }),
+        }
+      );
+      if (!res.ok) throw new Error('Error al liberar asignación del proyecto');
     },
     [fetchWithAuth]
   );
@@ -117,6 +134,7 @@ export const useAsignacionesMaquinariaApi = () => {
     crearAsignacionEnProyecto,
     getAsignacionByIdEnProyecto,
     actualizarAsignacionEnProyecto,
+    liberarAsignacionEnProyecto,
     eliminarAsignacionEnProyecto,
   };
 };

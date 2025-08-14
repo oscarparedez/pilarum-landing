@@ -25,7 +25,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { NextPage } from 'next';
 import { useMaterialesApi } from 'src/api/materiales/useMaterialesApi';
-import { Material, NuevaCompraMaterial, NuevaCompraMaterialForm, Proveedor } from 'src/api/types';
+import { Material, NuevaCompraMaterialForm, Proveedor } from 'src/api/types';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { useProveedoresApi } from 'src/api/proveedores/useProveedoresApi';
 import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
@@ -211,7 +211,7 @@ const Page: NextPage = () => {
           <Typography variant="subtitle2">Fecha de factura</Typography>
           <DateCalendar
             value={fechaFactura}
-            onChange={(d) => setFechaFactura(d)}
+            onChange={(d) => setFechaFactura(d as Date)}
           />
         </Box>
 

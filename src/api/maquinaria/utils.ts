@@ -1,4 +1,3 @@
-import { GastoMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
 import { GastoOperativo } from '../types';
 
 export const calcularTotalCombustibleUltimoMes = (gastosMaquinaria: GastoOperativo[]) => {

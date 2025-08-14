@@ -166,7 +166,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
             <Select
               value={asignadoA}
               label="Asignado a"
-              onChange={(e) => setAsignadoA(e.target.value)}
+              onChange={(e) => setAsignadoA(e.target.value as number)}
             >
               {usuarios.map((usuario) => (
                 <MenuItem

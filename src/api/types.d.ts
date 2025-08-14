@@ -5,7 +5,17 @@ export interface Usuario {
   last_name: string;
   is_active: boolean;
   telefono?: string;
-  groups?: { id: number; name: string }[];
+  groups?: { id: number; name: string, permissions: Number[] }[];
+}
+
+export interface NuevoUsuarioConPassword {
+  username: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  is_active: boolean;
+  telefono?: string;
+  rol: number | undefined;
 }
 
 export interface NuevoUsuario {

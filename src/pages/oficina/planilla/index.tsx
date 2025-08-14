@@ -20,14 +20,15 @@ import { ModalEditarPersona } from './editar-personal-modal';
 import { NextPage } from 'next';
 import { usePlanillaApi } from 'src/api/planilla/usePlanillaApi';
 import toast from 'react-hot-toast';
-import { NuevoUsuario, Rol, Usuario } from 'src/api/types';
+import { NuevoUsuario, NuevoUsuarioConPassword, Rol, Usuario } from 'src/api/types';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { useRolesApi } from 'src/api/roles/useRolesApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from '../roles/permissions';
+import { FullPageLoader } from 'src/components/loader/Loader';
 
 const Page: NextPage = () => {
-  const { getUsuarios, actualizarUsuario } = usePlanillaApi();
+  const { getUsuarios, crearUsuario, actualizarUsuario } = usePlanillaApi();
   const { getRoles } = useRolesApi();
 
   const canCreateUsuarios = useHasPermission(PermissionId.CREAR_USUARIO_PLANILLA);
@@ -36,6 +37,7 @@ const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [personaSeleccionada, setPersonaSeleccionada] = useState<Usuario | null>(null);
+  const [ loading, setLoading ] = useState(false);
   const [personal, setPersonal] = useState<Usuario[]>([]);
   const [roles, setRoles] = useState<Rol[]>([]);
   const [filtros, setFiltros] = useState<{
@@ -44,12 +46,15 @@ const Page: NextPage = () => {
   }>({ search: '' });
 
   const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
       const [usuarios, roles] = await Promise.all([getUsuarios(), getRoles()]);
       setPersonal(usuarios);
       setRoles(roles);
     } catch (error) {
       toast.error('Error al cargar datos');
+    } finally {
+      setLoading(false);
     }
   }, [getUsuarios, getRoles, setPersonal, setRoles]);
 
@@ -57,9 +62,31 @@ const Page: NextPage = () => {
     fetchData();
   }, [fetchData]);
 
+  const handleCrearUsuario = useCallback(
+    async (usuario: NuevoUsuarioConPassword) => {
+      setLoading(true);
+      try {
+        if (!canCreateUsuarios) {
+          toast.error('No tienes permiso para crear usuarios');
+          return;
+        }
+        await crearUsuario(usuario);
+        await fetchData();
+        toast.success('Usuario creado');
+        setModalCrearOpen(false);
+      } catch {
+        toast.error('No se pudo crear el usuario');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [crearUsuario, fetchData, canCreateUsuarios]
+  );
+
   const handleGuardarEdicion = useCallback(
     async (usuario: NuevoUsuario) => {
       if (!personaSeleccionada) return;
+      setLoading(true);
       try {
         await actualizarUsuario(personaSeleccionada.id, usuario);
         toast.success('Usuario actualizado');
@@ -67,6 +94,8 @@ const Page: NextPage = () => {
         setModalEditarOpen(false);
       } catch {
         toast.error('No se pudo actualizar el usuario');
+      } finally {
+        setLoading(false);
       }
     },
     [actualizarUsuario, personaSeleccionada, fetchData]
@@ -85,6 +114,7 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      { loading && <FullPageLoader /> }
       <Card>
         <CardContent sx={{ p: 0 }}>
           {/* Header */}
@@ -186,10 +216,8 @@ const Page: NextPage = () => {
           <ModalRegistrarPersona
             open={modalCrearOpen}
             onClose={() => setModalCrearOpen(false)}
-            onConfirm={(nueva) => {
-              setPersonal((prev) => [...prev, nueva]);
-              setModalCrearOpen(false);
-            }}
+            onConfirm={handleCrearUsuario}
+            roles={roles}
           />
 
           {personaSeleccionada && (
