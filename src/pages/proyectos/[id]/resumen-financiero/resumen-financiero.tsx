@@ -205,6 +205,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
               return (
                 <Grid
                   key={index}
+                  item
                   xs={12}
                   sm={6}
                   md={3}

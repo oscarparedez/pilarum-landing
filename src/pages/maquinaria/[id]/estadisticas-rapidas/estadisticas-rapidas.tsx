@@ -36,6 +36,7 @@ export const EstadisticasRapidas: FC<EstadisticasRapidasProps> = ({
           }}
         >
           <Grid
+            item
             xs={12}
             sm={4}
           >
@@ -56,6 +57,7 @@ export const EstadisticasRapidas: FC<EstadisticasRapidasProps> = ({
             </Stack>
           </Grid>
           <Grid
+            item
             xs={12}
             sm={4}
           >
@@ -78,6 +80,7 @@ export const EstadisticasRapidas: FC<EstadisticasRapidasProps> = ({
             </Stack>
           </Grid>
           <Grid
+            item
             xs={12}
             sm={4}
           >

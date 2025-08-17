@@ -2,7 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
-import { Box, Button, Container, Stack, SvgIcon, Typography, Tabs, Tab } from '@mui/material';
+import FilterIcon from '@untitled-ui/icons-react/build/esm/FilterFunnel01'; // 👈 un icono tipo filtro
+import {
+  Box,
+  Button,
+  Container,
+  Stack,
+  SvgIcon,
+  Typography,
+  Chip,
+  Divider,
+  alpha,
+} from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { Seo } from 'src/components/seo';
@@ -30,7 +41,7 @@ type Recurso = {
         proyecto: string;
         fechaFin: string;
       }[]
-    | null; // puede ser arreglo o null
+    | null;
 };
 
 const Page: NextPage = () => {
@@ -38,7 +49,7 @@ const Page: NextPage = () => {
   const router = useRouter();
   usePageView();
 
-  const [tab, setTab] = useState('maquinaria');
+  const [tab, setTab] = useState<'todos' | 'maquinaria' | 'herramienta'>('todos');
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
   const [recursos, setRecursos] = useState<Recurso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,15 +72,11 @@ const Page: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, getMaquinarias, setRecursos]);
+  }, [getMaquinarias]);
 
   useEffect(() => {
     cargarRecursos();
   }, [cargarRecursos]);
-
-  const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
-    setTab(newValue);
-  };
 
   const handleCrear = () => {
     setAgregarModalOpen(true);
@@ -110,13 +117,16 @@ const Page: NextPage = () => {
         <Container maxWidth={settings.stretch ? false : 'xl'}>
           <Grid
             container
-            spacing={3}
+            disableEqualOverflow
+            spacing={{ xs: 3, lg: 4 }}
           >
             <Grid xs={12}>
               <Stack
                 direction="row"
                 justifyContent="space-between"
+                alignItems="flex-start"
                 spacing={4}
+                sx={{ mb: 3 }}
               >
                 <Typography variant="h4">Maquinaria y Herramientas</Typography>
                 {canCreateMaquinaria && (
@@ -135,89 +145,170 @@ const Page: NextPage = () => {
               </Stack>
             </Grid>
 
+            {/* Filtro minimalista por tipo con icono */}
             <Grid xs={12}>
-              <Tabs
-                value={tab}
-                onChange={handleChangeTab}
-                textColor="primary"
-                indicatorColor="primary"
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1.5}
+                flexWrap="wrap"
+                sx={{ mb: 3 }}
               >
-                <Tab
-                  label="Maquinarias"
-                  value="maquinaria"
-                />
-                <Tab
-                  label="Herramientas"
-                  value="herramienta"
-                />
-                <Tab
-                  label="Todos"
-                  value="todos"
-                />
-              </Tabs>
-            </Grid>
-
-            {recursosFiltrados.map((recurso) => (
-              <Grid
-                key={recurso.id}
-                xs={12}
-                md={6}
-                lg={4}
-              >
-                <Box
+                <Typography
+                  variant="subtitle1"
                   sx={{
-                    border: '2px solid',
-                    borderColor: 'divider',
-                    borderRadius: 4,
-                    p: 3,
+                    fontWeight: 600,
+                    color: 'text.primary',
                     display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    height: '100%',
+                    alignItems: 'center',
+                    gap: 0.5,
                   }}
                 >
-                  <Typography variant="h6">{recurso.nombre}</Typography>
+                  <SvgIcon fontSize="medium">
+                    <FilterIcon />
+                  </SvgIcon>
+                  Filtrar por tipo
+                </Typography>
 
-                  {recurso.identificador && (
+                <Chip
+                  label="Todos"
+                  size="medium"
+                  variant={tab === 'todos' ? 'filled' : 'outlined'}
+                  color="success" // verde como en tu screenshot
+                  onClick={() => setTab('todos')}
+                  sx={{
+                    fontSize: '0.9rem', // 👈 más grande que el default (~0.75rem)
+                    fontWeight: tab === 'todos' ? 600 : 500,
+                    px: 1.5,
+                  }}
+                />
+                <Chip
+                  label="Maquinarias"
+                  size="medium"
+                  variant={tab === 'maquinaria' ? 'filled' : 'outlined'}
+                  color="success"
+                  onClick={() => setTab('maquinaria')}
+                  sx={{
+                    fontSize: '0.9rem',
+                    fontWeight: tab === 'maquinaria' ? 600 : 500,
+                    px: 1.5,
+                  }}
+                />
+                <Chip
+                  label="Herramientas"
+                  size="medium"
+                  variant={tab === 'herramienta' ? 'filled' : 'outlined'}
+                  color="success"
+                  onClick={() => setTab('herramienta')}
+                  sx={{
+                    fontSize: '0.9rem',
+                    fontWeight: tab === 'herramienta' ? 600 : 500,
+                    px: 1.5,
+                  }}
+                />
+              </Stack>
+            </Grid>
+
+            {recursosFiltrados.length === 0 ? (
+              <Grid xs={12}>
+                <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
+                  <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    No hay recursos disponibles
+                  </Typography>
+                </Box>
+              </Grid>
+            ) : (
+              recursosFiltrados.map((recurso) => (
+                <Grid
+                  key={recurso.id}
+                  xs={12}
+                  md={6}
+                  lg={4}
+                >
+                  <Box
+                    sx={{
+                      border: '2px solid',
+                      borderColor: 'divider',
+                      borderRadius: 3,
+                      p: 3,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                      height: '100%',
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: (theme) =>
+                          `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
+                      },
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 600 }}
+                    >
+                      {recurso.nombre}
+                    </Typography>
+
+                    {recurso.identificador && (
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        🏷️ {recurso.identificador}
+                      </Typography>
+                    )}
+
                     <Typography
                       variant="body2"
                       color="text.secondary"
+                      sx={{ mt: 1 }}
                     >
-                      Identificador: {recurso.identificador}
+                      Asignaciones:
                     </Typography>
-                  )}
-
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                  >
-                    Asignaciones:
-                  </Typography>
-                  {!recurso?.asignaciones || recurso.asignaciones.length === 0 ? (
-                    <Typography variant="body2">Sin asignaciones</Typography>
-                  ) : (
-                    recurso.asignaciones.map((a, index) => (
+                    {!recurso?.asignaciones || recurso.asignaciones.length === 0 ? (
                       <Typography
-                        key={index}
                         variant="body2"
+                        color="text.secondary"
                       >
-                        {a.dias}: {a.proyecto} (hasta {formatFecha(a.fechaFin)})
+                        Sin asignaciones
                       </Typography>
-                    ))
-                  )}
+                    ) : (
+                      recurso.asignaciones.map((a, index) => (
+                        <Typography
+                          key={index}
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          {a.dias}: {a.proyecto} (hasta {formatFecha(a.fechaFin)})
+                        </Typography>
+                      ))
+                    )}
 
-                  <Button
-                    onClick={() => handleVerDetalles(recurso.id)}
-                    size="small"
-                    variant="outlined"
-                    sx={{ mt: 2 }}
-                  >
-                    Ver detalles
-                  </Button>
-                </Box>
-              </Grid>
-            ))}
+                    <Divider sx={{ my: 1 }} />
+
+                    <Button
+                      onClick={() => handleVerDetalles(recurso.id)}
+                      size="medium"
+                      variant="outlined"
+                      sx={{
+                        mt: 'auto',
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Ver detalles
+                    </Button>
+                  </Box>
+                </Grid>
+              ))
+            )}
           </Grid>
         </Container>
       </Box>
