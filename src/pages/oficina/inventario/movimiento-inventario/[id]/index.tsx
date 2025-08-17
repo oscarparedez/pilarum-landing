@@ -18,7 +18,7 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { OrdenMovimientoInventario, MovimientoMaterial } from 'src/api/types';
+import { OrdenMovimientoInventario, DetalleInventarioMaterial } from 'src/api/types';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { formatearFecha } from 'src/utils/format-date';
@@ -60,10 +60,12 @@ const Page: NextPage = () => {
     <Box sx={{ p: 3 }}>
       <Card sx={{ p: 3 }}>
         {/* ENCABEZADO */}
-        <Stack direction="column" spacing={1} mb={2}>
-          <Typography variant="h5">
-            Proyecto: {orden?.proyecto?.nombre ?? 'N/A'}
-          </Typography>
+        <Stack
+          direction="column"
+          spacing={1}
+          mb={2}
+        >
+          <Typography variant="h5">Proyecto: {orden?.proyecto?.nombre ?? 'N/A'}</Typography>
           <Typography variant="body1">
             Tipo: {orden?.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida hacia proyecto'}
           </Typography>
@@ -75,7 +77,10 @@ const Page: NextPage = () => {
         <Divider sx={{ my: 2 }} />
 
         {/* TABLA DE MATERIALES */}
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Typography
+          variant="h6"
+          sx={{ mb: 2 }}
+        >
           Materiales
         </Typography>
         <TableContainer component={Paper}>
@@ -91,7 +96,7 @@ const Page: NextPage = () => {
             </TableHead>
             <TableBody>
               {orden?.materiales?.length ? (
-                orden.materiales.map((detalle: MovimientoMaterial) => (
+                orden.materiales.map((detalle: DetalleInventarioMaterial) => (
                   <TableRow key={detalle.id}>
                     <TableCell>{detalle.inventario.material.nombre}</TableCell>
                     <TableCell>{detalle.inventario.material.marca?.nombre}</TableCell>
@@ -104,7 +109,10 @@ const Page: NextPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell
+                    colSpan={5}
+                    align="center"
+                  >
                     No se encontraron materiales en esta orden
                   </TableCell>
                 </TableRow>

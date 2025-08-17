@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
 import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
-import type { Inventario, NuevoMovimientoInventario } from 'src/api/types';
+import type { Inventario, NuevaOrdenMovimientoInventario } from 'src/api/types';
 import { FullPageLoader } from 'src/components/loader/Loader';
 
 import {
@@ -23,7 +23,7 @@ const Page: NextPage = () => {
   const proyectoId = typeof proyectoIdParam === 'string' ? Number(proyectoIdParam) : NaN;
 
   const { getInventarioPorProyecto } = useInventarioApi();
-  const { crearMovimientosOrden } = useMovimientosInventarioApi();
+  const { crearOrdenMovimientoInventario } = useMovimientosInventarioApi();
 
   const [loading, setLoading] = useState(false);
   const [inventario, setInventario] = useState<Inventario[]>([]);
@@ -62,7 +62,7 @@ const Page: NextPage = () => {
     if (!formValido || !Number.isFinite(proyectoId)) return;
     setLoading(true);
     try {
-      const body: NuevoMovimientoInventario = {
+      const body: NuevaOrdenMovimientoInventario = {
         fecha_movimiento: fecha.toISOString().split('T')[0],
         proyecto: proyectoId, // origen del movimiento (proyecto)
         tipo_movimiento: 1, // ENTRADA a bodega
@@ -72,7 +72,7 @@ const Page: NextPage = () => {
         })),
       };
 
-      await crearMovimientosOrden(body);
+      await crearOrdenMovimientoInventario(body);
       toast.success('Entrada registrada correctamente');
       setFecha(new Date());
       setLineas([]);
@@ -83,7 +83,7 @@ const Page: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [formValido, proyectoId, fecha, lineas, crearMovimientosOrden, router, setLineas]);
+  }, [formValido, proyectoId, fecha, lineas, crearOrdenMovimientoInventario, router, setLineas]);
 
   return (
     <Box sx={{ p: 3 }}>

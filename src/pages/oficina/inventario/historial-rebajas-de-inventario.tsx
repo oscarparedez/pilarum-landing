@@ -60,7 +60,10 @@ export const HistorialRebajasInventario = () => {
 
   return (
     <Card sx={{ mt: 4 }}>
-      <Typography variant="h6" sx={{ px: 3, pt: 3 }}>
+      <Typography
+        variant="h6"
+        sx={{ px: 3, pt: 3 }}
+      >
         Historial de rebajas de inventario
       </Typography>
 

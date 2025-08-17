@@ -32,7 +32,7 @@ export const HistorialOrdenesDeCompra = () => {
 
   const [ordenes, setOrdenes] = useState<OrdenCompra[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filtros, setFiltros] = useState<FiltrosGlobales>({ search: '' });
+  const [filtros, setFiltros] = useState({ search: '' });
 
   const fetchOrdenes = useCallback(async () => {
     setLoading(true);
@@ -71,7 +71,10 @@ export const HistorialOrdenesDeCompra = () => {
     <Card>
       {loading && <FullPageLoader />}
 
-      <Typography variant="h6" sx={{ px: 3, pt: 3 }}>
+      <Typography
+        variant="h6"
+        sx={{ px: 3, pt: 3 }}
+      >
         Historial de órdenes de compra
       </Typography>
 
@@ -127,7 +130,10 @@ export const HistorialOrdenesDeCompra = () => {
                   ))}
                   {items.length === 0 && !loading && (
                     <TableRow>
-                      <TableCell colSpan={7} align="center">
+                      <TableCell
+                        colSpan={7}
+                        align="center"
+                      >
                         No hay órdenes de compra registradas
                       </TableCell>
                     </TableRow>

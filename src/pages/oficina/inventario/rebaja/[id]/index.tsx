@@ -18,7 +18,7 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Rebaja, Rebaja, RebajaDetalle } from 'src/api/types';
+import { Rebaja, DetalleInventarioMaterial } from 'src/api/types';
 import { formatearFecha } from 'src/utils/format-date';
 import { useRebajasInventarioApi } from 'src/api/rebajas/useRebajasApi';
 
@@ -58,7 +58,11 @@ const Page: NextPage = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Card sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h5">Rebaja de inventario #{rebaja?.id}</Typography>
         </Stack>
 
@@ -67,7 +71,10 @@ const Page: NextPage = () => {
         <Typography variant="subtitle1">
           Fecha: <strong>{rebaja && formatearFecha(rebaja.fecha_rebaja)}</strong>
         </Typography>
-        <Typography variant="subtitle1" sx={{ mb: 2 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ mb: 2 }}
+        >
           Motivo: <strong>{rebaja?.motivo ?? '-'}</strong>
         </Typography>
 
@@ -84,7 +91,7 @@ const Page: NextPage = () => {
             </TableHead>
             <TableBody>
               {rebaja?.materiales?.length ? (
-                rebaja.materiales.map((detalle: RebajaDetalle) => (
+                rebaja.materiales.map((detalle: DetalleInventarioMaterial) => (
                   <TableRow key={detalle.id}>
                     <TableCell>{detalle.inventario.material.nombre}</TableCell>
                     <TableCell>{detalle.inventario.material.marca?.nombre}</TableCell>
@@ -95,7 +102,10 @@ const Page: NextPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} align="center">
+                  <TableCell
+                    colSpan={4}
+                    align="center"
+                  >
                     No se encontraron materiales en esta rebaja
                   </TableCell>
                 </TableRow>
