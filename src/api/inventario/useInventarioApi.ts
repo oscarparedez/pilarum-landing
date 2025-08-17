@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-import { Inventario, MovimientoInventario, NuevoMovimientoInventario } from '../types';
+import { Inventario } from '../types';
 
 export const useInventarioApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -52,35 +52,10 @@ export const useInventarioApi = () => {
     [fetchWithAuth]
   );
 
-  /** Obtener movimientos de inventario */
-  const getMovimientosInventario = useCallback(async () => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/inventario/movimientos-inventario/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener movimientos de inventario');
-    return (await res.json()) as MovimientoInventario[];
-  }, [fetchWithAuth]);
-
-  /** Crear un nuevo movimiento de inventario (carga o salida) */
-  const crearMovimientoInventario = useCallback(
-    async (data: NuevoMovimientoInventario) => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/inventario/movimientos-inventario/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Error al crear movimiento de inventario');
-      return (await res.json()) as MovimientoInventario;
-    },
-    [fetchWithAuth]
-  );
-
   return {
     getInventario,
     getInventarioPorMaterial,
     getInventarioPorProyecto,
-    getInventarioPorProyectoYMaterial,
-    getMovimientosInventario,
-    crearMovimientoInventario,
+    getInventarioPorProyectoYMaterial
   };
 };

@@ -8,10 +8,12 @@ import { Inventario } from './inventario';
 import { HistorialRebajasInventario } from './historial-rebajas-de-inventario';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from '../roles/permissions';
+import { HistorialTrasladosInventario } from './historial-movimientos-de-inventario';
 
 const Page: NextPage = () => {
   const canViewHistorialOrdenesCompra = useHasPermission(PermissionId.VER_HIST_OC);
   const canViewHistorialRebajasInventario = useHasPermission(PermissionId.VER_HIST_REBAJAS);
+  const canViewHistorialTrasladosInventario = useHasPermission(PermissionId.VER_HIST_TRASLADOS);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -23,6 +25,9 @@ const Page: NextPage = () => {
 
       {/* HISTORIAL REBAJAS DE INVENTARIO */}
       {canViewHistorialRebajasInventario && <HistorialRebajasInventario />}
+
+      {/* HISTORIAL TRASLADOS DE INVENTARIO */}
+      {canViewHistorialTrasladosInventario && <HistorialTrasladosInventario />}
     </Box>
   );
 };

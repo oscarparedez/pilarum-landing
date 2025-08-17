@@ -16,7 +16,7 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
 import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
 import { useProyectosApi } from 'src/api/proyectos/useProyectosApi';
-import { Proyecto, Inventario, NuevoMovimientoInventario } from 'src/api/types';
+import { Proyecto, Inventario, NuevaOrdenMovimientoInventario } from 'src/api/types';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/router';
@@ -32,7 +32,7 @@ const Page: NextPage = () => {
   const router = useRouter();
   const { getInventario } = useInventarioApi();
   const { getProyectos } = useProyectosApi();
-  const { crearMovimientosOrden } = useMovimientosInventarioApi();
+  const { crearOrdenMovimientoInventario } = useMovimientosInventarioApi();
 
   const [loading, setLoading] = useState(false);
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
@@ -73,7 +73,7 @@ const Page: NextPage = () => {
     if (!formValido) return;
     setLoading(true);
     try {
-      const body: NuevoMovimientoInventario = {
+      const body: NuevaOrdenMovimientoInventario = {
         fecha_movimiento: fechaTraslado.toISOString().split('T')[0],
         proyecto: proyectoDestino!.id,
         tipo_movimiento: 2,
@@ -85,7 +85,7 @@ const Page: NextPage = () => {
 
       console.log("SENDING BODY:", body);
 
-      await crearMovimientosOrden(body);
+      await crearOrdenMovimientoInventario(body);
       toast.success('Traslado registrado correctamente');
       setProyectoDestino(null);
       setFechaTraslado(new Date());
@@ -97,7 +97,7 @@ const Page: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [formValido, fechaTraslado, proyectoDestino, lineas, crearMovimientosOrden, router, setLineas]);
+  }, [formValido, fechaTraslado, proyectoDestino, lineas, crearOrdenMovimientoInventario, router, setLineas]);
 
   return (
     <Box sx={{ p: 3 }}>

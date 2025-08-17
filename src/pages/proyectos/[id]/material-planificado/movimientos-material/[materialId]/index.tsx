@@ -18,25 +18,28 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Inventario, MovimientoInventario } from 'src/api/types';
-import { format } from 'date-fns';
-import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
+import { InventarioConMovimientos } from 'src/api/types';
+import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearQuetzales } from 'src/utils/format-currency';
+import { formatearFecha } from 'src/utils/format-date';
 
 const Page: NextPage = () => {
   const router = useRouter();
   const { id: proyectoId, materialId } = router.query;
-  const { getInventarioPorProyectoYMaterial } = useInventarioApi();
+  const { getMovimientosPorInventarioPorProyecto } = useMovimientosInventarioApi();
 
-  const [inventario, setInventario] = useState<Inventario | null>(null);
+  const [inventario, setInventario] = useState<InventarioConMovimientos | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchInventario = async () => {
-      if (!materialId) return;
+      if (!materialId || !proyectoId) return;
       try {
-        const data = await getInventarioPorProyectoYMaterial(Number(proyectoId), Number(materialId));
+        const data = await getMovimientosPorInventarioPorProyecto(
+          Number(proyectoId),
+          Number(materialId)
+        );
         setInventario(data);
       } catch {
         toast.error('Error al cargar el inventario del material');
@@ -47,7 +50,7 @@ const Page: NextPage = () => {
     };
 
     fetchInventario();
-  }, [materialId, proyectoId, getInventarioPorProyectoYMaterial]);
+  }, [materialId, proyectoId, getMovimientosPorInventarioPorProyecto]);
 
   if (loading) {
     return (
@@ -61,6 +64,13 @@ const Page: NextPage = () => {
     <Box sx={{ p: 3 }}>
       {loading && <FullPageLoader />}
       <Card sx={{ p: 3 }}>
+        <Typography
+          variant="h4"
+          mb={3}
+        >
+          Movimientos de Material en Proyecto
+        </Typography>
+
         <Stack
           direction="column"
           spacing={1}
@@ -84,32 +94,30 @@ const Page: NextPage = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Tipo</TableCell>
+                <TableCell></TableCell>
+                <TableCell>Tipo movimiento</TableCell>
                 <TableCell>Cantidad</TableCell>
                 <TableCell>Proyecto</TableCell>
-                <TableCell>Usuario</TableCell>
-                <TableCell>Fecha</TableCell>
+                <TableCell>Fecha Movimiento</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {inventario?.movimientos?.length ? (
                 inventario.movimientos.map((mov) => (
                   <TableRow key={mov.id}>
-                    <TableCell>{mov.tipo_movimiento === 1 ? 'Entrada' : 'Salida'}</TableCell>
+                    <TableCell>{mov.orden_movimiento_id}</TableCell>
+                    <TableCell>
+                      {mov.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida de bodega'}
+                    </TableCell>
                     <TableCell>{mov.cantidad}</TableCell>
-                    <TableCell>{mov.proyecto ?? 'N/A'}</TableCell>
-                    <TableCell>
-                      {mov.usuario_creador?.first_name} {mov.usuario_creador?.last_name}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(mov.fecha_creacion), 'dd/MM/yyyy HH:mm')}
-                    </TableCell>
+                    <TableCell>{mov.proyecto?.nombre ?? 'N/A'}</TableCell>
+                    <TableCell>{formatearFecha(mov.fecha_movimiento)}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     align="center"
                   >
                     No se encontraron movimientos para este material

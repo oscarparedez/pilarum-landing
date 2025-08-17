@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { paths } from 'src/paths';
 import dayjs from 'dayjs';
@@ -23,6 +23,7 @@ import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearFecha } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from '../roles/permissions';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 
 export const HistorialOrdenesDeCompra = () => {
   const router = useRouter();
@@ -31,6 +32,7 @@ export const HistorialOrdenesDeCompra = () => {
 
   const [ordenes, setOrdenes] = useState<OrdenCompra[]>([]);
   const [loading, setLoading] = useState(false);
+  const [filtros, setFiltros] = useState<FiltrosGlobales>({ search: '' });
 
   const fetchOrdenes = useCallback(async () => {
     setLoading(true);
@@ -52,33 +54,41 @@ export const HistorialOrdenesDeCompra = () => {
     return compras.reduce((acc, c) => acc + Number(c.cantidad) * Number(c.precio_unitario), 0);
   }, []);
 
-  const totalItems = useMemo(() => ordenes.length, [ordenes]);
+  // ✅ aplicar filtros con helper genérico
+  const ordenesFiltradas = useMemo(() => {
+    return aplicarFiltros(ordenes, filtros, {
+      camposTexto: [
+        'id',
+        'usuario_creador.first_name',
+        'usuario_creador.last_name',
+        'numero_factura',
+      ],
+      campoFecha: 'fecha_factura',
+    });
+  }, [ordenes, filtros]);
 
   return (
     <Card>
       {loading && <FullPageLoader />}
 
-      <Typography
-        variant="h6"
-        sx={{ px: 3, pt: 3 }}
-      >
+      <Typography variant="h6" sx={{ px: 3, pt: 3 }}>
         Historial de órdenes de compra
       </Typography>
 
       <TablaPaginadaConFiltros
-        totalItems={totalItems}
-        onFiltrar={() => {}}
-        filtrosFecha={false}
-        filtrosEstado={false}
+        totalItems={ordenesFiltradas.length}
+        onFiltrar={(f) => setFiltros(f)}
+        filtrosFecha
       >
         {(currentPage) => {
-          const items = ordenes.slice((currentPage - 1) * 5, currentPage * 5);
+          const items = ordenesFiltradas.slice((currentPage - 1) * 5, currentPage * 5);
 
           return (
             <TableContainer component={Paper}>
               <Table size="small">
                 <TableHead>
                   <TableRow>
+                    <TableCell></TableCell>
                     <TableCell>Fecha de creación</TableCell>
                     <TableCell>Fecha de factura</TableCell>
                     <TableCell>Usuario creador</TableCell>
@@ -92,6 +102,7 @@ export const HistorialOrdenesDeCompra = () => {
                 <TableBody>
                   {items.map((orden) => (
                     <TableRow key={orden.id}>
+                      <TableCell>{orden.id}</TableCell>
                       <TableCell>{formatearFecha(orden.fecha_creacion)}</TableCell>
                       <TableCell>{formatearFecha(orden.fecha_factura)}</TableCell>
                       <TableCell>
@@ -116,10 +127,7 @@ export const HistorialOrdenesDeCompra = () => {
                   ))}
                   {items.length === 0 && !loading && (
                     <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        align="center"
-                      >
+                      <TableCell colSpan={7} align="center">
                         No hay órdenes de compra registradas
                       </TableCell>
                     </TableRow>

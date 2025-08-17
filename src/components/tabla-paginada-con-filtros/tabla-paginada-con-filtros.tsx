@@ -10,11 +10,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Button,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SearchMdIcon from '@untitled-ui/icons-react/build/esm/SearchMd';
 import debounce from 'lodash.debounce';
 import { Rol } from 'src/api/types';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Filtros {
   search: string;
@@ -33,7 +35,7 @@ interface TablaPaginadaConFiltrosProps {
   filtrosRol?: boolean;
   filtrosEmpresa?: boolean;
   empresas?: { id: number; nombre: string }[];
-  roles?: Rol[]
+  roles?: Rol[];
   children: (
     currentPage: number,
     estadoFiltro?: string,
@@ -97,6 +99,18 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
       empresa || undefined
     );
   }, [page, filtrosEstado, estado, filtrosRol, rol, search, empresa, children]);
+
+  const handleClearFilters = () => {
+    setSearch('');
+    setFechaInicio(null);
+    setFechaFin(null);
+    setEstado('');
+    setRol('');
+    setEmpresa('');
+    setPage(1);
+  };
+
+  const hayFiltrosActivos = search || fechaInicio || fechaFin || estado || rol || empresa;
 
   return (
     <Box>
@@ -223,6 +237,25 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
                 ))}
               </Select>
             </FormControl>
+          )}
+
+          {hayFiltrosActivos && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<CloseIcon />}
+              onClick={handleClearFilters}
+              sx={{
+                textTransform: 'none',
+                borderRadius: 2,
+                fontWeight: 500,
+                px: 2.5,
+                py: 0.8,
+                alignSelf: { xs: 'flex-start', sm: 'center' },
+              }}
+            >
+              Limpiar filtros
+            </Button>
           )}
         </Stack>
       </Box>

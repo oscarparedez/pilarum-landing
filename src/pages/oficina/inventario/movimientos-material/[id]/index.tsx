@@ -16,27 +16,28 @@ import {
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Inventario, MovimientoInventario } from 'src/api/types';
-import { format } from 'date-fns';
-import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
+import { InventarioConMovimientos } from 'src/api/types';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearQuetzales } from 'src/utils/format-currency';
+import { formatearFecha } from 'src/utils/format-date';
+import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
+import { paths } from 'src/paths';
 
 const Page: NextPage = () => {
   const router = useRouter();
-  const { id: proyectoId, materialId } = router.query;
-  const { getInventarioPorMaterial } = useInventarioApi();
+  const { id } = router.query;
+  const { getMovimientosPorInventario } = useMovimientosInventarioApi();
 
-  const [inventario, setInventario] = useState<Inventario | null>(null);
+  const [inventario, setInventario] = useState<InventarioConMovimientos | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchInventario = async () => {
-      if (!materialId) return;
+      if (!id) return;
       try {
-        const data = await getInventarioPorMaterial(Number(materialId));
+        const data = await getMovimientosPorInventario(Number(id));
         setInventario(data);
       } catch {
         toast.error('Error al cargar el inventario del material');
@@ -47,7 +48,14 @@ const Page: NextPage = () => {
     };
 
     fetchInventario();
-  }, [materialId, getInventarioPorMaterial]);
+  }, [id, getMovimientosPorInventario]);
+
+  const onClickMovimiento = useCallback(
+    (movimientoId: number) => {
+      router.push(paths.dashboard.oficina.movimiento_inventario(movimientoId));
+    },
+    [router]
+  );
 
   if (loading) {
     return (
@@ -84,26 +92,29 @@ const Page: NextPage = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
+                <TableCell>ID Movimiento</TableCell>
                 <TableCell>Tipo</TableCell>
                 <TableCell>Cantidad</TableCell>
                 <TableCell>Proyecto</TableCell>
-                <TableCell>Usuario</TableCell>
-                <TableCell>Fecha</TableCell>
+                <TableCell>Fecha movimiento</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {inventario?.movimientos?.length ? (
                 inventario.movimientos.map((mov) => (
-                  <TableRow key={mov.id}>
-                    <TableCell>{mov.tipo_movimiento === 1 ? 'Entrada' : 'Salida'}</TableCell>
+                  <TableRow
+                    key={mov.id}
+                    hover
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => onClickMovimiento(mov.id)}
+                  >
+                    <TableCell>{mov.orden_movimiento_id}</TableCell>
+                    <TableCell>
+                      {mov.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida de bodega'}
+                    </TableCell>
                     <TableCell>{mov.cantidad}</TableCell>
-                    <TableCell>{mov.proyecto ?? 'N/A'}</TableCell>
-                    <TableCell>
-                      {mov.usuario_creador?.first_name} {mov.usuario_creador?.last_name}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(mov.fecha_creacion), 'dd/MM/yyyy HH:mm')}
-                    </TableCell>
+                    <TableCell>{mov.proyecto?.nombre ?? 'N/A'}</TableCell>
+                    <TableCell>{formatearFecha(mov.fecha_movimiento)}</TableCell>
                   </TableRow>
                 ))
               ) : (

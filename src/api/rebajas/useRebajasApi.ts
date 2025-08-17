@@ -6,37 +6,62 @@ import { NuevaRebaja, Rebaja } from '../types';
 export const useRebajasInventarioApi = () => {
   const { fetchWithAuth } = useAuthApi();
 
-  const listRebajas = useCallback(async () => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/inventario/rebaja-inventario/`, {
+  // Listar todas las órdenes de rebaja
+  const listRebajas = useCallback(async (): Promise<Rebaja[]> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/ordenes-rebaja/`, {
       method: 'GET',
     });
-    if (!res.ok) throw new Error('Error al listar rebajas de inventario');
+    if (!res.ok) throw new Error('Error al listar órdenes de rebaja');
     return (await res.json()) as Rebaja[];
   }, [fetchWithAuth]);
 
+  // Obtener una orden de rebaja por ID
   const getRebajaById = useCallback(
-    async (id: number) => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/inventario/rebaja-inventario/${id}/`, {
+    async (id: number): Promise<Rebaja> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/ordenes-rebaja/${id}/`, {
         method: 'GET',
       });
-      if (!res.ok) throw new Error('Error al obtener rebaja');
+      if (!res.ok) throw new Error('Error al obtener orden de rebaja');
       return (await res.json()) as Rebaja;
     },
     [fetchWithAuth]
   );
 
+  // Crear una nueva orden de rebaja
   const crearRebaja = useCallback(
-    async (data: NuevaRebaja): Promise<Rebaja[]> => {
-      const res = await fetchWithAuth(
-        `${API_BASE_URL}/inventario/rebaja-inventario/orden`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        }
-      );
-      if (!res.ok) throw new Error('Error al crear rebaja de inventario');
-      return res.json();
+    async (data: NuevaRebaja): Promise<Rebaja> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/ordenes-rebaja/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error al crear orden de rebaja');
+      return (await res.json()) as Rebaja;
+    },
+    [fetchWithAuth]
+  );
+
+  // Actualizar (PUT/PATCH)
+  const updateRebaja = useCallback(
+    async (id: number, data: Partial<NuevaRebaja>): Promise<Rebaja> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/ordenes-rebaja/${id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error al actualizar orden de rebaja');
+      return (await res.json()) as Rebaja;
+    },
+    [fetchWithAuth]
+  );
+
+  // Eliminar
+  const deleteRebaja = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/ordenes-rebaja/${id}/`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Error al eliminar orden de rebaja');
     },
     [fetchWithAuth]
   );
@@ -44,6 +69,8 @@ export const useRebajasInventarioApi = () => {
   return {
     listRebajas,
     getRebajaById,
-    crearRebaja
+    crearRebaja,
+    updateRebaja,
+    deleteRebaja,
   };
 };

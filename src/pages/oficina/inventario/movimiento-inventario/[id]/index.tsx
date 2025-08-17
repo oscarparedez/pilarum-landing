@@ -18,34 +18,35 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Rebaja, Rebaja, RebajaDetalle } from 'src/api/types';
+import { OrdenMovimientoInventario, MovimientoMaterial } from 'src/api/types';
+import { formatearQuetzales } from 'src/utils/format-currency';
+import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { formatearFecha } from 'src/utils/format-date';
-import { useRebajasInventarioApi } from 'src/api/rebajas/useRebajasApi';
 
 const Page: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { getRebajaById } = useRebajasInventarioApi();
+  const { getOrdenById } = useMovimientosInventarioApi();
 
-  const [rebaja, setRebaja] = useState<Rebaja | null>(null);
+  const [orden, setOrden] = useState<OrdenMovimientoInventario | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRebaja = async () => {
+    const fetchOrden = async () => {
       if (!id) return;
       try {
-        const data = await getRebajaById(Number(id));
-        setRebaja(data);
+        const data = await getOrdenById(Number(id));
+        setOrden(data);
       } catch {
-        toast.error('Error al cargar la rebaja');
-        setRebaja(null);
+        toast.error('Error al cargar la orden de movimiento');
+        setOrden(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRebaja();
-  }, [id, getRebajaById]);
+    fetchOrden();
+  }, [id, getOrdenById]);
 
   if (loading) {
     return (
@@ -58,19 +59,25 @@ const Page: NextPage = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Card sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5">Rebaja de inventario #{rebaja?.id}</Typography>
+        {/* ENCABEZADO */}
+        <Stack direction="column" spacing={1} mb={2}>
+          <Typography variant="h5">
+            Proyecto: {orden?.proyecto?.nombre ?? 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            Tipo: {orden?.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida hacia proyecto'}
+          </Typography>
+          <Typography variant="body1">
+            Fecha movimiento: {orden && formatearFecha(orden.fecha_movimiento)}
+          </Typography>
         </Stack>
 
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{ my: 2 }} />
 
-        <Typography variant="subtitle1">
-          Fecha: <strong>{rebaja && formatearFecha(rebaja.fecha_rebaja)}</strong>
+        {/* TABLA DE MATERIALES */}
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Materiales
         </Typography>
-        <Typography variant="subtitle1" sx={{ mb: 2 }}>
-          Motivo: <strong>{rebaja?.motivo ?? '-'}</strong>
-        </Typography>
-
         <TableContainer component={Paper}>
           <Table size="small">
             <TableHead>
@@ -78,25 +85,27 @@ const Page: NextPage = () => {
                 <TableCell>Material</TableCell>
                 <TableCell>Marca</TableCell>
                 <TableCell>Unidad</TableCell>
-                <TableCell>Precio unitario</TableCell>
-                <TableCell>Cantidad rebajada</TableCell>
+                <TableCell>Precio Unitario</TableCell>
+                <TableCell>Cantidad solicitada</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rebaja?.materiales?.length ? (
-                rebaja.materiales.map((detalle: RebajaDetalle) => (
+              {orden?.materiales?.length ? (
+                orden.materiales.map((detalle: MovimientoMaterial) => (
                   <TableRow key={detalle.id}>
                     <TableCell>{detalle.inventario.material.nombre}</TableCell>
                     <TableCell>{detalle.inventario.material.marca?.nombre}</TableCell>
                     <TableCell>{detalle.inventario.material.unidad?.nombre}</TableCell>
-                    <TableCell>{detalle.inventario.precio_unitario}</TableCell>
+                    <TableCell>
+                      {formatearQuetzales(Number(detalle.inventario.precio_unitario))}
+                    </TableCell>
                     <TableCell>{detalle.cantidad}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} align="center">
-                    No se encontraron materiales en esta rebaja
+                  <TableCell colSpan={5} align="center">
+                    No se encontraron materiales en esta orden
                   </TableCell>
                 </TableRow>
               )}

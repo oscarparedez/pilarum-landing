@@ -17,7 +17,7 @@ import {
   Button,
   Divider,
 } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import SendIcon from '@mui/icons-material/SendRounded';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
@@ -192,7 +192,7 @@ export const MaterialPlanificado: FC = () => {
                         <TableCell>Stock</TableCell>
                         <TableCell>Precio unitario</TableCell>
                         {canViewHistorialMovimientos && (
-                          <TableCell align="right">Acciones</TableCell>
+                          <TableCell>Acciones</TableCell>
                         )}
                       </TableRow>
                     </TableHead>
@@ -213,12 +213,11 @@ export const MaterialPlanificado: FC = () => {
                           </TableCell>
                           <TableCell>{inv.material.unidad?.nombre ?? '—'}</TableCell>
                           <TableCell>{inv.cantidad ?? 0}</TableCell>
-                          <TableCell>{formatearQuetzales(inv.precio_unitario ?? 0)}</TableCell>
-                          <TableCell align="right">
+                          <TableCell>{formatearQuetzales(Number(inv.precio_unitario))}</TableCell>
+                          <TableCell>
                             <Stack
                               direction="row"
                               spacing={1}
-                              justifyContent="flex-end"
                             >
                               <Tooltip title="Ver movimientos">
                                 <IconButton

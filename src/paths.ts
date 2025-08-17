@@ -25,7 +25,8 @@ export const paths = {
       rebajar: '/oficina/inventario/rebajar',
       trasladar: '/oficina/inventario/trasladar',
       orden_de_compra: (id: number) => `/oficina/inventario/orden-de-compra/${id}`,
-      rebaja: (id: string) => `/oficina/inventario/rebaja/${id}`,
+      rebaja: (id: number) => `/oficina/inventario/rebaja/${id}`,
+      movimiento_inventario: (id: number) => `/oficina/inventario/movimiento-inventario/${id}`,
     },
     proyectos: {
       index: '/proyectos',

@@ -293,20 +293,9 @@ export interface Inventario {
   precio_unitario: number;
   fecha_creacion: string;
   usuario_creador: UsuarioPublico;
-  movimientos: MovimientoInventario[];
 }
 
 export type TipoMovimiento = 1 | 2; // 1: Entrada, 2: Salida
-
-export interface MovimientoInventario {
-  id: number;
-  inventario: number;
-  tipo_movimiento: TipoMovimiento;
-  cantidad: number;
-  proyecto?: number | null;
-  fecha_creacion: string;
-  usuario_creador: UsuarioPublico;
-}
 
 
 export interface CompraMaterial {
@@ -346,29 +335,31 @@ export interface NuevaOrdenCompra {
   compras: NuevaCompraMaterial[];
 }
 
-interface MovimientoMaterialUI {
-  material?: Inventario | null; // Objeto para UI
-  cantidad: string;             // En string para TextField
+// Detalle genérico de material en inventario (compartido)
+export interface DetalleInventarioMaterial {
+  id: number;
+  inventario: {
+    id: number;
+    material: Material;
+    cantidad: number;
+    precio_unitario: string;
+    fecha_creacion: string;
+    usuario_creador: number;
+  };
+  cantidad: string; // la API devuelve string
+}
+
+export interface Rebaja {
+  id: number;
+  motivo: string | null;
+  fecha_rebaja: string; // ISO string
+  materiales: DetalleInventarioMaterial[];
+  usuario_creador: UsuarioPublico;
 }
 
 export interface NuevaRebajaMaterial {
   inventario: number;
   cantidad: number;
-}
-
-export interface Rebaja {
-  id: number;
-  fecha_factura: string;
-  numero_factura: string;
-  usuario_creador: UsuarioPublico;
-  proveedor: Proveedor;
-  fecha_creacion: string;
-  compras: CompraMaterial[];
-}
-
-interface NuevaRebajaMaterialForm {
-  cantidad: string;
-  material: number;
 }
 
 export interface NuevaRebaja {
@@ -377,60 +368,46 @@ export interface NuevaRebaja {
   materiales: NuevaRebajaMaterial[];
 }
 
-// Un único elemento de movimiento (material + cantidad)
-export interface MovimientoMaterial {
-  inventario: number;  // ID del inventario
-  cantidad: number;
-}
-
-// Movimiento para crear en backend (entrada, salida, traslado, rebaja...)
-export interface NuevoMovimientoInventario {
-  fecha_movimiento: string;  // Fecha en formato YYYY-MM-DD
-  proyecto?: number;         // Solo aplica si el movimiento involucra un proyecto
-  motivo?: string;           // Solo aplica en rebajas (o devoluciones con motivo)
-  tipo_movimiento?: 1 | 2;   // 1 = Entrada, 2 = Salida (opcional si el backend infiere)
-  materiales: MovimientoMaterial[];
-}
-
-// Movimiento registrado (respuesta del backend)
-export interface MovimientoInventario {
+export interface OrdenMovimientoInventario {
   id: number;
-  inventario: number;
-  tipo_movimiento: 1 | 2;
-  cantidad: number;
-  proyecto?: number | null;
+  fecha_movimiento: string;
+  proyecto: Proyecto;
+  motivo?: string | null;
+  tipo_movimiento: TipoMovimiento;
+  materiales: DetalleInventarioMaterial[];
   fecha_creacion: string;
   usuario_creador: UsuarioPublico;
 }
 
-// ejemplo json de nueva rebaja
-// {
-//   "fecha_rebaja": "2023-10-01",
-//   "motivo": "Devolución de material defectuoso",
-//   "materiales": [
-//     {
-//       "inventario": 1,
-//       "cantidad": 10
-//     },
-//     {
-//       "inventario": 2,
-//       "cantidad": 5
-//     }
-//   ]
-// }
+export interface NuevoMovimientoMaterial {
+  inventario: number;
+  cantidad: number;
+}
 
-// ejemplo json de nuevo traslado
-// {
-//   "fecha_movimiento": "2023-10-01",
-//   "proyecto": 4,
-//   "materiales": [
-//     {
-//       "inventario": 1,
-//       "cantidad": 10
-//     },
-//     {
-//       "inventario": 2,
-//       "cantidad": 5
-//     }
-//   ]
-// }
+export interface NuevaOrdenMovimientoInventario {
+  fecha_movimiento: string;
+  proyecto?: number;
+  motivo?: string;
+  tipo_movimiento?: TipoMovimiento;
+  materiales: NuevoMovimientoMaterial[];
+}
+
+export interface MovimientoDeInventario {
+  id: number;
+  orden_movimiento_id: number;
+  tipo_movimiento: 1 | 2; // 1 = Entrada, 2 = Salida
+  cantidad: string; // API devuelve string
+  fecha_movimiento: string; // ISO string
+  fecha_creacion: string;
+  proyecto: Proyecto; // objeto completo
+}
+
+export interface InventarioConMovimientos {
+  id: number;
+  material: Material;
+  cantidad: number;
+  precio_unitario: string; // API devuelve string
+  fecha_creacion: string;
+  usuario_creador: number; // solo viene el id en este endpoint
+  movimientos: MovimientoDeInventario[];
+}

@@ -36,7 +36,6 @@ export function middleware(req: NextRequest) {
     .sort((a, b) => b.length - a.length) // prioriza coincidencias largas
     .find((route) => normalizedPath === route || normalizedPath.startsWith(`${route}/`));
 
-  console.log('matchedRoute', matchedRoute, 'normalizedPath', normalizedPath);
   if (matchedRoute) {
     const requiredPermission = routePermissions[matchedRoute];
     if (!userPermissions.includes(requiredPermission)) {
