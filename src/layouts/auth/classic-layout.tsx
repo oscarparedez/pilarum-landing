@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
-import { styled } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import { alpha, styled } from '@mui/material/styles';
 
 import { Logo } from 'src/components/logo';
 import { RouterLink } from 'src/components/router-link';
@@ -12,14 +13,32 @@ import { paths } from 'src/paths';
 const TOP_NAV_HEIGHT = 64;
 
 const LayoutRoot = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'top center',
-  backgroundImage: 'url("/assets/gradient-bg.svg")',
+  background: theme.palette.background.default,
+  minHeight: '100vh',
   display: 'flex',
-  flex: '1 1 auto',
   flexDirection: 'column',
-  height: '100%',
+  position: 'relative',
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: '-10%',
+    right: '-5%',
+    width: '30%',
+    height: '40%',
+    background: `radial-gradient(ellipse, ${alpha(theme.palette.primary.main, 0.03)} 0%, transparent 70%)`,
+    borderRadius: '50%',
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: '-10%',
+    left: '-5%',
+    width: '25%',
+    height: '35%',
+    background: `radial-gradient(ellipse, ${alpha(theme.palette.neutral[400], 0.02)} 0%, transparent 70%)`,
+    borderRadius: '50%',
+  },
 }));
 
 interface LayoutProps {
@@ -31,21 +50,25 @@ export const Layout: FC<LayoutProps> = (props) => {
 
   return (
     <LayoutRoot>
+      {/* Header */}
       <Box
         component="header"
         sx={{
-          left: 0,
-          position: 'fixed',
-          right: 0,
-          top: 0,
-          zIndex: (theme) => theme.zIndex.appBar,
+          position: 'relative',
+          zIndex: 10,
+          backdropFilter: 'blur(8px)',
+          backgroundColor: theme => alpha(theme.palette.background.paper, 0.8),
+          borderBottom: theme => `1px solid ${theme.palette.divider}`,
         }}
       >
         <Container maxWidth="lg">
           <Stack
             direction="row"
             spacing={2}
-            sx={{ height: TOP_NAV_HEIGHT }}
+            sx={{ 
+              height: TOP_NAV_HEIGHT,
+              alignItems: 'center',
+            }}
           >
             <Stack
               alignItems="center"
@@ -53,48 +76,65 @@ export const Layout: FC<LayoutProps> = (props) => {
               direction="row"
               display="inline-flex"
               href={paths.index}
-              spacing={1}
-              sx={{ textDecoration: 'none' }}
+              spacing={1.5}
+              sx={{ 
+                textDecoration: 'none',
+                transition: 'transform 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                },
+              }}
             >
               <Box
                 sx={{
                   display: 'inline-flex',
-                  height: 24,
-                  width: 24,
+                  height: 36,
+                  width: 36,
+                  borderRadius: 1.5,
+                  background: theme => `linear-gradient(135deg, ${theme.palette.neutral[800]} 0%, ${theme.palette.neutral[600]} 100%)`,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
                 }}
               >
                 <Logo />
               </Box>
-              <Box
+              <Typography
+                variant="h6"
                 sx={{
                   color: 'text.primary',
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontSize: 14,
-                  fontWeight: 800,
-                  letterSpacing: '0.3px',
-                  lineHeight: 2.5,
+                  fontSize: 18,
+                  fontWeight: 700,
+                  letterSpacing: '-0.5px',
                 }}
               >
                 Pilarum
-              </Box>
+              </Typography>
             </Stack>
           </Stack>
         </Container>
       </Box>
+
+      {/* Main Content */}
       <Box
         sx={{
           alignItems: 'center',
           display: 'flex',
           justifyContent: 'center',
-          flex: '1 1 auto',
+          flex: 1,
+          position: 'relative',
+          zIndex: 1,
+          px: 2,
         }}
       >
         <Container
           maxWidth="sm"
           sx={{
             py: {
-              xs: '60px',
-              md: '120px',
+              xs: 4,
+              sm: 6,
+              md: 8,
             },
           }}
         >

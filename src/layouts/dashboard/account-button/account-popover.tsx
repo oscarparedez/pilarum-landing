@@ -1,23 +1,19 @@
 import type { FC } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
-import CreditCard01Icon from '@untitled-ui/icons-react/build/esm/CreditCard01';
-import Settings04Icon from '@untitled-ui/icons-react/build/esm/Settings04';
-import User03Icon from '@untitled-ui/icons-react/build/esm/User03';
+import LogOut01Icon from '@untitled-ui/icons-react/build/esm/LogOut01';
+import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import Popover from '@mui/material/Popover';
+import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
 
-import { RouterLink } from 'src/components/router-link';
 import { useAuth } from 'src/hooks/use-auth';
-import { useMockedUser } from 'src/hooks/use-mocked-user';
 import { useRouter } from 'src/hooks/use-router';
 import { paths } from 'src/paths';
 import { Issuer } from 'src/utils/auth';
@@ -32,7 +28,13 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
   const { anchorEl, onClose, open, ...other } = props;
   const router = useRouter();
   const auth = useAuth();
-  const user = useMockedUser();
+  const user = auth.user;
+
+  const userInitials = useMemo(() => {
+    const first = user?.first_name?.charAt(0)?.toUpperCase() || '';
+    const last = user?.last_name?.charAt(0)?.toUpperCase() || '';
+    return first + last || 'U';
+  }, [user?.first_name, user?.last_name]);
 
   const handleLogout = useCallback(async (): Promise<void> => {
     try {
@@ -49,7 +51,7 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
         }
       }
 
-      router.push(paths.index);
+      router.push(paths.auth.login);
     } catch (err) {
       console.error(err);
       toast.error('Something went wrong!');
@@ -60,39 +62,142 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
     <Popover
       anchorEl={anchorEl}
       anchorOrigin={{
-        horizontal: 'center',
+        horizontal: 'right',
         vertical: 'bottom',
+      }}
+      transformOrigin={{
+        horizontal: 'right',
+        vertical: 'top',
       }}
       disableScrollLock
       onClose={onClose}
       open={!!open}
-      PaperProps={{ sx: { width: 200 } }}
+      PaperProps={{ 
+        sx: { 
+          width: 320,
+          mt: 1.5,
+          overflow: 'visible',
+          filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+          '&::before': {
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            top: 0,
+            right: 14,
+            width: 10,
+            height: 10,
+            bgcolor: 'background.paper',
+            transform: 'translateY(-50%) rotate(45deg)',
+            zIndex: 0,
+          },
+        } 
+      }}
       {...other}
     >
-      <Box sx={{ p: 2 }}>
-        <Typography variant="body1">{user.name}</Typography>
-        <Typography
-          color="text.secondary"
-          variant="body2"
-        >
-          demo@devias.io
-        </Typography>
+      {/* User Profile Section */}
+      <Box sx={{ p: 3 }}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Avatar
+            sx={{
+              background: 'linear-gradient(135deg, #6b7280 0%, #374151 100%)',
+              width: 48,
+              height: 48,
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              color: 'white',
+            }}
+          >
+            {userInitials}
+          </Avatar>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography 
+              variant="subtitle1" 
+              sx={{ 
+                fontWeight: 600,
+                fontSize: '1rem',
+                lineHeight: 1.3,
+                mb: 0.5
+              }}
+            >
+              {user?.first_name && user?.last_name 
+                ? `${user.first_name} ${user.last_name}`
+                : 'Usuario'
+              }
+            </Typography>
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ 
+                fontSize: '0.875rem',
+                mb: 1,
+                wordBreak: 'break-word'
+              }}
+            >
+              @{user?.username || 'username'}
+            </Typography>
+            {user?.groups?.[0]?.name && (
+              <Chip
+                label={user.groups[0].name}
+                size="small"
+                color="primary"
+                variant="outlined"
+                sx={{
+                  height: 24,
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                }}
+              />
+            )}
+          </Box>
+        </Stack>
       </Box>
+
       <Divider />
-      <Divider sx={{ my: '0 !important' }} />
-      <Box
-        sx={{
-          display: 'flex',
-          p: 1,
-          justifyContent: 'center',
-        }}
-      >
+
+      {/* Logout Section */}
+      <Box sx={{ p: 3, pt: 2 }}>
         <Button
-          color="inherit"
+          fullWidth
+          variant="text"
           onClick={handleLogout}
-          size="small"
+          sx={{
+            justifyContent: 'flex-start',
+            px: 2,
+            py: 1.5,
+            fontWeight: 500,
+            fontSize: '0.875rem',
+            textTransform: 'none',
+            color: 'error.main',
+            borderRadius: 2,
+            border: 'none',
+            bgcolor: 'transparent',
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              bgcolor: 'error.50',
+              color: 'error.dark',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 2px 8px rgba(211, 47, 47, 0.2)',
+            },
+            '&:active': {
+              transform: 'translateY(0px)',
+            },
+          }}
+          startIcon={
+            <SvgIcon 
+              fontSize="small"
+              sx={{ 
+                color: 'inherit',
+                transition: 'transform 0.2s ease-in-out',
+                '.MuiButton-root:hover &': {
+                  transform: 'translateX(2px)',
+                }
+              }}
+            >
+              <LogOut01Icon />
+            </SvgIcon>
+          }
         >
-          Logout
+          Cerrar Sesión
         </Button>
       </Box>
     </Popover>

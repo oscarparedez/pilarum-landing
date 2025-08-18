@@ -1,18 +1,24 @@
 import type { FC } from 'react';
-import User01Icon from '@untitled-ui/icons-react/build/esm/User01';
+import { useMemo } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
-import SvgIcon from '@mui/material/SvgIcon';
 
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+import { useAuth } from 'src/hooks/use-auth';
 import { usePopover } from 'src/hooks/use-popover';
 
 import { AccountPopover } from './account-popover';
 
 export const AccountButton: FC = () => {
-  const user = useMockedUser();
+  const auth = useAuth();
+  const user = auth.user;
   const popover = usePopover<HTMLButtonElement>();
+
+  const userInitials = useMemo(() => {
+    const first = user?.first_name?.charAt(0)?.toUpperCase() || '';
+    const last = user?.last_name?.charAt(0)?.toUpperCase() || '';
+    return first + last || 'U';
+  }, [user?.first_name, user?.last_name]);
 
   return (
     <>
@@ -26,21 +32,27 @@ export const AccountButton: FC = () => {
           borderWidth: 2,
           borderStyle: 'solid',
           borderColor: 'divider',
-          height: 40,
-          width: 40,
+          height: 48,
+          width: 48,
           borderRadius: '50%',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            borderColor: 'primary.main',
+            transform: 'scale(1.05)',
+          },
         }}
       >
         <Avatar
           sx={{
-            height: 32,
-            width: 32,
+            height: 40,
+            width: 40,
+            background: 'linear-gradient(135deg, #6b7280 0%, #374151 100%)',
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            color: 'white',
           }}
-          src={user.avatar}
         >
-          <SvgIcon>
-            <User01Icon />
-          </SvgIcon>
+          {userInitials}
         </Avatar>
       </Box>
       <AccountPopover
