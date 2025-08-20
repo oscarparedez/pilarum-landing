@@ -4,6 +4,7 @@ import { routePermissions } from './constants/permissions-route-map';
 
 export function middleware(req: NextRequest) {
   const accessToken = req.cookies.get('accessToken')?.value;
+  const refreshToken = req.cookies.get('refreshToken')?.value;
   const permissionsCookie = req.cookies.get('permissions')?.value;
   const currentPath = req.nextUrl.pathname;
 
@@ -13,9 +14,15 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Si no hay token, redirigir a login
-  if (!accessToken) {
+  // Si no hay ningún token (ni access ni refresh), redirigir a login
+  if (!accessToken && !refreshToken) {
     return NextResponse.redirect(new URL('/auth/login', req.url));
+  }
+
+  // Si no hay accessToken pero sí refreshToken, permitir que pase 
+  // (el frontend se encargará de hacer el refresh)
+  if (!accessToken && refreshToken) {
+    return NextResponse.next();
   }
 
   // Parsear permisos desde la cookie

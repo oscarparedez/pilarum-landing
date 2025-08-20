@@ -24,7 +24,7 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfi
     first_name: '',
     last_name: '',
     telefono: '',
-    rol: undefined,
+    groups: [],
     is_active: true,
   });
 
@@ -33,7 +33,7 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfi
       const { name, value } = e.target;
       setForm((prev) => ({
         ...prev,
-        [name]: name === 'rol' ? Number(value) : value,
+        [name]: name === 'groups' ? [Number(value)] : value,
       }));
     },
     [setForm]
@@ -47,7 +47,7 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfi
       first_name: '',
       last_name: '',
       telefono: '',
-      rol: undefined,
+      groups: [],
       is_active: true,
     });
   }, [form, onConfirm]);
@@ -106,8 +106,8 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfi
           select
           fullWidth
           label="Rol"
-          name="rol"
-          value={form.rol}
+          name="groups"
+          value={form.groups[0]}
           onChange={handleChange}
           margin="normal"
         >
@@ -132,7 +132,7 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfi
             !form.first_name ||
             !form.last_name ||
             !form.telefono ||
-            !form.rol
+            !form.groups.length
           }
         >
           Guardar

@@ -45,7 +45,7 @@ const validationSchema = Yup.object({
 
 const Page: NextPage = () => {
   const router = useRouter();
-  const { isAuthenticated, signIn } = useAuth();
+  const { signIn } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -57,6 +57,7 @@ const Page: NextPage = () => {
     try {
       setErrorMessage(null);
       await signIn(values.username, values.password);
+      router.replace(paths.dashboard.inicio);
     } catch (err: any) {
       console.error(err);
       setErrorMessage(err.message);
@@ -66,11 +67,6 @@ const Page: NextPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.replace(paths.dashboard.inicio);
-    }
-  }, [isAuthenticated, router]);
 
   const formik = useFormik({
     initialValues,

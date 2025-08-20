@@ -1,26 +1,54 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
-
 export const useAuthApi = () => {
-  const getAccessToken = () => localStorage.getItem(ACCESS_TOKEN_KEY);
-  const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY);
+  // Helper function to get cookie value
+  const getCookie = (name: string): string | null => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
+  };
 
-  const setTokens = (access: string, refresh: string) => {
-  // Guardar en localStorage (si lo quieres seguir usando en el cliente)
-  localStorage.setItem(ACCESS_TOKEN_KEY, access);
-  localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+  const getAccessToken = () => getCookie('accessToken');
+  const getRefreshToken = () => getCookie('refreshToken');
 
-  // Guardar también como cookies legibles por el middleware
-  document.cookie = `accessToken=${access}; Path=/; Secure; SameSite=Strict`;
-  document.cookie = `refreshToken=${refresh}; Path=/; Secure; SameSite=Strict`;
-};
+  const setTokens = (
+    access: string,
+    refresh: string,
+    accessExpiresIn?: number,
+    refreshExpiresIn?: number
+  ) => {
+    // Use backend-provided expiration times, or fallback to defaults
+    const accessMaxAge = accessExpiresIn || 15 * 60; // 15 minutes default
+    const refreshMaxAge = refreshExpiresIn || 7 * 24 * 60 * 60; // 7 days default
+
+    // Use cookies as single source of truth
+    document.cookie = `accessToken=${access}; Path=/; Secure; SameSite=Strict; Max-Age=${accessMaxAge}`;
+    document.cookie = `refreshToken=${refresh}; Path=/; Secure; SameSite=Strict; Max-Age=${refreshMaxAge}`;
+  };
 
   const clearTokens = () => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    // Clear cookies only (single source of truth)
+    document.cookie = 'accessToken=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = 'refreshToken=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  };
+
+  // New function: refresh token and fetch user info
+  const refreshUserSession = async () => {
+    try {
+      const newAccess = await refreshAccessToken();
+      // Fetch user info with new access token
+      const res = await fetch(`${API_BASE_URL}/me/`, {
+        headers: { Authorization: `Bearer ${newAccess}` },
+      });
+      if (!res.ok) throw new Error('No autorizado');
+      const user = await res.json();
+      return user;
+    } catch (err) {
+      clearTokens();
+      throw err;
+    }
   };
 
   const signIn = useCallback(async (username: string, password: string) => {
@@ -33,21 +61,32 @@ export const useAuthApi = () => {
     if (!res.ok) throw new Error('Credenciales inválidas');
 
     const data = await res.json();
-    setTokens(data.access, data.refresh);
+    // Pass expiration times if backend provides them
+    setTokens(
+      data.access,
+      data.refresh,
+      data.access_expires_in, // Backend should provide this
+      data.refresh_expires_in // Backend should provide this
+    );
     return data;
   }, []);
 
   const signUp = useCallback(async (username: string, name: string, password: string) => {
-    const res = await fetch(`${API_BASE_URL}/register/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, name, password }),
-    });
-
-    if (!res.ok) throw new Error('No se pudo registrar');
-    const data = await res.json();
-    setTokens(data.access, data.refresh);
-    return data;
+    // const res = await fetch(`${API_BASE_URL}/register/`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ username, name, password }),
+    // });
+    // if (!res.ok) throw new Error('No se pudo registrar');
+    // const data = await res.json();
+    // // Pass expiration times if backend provides them
+    // setTokens(
+    //   data.access,
+    //   data.refresh,
+    //   data.access_expires_in,
+    //   data.refresh_expires_in
+    // );
+    // return data;
   }, []);
 
   const refreshAccessToken = useCallback(async () => {
@@ -63,7 +102,8 @@ export const useAuthApi = () => {
     if (!res.ok) throw new Error('Refresh token inválido');
 
     const data = await res.json();
-    setTokens(data.access, refresh);
+    // Backend provides access_expires_in for the new access token
+    setTokens(data.access, refresh, data.access_expires_in);
     return data.access;
   }, []);
 
@@ -129,5 +169,6 @@ export const useAuthApi = () => {
     fetchWithAuth,
     getAccessToken,
     getRefreshToken,
+    refreshUserSession,
   };
 };

@@ -15,7 +15,7 @@ export interface NuevoUsuarioConPassword {
   last_name: string;
   is_active: boolean;
   telefono?: string;
-  rol: number | undefined;
+  groups: number[];
 }
 
 export interface NuevoUsuario {

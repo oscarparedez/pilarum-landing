@@ -22,6 +22,7 @@ export interface AuthContextType extends State {
   signIn: (username: string, password: string) => Promise<void>;
   signUp: (username: string, name: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -30,4 +31,5 @@ export const AuthContext = createContext<AuthContextType>({
   signIn: () => Promise.resolve(),
   signUp: () => Promise.resolve(),
   signOut: () => Promise.resolve(),
+  isLoading: false,
 });
