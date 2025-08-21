@@ -22,12 +22,13 @@ import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtr
 import { NextPage } from 'next';
 import toast from 'react-hot-toast';
 
-import { useSociosApi, Socio } from 'src/api/socios/useSociosApi';
+import { useSociosApi } from 'src/api/socios/useSociosApi';
 import { ModalCrearSocio } from './crear-socio-modal';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { ModalEditarSocio } from './editar-socio-modal';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from '../roles/permissions';
+import { NuevoSocio, Socio } from 'src/api/types';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -60,7 +61,7 @@ const Page: NextPage = () => {
     setModalEditarOpen(true);
   };
 
-  const handleCrear = async (nuevo: Omit<Socio, 'id'>) => {
+  const handleCrear = async (nuevo: NuevoSocio) => {
     try {
       setLoading(true);
       await crearSocio(nuevo);
@@ -74,10 +75,10 @@ const Page: NextPage = () => {
     }
   };
 
-  const handleEditar = async (editado: Socio) => {
+  const handleEditar = async (id: number, editado: NuevoSocio) => {
     try {
       setLoading(true);
-      await actualizarSocio(editado.id, { nombre: editado.nombre, tipo: editado.tipo });
+      await actualizarSocio(id, editado);
       toast.success('Socio actualizado correctamente');
       fetchSocios();
       setModalEditarOpen(false);
@@ -133,6 +134,7 @@ const Page: NextPage = () => {
                     <TableRow>
                       <TableCell>Nombre</TableCell>
                       <TableCell>Tipo</TableCell>
+                      <TableCell>Usuario creador</TableCell>
                       {canEditSocios && <TableCell align="center">Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
@@ -144,6 +146,7 @@ const Page: NextPage = () => {
                       >
                         <TableCell>{socio.nombre}</TableCell>
                         <TableCell>{socio.tipo === 'interno' ? 'Interno' : 'Externo'}</TableCell>
+                        <TableCell>{socio.usuario_creador.first_name} {socio.usuario_creador.last_name}</TableCell>
                         {canEditSocios && (
                           <TableCell align="center">
                             <IconButton onClick={() => abrirModalEditar(socio)}>

@@ -24,6 +24,7 @@ import { formatearFecha } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from '../roles/permissions';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import { formatearQuetzales } from 'src/utils/format-currency';
 
 export const HistorialOrdenesDeCompra = () => {
   const router = useRouter();
@@ -97,6 +98,7 @@ export const HistorialOrdenesDeCompra = () => {
                     <TableCell>Usuario creador</TableCell>
                     <TableCell>Número de factura</TableCell>
                     <TableCell>Total (Q)</TableCell>
+                    <TableCell>Usuario creador</TableCell>
                     {canViewDetalleOrdenCompra && (
                       <TableCell align="center">Ver detalles</TableCell>
                     )}
@@ -112,7 +114,8 @@ export const HistorialOrdenesDeCompra = () => {
                         {orden.usuario_creador.first_name} {orden.usuario_creador.last_name}
                       </TableCell>
                       <TableCell>{orden.numero_factura}</TableCell>
-                      <TableCell>Q{calcularTotal(orden.compras).toFixed(2)}</TableCell>
+                      <TableCell>{formatearQuetzales(calcularTotal(orden.compras))}</TableCell>
+                      <TableCell>{orden.usuario_creador.first_name} {orden.usuario_creador.last_name}</TableCell>
                       {canViewDetalleOrdenCompra && (
                         <TableCell align="center">
                           <IconButton

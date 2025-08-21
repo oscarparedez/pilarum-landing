@@ -1,11 +1,12 @@
 import { Box, Button, Modal, Stack, TextField, Card, CardHeader, Divider } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
+import { NuevoTipoIngreso, TipoIngreso } from 'src/api/types';
 
 interface ModalEditarTipoIngresoProps {
   open: boolean;
   onClose: () => void;
-  initialData: { id: number; nombre: string };
-  onConfirm: (data: { id: number; nombre: string }) => void;
+  initialData: TipoIngreso;
+  onConfirm: (id: number, data: NuevoTipoIngreso) => void;
 }
 
 export const ModalEditarTipoIngreso: FC<ModalEditarTipoIngresoProps> = ({
@@ -24,7 +25,7 @@ export const ModalEditarTipoIngreso: FC<ModalEditarTipoIngresoProps> = ({
 
   const handleSubmit = () => {
     if (!nombre.trim()) return;
-    onConfirm({ id: initialData.id, nombre: nombre.trim() });
+    onConfirm(initialData.id, { nombre: nombre.trim() });
     onClose();
   };
 

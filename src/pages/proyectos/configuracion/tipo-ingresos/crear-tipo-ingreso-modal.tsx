@@ -1,10 +1,11 @@
 import { Box, Button, Modal, Card, CardHeader, Divider, TextField, Stack } from '@mui/material';
 import { FC, useState } from 'react';
+import { NuevoTipoIngreso } from 'src/api/types';
 
 interface ModalCrearTipoIngresoProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (data: { nombre: string }) => void;
+  onConfirm: (data: NuevoTipoIngreso) => void;
 }
 
 export const ModalCrearTipoIngreso: FC<ModalCrearTipoIngresoProps> = ({

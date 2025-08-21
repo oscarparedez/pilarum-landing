@@ -3,36 +3,30 @@ import { API_BASE_URL } from 'src/config';
 
 export const useAuthApi = () => {
   // Helper function to get cookie value
-  const getCookie = (name: string): string | null => {
+  const getCookie = useCallback((name: string): string | null => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
     return null;
-  };
+  }, []);
 
-  const getAccessToken = () => getCookie('accessToken');
-  const getRefreshToken = () => getCookie('refreshToken');
+  const getAccessToken = useCallback(() => getCookie('accessToken'), [getCookie]);
+  const getRefreshToken = useCallback(() => getCookie('refreshToken'), [getCookie]);
 
-  const setTokens = (
-    access: string,
-    refresh: string,
-    accessExpiresIn?: number,
-    refreshExpiresIn?: number
-  ) => {
-    // Use backend-provided expiration times, or fallback to defaults
-    const accessMaxAge = accessExpiresIn || 15 * 60; // 15 minutes default
-    const refreshMaxAge = refreshExpiresIn || 7 * 24 * 60 * 60; // 7 days default
+  const setTokens = useCallback(
+    (access: string, refresh: string, accessExpiresIn?: number, refreshExpiresIn?: number) => {
+      const accessMaxAge = accessExpiresIn || 15 * 60; // 15 min
+      const refreshMaxAge = refreshExpiresIn || 7 * 24 * 60 * 60; // 7 días
+      document.cookie = `accessToken=${access}; Path=/; Secure; SameSite=Strict; Max-Age=${accessMaxAge}`;
+      document.cookie = `refreshToken=${refresh}; Path=/; Secure; SameSite=Strict; Max-Age=${refreshMaxAge}`;
+    },
+    []
+  );
 
-    // Use cookies as single source of truth
-    document.cookie = `accessToken=${access}; Path=/; Secure; SameSite=Strict; Max-Age=${accessMaxAge}`;
-    document.cookie = `refreshToken=${refresh}; Path=/; Secure; SameSite=Strict; Max-Age=${refreshMaxAge}`;
-  };
-
-  const clearTokens = () => {
-    // Clear cookies only (single source of truth)
+  const clearTokens = useCallback(() => {
     document.cookie = 'accessToken=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'refreshToken=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  };
+  }, []);
 
   // New function: refresh token and fetch user info
   const refreshUserSession = async () => {
@@ -51,25 +45,28 @@ export const useAuthApi = () => {
     }
   };
 
-  const signIn = useCallback(async (username: string, password: string) => {
-    const res = await fetch(`${API_BASE_URL}/token/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
+  const signIn = useCallback(
+    async (username: string, password: string) => {
+      const res = await fetch(`${API_BASE_URL}/token/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!res.ok) throw new Error('Credenciales inválidas');
+      if (!res.ok) throw new Error('Credenciales inválidas');
 
-    const data = await res.json();
-    // Pass expiration times if backend provides them
-    setTokens(
-      data.access,
-      data.refresh,
-      data.access_expires_in, // Backend should provide this
-      data.refresh_expires_in // Backend should provide this
-    );
-    return data;
-  }, []);
+      const data = await res.json();
+      // Pass expiration times if backend provides them
+      setTokens(
+        data.access,
+        data.refresh,
+        data.access_expires_in, // Backend should provide this
+        data.refresh_expires_in // Backend should provide this
+      );
+      return data;
+    },
+    [setTokens]
+  );
 
   const signUp = useCallback(async (username: string, name: string, password: string) => {
     // const res = await fetch(`${API_BASE_URL}/register/`, {
@@ -105,7 +102,7 @@ export const useAuthApi = () => {
     // Backend provides access_expires_in for the new access token
     setTokens(data.access, refresh, data.access_expires_in);
     return data.access;
-  }, []);
+  }, [getRefreshToken, setTokens]);
 
   const me = useCallback(async () => {
     const access = getAccessToken();
@@ -127,11 +124,11 @@ export const useAuthApi = () => {
 
     if (!res.ok) throw new Error('No autorizado');
     return await res.json();
-  }, [refreshAccessToken]);
+  }, [refreshAccessToken, getAccessToken]);
 
   const signOut = useCallback(() => {
     clearTokens();
-  }, []);
+  }, [clearTokens]);
 
   // Wrapper con refresh automático
   const fetchWithAuth = useCallback(
@@ -158,7 +155,7 @@ export const useAuthApi = () => {
 
       return res;
     },
-    [refreshAccessToken]
+    [refreshAccessToken, getAccessToken]
   );
 
   return {

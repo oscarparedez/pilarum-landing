@@ -3,16 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
-import {
-  Box,
-  Button,
-  Container,
-  Stack,
-  SvgIcon,
-  Typography,
-  Divider,
-  alpha,
-} from '@mui/material';
+import { Box, Button, Container, Stack, SvgIcon, Typography, Divider, alpha } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { Seo } from 'src/components/seo';
@@ -92,9 +83,16 @@ const Page: NextPage = () => {
     <>
       {loading && <FullPageLoader />}
       <Seo title="Roles y Permisos" />
-      <Box component="main" sx={{ flexGrow: 1, py: 8 }}>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, py: 8 }}
+      >
         <Container maxWidth={settings.stretch ? false : 'xl'}>
-          <Grid container disableEqualOverflow spacing={{ xs: 3, lg: 4 }}>
+          <Grid
+            container
+            disableEqualOverflow
+            spacing={{ xs: 3, lg: 4 }}
+          >
             {/* Header */}
             <Grid xs={12}>
               <Stack
@@ -125,14 +123,23 @@ const Page: NextPage = () => {
             {roles.length === 0 ? (
               <Grid xs={12}>
                 <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                  <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    gutterBottom
+                  >
                     No hay roles creados
                   </Typography>
                 </Box>
               </Grid>
             ) : (
               roles.map((rol) => (
-                <Grid key={rol.id} xs={12} md={6} lg={4}>
+                <Grid
+                  key={rol.id}
+                  xs={12}
+                  md={6}
+                  lg={4}
+                >
                   <Box
                     sx={{
                       border: '2px solid',
@@ -152,7 +159,10 @@ const Page: NextPage = () => {
                       },
                     }}
                   >
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 600 }}
+                    >
                       {rol.name}
                     </Typography>
 

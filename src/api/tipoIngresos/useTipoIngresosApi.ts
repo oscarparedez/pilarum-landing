@@ -1,11 +1,7 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-
-export interface TipoIngreso {
-  id: number;
-  nombre: string;
-}
+import { NuevoTipoIngreso, TipoIngreso } from '../types';
 
 export const useTiposIngresoApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -20,7 +16,7 @@ export const useTiposIngresoApi = () => {
   }, [fetchWithAuth]);
 
   const crearTipoIngreso = useCallback(
-    async (data: Omit<TipoIngreso, 'id'>): Promise<TipoIngreso> => {
+    async (data: NuevoTipoIngreso): Promise<TipoIngreso> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/tipoIngresos/`, {
         method: 'POST',
         headers: {
@@ -36,7 +32,7 @@ export const useTiposIngresoApi = () => {
   );
 
   const actualizarTipoIngreso = useCallback(
-    async (id: number, data: Omit<TipoIngreso, 'id'>): Promise<TipoIngreso> => {
+    async (id: number, data: NuevoTipoIngreso): Promise<TipoIngreso> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/tipoIngresos/${id}/`, {
         method: 'PUT',
         headers: {
@@ -51,13 +47,16 @@ export const useTiposIngresoApi = () => {
     [fetchWithAuth]
   );
 
-  const eliminarTipoIngreso = useCallback(async (id: number): Promise<void> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/tipoIngresos/${id}/`, {
-      method: 'DELETE',
-    });
+  const eliminarTipoIngreso = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/tipoIngresos/${id}/`, {
+        method: 'DELETE',
+      });
 
-    if (!res.ok) throw new Error('Error al eliminar tipo de ingreso');
-  }, [fetchWithAuth]);
+      if (!res.ok) throw new Error('Error al eliminar tipo de ingreso');
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getTiposIngreso,

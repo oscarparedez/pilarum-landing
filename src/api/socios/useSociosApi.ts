@@ -1,12 +1,7 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-
-export interface Socio {
-  id: number;
-  nombre: string;
-  tipo: 'interno' | 'externo';
-}
+import { NuevoSocio, Socio } from '../types';
 
 export const useSociosApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -42,7 +37,7 @@ export const useSociosApi = () => {
   }, [fetchWithAuth]);
 
   const crearSocio = useCallback(
-    async (socio: Omit<Socio, 'id'>): Promise<Socio> => {
+    async (socio: NuevoSocio): Promise<Socio> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/socios/`, {
         method: 'POST',
         headers: {
@@ -58,7 +53,7 @@ export const useSociosApi = () => {
   );
 
   const actualizarSocio = useCallback(
-    async (id: number, socio: Omit<Socio, 'id'>): Promise<Socio> => {
+    async (id: number, socio: NuevoSocio): Promise<Socio> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/socios/${id}/`, {
         method: 'PUT',
         headers: {

@@ -22,46 +22,56 @@ import { formatearQuetzales } from 'src/utils/format-currency';
 import { useIngresosGeneralesApi } from 'src/api/ingresosGenerales/useIngresosGeneralesApi';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { formatearFecha } from 'src/utils/format-date';
-import { IngresoGeneral, Socio } from 'src/api/types';
+import { IngresoGeneral, Socio, TipoIngreso } from 'src/api/types';
 import { useSociosApi } from 'src/api/socios/useSociosApi';
 import toast from 'react-hot-toast';
+import { useTiposIngresoApi } from 'src/api/tipoIngresos/useTipoIngresosApi';
 
 const Page: NextPage = () => {
   const router = useRouter();
   const { getSociosInternos } = useSociosApi();
   const { getIngresosGenerales } = useIngresosGeneralesApi();
+  const { getTiposIngreso } = useTiposIngresoApi();
 
   const [ingresos, setIngresos] = useState<IngresoGeneral[]>([]);
   const [socios, setSocios] = useState<Socio[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tiposIngreso, setTiposIngreso] = useState<TipoIngreso[]>([]);
 
   const [filtros, setFiltros] = useState<{
     search: string;
     fechaInicio?: Date | null;
     fechaFin?: Date | null;
     empresa?: string;
+    tipoIngresoId?: number;
   }>({
     search: '',
     fechaInicio: null,
     fechaFin: null,
     empresa: '',
+    tipoIngresoId: undefined,
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ingresosData, sociosData] = await Promise.all([getIngresosGenerales(), getSociosInternos()]);
+        const [ingresosData, sociosData, tipoIngresosData] = await Promise.all([
+          getIngresosGenerales(),
+          getSociosInternos(),
+          getTiposIngreso(),
+        ]);
         setIngresos(ingresosData);
         setSocios(sociosData);
+        setTiposIngreso(tipoIngresosData);
       } catch (err) {
-        toast.error('Error al cargar ingresos generales o socios');
+        toast.error('Error al cargar ingresos generales, socios o tipos de ingreso');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [getIngresosGenerales, getSociosInternos]);
+  }, [getIngresosGenerales, getSociosInternos, getTiposIngreso]);
 
   const ingresosFiltrados = useMemo(() => {
     return aplicarFiltros(ingresos, filtros, {
@@ -76,6 +86,7 @@ const Page: NextPage = () => {
       ],
       campoFecha: 'fecha_ingreso',
       campoEmpresa: 'proyecto.socio_asignado.nombre',
+      campoTipoIngresoId: 'tipo_ingreso.id',
     });
   }, [ingresos, filtros]);
 
@@ -99,6 +110,8 @@ const Page: NextPage = () => {
             filtrosRol={false}
             filtrosEmpresa={true}
             empresas={socios}
+            filtrosTipoIngreso={true}
+            tiposIngreso={tiposIngreso}
           >
             {(currentPage) => (
               <TableContainer

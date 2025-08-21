@@ -3,7 +3,8 @@ import { es } from 'date-fns/locale';
 
 export const formatearFecha = (fecha: string | Date) => {
   const fechaLocal = typeof fecha === 'string' ? formatearFechaLocal(fecha) : fecha;
-  return format(fechaLocal, 'dd LLL yyyy').toUpperCase();
+  // Usar locale: es para español
+  return format(fechaLocal, 'dd LLL yyyy', { locale: es }).toUpperCase();
 };
 
 export const formatearFechaLocal = (dateString: string): Date => {

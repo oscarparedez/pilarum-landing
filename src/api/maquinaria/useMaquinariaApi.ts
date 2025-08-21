@@ -3,7 +3,7 @@ import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { calcularTotalCombustibleUltimoMes, calcularTotalServicios } from './utils';
 import { ConfigMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
-import { GastoOperativo, Maquinaria, NuevaMaquinaria, NuevoGastoOperativo } from '../types';
+import { GastoOperativo, Maquinaria, MaquinariaConfig, NuevaMaquinaria, NuevoGastoOperativo } from '../types';
 import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
 
 export const useMaquinariasApi = () => {
@@ -19,6 +19,27 @@ export const useMaquinariasApi = () => {
     if (!res.ok) throw new Error('Error al obtener maquinarias');
     return await res.json();
   }, [fetchWithAuth]);
+
+  const getMaquinariasConAsignaciones = useCallback(
+    async (): Promise<MaquinariaConfig[]> => {
+      const maquinarias = await getMaquinarias();
+
+      const enriched = await Promise.all(
+        maquinarias.map(async (m) => {
+          try {
+            const asignaciones = await getAsignacionesPorMaquinaria(m.id);
+            return { ...m, asignaciones } as MaquinariaConfig;
+          } catch {
+            // Si falla una maquinaria, devolvemos su objeto con asignaciones vacías
+            return { ...m, asignaciones: [] } as MaquinariaConfig;
+          }
+        })
+      );
+
+      return enriched;
+    },
+    [getMaquinarias, getAsignacionesPorMaquinaria]
+  );
 
   const getMaquinariaById = useCallback(
     async (id: number): Promise<Maquinaria> => {
@@ -177,6 +198,7 @@ export const useMaquinariasApi = () => {
   return {
     // 📦 Maquinaria
     getMaquinarias,
+    getMaquinariasConAsignaciones,
     getMaquinariaById,
     crearMaquinaria,
     actualizarMaquinaria,

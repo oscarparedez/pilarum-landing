@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useCallback, useMemo } from 'react';
 import {
   Box,
   Modal,
@@ -15,11 +15,14 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+import PersonIcon from '@mui/icons-material/PersonOutline';
+import NotesIcon from '@mui/icons-material/NotesOutlined';
 
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarAmpliacionFecha } from './editar-ampliacion-fecha-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 import { formatearFecha } from 'src/utils/format-date';
+import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
@@ -48,6 +51,23 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [eliminando, setEliminando] = useState<Ampliacion | null>(null);
+
+  const [filtros, setFiltros] = useState<{
+    search: string;
+    fechaInicio?: Date | null;
+    fechaFin?: Date | null;
+  }>({ search: '' });
+
+  const handleFiltrar = useCallback((f: typeof filtros) => {
+    setFiltros(f);
+  }, []);
+
+  const ampliacionesFiltradas = useMemo(() => {
+    return aplicarFiltros(ampliaciones, filtros, {
+      camposTexto: ['usuario.first_name', 'usuario.last_name', 'motivo'],
+      campoFecha: 'fecha',
+    });
+  }, [ampliaciones, filtros]);
 
   const canEditAmpliacionesFecha = useHasPermission(PermissionId.EDITAR_AMPLIACION_FECHA_FIN);
   const canEliminarAmpliacionesFecha = useHasPermission(PermissionId.ELIMINAR_AMPLIACION_FECHA_FIN);
@@ -95,13 +115,13 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
             <CardHeader title="Historial de ampliaciones de fecha" />
             <Divider />
             <TablaPaginadaConFiltros
-              onFiltrar={() => {}}
-              totalItems={ampliaciones.length}
+              totalItems={ampliacionesFiltradas.length}
+              onFiltrar={handleFiltrar}
             >
               {(currentPage) => (
                 <Table>
                   <TableBody>
-                    {ampliaciones
+                    {ampliacionesFiltradas
                       .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((item, index) => {
                         const fechaFormatted = formatearFecha(item.fecha);
@@ -121,15 +141,35 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
                               </Box>
                             </TableCell>
                             <TableCell>
-                              <Typography variant="subtitle2">
-                                {nombreUsuario(item.usuario)}
-                              </Typography>
-                              <Typography
-                                color="text.secondary"
-                                variant="body2"
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
                               >
-                                {item.motivo}
-                              </Typography>
+                                <PersonIcon
+                                  fontSize="small"
+                                  color="action"
+                                />
+                                <Typography variant="subtitle2">
+                                  Usuario creador: {nombreUsuario(item.usuario)}
+                                </Typography>
+                              </Stack>
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                              >
+                                <NotesIcon
+                                  fontSize="small"
+                                  color="action"
+                                />
+                                <Typography
+                                  color="text.secondary"
+                                  variant="body2"
+                                >
+                                  Motivo: {item.motivo}
+                                </Typography>
+                              </Stack>
                             </TableCell>
                             <TableCell align="right">
                               <Stack

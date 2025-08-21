@@ -168,23 +168,41 @@ export const ModalListaCostos: FC<ModalListaCostosProps> = ({
                         </TableCell>
 
                         <TableCell>
-                          <Typography variant="subtitle2">
-                            {costo.usuario_registro.first_name} {costo.usuario_registro.last_name}
-                          </Typography>
-                          <Typography
-                            color="text.secondary"
-                            variant="body2"
-                          >
-                            {costo.tipo_pago.nombre} – {formatTipoDocumento(costo.tipo_documento)}
-                          </Typography>
-                          {costo.anotaciones && (
+                          <Stack spacing={0.5}>
+                            {/* Usuario creador */}
+                            <Typography variant="subtitle2">
+                              👤 <b>Usuario creador:</b> {costo.usuario_registro.first_name}{' '}
+                              {costo.usuario_registro.last_name}
+                            </Typography>
+
+                            {/* Tipo de pago */}
                             <Typography
                               color="text.secondary"
                               variant="body2"
                             >
-                              {costo.anotaciones}
+                              💳 <b>Tipo de pago:</b> {costo.tipo_pago.nombre}
                             </Typography>
-                          )}
+
+                            {/* Tipo de documento + correlativo */}
+                            <Typography
+                              color="text.secondary"
+                              variant="body2"
+                            >
+                              📄 <b>Tipo de documento:</b>{' '}
+                              {formatTipoDocumento(costo.tipo_documento)}{' '}
+                              {costo.correlativo ? `(${costo.correlativo})` : ''}
+                            </Typography>
+
+                            {/* Anotaciones */}
+                            {costo.anotaciones && (
+                              <Typography
+                                color="text.secondary"
+                                variant="body2"
+                              >
+                                📝 <b>Anotaciones:</b> {costo.anotaciones}
+                              </Typography>
+                            )}
+                          </Stack>
                         </TableCell>
 
                         <TableCell align="right">

@@ -67,7 +67,6 @@ const Page: NextPage = () => {
     }
   };
 
-
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -77,31 +76,34 @@ const Page: NextPage = () => {
   return (
     <>
       <Seo title="Iniciar Sesión | Pilarum" />
-      <Fade in timeout={600}>
-        <Card 
+      <Fade
+        in
+        timeout={600}
+      >
+        <Card
           elevation={0}
           sx={{
-            background: theme => theme.palette.background.paper,
-            border: theme => `1px solid ${theme.palette.divider}`,
+            background: (theme) => theme.palette.background.paper,
+            border: (theme) => `1px solid ${theme.palette.divider}`,
             borderRadius: 2,
             overflow: 'hidden',
             position: 'relative',
           }}
         >
           {formik.isSubmitting && (
-            <LinearProgress 
-              sx={{ 
+            <LinearProgress
+              sx={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
                 zIndex: 1,
-              }} 
+              }}
             />
           )}
-          
+
           <CardHeader
-            sx={{ 
+            sx={{
               pb: 2,
               pt: 4,
               px: 4,
@@ -129,7 +131,7 @@ const Page: NextPage = () => {
               </Typography>
             }
           />
-          
+
           <CardContent sx={{ px: 4, pb: 4 }}>
             <form
               noValidate
@@ -138,22 +140,22 @@ const Page: NextPage = () => {
               <Stack spacing={3}>
                 {errorMessage && (
                   <Fade in>
-                    <Alert 
-                      severity="error" 
-                      sx={{ 
+                    <Alert
+                      severity="error"
+                      sx={{
                         borderRadius: 1.5,
-                        backgroundColor: theme => alpha(theme.palette.error.main, 0.05),
-                        border: theme => `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+                        backgroundColor: (theme) => alpha(theme.palette.error.main, 0.05),
+                        border: (theme) => `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
                         '& .MuiAlert-message': {
                           fontSize: '0.875rem',
-                        }
+                        },
                       }}
                     >
                       {errorMessage}
                     </Alert>
                   </Fade>
                 )}
-                
+
                 <TextField
                   autoFocus
                   error={!!(formik.touched.username && formik.errors.username)}
@@ -171,21 +173,21 @@ const Page: NextPage = () => {
                       transition: 'all 0.2s ease-in-out',
                       '&:hover': {
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: theme => theme.palette.neutral[400],
-                        }
+                          borderColor: (theme) => theme.palette.neutral[400],
+                        },
                       },
                       '&.Mui-focused': {
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: theme => theme.palette.primary.main,
-                        }
-                      }
+                          borderColor: (theme) => theme.palette.primary.main,
+                        },
+                      },
                     },
                     '& .MuiInputLabel-root': {
                       fontWeight: 500,
-                    }
+                    },
                   }}
                 />
-                
+
                 <TextField
                   error={!!(formik.touched.password && formik.errors.password)}
                   fullWidth
@@ -205,10 +207,10 @@ const Page: NextPage = () => {
                           edge="end"
                           disabled={formik.isSubmitting}
                           sx={{
-                            color: theme => theme.palette.neutral[500],
+                            color: (theme) => theme.palette.neutral[500],
                             '&:hover': {
-                              color: theme => theme.palette.neutral[700],
-                            }
+                              color: (theme) => theme.palette.neutral[700],
+                            },
                           }}
                         >
                           {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
@@ -222,21 +224,21 @@ const Page: NextPage = () => {
                       transition: 'all 0.2s ease-in-out',
                       '&:hover': {
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: theme => theme.palette.neutral[400],
-                        }
+                          borderColor: (theme) => theme.palette.neutral[400],
+                        },
                       },
                       '&.Mui-focused': {
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: theme => theme.palette.primary.main,
-                        }
-                      }
+                          borderColor: (theme) => theme.palette.primary.main,
+                        },
+                      },
                     },
                     '& .MuiInputLabel-root': {
                       fontWeight: 500,
-                    }
+                    },
                   }}
                 />
-                
+
                 <Button
                   fullWidth
                   size="large"
@@ -251,20 +253,20 @@ const Page: NextPage = () => {
                     fontSize: '0.95rem',
                     fontWeight: 600,
                     textTransform: 'none',
-                    backgroundColor: theme => theme.palette.primary.main,
+                    backgroundColor: (theme) => theme.palette.primary.main,
                     transition: 'all 0.2s ease-in-out',
                     '&:hover': {
-                      backgroundColor: theme => theme.palette.primary.dark,
+                      backgroundColor: (theme) => theme.palette.primary.dark,
                       transform: 'translateY(-1px)',
-                      boxShadow: theme => `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                      boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
                     },
                     '&:active': {
                       transform: 'translateY(0)',
                     },
                     '&.Mui-disabled': {
-                      backgroundColor: theme => theme.palette.neutral[200],
-                      color: theme => theme.palette.neutral[500],
-                    }
+                      backgroundColor: (theme) => theme.palette.neutral[200],
+                      color: (theme) => theme.palette.neutral[500],
+                    },
                   }}
                 >
                   {formik.isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión'}

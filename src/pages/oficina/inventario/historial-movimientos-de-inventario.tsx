@@ -103,6 +103,7 @@ export const HistorialTrasladosInventario = () => {
                       <TableCell>Fecha de orden de movimiento</TableCell>
                       <TableCell>Tipo</TableCell>
                       <TableCell>Proyecto</TableCell>
+                      <TableCell>Usuario creador</TableCell>
                       <TableCell align="center">Ver detalles</TableCell>
                     </TableRow>
                   </TableHead>
@@ -113,7 +114,7 @@ export const HistorialTrasladosInventario = () => {
                         <TableCell>{formatearFecha(orden.fecha_movimiento)}</TableCell>
                         <TableCell>{mapTipoMovimiento(orden.tipo_movimiento)}</TableCell>
                         <TableCell>{orden.proyecto.nombre}</TableCell>
-
+                        <TableCell>{orden.usuario_creador.first_name} {orden.usuario_creador.last_name}</TableCell>
                         <TableCell align="center">
                           <IconButton
                             onClick={() =>

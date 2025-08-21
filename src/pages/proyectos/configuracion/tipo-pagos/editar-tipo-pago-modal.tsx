@@ -1,11 +1,12 @@
 import { Box, Button, Modal, Stack, TextField, Card, CardHeader, Divider } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
+import { NuevoTipoCosto, TipoCosto } from 'src/api/types';
 
 export const ModalEditarTipoPago: FC<{
   open: boolean;
   onClose: () => void;
-  initialData: { id: number; nombre: string };
-  onConfirm: (data: { id: number; nombre: string }) => void;
+  initialData: TipoCosto;
+  onConfirm: (id: number, data: NuevoTipoCosto) => void;
 }> = ({ open, onClose, initialData, onConfirm }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
 
@@ -15,7 +16,7 @@ export const ModalEditarTipoPago: FC<{
 
   const handleSubmit = () => {
     if (!nombre.trim()) return;
-    onConfirm({ id: initialData.id, nombre: nombre.trim() });
+    onConfirm(initialData.id, { nombre: nombre.trim() });
     onClose();
   };
 

@@ -25,10 +25,11 @@ import toast from 'react-hot-toast';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { ModalCrearTipoIngreso } from './crear-tipo-ingreso-modal';
 import { ModalEditarTipoIngreso } from './editar-tipo-ingreso-modal';
-import { TipoIngreso } from './index.d';
 import { useTiposIngresoApi } from 'src/api/tipoIngresos/useTipoIngresosApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { NuevoTipoIngreso, TipoIngreso } from 'src/api/types';
+import { formatearFecha } from 'src/utils/format-date';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -38,7 +39,7 @@ const Page: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
-  const canCreateTipoIngreso = useHasPermission(PermissionId.CREAR_TIPO_INGRESO)
+  const canCreateTipoIngreso = useHasPermission(PermissionId.CREAR_TIPO_INGRESO);
   const canEditTipoIngreso = useHasPermission(PermissionId.EDITAR_TIPO_INGRESO);
 
   const { getTiposIngreso, crearTipoIngreso, actualizarTipoIngreso } = useTiposIngresoApi();
@@ -61,7 +62,7 @@ const Page: NextPage = () => {
     setModalEditarOpen(true);
   };
 
-  const handleCrear = async (nuevo: Omit<TipoIngreso, 'id'>) => {
+  const handleCrear = async (nuevo: NuevoTipoIngreso) => {
     try {
       setLoading(true);
       await crearTipoIngreso(nuevo);
@@ -75,10 +76,10 @@ const Page: NextPage = () => {
     }
   };
 
-  const handleEditar = async (editado: TipoIngreso) => {
+  const handleEditar = async (id: number, editado: NuevoTipoIngreso) => {
     try {
       setLoading(true);
-      await actualizarTipoIngreso(editado.id, { nombre: editado.nombre });
+      await actualizarTipoIngreso(id, editado);
       toast.success('Tipo de ingreso actualizado correctamente');
       fetchTiposIngreso();
       setModalEditarOpen(false);
@@ -100,13 +101,15 @@ const Page: NextPage = () => {
           sx={{ px: 3, py: 3 }}
         >
           <Typography variant="h5">Tipos de ingreso</Typography>
-          {canCreateTipoIngreso && <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setModalCrearOpen(true)}
-          >
-            Crear tipo de ingreso
-          </Button>}
+          {canCreateTipoIngreso && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setModalCrearOpen(true)}
+            >
+              Crear tipo de ingreso
+            </Button>
+          )}
         </Stack>
 
         <TablaPaginadaConFiltros
@@ -130,7 +133,9 @@ const Page: NextPage = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
+                      <TableCell>Fecha creación</TableCell>
                       <TableCell>Nombre</TableCell>
+                      <TableCell>Usuario creador</TableCell>
                       <TableCell align="center">Acciones</TableCell>
                     </TableRow>
                   </TableHead>
@@ -140,14 +145,20 @@ const Page: NextPage = () => {
                         key={tipo.id}
                         hover
                       >
+                        <TableCell>{formatearFecha(tipo.fecha_creacion)}</TableCell>
                         <TableCell>{tipo.nombre}</TableCell>
-                        { canEditTipoIngreso && <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(tipo)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>}
+                        <TableCell>
+                          {tipo.usuario_creador.first_name} {tipo.usuario_creador.last_name}
+                        </TableCell>
+                        {canEditTipoIngreso && (
+                          <TableCell align="center">
+                            <IconButton onClick={() => abrirModalEditar(tipo)}>
+                              <SvgIcon>
+                                <EditIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

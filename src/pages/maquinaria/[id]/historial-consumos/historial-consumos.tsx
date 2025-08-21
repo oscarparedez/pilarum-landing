@@ -133,6 +133,7 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
                       <TableCell>Fecha de consumo</TableCell>
                       <TableCell>Costo</TableCell>
                       <TableCell>Anotaciones</TableCell>
+                      <TableCell>Usuario creador</TableCell>
                       {(canEditarConsumo || canEliminarConsumo) && <TableCell>Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
@@ -146,6 +147,9 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
                         <TableCell>{formatearFechaHora(c.fecha_gasto)}</TableCell>
                         <TableCell>Q{c.costo.toLocaleString()}</TableCell>
                         <TableCell>{c.descripcion}</TableCell>
+                        <TableCell>
+                          {c.usuario_creador.first_name} {c.usuario_creador.last_name}
+                        </TableCell>
                         <TableCell>
                           <IconButton
                             onClick={() => c.fotos && abrirModal(c.fotos.map((f) => f.imagen))}

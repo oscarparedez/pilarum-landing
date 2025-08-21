@@ -133,7 +133,10 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
                       <TableCell>Fecha de servicio</TableCell>
                       <TableCell>Costo</TableCell>
                       <TableCell>Anotaciones</TableCell>
-                      {(canEliminarServicios || canEliminarServicios) && <TableCell>Acciones</TableCell>}
+                      <TableCell>Usuario creador</TableCell>
+                      {(canEliminarServicios || canEliminarServicios) && (
+                        <TableCell>Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -146,6 +149,9 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
                         <TableCell>{formatearFechaHora(s.fecha_gasto)}</TableCell>
                         <TableCell>Q{s.costo.toLocaleString()}</TableCell>
                         <TableCell>{s.descripcion}</TableCell>
+                        <TableCell>
+                          {s.usuario_creador.first_name} {s.usuario_creador.last_name}
+                        </TableCell>
                         <TableCell>
                           <IconButton
                             onClick={() => s.fotos && abrirModal(s.fotos.map((f) => f.imagen))}

@@ -12,12 +12,13 @@ import {
   Typography,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
+import { NuevoSocio, Socio } from 'src/api/types';
 
 interface ModalEditarSocioProps {
   open: boolean;
   onClose: () => void;
-  initialData: { id: number; nombre: string; tipo: 'interno' | 'externo' };
-  onConfirm: (data: { id: number; nombre: string; tipo: 'interno' | 'externo' }) => void;
+  initialData: Socio;
+  onConfirm: (id: number, data: NuevoSocio) => void;
 }
 
 export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
@@ -38,7 +39,7 @@ export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
 
   const handleSubmit = () => {
     if (!nombre.trim()) return;
-    onConfirm({ id: initialData.id, nombre: nombre.trim(), tipo });
+    onConfirm(initialData.id, { nombre, tipo });
     onClose();
   };
 

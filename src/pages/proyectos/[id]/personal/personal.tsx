@@ -180,6 +180,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                       <TableCell>Fin</TableCell>
                       <TableCell>Estado</TableCell>
                       <TableCell>Días</TableCell>
+                      <TableCell>Usuario creador</TableCell>
                       {(canEditAsignacionPersonal || canLiberarAsignacionPersonal) && (
                         <TableCell>Acciones</TableCell>
                       )}
@@ -204,6 +205,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                             <TableCell>{formatearFechaHora(item.fecha_fin)}</TableCell>
                             <TableCell>{item.estado}</TableCell>
                             <TableCell>{item.dias_asignados.join(', ')}</TableCell>
+                            <TableCell>{item.usuario_creador.first_name} {item.usuario_creador.last_name}</TableCell>
                             <TableCell>
                               <Stack
                                 direction="row"

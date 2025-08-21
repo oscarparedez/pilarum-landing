@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
-import FilterIcon from '@untitled-ui/icons-react/build/esm/FilterFunnel01'; // 👈 un icono tipo filtro
+import FilterIcon from '@untitled-ui/icons-react/build/esm/FilterFunnel01';
 import {
   Box,
   Button,
@@ -27,21 +27,33 @@ import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from '../oficina/roles/permissions';
-import { NuevaMaquinaria } from 'src/api/types';
+import { MaquinariaConfig, NuevaMaquinaria } from 'src/api/types';
+import { formatearFecha } from 'src/utils/format-date';
 
-type Recurso = {
-  id: number;
-  tipo: 'maquinaria' | 'herramienta';
-  nombre: string;
-  identificador?: string;
-  costo: number;
-  asignaciones?:
-    | {
-        dias: string;
-        proyecto: string;
-        fechaFin: string;
-      }[]
-    | null;
+// Helpers simples para fecha
+const toMidnight = (d: Date) => {
+  const c = new Date(d);
+  c.setHours(0, 0, 0, 0);
+  return c;
+};
+
+const parseDateSafe = (s?: string) => {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : toMidnight(d);
+};
+
+const estaActivaHoy = (inicio?: string, fin?: string) => {
+  const hoy = toMidnight(new Date());
+  const dIni = parseDateSafe(inicio);
+  const dFin = parseDateSafe(fin);
+  if (!dIni || !dFin) return false;
+  return dIni.getTime() <= hoy.getTime() && hoy.getTime() <= dFin.getTime();
+};
+
+const formatDias = (dias?: string[] | string) => {
+  if (!dias) return '';
+  return Array.isArray(dias) ? dias.join(', ') : dias;
 };
 
 const Page: NextPage = () => {
@@ -51,28 +63,24 @@ const Page: NextPage = () => {
 
   const [tab, setTab] = useState<'todos' | 'maquinaria' | 'herramienta'>('todos');
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
-  const [recursos, setRecursos] = useState<Recurso[]>([]);
+  const [recursos, setRecursos] = useState<MaquinariaConfig[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { crearMaquinaria, getMaquinarias } = useMaquinariasApi();
+  const { crearMaquinaria, getMaquinariasConAsignaciones } = useMaquinariasApi();
   const canCreateMaquinaria = useHasPermission(PermissionId.CREAR_MAQUINARIA);
 
   const cargarRecursos = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getMaquinarias();
-      setRecursos(
-        data.map((item) => ({
-          ...item,
-          asignaciones: [],
-        }))
-      );
+      const data = await getMaquinariasConAsignaciones();
+      console.log('DATA MAQUINARIA CON ASIGNACIONES:', JSON.stringify(data, null, 2));
+      setRecursos(data as any);
     } catch (err) {
       console.error('Error al cargar recursos:', err);
     } finally {
       setLoading(false);
     }
-  }, [getMaquinarias]);
+  }, [getMaquinariasConAsignaciones]);
 
   useEffect(() => {
     cargarRecursos();
@@ -99,12 +107,7 @@ const Page: NextPage = () => {
     }
   };
 
-  const recursosFiltrados = recursos.filter((r) => (tab === 'todos' ? true : r.tipo === tab));
-
-  const formatFecha = (fecha: string) => {
-    const d = new Date(fecha);
-    return d.toLocaleDateString('es-GT');
-  };
+  const recursosFiltrados = recursos.filter((r: any) => (tab === 'todos' ? true : r.tipo === tab));
 
   return (
     <>
@@ -145,7 +148,7 @@ const Page: NextPage = () => {
               </Stack>
             </Grid>
 
-            {/* Filtro minimalista por tipo con icono */}
+            {/* Filtro minimalista por tipo */}
             <Grid xs={12}>
               <Stack
                 direction="row"
@@ -174,13 +177,9 @@ const Page: NextPage = () => {
                   label="Todos"
                   size="medium"
                   variant={tab === 'todos' ? 'filled' : 'outlined'}
-                  color="success" // verde como en tu screenshot
+                  color="success"
                   onClick={() => setTab('todos')}
-                  sx={{
-                    fontSize: '0.9rem', // 👈 más grande que el default (~0.75rem)
-                    fontWeight: tab === 'todos' ? 600 : 500,
-                    px: 1.5,
-                  }}
+                  sx={{ fontSize: '0.9rem', fontWeight: tab === 'todos' ? 600 : 500, px: 1.5 }}
                 />
                 <Chip
                   label="Maquinarias"
@@ -188,11 +187,7 @@ const Page: NextPage = () => {
                   variant={tab === 'maquinaria' ? 'filled' : 'outlined'}
                   color="success"
                   onClick={() => setTab('maquinaria')}
-                  sx={{
-                    fontSize: '0.9rem',
-                    fontWeight: tab === 'maquinaria' ? 600 : 500,
-                    px: 1.5,
-                  }}
+                  sx={{ fontSize: '0.9rem', fontWeight: tab === 'maquinaria' ? 600 : 500, px: 1.5 }}
                 />
                 <Chip
                   label="Herramientas"
@@ -222,7 +217,7 @@ const Page: NextPage = () => {
                 </Box>
               </Grid>
             ) : (
-              recursosFiltrados.map((recurso) => (
+              recursosFiltrados.map((recurso: any) => (
                 <Grid
                   key={recurso.id}
                   xs={12}
@@ -264,31 +259,71 @@ const Page: NextPage = () => {
                       </Typography>
                     )}
 
+                    {/* Asignaciones activas hoy */}
                     <Typography
                       variant="body2"
                       color="text.secondary"
                       sx={{ mt: 1 }}
                     >
-                      Asignaciones:
+                      Asignaciones activas:
                     </Typography>
-                    {!recurso?.asignaciones || recurso.asignaciones.length === 0 ? (
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        Sin asignaciones
-                      </Typography>
-                    ) : (
-                      recurso.asignaciones.map((a, index) => (
-                        <Typography
-                          key={index}
-                          variant="body2"
-                          color="text.secondary"
-                        >
-                          {a.dias}: {a.proyecto} (hasta {formatFecha(a.fechaFin)})
-                        </Typography>
-                      ))
-                    )}
+
+                    {(() => {
+                      const asignaciones = (recurso.asignaciones ?? []) as any[];
+                      const activas = asignaciones.filter((a) =>
+                        estaActivaHoy(a?.fecha_entrada, a?.fecha_fin)
+                      );
+
+                      if (activas.length === 0) {
+                        return (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                          >
+                            Sin asignaciones activas
+                          </Typography>
+                        );
+                      }
+
+                      return activas.map((a, index) => {
+                        const proyectoId = a?.proyecto?.id;
+                        const proyectoNombre = a?.proyecto?.nombre ?? 'Proyecto';
+                        const rango = `${formatearFecha(a?.fecha_entrada)} - ${formatearFecha(
+                          a?.fecha_fin
+                        )}`;
+                        const dias = a?.dias_asignados.join(', ');
+
+                        return (
+                          <Box
+                            key={index}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => {
+                              if (proyectoId) {
+                                router.push(paths.dashboard.proyectos.detalle(proyectoId));
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                if (proyectoId) {
+                                  router.push(paths.dashboard.proyectos.detalle(proyectoId));
+                                }
+                              }
+                            }}
+                            sx={{
+                              cursor: proyectoId ? 'pointer' : 'default',
+                              color: 'text.secondary',
+                              '&:hover': proyectoId ? { color: 'primary.main' } : undefined,
+                            }}
+                          >
+                            <Typography variant="body2">
+                              {dias}: {proyectoNombre} ({rango})
+                            </Typography>
+                          </Box>
+                        );
+                      });
+                    })()}
 
                     <Divider sx={{ my: 1 }} />
 

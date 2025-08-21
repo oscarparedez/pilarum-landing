@@ -72,8 +72,8 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
       disableScrollLock
       onClose={onClose}
       open={!!open}
-      PaperProps={{ 
-        sx: { 
+      PaperProps={{
+        sx: {
           width: 320,
           mt: 1.5,
           overflow: 'visible',
@@ -90,13 +90,17 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
             transform: 'translateY(-50%) rotate(45deg)',
             zIndex: 0,
           },
-        } 
+        },
       }}
       {...other}
     >
       {/* User Profile Section */}
       <Box sx={{ p: 3 }}>
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+        >
           <Avatar
             sx={{
               background: 'linear-gradient(135deg, #6b7280 0%, #374151 100%)',
@@ -110,27 +114,26 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
             {userInitials}
           </Avatar>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Typography 
-              variant="subtitle1" 
-              sx={{ 
+            <Typography
+              variant="subtitle1"
+              sx={{
                 fontWeight: 600,
                 fontSize: '1rem',
                 lineHeight: 1.3,
-                mb: 0.5
+                mb: 0.5,
               }}
             >
-              {user?.first_name && user?.last_name 
+              {user?.first_name && user?.last_name
                 ? `${user.first_name} ${user.last_name}`
-                : 'Usuario'
-              }
+                : 'Usuario'}
             </Typography>
-            <Typography 
-              variant="body2" 
+            <Typography
+              variant="body2"
               color="text.secondary"
-              sx={{ 
+              sx={{
                 fontSize: '0.875rem',
                 mb: 1,
-                wordBreak: 'break-word'
+                wordBreak: 'break-word',
               }}
             >
               @{user?.username || 'username'}
@@ -183,14 +186,14 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
             },
           }}
           startIcon={
-            <SvgIcon 
+            <SvgIcon
               fontSize="small"
-              sx={{ 
+              sx={{
                 color: 'inherit',
                 transition: 'transform 0.2s ease-in-out',
                 '.MuiButton-root:hover &': {
                   transform: 'translateX(2px)',
-                }
+                },
               }}
             >
               <LogOut01Icon />

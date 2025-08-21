@@ -26,15 +26,16 @@ import { FullPageLoader } from 'src/components/loader/Loader';
 import { ModalCrearTipoPago } from './crear-tipo-pago-modal';
 import { ModalEditarTipoPago } from './editar-tipo-pago-modal';
 import { useTiposPagoApi } from 'src/api/tipoPagos/useTipoPagosApi';
-import { TipoPago } from './index.d';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { formatearFecha } from 'src/utils/format-date';
+import { NuevoTipoCosto, TipoCosto } from 'src/api/types';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
-  const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoPago | null>(null);
-  const [tiposPago, setTiposPago] = useState<TipoPago[]>([]);
+  const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoCosto | null>(null);
+  const [tiposPago, setTiposPago] = useState<TipoCosto[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -56,12 +57,12 @@ const Page: NextPage = () => {
     fetchTiposPago();
   }, [fetchTiposPago]);
 
-  const abrirModalEditar = (tipo: TipoPago) => {
+  const abrirModalEditar = (tipo: TipoCosto) => {
     setTipoSeleccionado(tipo);
     setModalEditarOpen(true);
   };
 
-  const handleCrear = async (nuevo: Omit<TipoPago, 'id'>) => {
+  const handleCrear = async (nuevo: NuevoTipoCosto) => {
     try {
       setLoading(true);
       await crearTipoPago(nuevo);
@@ -75,10 +76,10 @@ const Page: NextPage = () => {
     }
   };
 
-  const handleEditar = async (editado: TipoPago) => {
+  const handleEditar = async (id: number, editado: NuevoTipoCosto) => {
     try {
       setLoading(true);
-      await actualizarTipoPago(editado.id, { nombre: editado.nombre });
+      await actualizarTipoPago(id, editado);
       toast.success('Tipo de pago actualizado correctamente');
       fetchTiposPago();
       setModalEditarOpen(false);
@@ -132,7 +133,9 @@ const Page: NextPage = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
+                      <TableCell>Fecha creación</TableCell>
                       <TableCell>Nombre</TableCell>
+                      <TableCell>Usuario creador</TableCell>
                       {canEditTipoPago && <TableCell align="center">Acciones</TableCell>}
                     </TableRow>
                   </TableHead>
@@ -142,7 +145,9 @@ const Page: NextPage = () => {
                         key={tipo.id}
                         hover
                       >
+                        <TableCell>{formatearFecha(tipo.fecha_creacion)}</TableCell>
                         <TableCell>{tipo.nombre}</TableCell>
+                        <TableCell>{tipo.usuario_creador.first_name} {tipo.usuario_creador.last_name}</TableCell>
                         {canEditTipoPago && (
                           <TableCell align="center">
                             <IconButton onClick={() => abrirModalEditar(tipo)}>

@@ -4,6 +4,8 @@ interface FiltroConfig {
   campoEstado?: string;
   campoEmpresa?: string;
   campoRol?: string;
+  campoTipoIngresoId?: string;
+  campoTipoOrigen?: string;
 }
 
 interface FiltrosGlobales {
@@ -12,6 +14,9 @@ interface FiltrosGlobales {
   fechaFin?: Date | null;
   estado?: 'Activo' | 'Inactivo' | 'Todos';
   empresa?: string;
+  rol?: string;
+  tipoIngresoId?: number;
+  tipoOrigen?: string;
 }
 
 export const aplicarFiltros = <T>(
@@ -63,6 +68,69 @@ export const aplicarFiltros = <T>(
       coincideEmpresa = empresaValor === filtros.empresa.toLowerCase();
     }
 
-    return coincideTexto && coincideFecha && coincideEstado && coincideEmpresa;
+    // 🧑‍💼 Rol
+    let coincideRol = true;
+    if (config.campoRol && filtros.rol && filtros.rol !== '') {
+      const raw = config.campoRol.split('.').reduce((acc, key) => (acc as any)?.[key], item as any);
+
+      // Normaliza el filtro recibido
+      const filtroStr = String(filtros.rol).toLowerCase().trim();
+      const filtroNum = Number.isNaN(Number(filtros.rol)) ? null : Number(filtros.rol);
+
+      if (Array.isArray(raw)) {
+        // raw === groups: [{ id, name, ... }]
+        coincideRol = raw.some((g) => {
+          const nameOk =
+            String(g?.name ?? '')
+              .toLowerCase()
+              .trim() === filtroStr;
+          const idOk = filtroNum !== null && g?.id === filtroNum;
+          return nameOk || idOk;
+        });
+      } else if (raw && typeof raw === 'object') {
+        // Por si fuera un solo objeto { id, name }
+        const nameOk =
+          String(raw?.name ?? '')
+            .toLowerCase()
+            .trim() === filtroStr;
+        const idOk = filtroNum !== null && raw?.id === filtroNum;
+        coincideRol = nameOk || idOk;
+      } else {
+        // Fallback si viniera un string
+        coincideRol =
+          String(raw ?? '')
+            .toLowerCase()
+            .trim() === filtroStr;
+      }
+    }
+
+    // 🏷️ Tipo de ingreso (por id)
+    let coincideTipoIngreso = true;
+    if (config.campoTipoIngresoId && filtros.tipoIngresoId) {
+      const raw = config.campoTipoIngresoId
+        .split('.')
+        .reduce((acc, key) => (acc as any)?.[key], item as any);
+      const idNum = Number(raw);
+      coincideTipoIngreso = Number.isFinite(idNum) && idNum === filtros.tipoIngresoId;
+    }
+
+    // 🧭 Tipo de origen (string exacto)
+    let coincideTipoOrigen = true;
+    if (config.campoTipoOrigen && filtros.tipoOrigen && filtros.tipoOrigen !== '') {
+      const valor = String(
+        config.campoTipoOrigen.split('.').reduce((acc, key) => (acc as any)?.[key], item as any) ?? ''
+      ).toLowerCase().trim();
+      coincideTipoOrigen = valor === filtros.tipoOrigen.toLowerCase().trim();
+    }
+
+    return (
+      coincideTexto &&
+      coincideFecha &&
+      coincideEstado &&
+      coincideEmpresa &&
+      coincideRol &&
+      coincideTipoIngreso &&
+      coincideTipoOrigen
+    );
   });
 };

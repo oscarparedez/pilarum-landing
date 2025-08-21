@@ -17,6 +17,7 @@ import {
   Typography,
   Paper,
   Tooltip,
+  MenuItem,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { useEffect, useState, useCallback, useMemo } from 'react';
@@ -25,7 +26,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { NextPage } from 'next';
 import { useMaterialesApi } from 'src/api/materiales/useMaterialesApi';
-import { Material, NuevaCompraMaterialForm, Proveedor } from 'src/api/types';
+import { Material, NuevaCompraMaterialForm, Proveedor, TipoDocumento } from 'src/api/types';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { useProveedoresApi } from 'src/api/proveedores/useProveedoresApi';
 import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
@@ -45,6 +46,8 @@ const Page: NextPage = () => {
   const [proveedor, setProveedor] = useState<Proveedor | null>(null);
   const [numeroFactura, setNumeroFactura] = useState('');
   const [fechaFactura, setFechaFactura] = useState<Date>(new Date());
+  const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento>('cheque');
+  const [anotaciones, setAnotaciones] = useState('');
 
   const [compras, setCompras] = useState<NuevaCompraMaterialForm[]>([]);
 
@@ -107,9 +110,10 @@ const Page: NextPage = () => {
       proveedor &&
       numeroFactura.trim() &&
       fechaFactura &&
+      tipoDocumento &&
       compras.length > 0 &&
       compras.every((c) => c.material && c.cantidad && c.precio_unitario),
-    [proveedor, numeroFactura, fechaFactura, compras]
+    [proveedor, numeroFactura, fechaFactura, compras, tipoDocumento]
   );
 
   const guardarOrdenCompra = useCallback(async () => {
@@ -120,6 +124,8 @@ const Page: NextPage = () => {
         fecha_factura: fechaFactura?.toISOString(),
         proveedor: proveedor!.id,
         numero_factura: numeroFactura,
+        tipo_documento: tipoDocumento,
+        anotaciones,
         compras: compras.map((c) => ({
           material: c.material!.id,
           cantidad: c.cantidad,
@@ -134,8 +140,8 @@ const Page: NextPage = () => {
       setNumeroFactura('');
       setFechaFactura(new Date());
       setCompras([]);
-
-      // Delay de 3 segundos antes de redirigir
+      setTipoDocumento('cheque');
+      setAnotaciones('');
       router.push('/oficina/inventario');
     } catch (error) {
       console.error(error);
@@ -143,7 +149,17 @@ const Page: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [formularioValido, fechaFactura, proveedor, numeroFactura, compras, router, crearOrdenCompra]);
+  }, [
+    formularioValido,
+    fechaFactura,
+    proveedor,
+    numeroFactura,
+    compras,
+    router,
+    anotaciones,
+    tipoDocumento,
+    crearOrdenCompra,
+  ]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -177,9 +193,9 @@ const Page: NextPage = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        {/* Proveedor y Número de factura */}
+        {/* Proveedor y Tipo de documento */}
         <Stack
-          direction="row"
+          direction={{ xs: 'column', sm: 'row' }}
           spacing={2}
           sx={{ mb: 3 }}
         >
@@ -197,12 +213,45 @@ const Page: NextPage = () => {
             )}
             sx={{ flex: 1 }}
           />
+
+          <TextField
+            label="Tipo de documento"
+            select
+            fullWidth
+            required
+            value={tipoDocumento}
+            onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
+            sx={{ flex: 1 }}
+          >
+            <MenuItem value="cheque">Cheque</MenuItem>
+            <MenuItem value="efectivo">Efectivo</MenuItem>
+            <MenuItem value="transferencia">Transferencia</MenuItem>
+          </TextField>
+        </Stack>
+
+        {/* Número de factura y Anotaciones */}
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{ mb: 3 }}
+        >
           <TextField
             label="Número de factura"
             value={numeroFactura}
             onChange={(e) => setNumeroFactura(e.target.value)}
-            sx={{ flex: 1 }}
             fullWidth
+            sx={{ flex: 1 }}
+          />
+
+          <TextField
+            label="Anotaciones"
+            value={anotaciones}
+            onChange={(e) => setAnotaciones(e.target.value)}
+            fullWidth
+            sx={{ flex: 1 }}
+            multiline
+            minRows={1}
+            maxRows={4}
           />
         </Stack>
 

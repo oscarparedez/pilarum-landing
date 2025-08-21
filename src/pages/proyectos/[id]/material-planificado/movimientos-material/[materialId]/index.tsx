@@ -12,17 +12,21 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  IconButton,
+  SvgIcon,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { InventarioConMovimientos } from 'src/api/types';
 import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
+import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import { paths } from 'src/paths';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -51,6 +55,13 @@ const Page: NextPage = () => {
 
     fetchInventario();
   }, [materialId, proyectoId, getMovimientosPorInventarioPorProyecto]);
+
+  const verMovimiento = useCallback(
+    (movimientoId: number) => {
+      router.push(paths.dashboard.oficina.movimiento_inventario(movimientoId));
+    },
+    [router]
+  );
 
   if (loading) {
     return (
@@ -99,6 +110,7 @@ const Page: NextPage = () => {
                 <TableCell>Cantidad</TableCell>
                 <TableCell>Proyecto</TableCell>
                 <TableCell>Fecha Movimiento</TableCell>
+                <TableCell align="center">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -112,6 +124,13 @@ const Page: NextPage = () => {
                     <TableCell>{mov.cantidad}</TableCell>
                     <TableCell>{mov.proyecto?.nombre ?? 'N/A'}</TableCell>
                     <TableCell>{formatearFecha(mov.fecha_movimiento)}</TableCell>
+                    <TableCell align="center">
+                      <IconButton onClick={() => verMovimiento(mov.orden_movimiento_id)}>
+                        <SvgIcon>
+                          <VisibilityIcon />
+                        </SvgIcon>
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

@@ -164,25 +164,41 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
                           </TableCell>
 
                           <TableCell>
-                            <Typography variant="subtitle2">
-                              {ingreso.usuario_registro.first_name}{' '}
-                              {ingreso.usuario_registro.last_name}
-                            </Typography>
-                            <Typography
-                              color="text.secondary"
-                              variant="body2"
-                            >
-                              {ingreso.tipo_ingreso.nombre} -{' '}
-                              {formatTipoDocumento(ingreso.tipo_documento)}
-                            </Typography>
-                            {ingreso.anotaciones && (
+                            <Stack spacing={0.5}>
+                              {/* Usuario creador */}
+                              <Typography variant="subtitle2">
+                                👤 <b>Usuario creador:</b> {ingreso.usuario_registro.first_name}{' '}
+                                {ingreso.usuario_registro.last_name}
+                              </Typography>
+
+                              {/* Tipo de ingreso */}
                               <Typography
                                 color="text.secondary"
                                 variant="body2"
                               >
-                                {ingreso.anotaciones}
+                                💰 <b>Tipo de ingreso:</b> {ingreso.tipo_ingreso.nombre}
                               </Typography>
-                            )}
+
+                              {/* Tipo de documento + correlativo */}
+                              <Typography
+                                color="text.secondary"
+                                variant="body2"
+                              >
+                                📄 <b>Tipo de documento:</b>{' '}
+                                {formatTipoDocumento(ingreso.tipo_documento)}{' '}
+                                {ingreso.correlativo ? `(${ingreso.correlativo})` : ''}
+                              </Typography>
+
+                              {/* Anotaciones */}
+                              {ingreso.anotaciones && (
+                                <Typography
+                                  color="text.secondary"
+                                  variant="body2"
+                                >
+                                  📝 <b>Anotaciones:</b> {ingreso.anotaciones}
+                                </Typography>
+                              )}
+                            </Stack>
                           </TableCell>
 
                           <TableCell align="right">

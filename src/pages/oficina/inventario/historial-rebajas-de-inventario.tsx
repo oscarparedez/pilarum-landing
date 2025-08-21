@@ -86,6 +86,7 @@ export const HistorialRebajasInventario = () => {
                     <TableCell></TableCell>
                     <TableCell>Fecha de rebaja</TableCell>
                     <TableCell>Motivo</TableCell>
+                    <TableCell>Usuario creador</TableCell>
                     {canViewDetalleHistorialRebaja && (
                       <TableCell align="center">Ver detalles</TableCell>
                     )}
@@ -98,6 +99,7 @@ export const HistorialRebajasInventario = () => {
                         <TableCell>{rebaja.id}</TableCell>
                         <TableCell>{formatearFecha(rebaja.fecha_rebaja)}</TableCell>
                         <TableCell>{rebaja.motivo ?? '-'}</TableCell>
+                        <TableCell>{rebaja.usuario_creador.first_name} {rebaja.usuario_creador.last_name}</TableCell>
                         {canViewDetalleHistorialRebaja && (
                           <TableCell align="center">
                             <IconButton

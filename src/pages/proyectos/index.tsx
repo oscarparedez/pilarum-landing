@@ -272,7 +272,15 @@ const Page: NextPage = () => {
                           variant="body2"
                           color="text.secondary"
                         >
-                          👥 {proyecto.socio_asignado.nombre}
+                          👥 Socio asignado: {proyecto.socio_asignado.nombre}
+                        </Typography>
+                      )}
+                      {proyecto.usuario_creador && (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          🏷️ Usuario creador: {proyecto.usuario_creador.first_name} {proyecto.usuario_creador.last_name}
                         </Typography>
                       )}
                     </Stack>

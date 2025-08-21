@@ -51,8 +51,8 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
 
   const handleConfirm = () => {
     if (maquina && dias.length && desde && hasta && asignadoA !== null) {
-      const desdeString = format(desde, 'yyyy-MM-dd')
-      const hastaString = format(hasta, 'yyyy-MM-dd')
+      const desdeString = format(desde, 'yyyy-MM-dd');
+      const hastaString = format(hasta, 'yyyy-MM-dd');
 
       onConfirm({
         equipo: maquina,
@@ -75,7 +75,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      maxWidth="lg"
       fullWidth
     >
       <DialogTitle>Asignar maquinaria al proyecto</DialogTitle>
@@ -84,26 +84,53 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
           spacing={3}
           mt={1}
         >
-          {/* Maquinaria */}
-          <FormControl fullWidth>
-            <InputLabel>Maquinaria</InputLabel>
-            <Select
-              value={maquina}
-              label="Maquinaria"
-              onChange={(e) => setMaquina(Number(e.target.value))}
-            >
-              {maquinasDisponibles.map((m) => (
-                <MenuItem
-                  key={m.id}
-                  value={m.id}
-                >
-                  {m.nombre}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Maquinaria + Asignado a (50% / 50%) */}
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+          >
+            {/* Maquinaria */}
+            <FormControl sx={{ flexBasis: { xs: '100%', md: '50%' } }}>
+              <InputLabel>Maquinaria</InputLabel>
+              <Select
+                value={maquina}
+                label="Maquinaria"
+                onChange={(e) => setMaquina(Number(e.target.value))}
+                fullWidth
+              >
+                {maquinasDisponibles.map((m) => (
+                  <MenuItem
+                    key={m.id}
+                    value={m.id}
+                  >
+                    {m.nombre}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-          {/* Días de la semana */}
+            {/* Asignado a */}
+            <FormControl sx={{ flexBasis: { xs: '100%', md: '50%' } }}>
+              <InputLabel>Asignado a</InputLabel>
+              <Select
+                value={asignadoA}
+                label="Asignado a"
+                onChange={(e) => setAsignadoA(e.target.value as number)}
+                fullWidth
+              >
+                {usuarios.map((usuario) => (
+                  <MenuItem
+                    key={usuario.id}
+                    value={usuario.id}
+                  >
+                    {usuario.first_name} {usuario.last_name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+
+          {/* Días de la semana (debajo de los dropdowns) */}
           <Box>
             <Typography
               variant="subtitle2"
@@ -111,9 +138,13 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
             >
               Días de uso
             </Typography>
-            <Stack
-              direction="row"
-              flexWrap="wrap"
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap', // siempre en fila; hace wrap si no caben
+                gap: 1.5,
+                alignItems: 'center',
+              }}
             >
               {DIAS_SEMANA.map((dia) => (
                 <DiaToggle
@@ -123,10 +154,10 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
                   onClick={() => toggleDia(dia)}
                 />
               ))}
-            </Stack>
+            </Box>
           </Box>
 
-          {/* Fecha hasta con DateCalendar */}
+          {/* Fechas (debajo de días) */}
           <Box>
             <Typography
               variant="subtitle2"
@@ -139,7 +170,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
               adapterLocale={es}
             >
               <Stack
-                direction="row"
+                direction={{ xs: 'column', md: 'row' }}
                 spacing={2}
               >
                 <Box flex={1}>
@@ -159,25 +190,6 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
               </Stack>
             </LocalizationProvider>
           </Box>
-
-          {/* Asignado a */}
-          <FormControl fullWidth>
-            <InputLabel>Asignado a</InputLabel>
-            <Select
-              value={asignadoA}
-              label="Asignado a"
-              onChange={(e) => setAsignadoA(e.target.value as number)}
-            >
-              {usuarios.map((usuario) => (
-                <MenuItem
-                  key={usuario.id}
-                  value={usuario.id}
-                >
-                  {usuario.first_name} {usuario.last_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
         </Stack>
       </DialogContent>
 
@@ -186,7 +198,15 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!maquina || !dias.length || !hasta || !asignadoA}
+          disabled={
+            !maquina ||
+            !dias.length ||
+            !desde ||
+            !hasta ||
+            !asignadoA ||
+            asignadoA === null ||
+            desde > hasta
+          }
         >
           Confirmar
         </Button>

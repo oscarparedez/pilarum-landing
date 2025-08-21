@@ -1,23 +1,19 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-
-export interface TipoPago {
-  id: number;
-  nombre: string;
-}
+import { NuevoTipoCosto, TipoCosto } from '../types';
 
 export const useTiposPagoApi = () => {
   const { fetchWithAuth } = useAuthApi();
 
-  const getTiposPago = useCallback(async (): Promise<TipoPago[]> => {
+  const getTiposPago = useCallback(async (): Promise<TipoCosto[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/tipoPagos/`, { method: 'GET' });
     if (!res.ok) throw new Error('Error al obtener tipos de pago');
     return await res.json();
   }, [fetchWithAuth]);
 
   const crearTipoPago = useCallback(
-    async (data: Omit<TipoPago, 'id'>): Promise<TipoPago> => {
+    async (data: NuevoTipoCosto): Promise<TipoCosto> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/tipoPagos/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,7 +26,7 @@ export const useTiposPagoApi = () => {
   );
 
   const actualizarTipoPago = useCallback(
-    async (id: number, data: Omit<TipoPago, 'id'>): Promise<TipoPago> => {
+    async (id: number, data: NuevoTipoCosto): Promise<TipoCosto> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/tipoPagos/${id}/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

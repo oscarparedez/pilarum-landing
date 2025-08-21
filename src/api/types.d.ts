@@ -1,3 +1,10 @@
+export interface UsuarioPublico {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+}
+
 export interface Usuario {
   id: number;
   username: string;
@@ -5,6 +12,7 @@ export interface Usuario {
   last_name: string;
   is_active: boolean;
   telefono?: string;
+  usuario_creador: UsuarioPublico;
   groups?: { id: number; name: string, permissions: Number[] }[];
 }
 
@@ -49,6 +57,7 @@ export interface AsignacionMaquinaria {
   proyecto: Proyecto;
   usuario_recibe: any;
   dias_asignados: string[];
+  usuario_creador: UsuarioPublico;
   fecha_entrada: string;
   fecha_fin: string;
 }
@@ -63,13 +72,6 @@ export interface NuevaAsignacionMaquinaria {
 
 export interface FotoRevision {
   imagen: string;
-}
-
-export interface UsuarioPublico {
-  id: number;
-  username: string;
-  first_name: string;
-  last_name: string;
 }
 
 export interface Revision {
@@ -90,6 +92,18 @@ export interface NuevaRevision {
   fecha_review: string;
   anotaciones: string;
   fotos: File[];
+}
+
+export interface Socio {
+  id: number;
+  nombre: string;
+  tipo: 'interno' | 'externo';
+  usuario_creador: UsuarioPublico;
+}
+
+export interface NuevoSocio {
+  nombre: string;
+  tipo: 'interno' | 'externo';
 }
 
 export interface Unidad {
@@ -186,14 +200,30 @@ export interface GastoOperativo {
   costo: number;
   tipo_gasto: number;
   fotos?: FotoRevision[];
+  usuario_creador: UsuarioPublico;
 }
 
 export interface TipoIngreso {
   id: number;
   nombre: string;
   fecha_creacion: string;
+  usuario_creador: UsuarioPublico;
 }
 
+export interface NuevoTipoIngreso {
+  nombre: string;
+}
+
+export interface TipoCosto {
+  id: number;
+  nombre: string;
+  fecha_creacion: string;
+  usuario_creador: UsuarioPublico;
+}
+
+export interface NuevoTipoCosto {
+  nombre: string;
+}
 export interface IngresoGeneral {
   id: number;
   tipo_ingreso: TipoIngreso;
@@ -227,6 +257,20 @@ export interface CostoGeneral {
 
 export type TipoMaquinaria = 'maquinaria' | 'herramienta';
 export type TipoDocumento = 'efectivo' | 'cheque' | 'transferencia';
+
+export interface MaquinariaConfig {
+  id: number;
+  nombre: string;
+  tipo: TipoMaquinaria;
+  identificador: string;
+  costo: number;
+  fecha_compra: string;      // formato 'YYYY-MM-DD'
+  tipo_documento: TipoDocumento;
+  anotaciones?: string;
+  fecha_creacion: string;     // ISO date-time
+  usuario_creador: Usuario;   // Ya tienes esta interface
+  asignaciones: AsignacionMaquinaria[];
+}
 
 export interface Maquinaria {
   id: number;
@@ -324,6 +368,8 @@ export interface OrdenCompra {
   numero_factura: string;
   usuario_creador: UsuarioPublico;
   proveedor: Proveedor;
+  tipo_documento: TipoDocumento;
+  anotaciones?: string;
   fecha_creacion: string;
   compras: CompraMaterial[];
 }
@@ -332,6 +378,8 @@ export interface NuevaOrdenCompra {
   proveedor: number;
   fecha_factura: string; 
   numero_factura: string;
+  tipo_documento: TipoDocumento;
+  anotaciones?: string;
   compras: NuevaCompraMaterial[];
 }
 

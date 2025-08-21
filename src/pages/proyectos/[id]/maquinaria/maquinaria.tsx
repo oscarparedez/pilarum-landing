@@ -174,6 +174,7 @@ export const Maquinaria: FC<MaquinariaProps> = ({
                       <TableCell>Estado</TableCell>
                       <TableCell>Días</TableCell>
                       <TableCell>Asignado a</TableCell>
+                      <TableCell>Usuario creador</TableCell>
                       {(canEditarAsignacionMaquinaria || canLiberarMaquinaria) && (
                         <TableCell>Acciones</TableCell>
                       )}
@@ -198,6 +199,9 @@ export const Maquinaria: FC<MaquinariaProps> = ({
                             <TableCell>{item.dias_asignados.join(', ')}</TableCell>
                             <TableCell>
                               {item.usuario_recibe?.first_name} {item.usuario_recibe?.last_name}
+                            </TableCell>
+                            <TableCell>
+                              {item.usuario_creador?.first_name} {item.usuario_creador?.last_name}
                             </TableCell>
                             <TableCell>
                               <Stack

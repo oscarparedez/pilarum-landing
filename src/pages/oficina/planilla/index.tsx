@@ -102,13 +102,14 @@ const Page: NextPage = () => {
   );
 
   const handleFiltrar = useCallback((f: typeof filtros) => {
+    console.log("Aplicando filtros:", f);
     setFiltros(f);
   }, []);
 
   const personalFiltrado = useMemo(() => {
     return aplicarFiltros(personal, filtros, {
       camposTexto: ['first_name', 'last_name', 'username'],
-      campoRol: 'groups[0].name',
+      campoRol: 'groups',
     });
   }, [personal, filtros]);
 
@@ -172,6 +173,8 @@ const Page: NextPage = () => {
                         <TableCell>Usuario</TableCell>
                         <TableCell>Teléfono</TableCell>
                         <TableCell>Rol</TableCell>
+                        <TableCell>Estado</TableCell>
+                        <TableCell>Usuario creador</TableCell>
                         {canEditUsuarios && <TableCell align="center">Acciones</TableCell>}
                       </TableRow>
                     </TableHead>
@@ -189,6 +192,8 @@ const Page: NextPage = () => {
                           <TableCell>{persona.username}</TableCell>
                           <TableCell>{persona.telefono ?? '—'}</TableCell>
                           <TableCell>{persona.groups?.[0]?.name || '—'}</TableCell>
+                          <TableCell>{persona.is_active ? 'Activo' : 'Inactivo'}</TableCell>
+                          <TableCell>{persona.usuario_creador?.first_name} {persona.usuario_creador?.last_name}</TableCell>
                           {canEditUsuarios && (
                             <TableCell align="center">
                               <Button
