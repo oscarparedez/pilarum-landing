@@ -136,7 +136,6 @@ export const Revisiones: FC<RevisionesProps> = ({
                   <TableRow>
                     <TableCell>Fecha creación</TableCell>
                     <TableCell>Fecha revisión</TableCell>
-                    <TableCell>Responsable</TableCell>
                     <TableCell>Título</TableCell>
                     <TableCell>Anotaciones</TableCell>
                     <TableCell>Usuario creador</TableCell>
@@ -151,9 +150,6 @@ export const Revisiones: FC<RevisionesProps> = ({
                     >
                       <TableCell>{formatearFecha(rev.fecha_creacion)}</TableCell>
                       <TableCell>{formatearFecha(rev.fecha_review)}</TableCell>
-                      <TableCell>
-                        {rev.usuario_creador.first_name} {rev.usuario_creador.last_name}
-                      </TableCell>
                       <TableCell>{rev.titulo}</TableCell>
                       <TableCell>{rev.anotaciones}</TableCell>
                       <TableCell>{rev.usuario_creador.first_name} {rev.usuario_creador.last_name}</TableCell>
