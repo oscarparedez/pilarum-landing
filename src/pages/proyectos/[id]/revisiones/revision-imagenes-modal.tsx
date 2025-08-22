@@ -45,7 +45,7 @@ export const RevisionImagenesModal: FC<Props> = ({ open, onClose, images }) => {
           bgcolor: 'background.paper',
           borderRadius: 2,
           width: '75vw',
-          height: '70vh',
+          height: '75vh',
           p: 2,
           boxShadow: 24,
           outline: 'none',
@@ -86,8 +86,8 @@ export const RevisionImagenesModal: FC<Props> = ({ open, onClose, images }) => {
             src={images[index]}
             alt={`Foto ${index + 1}`}
             sx={{
-              width: '100%',
-              maxHeight: 800,
+              maxWidth: '100%',
+              maxHeight: '100%',
               objectFit: 'contain',
               borderRadius: 1,
             }}
@@ -103,7 +103,7 @@ export const RevisionImagenesModal: FC<Props> = ({ open, onClose, images }) => {
         </Box>
 
         <Typography
-          variant="caption"
+          variant="h6"
           color="text.secondary"
           display="block"
           align="center"
