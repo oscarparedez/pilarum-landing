@@ -20,24 +20,24 @@ import {
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import SendIcon from '@mui/icons-material/SendRounded';
 import { useRouter } from 'next/router';
-import toast from 'react-hot-toast';
 
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalMovimientos } from './movimientos-material-planificado-modal';
-import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
-import { Inventario } from 'src/api/types';
+import { Inventario, InventarioConfig } from 'src/api/types';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { paths } from 'src/paths';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
-export const MaterialPlanificado: FC = () => {
+interface MaterialPlanificadoProps {
+  materialPlanificado: InventarioConfig;
+}
+
+export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlanificado }) => {
   const router = useRouter();
   const proyectoIdParam = router.query.id;
   const proyectoId = typeof proyectoIdParam === 'string' ? Number(proyectoIdParam) : NaN;
-
-  const { getInventarioPorProyecto } = useInventarioApi();
 
   const [loading, setLoading] = useState(false);
   const [inventarioProyecto, setInventarioProyecto] = useState<Inventario[]>([]);
@@ -55,6 +55,17 @@ export const MaterialPlanificado: FC = () => {
 
   const hayMaterial = itemsConStock.length > 0;
 
+  // 🔹 Total valor de materiales asignados al proyecto (stock actual del proyecto)
+  const totalValorMateriales = useMemo(
+    () =>
+      itemsConStock.reduce((acc, inv) => {
+        const qty = Number(inv.cantidad ?? 0);
+        const pu = Number(inv.precio_unitario ?? 0);
+        return acc + qty * pu;
+      }, 0),
+    [itemsConStock]
+  );
+
   const irATrasladar = useCallback(() => {
     router.push(paths.dashboard.proyectos.trasladar(proyectoId));
   }, [router, proyectoId]);
@@ -70,23 +81,10 @@ export const MaterialPlanificado: FC = () => {
     [router, proyectoId]
   );
 
-  const loadInventario = useCallback(async () => {
-    if (!router.isReady || !Number.isFinite(proyectoId)) return;
-    setLoading(true);
-    try {
-      const data = await getInventarioPorProyecto(proyectoId);
-      setInventarioProyecto(data ?? []);
-    } catch (err) {
-      console.error(err);
-      toast.error('Error cargando inventario del proyecto');
-    } finally {
-      setLoading(false);
-    }
-  }, [router.isReady, proyectoId, getInventarioPorProyecto]);
-
   useEffect(() => {
-    loadInventario();
-  }, [loadInventario]);
+    const { inventarios } = materialPlanificado;
+    setInventarioProyecto(inventarios ?? []);
+  }, [materialPlanificado, setInventarioProyecto]);
 
   const EmptyState = useMemo(
     () => (
@@ -98,18 +96,10 @@ export const MaterialPlanificado: FC = () => {
         py={6}
         px={2}
       >
-        <Typography
-          variant="h6"
-          color="text.secondary"
-          gutterBottom
-        >
+        <Typography variant="h6" color="text.secondary" gutterBottom>
           No hay material con stock en este proyecto
         </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mb: 2, textAlign: 'center' }}
-        >
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
           Cuando haya existencias, aparecerán aquí.
         </Typography>
         <Tooltip title="Ir a la pantalla para trasladar/devolver materiales">
@@ -133,27 +123,34 @@ export const MaterialPlanificado: FC = () => {
     <Box sx={{ p: 3 }}>
       {loading && <FullPageLoader />}
       <Card sx={{ overflow: 'hidden' }}>
+        {/* Header */}
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           justifyContent="space-between"
           alignItems={{ xs: 'flex-start', sm: 'center' }}
           sx={{ px: 3, pt: 3, gap: 2 }}
         >
-          <Typography variant="h5">Material planificado</Typography>
-          <Tooltip title="Ir a la pantalla para trasladar/devolver materiales">
-            <span>
-              {hayMaterial && canTrasladarABodegaCentral && (
-                <Button
-                  onClick={irATrasladar}
-                  variant="contained"
-                  color="secondary"
-                  endIcon={<SendIcon />}
-                >
-                  Trasladar a bodega
-                </Button>
-              )}
-            </span>
-          </Tooltip>
+          <Stack spacing={0.5}>
+            <Typography variant="h5">Material planificado</Typography>
+            {hayMaterial && (
+              <Typography variant="caption" color="text.secondary">
+                Valor total de materiales asignados:&nbsp;
+                <strong>{formatearQuetzales(totalValorMateriales)}</strong>
+              </Typography>
+            )}
+          </Stack>
+
+          <Stack direction="row" spacing={1}>
+            {hayMaterial && canTrasladarABodegaCentral && (
+              <Tooltip title="Ir a la pantalla para trasladar/devolver materiales">
+                <span>
+                  <Button onClick={irATrasladar} variant="contained" color="secondary" endIcon={<SendIcon />}>
+                    Trasladar a bodega
+                  </Button>
+                </span>
+              </Tooltip>
+            )}
+          </Stack>
         </Stack>
 
         <Divider sx={{ mt: 2, mb: 0 }} />
@@ -161,84 +158,95 @@ export const MaterialPlanificado: FC = () => {
         {!hayMaterial ? (
           EmptyState
         ) : (
-          <TablaPaginadaConFiltros
-            totalItems={itemsConStock.length}
-            onFiltrar={() => {}}
-            filtrosFecha={false}
-            filtrosEstado={false}
-          >
-            {(currentPage, orden) => {
-              const pageSize = 5;
-              const sorted = itemsConStock.slice().sort((a, b) => {
-                const na = a.material.nombre ?? '';
-                const nb = b.material.nombre ?? '';
-                return orden === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
-              });
-              const pageItems = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+          <>
+            <TablaPaginadaConFiltros
+              totalItems={itemsConStock.length}
+              onFiltrar={() => {}}
+              filtrosFecha={false}
+              filtrosEstado={false}
+            >
+              {(currentPage, orden) => {
+                const pageSize = 5;
+                const sorted = itemsConStock.slice().sort((a, b) => {
+                  const na = a.material.nombre ?? '';
+                  const nb = b.material.nombre ?? '';
+                  return orden === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
+                });
+                const pageItems = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-              return (
-                <TableContainer
-                  component={Paper}
-                  sx={{ borderRadius: 0 }}
-                >
-                  <Table
-                    size="small"
-                    stickyHeader
-                  >
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Material</TableCell>
-                        <TableCell>Unidad</TableCell>
-                        <TableCell>Stock</TableCell>
-                        <TableCell>Precio unitario</TableCell>
-                        {canViewHistorialMovimientos && (
-                          <TableCell>Acciones</TableCell>
-                        )}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {pageItems.map((inv) => (
-                        <TableRow
-                          hover
-                          key={inv.id}
-                          sx={{
-                            transition: '0.2s',
-                            '&:hover': { backgroundColor: 'action.hover' },
-                          }}
-                        >
-                          <TableCell>
-                            <Typography variant="subtitle2">
-                              {inv.material.nombre ?? '—'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>{inv.material.unidad?.nombre ?? '—'}</TableCell>
-                          <TableCell>{inv.cantidad ?? 0}</TableCell>
-                          <TableCell>{formatearQuetzales(Number(inv.precio_unitario))}</TableCell>
-                          <TableCell>
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                            >
-                              <Tooltip title="Ver movimientos">
-                                <IconButton
-                                  onClick={() => irAMovimientos(inv.id)}
-                                  size="small"
-                                >
-                                  <SvgIcon>
-                                    <VisibilityIcon />
-                                  </SvgIcon>
-                                </IconButton>
-                              </Tooltip>
-                            </Stack>
-                          </TableCell>
+                return (
+                  <TableContainer component={Paper} sx={{ borderRadius: 0 }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Material</TableCell>
+                          <TableCell>Unidad</TableCell>
+                          <TableCell>Stock</TableCell>
+                          <TableCell>Precio unitario</TableCell>
+                          {canViewHistorialMovimientos && <TableCell>Acciones</TableCell>}
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              );
-            }}
-          </TablaPaginadaConFiltros>
+                      </TableHead>
+                      <TableBody>
+                        {pageItems.map((inv) => {
+                          const showActions = canViewHistorialMovimientos;
+                          return (
+                            <TableRow
+                              hover
+                              key={inv.id}
+                              sx={{
+                                transition: '0.2s',
+                                '&:hover': { backgroundColor: 'action.hover' },
+                              }}
+                            >
+                              <TableCell>
+                                <Typography variant="subtitle2">
+                                  {inv.material.nombre ?? '—'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>{inv.material.unidad?.nombre ?? '—'}</TableCell>
+                              <TableCell>{inv.cantidad ?? 0}</TableCell>
+                              <TableCell>{formatearQuetzales(Number(inv.precio_unitario))}</TableCell>
+                              {showActions && (
+                                <TableCell>
+                                  <Stack direction="row" spacing={1}>
+                                    <Tooltip title="Ver movimientos">
+                                      <IconButton onClick={() => irAMovimientos(inv.id)} size="small">
+                                        <SvgIcon>
+                                          <VisibilityIcon />
+                                        </SvgIcon>
+                                      </IconButton>
+                                    </Tooltip>
+                                  </Stack>
+                                </TableCell>
+                              )}
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                );
+              }}
+            </TablaPaginadaConFiltros>
+
+            {/* Resumen debajo de la tabla */}
+            <Box
+              sx={{
+                px: 3,
+                py: 2,
+                display: 'flex',
+                justifyContent: 'flex-end',
+                backgroundColor: 'background.default',
+                borderTop: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Valor total de materiales asignados:&nbsp;
+                <strong>{formatearQuetzales(totalValorMateriales)}</strong>
+              </Typography>
+            </Box>
+          </>
         )}
       </Card>
 

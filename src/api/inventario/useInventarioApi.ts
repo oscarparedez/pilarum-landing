@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-import { Inventario } from '../types';
+import { Inventario, InventarioConfig } from '../types';
 
 export const useInventarioApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -10,7 +10,7 @@ export const useInventarioApi = () => {
   const getInventario = useCallback(async () => {
     const res = await fetchWithAuth(`${API_BASE_URL}/inventario/`, { method: 'GET' });
     if (!res.ok) throw new Error('Error al obtener inventario');
-    return (await res.json()) as Inventario[];
+    return (await res.json()) as InventarioConfig;
   }, [fetchWithAuth]);
 
   /** Obtener inventario filtrado por material */
@@ -35,7 +35,7 @@ export const useInventarioApi = () => {
         method: 'GET',
       });
       if (!res.ok) throw new Error('Error al obtener inventario por proyecto');
-      return (await res.json()) as Inventario[];
+      return (await res.json()) as InventarioConfig;
     },
     [fetchWithAuth]
   );

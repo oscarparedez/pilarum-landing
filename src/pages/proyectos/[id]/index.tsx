@@ -25,7 +25,7 @@ import { usePagosApi } from 'src/api/pagos/usePagosApi';
 import { useAsignacionesMaquinariaApi } from 'src/api/asignacionesMaquinaria/useAsignacionesMaquinaria';
 import { useAsignacionesPersonalApi } from 'src/api/asignacionesPersonal/useAsignacionesPersonal';
 import { useRevisionesApi } from 'src/api/revisiones/useRevisionesApi';
-import { NuevaAsignacionMaquinaria, NuevaRevision, NuevoProyecto, Proyecto } from 'src/api/types';
+import { ActualizarRevision, NuevaAsignacionMaquinaria, NuevaRevision, NuevoProyecto, Proyecto } from 'src/api/types';
 import { format } from 'date-fns';
 import { PizarronPendientes } from 'src/components/pendientes/pizarron-pendientes';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
@@ -571,7 +571,7 @@ const Page: NextPage = () => {
   );
 
   const handleActualizarRevision = useCallback(
-    async (revisionId: number, data: NuevaRevision) => {
+    async (revisionId: number, data: ActualizarRevision) => {
       const id = router.query.id;
       if (!id || Array.isArray(id)) return;
 
@@ -626,6 +626,7 @@ const Page: NextPage = () => {
     tiposPago,
     usuarios,
     asignacionesPersonal,
+    materialPlanificado,
     revisiones,
     totalIngresos,
     totalPagos,
@@ -633,6 +634,8 @@ const Page: NextPage = () => {
 
   const { id, nombre, ubicacion, fechaInicio, fechaFin, socio_asignado, presupuestoInicial } =
     datosBasicos;
+
+  const { valor_total: valorInventarioProyecto} = materialPlanificado
 
   return (
     <Box
@@ -696,6 +699,7 @@ const Page: NextPage = () => {
               tiposIngreso={tiposIngreso}
               tiposPago={tiposPago}
               presupuestoInicial={presupuestoInicial}
+              valorInventarioProyecto={valorInventarioProyecto}
               onCrearIngreso={handleCrearIngreso}
               onActualizarIngreso={handleActualizarIngreso}
               onEliminarIngreso={handleEliminarIngreso}
@@ -726,7 +730,7 @@ const Page: NextPage = () => {
               handleEliminarAsignacionPersonal={handleEliminarAsignacionPersonal}
             />
           )}
-          {canViewMaterialPlanificado && <MaterialPlanificado />}
+          {canViewMaterialPlanificado && <MaterialPlanificado materialPlanificado={materialPlanificado} />}
           {canViewRevisiones && (
             <Revisiones
               revisiones={revisiones}

@@ -19,7 +19,7 @@ import {
 
 const Page: NextPage = () => {
   const router = useRouter();
-  const proyectoIdParam = router.query.id; // /proyectos/[id]/trasladar
+  const proyectoIdParam = router.query.id;
   const proyectoId = typeof proyectoIdParam === 'string' ? Number(proyectoIdParam) : NaN;
 
   const { getInventarioPorProyecto } = useInventarioApi();
@@ -30,12 +30,18 @@ const Page: NextPage = () => {
   const [fecha, setFecha] = useState<Date>(new Date());
   const { lineas, setLineas } = useLineasInventario();
 
+  const inventarioConStock = useMemo(
+    () => inventario.filter((inv) => (inv.cantidad ?? 0) > 0),
+    [inventario]
+  );
+
   const fetchData = useCallback(async () => {
     if (!Number.isFinite(proyectoId)) return;
     setLoading(true);
     try {
-      const inv = await getInventarioPorProyecto(proyectoId);
-      setInventario(inv);
+      const data = await getInventarioPorProyecto(proyectoId);
+      const { inventarios } = data
+      setInventario(inventarios ?? []);
     } catch (error) {
       console.error(error);
       toast.error('Error cargando inventario del proyecto');
@@ -103,7 +109,7 @@ const Page: NextPage = () => {
         <TablaLineasInventario
           lineas={lineas}
           onChange={setLineas}
-          options={inventario}
+          options={inventarioConStock}
           labels={{
             titulo: 'Materiales a devolver',
             columnaCantidad: 'Cantidad a devolver',

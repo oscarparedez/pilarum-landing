@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
-import { NuevaRevision } from '../types';
+import { ActualizarRevision, NuevaRevision } from '../types';
 
 export const useRevisionesApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -56,19 +56,19 @@ export const useRevisionesApi = () => {
   );
 
   const actualizarRevision = useCallback(
-    async (
-      proyectoId: number,
-      revisionId: number,
-      data: NuevaRevision
-    ) => {
+    async (proyectoId: number, revisionId: number, data: ActualizarRevision) => {
       const formData = new FormData();
       formData.append('titulo', data.titulo);
       formData.append('anotaciones', data.anotaciones);
       formData.append('fecha_review', data.fecha_review);
-
-      data.fotos.forEach((file) => {
-        formData.append('fotos', file);
+      const key = 'mantener_ids';
+      data.mantener_ids.forEach((id) => {
+        formData.append(key, String(id)); // DRF acepta string numérica
       });
+      data.fotos &&
+        data.fotos.forEach((file) => {
+          formData.append('fotos', file);
+        });
 
       const res = await fetchWithAuth(
         `${API_BASE_URL}/proyectos/${proyectoId}/reviews/${revisionId}/`,

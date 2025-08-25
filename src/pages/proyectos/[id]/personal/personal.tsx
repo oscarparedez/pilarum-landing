@@ -200,7 +200,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                             <TableCell>
                               {item.usuario.first_name} {item.usuario.last_name}
                             </TableCell>
-                            <TableCell>-</TableCell>
+                            <TableCell>{item.usuario.groups[0].name}</TableCell>
                             <TableCell>{formatearFechaHora(item.fecha_entrada)}</TableCell>
                             <TableCell>{formatearFechaHora(item.fecha_fin)}</TableCell>
                             <TableCell>{item.estado}</TableCell>

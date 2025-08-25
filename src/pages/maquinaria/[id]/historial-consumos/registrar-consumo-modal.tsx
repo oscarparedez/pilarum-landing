@@ -166,12 +166,12 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
                 variant="caption"
                 color="text.secondary"
               >
-                Máximo 3 archivos (.jpg, .png)
+                Máximo 3 archivos (.jpg, .png, .heic)
               </Typography>
               <input
                 id="upload-input"
                 type="file"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic"
                 hidden
                 multiple
                 onChange={handleFileChange}

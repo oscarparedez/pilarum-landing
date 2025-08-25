@@ -46,7 +46,8 @@ export const Inventario = () => {
   const fetchInventario = useCallback(async () => {
     try {
       const data = await getInventario();
-      setInventario(data);
+      const { inventarios } = data
+      setInventario(inventarios ?? []);
     } catch (error) {
       console.error(error);
       toast.error('Error al obtener inventario');

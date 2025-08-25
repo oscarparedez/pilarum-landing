@@ -3,6 +3,7 @@ export interface UsuarioPublico {
   username: string;
   first_name: string;
   last_name: string;
+  groups: { id: number; name: string, permissions: Number[] }[];
 }
 
 export interface Usuario {
@@ -92,6 +93,14 @@ export interface NuevaRevision {
   fecha_review: string;
   anotaciones: string;
   fotos: File[];
+}
+
+export interface ActualizarRevision {
+  titulo: string;
+  anotaciones: string;
+  fecha_review: string;
+  mantener_ids: number[];
+  fotos?: File[];
 }
 
 export interface Socio {
@@ -187,6 +196,16 @@ export interface NuevoGastoOperativo {
   costo: number;
   tipo_gasto: TipoGastoOperativo;
   tipo_documento: TipoDocumento;
+  fotos?: File[];
+}
+
+export interface ActualizarGastoOperativo {
+  descripcion: string;
+  fecha: string;
+  costo: number;
+  tipo_gasto: TipoGastoOperativo;
+  tipo_documento: TipoDocumento;
+  mantener_ids: number[];
   fotos?: File[];
 }
 
@@ -337,6 +356,11 @@ export interface Inventario {
   precio_unitario: number;
   fecha_creacion: string;
   usuario_creador: UsuarioPublico;
+}
+
+export interface InventarioConfig {
+  valor_total: number;
+  inventarios: Inventario[];
 }
 
 export type TipoMovimiento = 1 | 2; // 1: Entrada, 2: Salida

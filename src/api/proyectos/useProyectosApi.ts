@@ -18,6 +18,7 @@ import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsign
 import { useRevisionesApi } from '../revisiones/useRevisionesApi';
 import { useSociosApi } from '../socios/useSociosApi';
 import { NuevoProyecto, Proyecto } from '../types';
+import { useInventarioApi } from '../inventario/useInventarioApi';
 
 
 export const useProyectosApi = () => {
@@ -33,6 +34,7 @@ export const useProyectosApi = () => {
   const { getAsignacionesPorProyecto: getAsignacionesMaquinaria } = useAsignacionesMaquinariaApi();
   const { getUsuarios } = usePlanillaApi();
   const { getAsignaciones: getAsignacionesPersonal } = useAsignacionesPersonalApi();
+  const { getInventarioPorProyecto: getInventario } = useInventarioApi();
   const { getRevisiones } = useRevisionesApi();
 
   const getProyectos = useCallback(async (): Promise<Proyecto[]> => {
@@ -130,6 +132,7 @@ export const useProyectosApi = () => {
         asignacionesMaquinaria,
         usuarios,
         asignacionesPersonal,
+        materialPlanificado,
         revisiones
       ] = await Promise.all([
         getProyectoById(id),
@@ -144,6 +147,7 @@ export const useProyectosApi = () => {
         getAsignacionesMaquinaria(id),
         getUsuarios(),
         getAsignacionesPersonal(id),
+        getInventario(id),
         getRevisiones(id)
       ]);
 
@@ -167,6 +171,7 @@ export const useProyectosApi = () => {
         asignacionesMaquinaria,
         usuarios,
         asignacionesPersonal,
+        materialPlanificado,
         revisiones
       });
     } catch (error) {

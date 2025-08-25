@@ -20,7 +20,7 @@ import { ConsumoImagenesModal } from './consumo-imagenes-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarConsumo } from './editar-consumo-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
-import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
+import { ActualizarGastoOperativo, GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
 import { formatearFechaHora } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
@@ -83,7 +83,7 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
   );
 
   const handleActualizarConsumo = useCallback(
-    (id: number, data: NuevoGastoOperativo) => {
+    (id: number, data: ActualizarGastoOperativo) => {
       onActualizarConsumo(id, data);
       setEditarConsumo(null);
     },

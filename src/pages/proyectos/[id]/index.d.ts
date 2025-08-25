@@ -1,7 +1,7 @@
 import { Usuario } from "src/api/planilla/usePlanillaApi/index.d";
 import { TipoIngreso } from "../configuracion/tipo-ingresos/index.d";
 import { TipoPago } from "../configuracion/tipo-pagos/index.d";
-import { AsignacionPersonal, Revision, Socio } from "src/api/types";
+import { AsignacionPersonal, InventarioConfig, Revision, Socio } from "src/api/types";
 import { AsignacionMaquinaria } from "src/api/asignacionesMaquinaria/useAsignacionesMaquinaria";
 
 export interface Costo {
@@ -123,5 +123,6 @@ export interface ConfigProyecto {
   asignacionesMaquinaria: AsignacionMaquinaria[];
   usuarios: Personal[];
   asignacionesPersonal: AsignacionPersonal[];
+  materialPlanificado: InventarioConfig;
   revisiones: Revision[];
 }

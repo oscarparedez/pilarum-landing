@@ -21,7 +21,7 @@ import { ModalAgregarRevision } from './agregar-revision-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarRevision } from './editar-revision-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
-import { NuevaRevision, Revision } from 'src/api/types';
+import { ActualizarRevision, NuevaRevision, Revision } from 'src/api/types';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { formatearFecha } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
@@ -30,7 +30,7 @@ import { PermissionId } from 'src/pages/oficina/roles/permissions';
 interface RevisionesProps {
   revisiones: Revision[];
   handleCrearRevision: (data: NuevaRevision) => Promise<void>;
-  handleActualizarRevision: (id: number, data: NuevaRevision) => Promise<void>;
+  handleActualizarRevision: (id: number, data: ActualizarRevision) => Promise<void>;
   handleEliminarRevision: (id: number) => Promise<void>;
 }
 
@@ -90,7 +90,7 @@ export const Revisiones: FC<RevisionesProps> = ({
   );
 
   const onActualizarRevision = useCallback(
-    async (id: number, data: NuevaRevision) => {
+    async (id: number, data: ActualizarRevision) => {
       await handleActualizarRevision(id, data);
       setEditarRevision(null);
     },

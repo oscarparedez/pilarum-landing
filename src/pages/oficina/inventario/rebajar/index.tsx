@@ -31,8 +31,9 @@ const Page: NextPage = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const inv = await getInventario();
-      setInventario(inv);
+      const data = await getInventario();
+      const { inventarios } = data
+      setInventario(inventarios ?? []);
     } catch (error) {
       console.error(error);
       toast.error('Error cargando inventario');

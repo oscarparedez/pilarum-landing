@@ -21,12 +21,13 @@ const isValidButtonColor = (value: any): value is ButtonColor =>
 
 interface ResumenFinancieroProps {
   totalIngresos: number;
-  totalPagos: number;
+  totalPagos: number; // solo pagos reales
   ingresos: Ingreso[];
   pagos: Costo[];
   tiposIngreso: TipoIngreso[];
   tiposPago: TipoPago[];
   presupuestoInicial: number;
+  valorInventarioProyecto: number; // valor total de materiales asignados al proyecto
   onCrearIngreso: (data: {
     monto_total: number;
     tipo_ingreso: number;
@@ -77,6 +78,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   tiposIngreso,
   tiposPago,
   presupuestoInicial,
+  valorInventarioProyecto,
   onCrearIngreso,
   onActualizarIngreso,
   onEliminarIngreso,
@@ -90,13 +92,33 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   const [openListaCostos, setOpenListaCostos] = useState(false);
   const [openMovimientos, setOpenMovimientos] = useState(false);
 
-
-  const canRegistrarIngresosCostos = useHasPermission(PermissionId.REGISTRAR_INGRESOS_COSTOS_PROYECTO)
+  const canRegistrarIngresosCostos = useHasPermission(
+    PermissionId.REGISTRAR_INGRESOS_COSTOS_PROYECTO
+  );
 
   const ultimoMovimiento = obtenerUltimoMovimiento(ingresos, costos);
-  const progresoIngresos = Math.min((totalIngresos / presupuestoInicial) * 100, 100);
-  const progresoCostos = Math.min((totalPagos / presupuestoInicial) * 100, 100);
-  const ganancia = totalIngresos - totalPagos;
+
+  // 🔹 materiales asignados (no son pagos)
+  const costoMateriales = Number(valorInventarioProyecto || 0);
+
+  // 🔹 costos totales del proyecto (pagos + materiales)
+  const costoTotalProyecto = Number(totalPagos || 0) + costoMateriales;
+
+  // 🔹 progreso relativo al presupuesto
+  const safePresupuesto = Math.max(Number(presupuestoInicial || 0), 1);
+  const progresoIngresos = Math.min((Number(totalIngresos || 0) / safePresupuesto) * 100, 100);
+  const progresoCostos = Math.min((costoTotalProyecto / safePresupuesto) * 100, 100);
+
+  // 🔹 ganancia bruta = ingresos - (pagos + materiales)
+  const ganancia = Number(totalIngresos || 0) - costoTotalProyecto;
+
+  // 🔹 desglose para mostrar bajo "Costos"
+  const breakdownText =
+    costoTotalProyecto > 0
+      ? `(${formatearQuetzales(totalPagos)} en pagos, ${formatearQuetzales(
+          costoMateriales
+        )} en materiales)`
+      : '';
 
   const tarjetas = [
     {
@@ -105,21 +127,22 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
       secondaryText: `${progresoIngresos.toFixed(0)} % del presupuesto alcanzado`,
       buttonLabel: 'Nuevo ingreso',
       secondaryButtonLabel: 'Ver ingresos',
-      buttonColor: 'success',
+      buttonColor: 'success' as ButtonColor,
       modalType: 'ingreso',
     },
     {
       label: 'Costos',
-      value: `${formatearQuetzales(totalPagos)}`,
+      value: `${formatearQuetzales(costoTotalProyecto)}`, // ✅ pagos + materiales
       secondaryText: `${progresoCostos.toFixed(0)} % del presupuesto gastado`,
+      breakdownText, // ✅ muestra cuánto es de pagos y cuánto de materiales
       buttonLabel: 'Nuevo costo',
       secondaryButtonLabel: 'Ver costos',
-      buttonColor: 'error',
+      buttonColor: 'error' as ButtonColor,
       modalType: 'costo',
     },
     {
       label: 'Ganancia bruta',
-      value: `${formatearQuetzales(ganancia)}`,
+      value: `${formatearQuetzales(ganancia)}`, // ✅ ingresos - (pagos + materiales)
       secondaryText: `${ingresos.length} ingresos - ${costos.length} costos`,
     },
     {
@@ -127,7 +150,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
       value: ultimoMovimiento ? formatearFechaHora(ultimoMovimiento.fecha) : '-',
       secondaryText: ultimoMovimiento ? formatearQuetzales(Number(ultimoMovimiento.monto)) : '-',
       buttonLabel: 'Ver movimientos',
-      buttonColor: 'info',
+      buttonColor: 'info' as ButtonColor,
       modalType: 'movimientos',
     },
   ];
@@ -187,7 +210,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
   const handleEliminarPago = useCallback(
     async (pagoId: number) => {
       await onEliminarPago(pagoId);
-      setOpenListaIngresos(false);
+      setOpenListaCostos(false); // ✅ cerramos la lista de costos
     },
     [onEliminarPago]
   );
@@ -219,41 +242,37 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                     },
                   }}
                 >
-                  <Stack
-                    alignItems="center"
-                    spacing={1}
-                    sx={{ p: 3 }}
-                  >
+                  <Stack alignItems="center" spacing={1} sx={{ p: 3 }}>
                     <Typography variant="h5">{item.value}</Typography>
-                    <Typography
-                      color="text.secondary"
-                      variant="overline"
-                      align="center"
-                    >
+
+                    <Typography color="text.secondary" variant="overline" align="center">
                       {item.secondaryText ?? '-'}
                     </Typography>
-                    <Typography
-                      color="text.secondary"
-                      variant="overline"
-                    >
+
+                    <Typography color="text.secondary" variant="overline">
                       {item.label}
                     </Typography>
 
+                    {/* 🔹 Desglose para Costos: pagos vs materiales */}
+                    {'breakdownText' in item && item.breakdownText && item.label === 'Costos' && (
+                      <Typography color="text.secondary" variant="caption" align="center">
+                        {item.breakdownText}
+                      </Typography>
+                    )}
+
                     {item.buttonLabel && (
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{ flexWrap: 'wrap', width: '100%' }}
-                      >
-                        { canRegistrarIngresosCostos && <Button
-                          size="large"
-                          variant="contained"
-                          color={color}
-                          onClick={() => handleClick(item.modalType)}
-                          sx={{ flex: 1, minWidth: 130 }}
-                        >
-                          {item.buttonLabel}
-                        </Button>}
+                      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', width: '100%' }}>
+                        {canRegistrarIngresosCostos && (
+                          <Button
+                            size="large"
+                            variant="contained"
+                            color={color}
+                            onClick={() => handleClick(item.modalType)}
+                            sx={{ flex: 1, minWidth: 130 }}
+                          >
+                            {item.buttonLabel}
+                          </Button>
+                        )}
                         {item.secondaryButtonLabel && (
                           <Button
                             size="large"

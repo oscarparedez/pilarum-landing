@@ -1,7 +1,7 @@
 import type { AmpliacionFecha, ConfigProyecto, Personal } from 'src/pages/proyectos/[id]/index.d';
 import { TipoIngreso } from 'src/pages/proyectos/configuracion/tipo-ingresos/index.d';
 import { TipoPago } from 'src/pages/proyectos/configuracion/tipo-pagos/index.d';
-import { AsignacionMaquinaria, AsignacionPersonal, Proyecto, Revision, Socio, Maquinaria } from '../types';
+import { AsignacionMaquinaria, AsignacionPersonal, Proyecto, Revision, Socio, Maquinaria, InventarioConfig } from '../types';
 
 
 export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
@@ -34,6 +34,7 @@ export const mapProyectoToConfig = (data: {
   asignacionesMaquinaria: AsignacionMaquinaria[];
   usuarios: any[];
   asignacionesPersonal: AsignacionPersonal[];
+  materialPlanificado: InventarioConfig;
   revisiones: Revision[];
 }): ConfigProyecto => {
 
@@ -78,6 +79,7 @@ export const mapProyectoToConfig = (data: {
     asignacionesMaquinaria: data.asignacionesMaquinaria,
     usuarios: data.usuarios,
     asignacionesPersonal: data.asignacionesPersonal,
+    materialPlanificado: data.materialPlanificado,
     revisiones: data.revisiones,
   };
 };
