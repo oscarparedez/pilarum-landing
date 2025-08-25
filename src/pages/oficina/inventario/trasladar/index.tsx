@@ -47,7 +47,8 @@ const Page: NextPage = () => {
     try {
       const [proy, inv] = await Promise.all([getProyectos(), getInventario()]);
       setProyectos(proy);
-      setInventario(inv);
+      const { inventarios } = inv
+      setInventario(inventarios);
     } catch (error) {
       console.error(error);
       toast.error('Error cargando datos iniciales');
@@ -82,8 +83,6 @@ const Page: NextPage = () => {
           cantidad: Number(l.cantidad),
         })),
       };
-
-      console.log("SENDING BODY:", body);
 
       await crearOrdenMovimientoInventario(body);
       toast.success('Traslado registrado correctamente');
