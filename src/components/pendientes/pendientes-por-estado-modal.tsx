@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useMemo, useCallback } from 'react';
 import {
   Modal,
   Box,
@@ -39,34 +39,75 @@ export const ModalPendientesPorEstado: FC<Props> = ({
 }) => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const theme = useTheme();
-  const isSmall = useMediaQuery(theme.breakpoints.down('sm')); // <600px
-  const isMedium = useMediaQuery(theme.breakpoints.between('sm', 'md')); // 600-900px
+  const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMedium = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
+  // Permisos
   const canChangeStatusTareaProyecto = useHasPermission(PermissionId.CAMBIAR_STATUS_TAREA_PROYECTO);
   const canChangeStatusTareaGeneral = useHasPermission(PermissionId.CAMBIAR_STATUS_TAREA_GENERAL);
   const canDeleteTareaProyecto = useHasPermission(PermissionId.ELIMINAR_TAREA_PROYECTO);
   const canDeleteTareaGeneral = useHasPermission(PermissionId.ELIMINAR_TAREA_GENERAL);
 
+  const canChangeStatus = useMemo(
+    () =>
+      (tipo === 'proyecto' && canChangeStatusTareaProyecto) ||
+      (tipo === 'oficina' && canChangeStatusTareaGeneral),
+    [tipo, canChangeStatusTareaProyecto, canChangeStatusTareaGeneral]
+  );
+
+  const canDelete = useMemo(
+    () =>
+      (tipo === 'proyecto' && canDeleteTareaProyecto) ||
+      (tipo === 'oficina' && canDeleteTareaGeneral),
+    [tipo, canDeleteTareaProyecto, canDeleteTareaGeneral]
+  );
+
+  const tituloEstado = useMemo(
+    () =>
+      estado
+        ? {
+            no_iniciado: 'Tareas no iniciadas',
+            pendiente: 'Tareas activas',
+            completado: 'Tareas completadas',
+          }[estado]
+        : '',
+    [estado]
+  );
+
+  const chipColor = useMemo(
+    () =>
+      ({
+        no_iniciado: 'default',
+        pendiente: 'warning',
+        completado: 'success',
+      }) as const,
+    []
+  );
+
+  const getColumns = useCallback(() => {
+    if (isSmall) return 'repeat(2, 1fr)';
+    if (isMedium) return 'repeat(3, 1fr)';
+    return 'repeat(4, 1fr)';
+  }, [isSmall, isMedium]);
+
+  const handleChangeEstado = useCallback(
+    (id: number, nuevoEstado: 'no_iniciado' | 'pendiente' | 'completado') => {
+      if (onChangeEstado) onChangeEstado(id, nuevoEstado);
+    },
+    [onChangeEstado]
+  );
+
+  const handleDelete = useCallback((id: number) => setDeleteId(id), []);
+  const handleConfirmDelete = useCallback(() => {
+    if (deleteId !== null && onDeletePendiente) {
+      onDeletePendiente(deleteId);
+      setDeleteId(null);
+    }
+  }, [deleteId, onDeletePendiente]);
+
   if (!estado) return null;
 
-  const tituloEstado = {
-    no_iniciado: 'Tareas no iniciadas',
-    pendiente: 'Tareas activas',
-    completado: 'Tareas completadas',
-  }[estado];
-
-  const chipColor = {
-    no_iniciado: 'default',
-    pendiente: 'warning',
-    completado: 'success',
-  } as const;
-
-  // Ajustar columnas según tamaño de pantalla
-  const getColumns = () => {
-    if (isSmall) return 'repeat(2, 1fr)'; // Móviles
-    if (isMedium) return 'repeat(3, 1fr)'; // Tablets
-    return 'repeat(4, 1fr)'; // Escritorios
-  };
+  console.log("candelete", canDeleteTareaGeneral, canDeleteTareaProyecto)
 
   return (
     <>
@@ -80,14 +121,14 @@ export const ModalPendientesPorEstado: FC<Props> = ({
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-              width: '98%',
-              maxWidth: 1300,
-              p: 3,
+            width: '98%',
+            maxWidth: 1300,
+            p: 3,
           }}
         >
           <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
             <CardHeader
-                title={tituloEstado}
+              title={tituloEstado}
               action={
                 <IconButton
                   onClick={onClose}
@@ -108,15 +149,15 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                 display: 'grid',
                 gridTemplateColumns: getColumns(),
                 gap: 2,
-                  fontSize: '1.125rem', // base font size for grid
+                fontSize: '1.125rem',
               }}
             >
               {pendientes.length === 0 ? (
                 <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    align="center"
-                    sx={{ gridColumn: '1 / -1', py: 4, fontSize: '1.125rem' }}
+                  variant="body2"
+                  color="text.secondary"
+                  align="center"
+                  sx={{ gridColumn: '1 / -1', py: 4, fontSize: '1.125rem' }}
                 >
                   No hay tareas en este estado.
                 </Typography>
@@ -124,7 +165,7 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                 pendientes.map((p) => (
                   <Box
                     key={p.id}
-                      p={3}
+                    p={3}
                     borderRadius={2}
                     bgcolor="background.paper"
                     boxShadow="0 1px 4px rgba(0,0,0,0.06)"
@@ -139,15 +180,15 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                         transform: 'translateY(-2px)',
                         backgroundColor: (theme) => theme.palette.background.default,
                       },
-                        fontSize: '1.125rem',
+                      fontSize: '1.125rem',
                     }}
                   >
                     {/* Info */}
                     <Box mb={1}>
                       <Typography
-                          variant="subtitle1"
-                          fontWeight={600}
-                          sx={{ fontSize: '1.25rem' }}
+                        variant="subtitle1"
+                        fontWeight={600}
+                        sx={{ fontSize: '1.25rem' }}
                       >
                         {p.titulo}
                       </Typography>
@@ -155,27 +196,27 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                         size="small"
                         label={p.estado}
                         color={chipColor[p.estado]}
-                          sx={{ mt: 0.5, fontSize: '1rem', height: 28 }}
+                        sx={{ mt: 0.5, fontSize: '1rem', height: 28 }}
                       />
                     </Box>
 
                     {/* Descripción */}
                     <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        mb={1}
-                        sx={{ fontSize: '1.125rem' }}
+                      variant="body2"
+                      color="text.secondary"
+                      mb={1}
+                      sx={{ fontSize: '1.125rem' }}
                     >
                       {p.descripcion || 'Sin descripción'}
                     </Typography>
 
                     {/* Footer */}
                     <Typography
-                        fontWeight="bold"
-                        variant="caption"
-                        color="text.disabled"
-                        mb={1}
-                        sx={{ fontSize: '1rem' }}
+                      fontWeight="bold"
+                      variant="caption"
+                      color="text.disabled"
+                      mb={1}
+                      sx={{ fontSize: '1rem' }}
                     >
                       {p.usuario_creador
                         ? `Creado por ${p.usuario_creador.first_name} ${p.usuario_creador.last_name}`
@@ -191,81 +232,66 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                       mt="auto"
                     >
                       {/* Cambiar estado */}
-                      {onChangeEstado && estado === 'no_iniciado' && (
+                      {onChangeEstado && canChangeStatus && (
                         <>
-                          {((tipo === 'proyecto' && canChangeStatusTareaProyecto) ||
-                            (tipo === 'oficina' && canChangeStatusTareaGeneral)) && (
+                          {estado === 'no_iniciado' && (
                             <>
                               <Chip
                                 label="Marcar activo"
                                 color="warning"
                                 size="small"
-                                  onClick={() => onChangeEstado(p.id, 'pendiente')}
-                                  sx={{ fontSize: '1rem', height: 28 }}
+                                onClick={() => handleChangeEstado(p.id, 'pendiente')}
+                                sx={{ fontSize: '1rem', height: 28 }}
                               />
                               <Chip
                                 label="Completar"
                                 color="success"
                                 size="small"
-                                  onClick={() => onChangeEstado(p.id, 'completado')}
-                                  sx={{ fontSize: '1rem', height: 28 }}
+                                onClick={() => handleChangeEstado(p.id, 'completado')}
+                                sx={{ fontSize: '1rem', height: 28 }}
                               />
                             </>
                           )}
-                        </>
-                      )}
-
-                      {onChangeEstado && estado === 'pendiente' && (
-                        <>
-                          {((tipo === 'proyecto' && canChangeStatusTareaProyecto) ||
-                            (tipo === 'oficina' && canChangeStatusTareaGeneral)) && (
+                          {estado === 'pendiente' && (
                             <>
                               <Chip
                                 label="No iniciado"
                                 variant="outlined"
                                 size="small"
-                                  onClick={() => onChangeEstado(p.id, 'no_iniciado')}
-                                  sx={{ fontSize: '1rem', height: 28 }}
+                                onClick={() => handleChangeEstado(p.id, 'no_iniciado')}
+                                sx={{ fontSize: '1rem', height: 28 }}
                               />
                               <Chip
                                 label="Completar"
                                 color="success"
                                 size="small"
-                                  onClick={() => onChangeEstado(p.id, 'completado')}
-                                  sx={{ fontSize: '1rem', height: 28 }}
+                                onClick={() => handleChangeEstado(p.id, 'completado')}
+                                sx={{ fontSize: '1rem', height: 28 }}
                               />
                             </>
                           )}
-                        </>
-                      )}
-
-                      {onChangeEstado && estado === 'completado' && (
-                        <>
-                          {((tipo === 'proyecto' && canChangeStatusTareaProyecto) ||
-                            (tipo === 'oficina' && canChangeStatusTareaGeneral)) && (
+                          {estado === 'completado' && (
                             <Chip
                               label="Reactivar"
                               color="warning"
                               size="small"
-                                onClick={() => onChangeEstado(p.id, 'pendiente')}
-                                sx={{ fontSize: '1rem', height: 28 }}
+                              onClick={() => handleChangeEstado(p.id, 'pendiente')}
+                              sx={{ fontSize: '1rem', height: 28 }}
                             />
                           )}
                         </>
                       )}
 
                       {/* Eliminar */}
-                      {onDeletePendiente &&
-                        ((tipo === 'proyecto' && canDeleteTareaProyecto) ||
-                          (tipo === 'oficina' && canDeleteTareaGeneral)) && (
-                          <Chip
-                            label="Eliminar"
-                            color="error"
-                            size="small"
-                              onClick={() => setDeleteId(p.id)}
-                              sx={{ fontSize: '1rem', height: 28 }}
-                          />
-                        )}
+                      {onDeletePendiente && canDelete && (
+                        <Chip
+                          label="Eliminar"
+                          color="error"
+                          size="small"
+                          onClick={() => handleDelete(p.id)}
+                          sx={{ fontSize: '1rem', height: 28 }}
+                        />
+                      )}
                     </Box>
                   </Box>
                 ))
@@ -281,10 +307,7 @@ export const ModalPendientesPorEstado: FC<Props> = ({
           type="pendiente"
           open={true}
           onClose={() => setDeleteId(null)}
-          onConfirm={() => {
-            onDeletePendiente(deleteId);
-            setDeleteId(null);
-          }}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </>

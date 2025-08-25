@@ -381,6 +381,7 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
       'Ver tareas generales',
       'Crear tarea general',
       'Cambiar status de tarea general',
+      'Eliminar tarea general',
     ],
   },
 };

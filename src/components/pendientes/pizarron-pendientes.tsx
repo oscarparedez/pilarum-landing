@@ -110,20 +110,20 @@ export const PizarronPendientes: FC<Props> = ({ tipo }) => {
         alignItems="center"
         mb={3}
       >
-        {(tipo === 'oficina' && canCreateTareaGeneral) ||
-          (tipo === 'proyecto' && canCreateTareaProyecto && (
-            <Button
-              startIcon={
-                <SvgIcon>
-                  <PlusIcon />
-                </SvgIcon>
-              }
-              onClick={() => setCrearModalOpen(true)}
-              variant="contained"
-            >
-              Nueva tarea
-            </Button>
-          ))}
+        {((tipo === 'oficina' && canCreateTareaGeneral) ||
+          (tipo === 'proyecto' && canCreateTareaProyecto)) && (
+          <Button
+            startIcon={
+              <SvgIcon>
+                <PlusIcon />
+              </SvgIcon>
+            }
+            onClick={() => setCrearModalOpen(true)}
+            variant="contained"
+          >
+            Nueva tarea
+          </Button>
+        )}
       </Stack>
 
       <Grid
