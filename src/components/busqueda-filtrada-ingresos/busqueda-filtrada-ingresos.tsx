@@ -1,8 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Button, Typography, Stack, Card, CardContent,
-  TextField, MenuItem, Chip, Paper, Divider,
-  CircularProgress
+  Box,
+  Button,
+  Typography,
+  Stack,
+  Card,
+  CardContent,
+  TextField,
+  MenuItem,
+  Chip,
+  Paper,
+  Divider,
+  CircularProgress,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import toast from 'react-hot-toast';
@@ -93,7 +102,9 @@ export function BusquedaFiltrada<T>({
     const q: any = {
       empresa: draftFilters.empresa ? Number(draftFilters.empresa) : undefined,
       proyecto: draftFilters.proyectoId ? Number(draftFilters.proyectoId) : undefined,
-      fecha_inicio: draftFilters.fechaInicio ? format(draftFilters.fechaInicio, 'dd-MM-yyyy') : undefined,
+      fecha_inicio: draftFilters.fechaInicio
+        ? format(draftFilters.fechaInicio, 'dd-MM-yyyy')
+        : undefined,
       fecha_fin: draftFilters.fechaFin ? format(draftFilters.fechaFin, 'dd-MM-yyyy') : undefined,
     };
 
@@ -109,42 +120,73 @@ export function BusquedaFiltrada<T>({
     setItems([]); // no fetch; limpia resultados visibles
   };
 
-  const total = items.length > 0 && getMonto
-    ? items.reduce((acc, it) => acc + (getMonto(it) || 0), 0)
-    : 0;
+  const total =
+    items.length > 0 && getMonto ? items.reduce((acc, it) => acc + (getMonto(it) || 0), 0) : 0;
 
   return (
     <Box sx={{ p: 3 }}>
       {/* Header superior simple */}
-      <Typography variant="h5" sx={{ mb: 2 }}>{title}</Typography>
+      <Typography
+        variant="h5"
+        sx={{ mb: 2 }}
+      >
+        {title}
+      </Typography>
 
       {/* Filtros */}
       <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+          >
             {/* Empresa */}
             <TextField
-              select fullWidth label="Socio"
+              select
+              fullWidth
+              label="Socio"
               value={draftFilters.empresa ?? ''}
               onChange={(e) =>
-                setDraftFilters((s) => ({ ...s, empresa: e.target.value === '' ? '' : Number(e.target.value) }))
+                setDraftFilters((s) => ({
+                  ...s,
+                  empresa: e.target.value === '' ? '' : Number(e.target.value),
+                }))
               }
             >
               <MenuItem value="">Todas</MenuItem>
-              {socios.map((s) => <MenuItem key={s.id} value={s.id}>{s.nombre}</MenuItem>)}
+              {socios.map((s) => (
+                <MenuItem
+                  key={s.id}
+                  value={s.id}
+                >
+                  {s.nombre}
+                </MenuItem>
+              ))}
             </TextField>
 
             {/* Proyecto */}
             <TextField
-              select fullWidth label="Proyecto"
+              select
+              fullWidth
+              label="Proyecto"
               value={draftFilters.proyectoId ?? ''}
               onChange={(e) =>
-                setDraftFilters((s) => ({ ...s, proyectoId: e.target.value === '' ? '' : Number(e.target.value) }))
+                setDraftFilters((s) => ({
+                  ...s,
+                  proyectoId: e.target.value === '' ? '' : Number(e.target.value),
+                }))
               }
               disabled={!draftFilters.empresa}
             >
               <MenuItem value="">Seleccione proyecto</MenuItem>
-              {proyectos.map((p) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
+              {proyectos.map((p) => (
+                <MenuItem
+                  key={p.id}
+                  value={p.id}
+                >
+                  {p.nombre}
+                </MenuItem>
+              ))}
             </TextField>
 
             {/* Fechas */}
@@ -165,24 +207,48 @@ export function BusquedaFiltrada<T>({
             {extraFilters.map((f) => (
               <TextField
                 key={f.name}
-                select fullWidth
+                select
+                fullWidth
                 label={f.label}
                 value={draftFilters[f.name] ?? ''}
                 onChange={(e) =>
-                  setDraftFilters((s) => ({ ...s, [f.name]: e.target.value === '' ? '' : Number(e.target.value) }))
+                  setDraftFilters((s) => ({
+                    ...s,
+                    [f.name]: e.target.value === '' ? '' : Number(e.target.value),
+                  }))
                 }
               >
                 <MenuItem value="">Todos</MenuItem>
                 {f.options.map((opt) => (
-                  <MenuItem key={opt.id} value={opt.id}>{opt.nombre}</MenuItem>
+                  <MenuItem
+                    key={opt.id}
+                    value={opt.id}
+                  >
+                    {opt.nombre}
+                  </MenuItem>
                 ))}
               </TextField>
             ))}
           </Stack>
 
-          <Stack direction="row" spacing={2} sx={{ mt: 2 }} justifyContent="flex-end">
-            <Button variant="outlined" onClick={handleLimpiar}>Limpiar</Button>
-            <Button variant="contained" onClick={handleBuscar}>Buscar</Button>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ mt: 2 }}
+            justifyContent="flex-end"
+          >
+            <Button
+              variant="outlined"
+              onClick={handleLimpiar}
+            >
+              Limpiar
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleBuscar}
+            >
+              Buscar
+            </Button>
           </Stack>
         </CardContent>
       </Card>
@@ -201,9 +267,21 @@ export function BusquedaFiltrada<T>({
           }}
         >
           <Chip label={`${items.length} resultados`} />
-          <Stack spacing={0} alignItems="flex-end">
-            <Typography variant="caption" color="text.secondary">Total</Typography>
-            <Typography variant="h6" color="primary" fontWeight="bold">
+          <Stack
+            spacing={0}
+            alignItems="flex-end"
+          >
+            <Typography
+              variant="caption"
+              color="text.secondary"
+            >
+              Total
+            </Typography>
+            <Typography
+              variant="h6"
+              color="primary"
+              fontWeight="bold"
+            >
               {formatearQuetzales(total)}
             </Typography>
           </Stack>
@@ -214,16 +292,23 @@ export function BusquedaFiltrada<T>({
         {/* Tabla (tú la renderizas) */}
         <Box sx={{ overflowX: 'auto' }}>
           {loading ? (
-            <Box sx={{ p: 2 }}><FullPageLoader /></Box>
+            <Box sx={{ p: 2 }}>
+              <FullPageLoader />
+            </Box>
           ) : items.length === 0 ? (
-            <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box
+              sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
               <Typography>Sin resultados</Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+              >
                 Total: <b>{formatearQuetzales(0)}</b>
               </Typography>
             </Box>
           ) : (
-            renderTable(items)  // <Table> … </Table>
+            renderTable(items) // <Table> … </Table>
           )}
         </Box>
       </Paper>

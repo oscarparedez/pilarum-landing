@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { useGastosOperativosApi } from 'src/api/gastosOperativosMaquinaria/useGastosOperativosMaquinariaApi';
-import { NuevaMaquinaria, NuevoGastoOperativo } from 'src/api/types';
+import { ActualizarGastoOperativo, NuevaMaquinaria, NuevoGastoOperativo } from 'src/api/types';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/pages/oficina/roles/permissions';
 
@@ -82,7 +82,7 @@ const Page: NextPage = () => {
   );
 
   const handleActualizarGastoOperativo = useCallback(
-    async (gastoId: number, data: NuevoGastoOperativo) => {
+    async (gastoId: number, data: ActualizarGastoOperativo) => {
       if (!maquinariaId || Array.isArray(maquinariaId)) return;
       try {
         setLoading(true);

@@ -242,26 +242,45 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
                     },
                   }}
                 >
-                  <Stack alignItems="center" spacing={1} sx={{ p: 3 }}>
+                  <Stack
+                    alignItems="center"
+                    spacing={1}
+                    sx={{ p: 3 }}
+                  >
                     <Typography variant="h5">{item.value}</Typography>
 
-                    <Typography color="text.secondary" variant="overline" align="center">
+                    <Typography
+                      color="text.secondary"
+                      variant="overline"
+                      align="center"
+                    >
                       {item.secondaryText ?? '-'}
                     </Typography>
 
-                    <Typography color="text.secondary" variant="overline">
+                    <Typography
+                      color="text.secondary"
+                      variant="overline"
+                    >
                       {item.label}
                     </Typography>
 
                     {/* 🔹 Desglose para Costos: pagos vs materiales */}
                     {'breakdownText' in item && item.breakdownText && item.label === 'Costos' && (
-                      <Typography color="text.secondary" variant="caption" align="center">
+                      <Typography
+                        color="text.secondary"
+                        variant="caption"
+                        align="center"
+                      >
                         {item.breakdownText}
                       </Typography>
                     )}
 
                     {item.buttonLabel && (
-                      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', width: '100%' }}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ flexWrap: 'wrap', width: '100%' }}
+                      >
                         {canRegistrarIngresosCostos && (
                           <Button
                             size="large"

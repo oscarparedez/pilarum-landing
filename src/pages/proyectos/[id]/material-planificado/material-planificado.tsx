@@ -96,10 +96,18 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
         py={6}
         px={2}
       >
-        <Typography variant="h6" color="text.secondary" gutterBottom>
+        <Typography
+          variant="h6"
+          color="text.secondary"
+          gutterBottom
+        >
           No hay material con stock en este proyecto
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2, textAlign: 'center' }}
+        >
           Cuando haya existencias, aparecerán aquí.
         </Typography>
         <Tooltip title="Ir a la pantalla para trasladar/devolver materiales">
@@ -133,18 +141,29 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
           <Stack spacing={0.5}>
             <Typography variant="h5">Material planificado</Typography>
             {hayMaterial && (
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 Valor total de materiales asignados:&nbsp;
                 <strong>{formatearQuetzales(totalValorMateriales)}</strong>
               </Typography>
             )}
           </Stack>
 
-          <Stack direction="row" spacing={1}>
+          <Stack
+            direction="row"
+            spacing={1}
+          >
             {hayMaterial && canTrasladarABodegaCentral && (
               <Tooltip title="Ir a la pantalla para trasladar/devolver materiales">
                 <span>
-                  <Button onClick={irATrasladar} variant="contained" color="secondary" endIcon={<SendIcon />}>
+                  <Button
+                    onClick={irATrasladar}
+                    variant="contained"
+                    color="secondary"
+                    endIcon={<SendIcon />}
+                  >
                     Trasladar a bodega
                   </Button>
                 </span>
@@ -172,11 +191,20 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
                   const nb = b.material.nombre ?? '';
                   return orden === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
                 });
-                const pageItems = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+                const pageItems = sorted.slice(
+                  (currentPage - 1) * pageSize,
+                  currentPage * pageSize
+                );
 
                 return (
-                  <TableContainer component={Paper} sx={{ borderRadius: 0 }}>
-                    <Table size="small" stickyHeader>
+                  <TableContainer
+                    component={Paper}
+                    sx={{ borderRadius: 0 }}
+                  >
+                    <Table
+                      size="small"
+                      stickyHeader
+                    >
                       <TableHead>
                         <TableRow>
                           <TableCell>Material</TableCell>
@@ -205,12 +233,20 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
                               </TableCell>
                               <TableCell>{inv.material.unidad?.nombre ?? '—'}</TableCell>
                               <TableCell>{inv.cantidad ?? 0}</TableCell>
-                              <TableCell>{formatearQuetzales(Number(inv.precio_unitario))}</TableCell>
+                              <TableCell>
+                                {formatearQuetzales(Number(inv.precio_unitario))}
+                              </TableCell>
                               {showActions && (
                                 <TableCell>
-                                  <Stack direction="row" spacing={1}>
+                                  <Stack
+                                    direction="row"
+                                    spacing={1}
+                                  >
                                     <Tooltip title="Ver movimientos">
-                                      <IconButton onClick={() => irAMovimientos(inv.id)} size="small">
+                                      <IconButton
+                                        onClick={() => irAMovimientos(inv.id)}
+                                        size="small"
+                                      >
                                         <SvgIcon>
                                           <VisibilityIcon />
                                         </SvgIcon>
@@ -241,7 +277,10 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
                 borderColor: 'divider',
               }}
             >
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+              >
                 Valor total de materiales asignados:&nbsp;
                 <strong>{formatearQuetzales(totalValorMateriales)}</strong>
               </Typography>

@@ -20,7 +20,7 @@ import { ServicioImagenesModal } from './servicio-imagenes-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { ModalEditarServicio } from './editar-servicio-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
-import { GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
+import { ActualizarGastoOperativo, GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
 import { formatearFechaHora } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
@@ -29,7 +29,7 @@ import { PermissionId } from 'src/pages/oficina/roles/permissions';
 interface HistorialServiciosProps {
   servicios: GastoOperativo[];
   onCrearServicio: (data: NuevoGastoOperativo) => void;
-  onActualizarServicio: (id: number, data: NuevoGastoOperativo) => void;
+  onActualizarServicio: (id: number, data: ActualizarGastoOperativo) => void;
   onEliminarServicio: (id: number) => void;
 }
 
@@ -83,7 +83,7 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
   );
 
   const handleActualizarServicio = useCallback(
-    (id: number, data: NuevoGastoOperativo) => {
+    (id: number, data: ActualizarGastoOperativo) => {
       onActualizarServicio(id, data);
       setEditarServicio(null);
     },

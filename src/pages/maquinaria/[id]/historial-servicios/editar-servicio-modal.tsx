@@ -112,7 +112,7 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
       fotos: nuevas.map((n) => n.file),
     };
 
-    console.log("mantener ids on submit:", payload.mantener_ids);
+    console.log('mantener ids on submit:', payload.mantener_ids);
 
     try {
       await onConfirm(servicio.id, payload);
@@ -135,15 +135,29 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   );
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar servicio</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha del servicio
             </Typography>
-            <DateCalendar value={fecha} onChange={(v) => setFecha(v)} />
+            <DateCalendar
+              value={fecha}
+              onChange={(v) => setFecha(v)}
+            />
           </Box>
 
           <TextField
@@ -178,7 +192,10 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
           />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Subir imágenes (máximo 3)
             </Typography>
             <Box
@@ -204,8 +221,13 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
               }}
             >
               <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary' }} />
-              <Typography color="text.secondary">Arrastra o haz clic para subir imágenes</Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography color="text.secondary">
+                Arrastra o haz clic para subir imágenes
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 Máximo 3 archivos (.jpg, .png, .heic)
               </Typography>
               <input
@@ -219,9 +241,16 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
             </Box>
 
             {gridItems.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {gridItems.map((item, i) => (
-                  <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                  <Box
+                    key={i}
+                    sx={{ position: 'relative', width: 80, height: 80 }}
+                  >
                     {item.kind === 'nueva' && !nuevas[i - existentes.length]?.loaded && (
                       <Box
                         sx={{
@@ -249,7 +278,8 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
                           if (idxNueva >= 0) {
                             setNuevas((prev) => {
                               const copy = [...prev];
-                              if (copy[idxNueva]) copy[idxNueva] = { ...copy[idxNueva], loaded: true };
+                              if (copy[idxNueva])
+                                copy[idxNueva] = { ...copy[idxNueva], loaded: true };
                               return copy;
                             });
                           }

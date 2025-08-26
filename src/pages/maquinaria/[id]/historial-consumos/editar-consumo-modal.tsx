@@ -102,7 +102,7 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
   const handleConfirm = async () => {
     if (!fecha || !descripcion || !costo || !tipoDocumento) return;
 
-    const payload: ActualizarConsumoOperativo = {
+    const payload: ActualizarGastoOperativo = {
       descripcion,
       fecha: format(fecha, 'yyyy-MM-dd'),
       costo,
@@ -132,15 +132,29 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
   );
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar consumo</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha del consumo
             </Typography>
-            <DateCalendar value={fecha} onChange={(newValue) => setFecha(newValue)} />
+            <DateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
 
           <TextField
@@ -175,7 +189,10 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
           />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Subir imágenes (máximo 3)
             </Typography>
             <Box
@@ -201,8 +218,13 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
               }}
             >
               <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary' }} />
-              <Typography color="text.secondary">Arrastra o haz clic para subir imágenes</Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography color="text.secondary">
+                Arrastra o haz clic para subir imágenes
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 Máximo 3 archivos (.jpg, .png, .heic)
               </Typography>
               <input
@@ -216,9 +238,16 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
             </Box>
 
             {gridItems.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {gridItems.map((item, i) => (
-                  <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                  <Box
+                    key={i}
+                    sx={{ position: 'relative', width: 80, height: 80 }}
+                  >
                     {item.kind === 'nueva' && !nuevas[i - existentes.length]?.loaded && (
                       <Box
                         sx={{
@@ -246,7 +275,8 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
                           if (idxNueva >= 0) {
                             setNuevas((prev) => {
                               const copy = [...prev];
-                              if (copy[idxNueva]) copy[idxNueva] = { ...copy[idxNueva], loaded: true };
+                              if (copy[idxNueva])
+                                copy[idxNueva] = { ...copy[idxNueva], loaded: true };
                               return copy;
                             });
                           }

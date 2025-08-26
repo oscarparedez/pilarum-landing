@@ -29,7 +29,7 @@ import { PermissionId } from 'src/pages/oficina/roles/permissions';
 interface HistorialConsumosProps {
   consumos: GastoOperativo[];
   onCrearConsumo: (data: NuevoGastoOperativo) => void;
-  onActualizarConsumo: (id: number, data: NuevoGastoOperativo) => void;
+  onActualizarConsumo: (id: number, data: ActualizarGastoOperativo) => void;
   onEliminarConsumo: (id: number) => void;
 }
 

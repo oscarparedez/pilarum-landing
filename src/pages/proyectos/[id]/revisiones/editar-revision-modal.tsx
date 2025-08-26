@@ -130,10 +130,18 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
   );
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>Editar revisión</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3} mt={1}>
+        <Stack
+          spacing={3}
+          mt={1}
+        >
           <TextField
             fullWidth
             label="Título"
@@ -150,14 +158,23 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
           />
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Fecha de la revisión
             </Typography>
-            <DateCalendar value={fecha} onChange={(newValue) => setFecha(newValue)} />
+            <DateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
 
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+            >
               Subir imágenes (máximo 3)
             </Typography>
             <Box
@@ -188,7 +205,10 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
               <Typography color="text.secondary">
                 Arrastra o haz clic para subir imágenes
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 Máximo 3 archivos (.jpg, .png, .heic)
               </Typography>
               <input
@@ -202,9 +222,16 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
             </Box>
 
             {gridItems.length > 0 && (
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                mt={2}
+              >
                 {gridItems.map((item, i) => (
-                  <Box key={i} sx={{ position: 'relative', width: 80, height: 80 }}>
+                  <Box
+                    key={i}
+                    sx={{ position: 'relative', width: 80, height: 80 }}
+                  >
                     {/* Loader solo para nuevas mientras cargan */}
                     {item.kind === 'nueva' && !nuevas[i - existentes.length]?.loaded && (
                       <Box
@@ -236,7 +263,8 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
                           if (idxNueva >= 0) {
                             setNuevas((prev) => {
                               const copy = [...prev];
-                              if (copy[idxNueva]) copy[idxNueva] = { ...copy[idxNueva], loaded: true };
+                              if (copy[idxNueva])
+                                copy[idxNueva] = { ...copy[idxNueva], loaded: true };
                               return copy;
                             });
                           }

@@ -204,6 +204,7 @@ export const useProyectosApi = () => {
       getAsignacionesPersonal,
       getRevisiones,
       getSociosInternos,
+      getInventario,
     ]
   );
 
