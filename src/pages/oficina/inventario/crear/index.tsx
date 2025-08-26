@@ -32,6 +32,7 @@ import { useProveedoresApi } from 'src/api/proveedores/useProveedoresApi';
 import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/router';
+import { formatearQuetzales } from 'src/utils/format-currency';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -326,7 +327,7 @@ const Page: NextPage = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography fontWeight="medium">Q{subtotal.toFixed(2)}</Typography>
+                      <Typography fontWeight="medium">{formatearQuetzales(Number(subtotal))}</Typography>
                     </TableCell>
                     <TableCell align="center">
                       <IconButton

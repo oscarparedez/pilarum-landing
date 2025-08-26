@@ -92,6 +92,7 @@ const Page: NextPage = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
+                <TableCell></TableCell>
                 <TableCell>ID Movimiento</TableCell>
                 <TableCell>Tipo</TableCell>
                 <TableCell>Cantidad</TableCell>
@@ -101,13 +102,14 @@ const Page: NextPage = () => {
             </TableHead>
             <TableBody>
               {inventario?.movimientos?.length ? (
-                inventario.movimientos.map((mov) => (
+                inventario.movimientos.map((mov, index) => (
                   <TableRow
                     key={mov.id}
                     hover
                     sx={{ cursor: 'pointer' }}
                     onClick={() => onClickMovimiento(mov.id)}
                   >
+                    <TableCell>{index + 1}</TableCell>
                     <TableCell>{mov.orden_movimiento_id}</TableCell>
                     <TableCell>
                       {mov.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida de bodega'}

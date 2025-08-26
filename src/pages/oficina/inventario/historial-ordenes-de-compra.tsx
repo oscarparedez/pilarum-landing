@@ -105,9 +105,9 @@ export const HistorialOrdenesDeCompra = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {items.map((orden) => (
+                  {items.map((orden, index) => (
                     <TableRow key={orden.id}>
-                      <TableCell>{orden.id}</TableCell>
+                      <TableCell>{index + 1}</TableCell>
                       <TableCell>{formatearFecha(orden.fecha_creacion)}</TableCell>
                       <TableCell>{formatearFecha(orden.fecha_factura)}</TableCell>
                       <TableCell>

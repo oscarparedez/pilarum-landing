@@ -94,9 +94,9 @@ export const HistorialRebajasInventario = () => {
                 </TableHead>
                 <TableBody>
                   {items.length > 0 ? (
-                    items.map((rebaja) => (
+                    items.map((rebaja, index) => (
                       <TableRow key={rebaja.id}>
-                        <TableCell>{rebaja.id}</TableCell>
+                        <TableCell>{index + 1}</TableCell>
                         <TableCell>{formatearFecha(rebaja.fecha_rebaja)}</TableCell>
                         <TableCell>{rebaja.motivo ?? '-'}</TableCell>
                         <TableCell>{rebaja.usuario_creador.first_name} {rebaja.usuario_creador.last_name}</TableCell>

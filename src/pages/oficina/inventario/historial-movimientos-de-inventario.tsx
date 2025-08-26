@@ -108,9 +108,9 @@ export const HistorialTrasladosInventario = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {items.map((orden) => (
+                    {items.map((orden, index) => (
                       <TableRow key={orden.id}>
-                        <TableCell>{orden.id}</TableCell>
+                        <TableCell>{index + 1}</TableCell>
                         <TableCell>{formatearFecha(orden.fecha_movimiento)}</TableCell>
                         <TableCell>{mapTipoMovimiento(orden.tipo_movimiento)}</TableCell>
                         <TableCell>{orden.proyecto.nombre}</TableCell>

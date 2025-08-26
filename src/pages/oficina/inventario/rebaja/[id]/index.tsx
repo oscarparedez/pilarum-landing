@@ -82,6 +82,7 @@ const Page: NextPage = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
+                <TableCell></TableCell>
                 <TableCell>Material</TableCell>
                 <TableCell>Marca</TableCell>
                 <TableCell>Unidad</TableCell>
@@ -91,8 +92,9 @@ const Page: NextPage = () => {
             </TableHead>
             <TableBody>
               {rebaja?.materiales?.length ? (
-                rebaja.materiales.map((detalle: DetalleInventarioMaterial) => (
+                rebaja.materiales.map((detalle: DetalleInventarioMaterial, index) => (
                   <TableRow key={detalle.id}>
+                    <TableCell>{index + 1}</TableCell>
                     <TableCell>{detalle.inventario.material.nombre}</TableCell>
                     <TableCell>{detalle.inventario.material.marca?.nombre}</TableCell>
                     <TableCell>{detalle.inventario.material.unidad?.nombre}</TableCell>

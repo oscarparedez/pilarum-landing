@@ -28,7 +28,7 @@ export type CostosBaseFilters = {
   proyectoId?: number | '';
 
   equipoId?: number | '';
-  ordenCompraId?: number | '';
+  ordenCompraId?: string | '';
 };
 
 type Props<T> = {
@@ -154,7 +154,7 @@ export function BusquedaFiltradaCostos<T>({
     }
 
     if (filters.tipo_origen === 'orden_compra') {
-      q.orden_compra = filters.ordenCompraId ? Number(filters.ordenCompraId) : undefined;
+      q.orden_compra = filters.ordenCompraId || undefined; // string o vacío
     }
 
     loadData(q);
@@ -292,27 +292,18 @@ export function BusquedaFiltradaCostos<T>({
 
             {showOrden && (
               <TextField
-                select
                 fullWidth
-                label="Orden de compra"
+                label="Número de factura"
                 value={filters.ordenCompraId ?? ''}
                 onChange={(e) =>
                   setFilters((s) => ({
                     ...s,
-                    ordenCompraId: e.target.value === '' ? '' : Number(e.target.value),
+                    ordenCompraId: e.target.value,
                   }))
                 }
-              >
-                <MenuItem value="">Todas</MenuItem>
-                {ordenes.map((oc) => (
-                  <MenuItem
-                    key={oc.id}
-                    value={oc.id}
-                  >
-                    {oc.numero_factura || `OC-${oc.id}`}
-                  </MenuItem>
-                ))}
-              </TextField>
+                placeholder="Ej: 12345"
+                autoComplete="off"
+              />
             )}
 
             <DatePicker

@@ -106,6 +106,7 @@ const Page: NextPage = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
+                <TableCell></TableCell>
                 <TableCell>Material</TableCell>
                 <TableCell>Cantidad</TableCell>
                 <TableCell>Precio Unitario (Q)</TableCell>
@@ -113,8 +114,9 @@ const Page: NextPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {orden.compras.map((item) => (
+              {orden.compras.map((item, index) => (
                 <TableRow key={item.id}>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.material.nombre}</TableCell>
                   <TableCell>{item.cantidad}</TableCell>
                   <TableCell>Q{Number(item.precio_unitario).toFixed(2)}</TableCell>

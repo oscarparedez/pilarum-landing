@@ -126,12 +126,12 @@ export const Inventario = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {items.map((item) => (
+                  {items.map((item, index) => (
                     <TableRow
                       key={item.id}
                       hover
                     >
-                      <TableCell>{item.id}</TableCell>
+                      <TableCell>{index + 1}</TableCell>
                       <TableCell>{item.material?.nombre || '-'}</TableCell>
                       <TableCell>{item.material?.unidad?.nombre || '-'}</TableCell>
                       <TableCell>{item.cantidad}</TableCell>
