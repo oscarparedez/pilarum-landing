@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { mapPresupuestoToFrontend } from './utils';
-import { AmpliacionPresupuesto } from 'src/pages/proyectos/[id]/index.d';
+import { AmpliacionPresupuesto } from 'src/api/types';
 
 export type TipoPresupuesto = 'inicial' | 'ampliacion';
 

@@ -8,7 +8,7 @@ import { useSettings } from 'src/hooks/use-settings';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { PizarronPendientes } from 'src/components/pendientes/pizarron-pendientes';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 
 const Page: NextPage = () => {
   const canViewPizarronGeneral = useHasPermission(PermissionId.VER_TAREAS_GENERALES);

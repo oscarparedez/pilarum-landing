@@ -1,4 +1,4 @@
-import { AmpliacionPresupuesto } from "src/pages/proyectos/[id]/index.d";
+import { AmpliacionPresupuesto } from "src/api/types";
 
 export const mapPresupuestoToFrontend = (data: any): AmpliacionPresupuesto => ({
   id: data.id,

@@ -23,11 +23,11 @@ import { NextPage } from 'next';
 import toast from 'react-hot-toast';
 
 import { FullPageLoader } from 'src/components/loader/Loader';
-import { ModalCrearTipoPago } from './crear-tipo-pago-modal';
-import { ModalEditarTipoPago } from './editar-tipo-pago-modal';
+import { ModalCrearTipoPago } from 'src/sections/proyectos/configuracion/tipos-pagos/crear-tipo-pago-modal';
+import { ModalEditarTipoPago } from 'src/sections/proyectos/configuracion/tipos-pagos/editar-tipo-pago-modal';
 import { useTiposPagoApi } from 'src/api/tipoPagos/useTipoPagosApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { formatearFecha } from 'src/utils/format-date';
 import { NuevoTipoCosto, TipoCosto } from 'src/api/types';
 
@@ -121,11 +121,6 @@ const Page: NextPage = () => {
           {(currentPage, orden) => {
             const items = tiposPago
               .filter((tipo) => tipo.nombre.toLowerCase().includes(search.toLowerCase()))
-              .sort((a, b) =>
-                orden === 'asc'
-                  ? a.nombre.localeCompare(b.nombre)
-                  : b.nombre.localeCompare(a.nombre)
-              )
               .slice((currentPage - 1) * 5, currentPage * 5);
 
             return (

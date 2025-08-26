@@ -23,11 +23,11 @@ import { NextPage } from 'next';
 import toast from 'react-hot-toast';
 
 import { useSociosApi } from 'src/api/socios/useSociosApi';
-import { ModalCrearSocio } from './crear-socio-modal';
+import { ModalCrearSocio } from 'src/sections/oficina/gestion-socios/crear-socio-modal';
 import { FullPageLoader } from 'src/components/loader/Loader';
-import { ModalEditarSocio } from './editar-socio-modal';
+import { ModalEditarSocio } from 'src/sections/oficina/gestion-socios/editar-socio-modal';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { NuevoSocio, Socio } from 'src/api/types';
 
 const Page: NextPage = () => {
@@ -46,6 +46,7 @@ const Page: NextPage = () => {
   const fetchSocios = useCallback(async () => {
     try {
       const data = await getSocios();
+      console.log("SOCIOSS", data);
       setSocios(data);
     } catch {
       toast.error('Error al obtener socios');
@@ -120,11 +121,6 @@ const Page: NextPage = () => {
           {(currentPage, orden) => {
             const items = socios
               .filter((s) => s.nombre.toLowerCase().includes(search.toLowerCase()))
-              .sort((a, b) =>
-                orden === 'asc'
-                  ? a.nombre.localeCompare(b.nombre)
-                  : b.nombre.localeCompare(a.nombre)
-              )
               .slice((currentPage - 1) * 5, currentPage * 5);
 
             return (

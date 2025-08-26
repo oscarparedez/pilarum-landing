@@ -1,8 +1,3 @@
-export interface TipoIngreso {
-  id: number;
-  nombre: string;
-}
-
 export interface ModalCrearTipoIngresoProps {
   open: boolean;
   onClose: () => void;

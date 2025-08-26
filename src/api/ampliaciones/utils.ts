@@ -1,4 +1,5 @@
-import { AmpliacionFecha } from "src/pages/proyectos/[id]/index.d";
+import { AmpliacionFecha } from "src/api/types";
+
 
 export const mapAmpliacionToFrontend = (ampliacion: any): AmpliacionFecha => {
   return {

@@ -21,14 +21,14 @@ import AddIcon from '@mui/icons-material/Add';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
 
-import { ModalEditarMaterial } from './editar-material-modal';
-import { ModalCrearMaterial } from './crear-material-modal';
+import { ModalEditarMaterial } from 'src/sections/oficina/gestion-materiales/editar-material-modal';
+import { ModalCrearMaterial } from 'src/sections/oficina/gestion-materiales/crear-material-modal';
 import { useMaterialesApi } from 'src/api/materiales/useMaterialesApi';
 import { ConfigMaterial, Material, NuevoMaterial } from 'src/api/types';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);

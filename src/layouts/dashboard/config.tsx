@@ -15,7 +15,7 @@ import BuildingIcon from 'src/icons/untitled-ui/duocolor/building-04';
 import { tokens } from 'src/locales/tokens';
 import { paths } from 'src/paths';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 
 export interface Item {
   disabled?: boolean;

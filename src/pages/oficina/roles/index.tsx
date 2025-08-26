@@ -10,13 +10,13 @@ import { Seo } from 'src/components/seo';
 import { usePageView } from 'src/hooks/use-page-view';
 import { useSettings } from 'src/hooks/use-settings';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import { CrearRolModal } from './crear-rol-modal';
-import { DetalleRolModal } from './detalles-rol-modal';
+import { CrearRolModal } from 'src/sections/oficina/gestion-roles/crear-rol-modal';
+import { DetalleRolModal } from 'src/sections/oficina/gestion-roles/detalles-rol-modal';
 import { Rol as RolApiType, NuevoRol } from 'src/api/types';
 import toast from 'react-hot-toast';
 import { useRolesApi } from 'src/api/roles/useRolesApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from './permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { FullPageLoader } from 'src/components/loader/Loader';
 
 const Page: NextPage = () => {

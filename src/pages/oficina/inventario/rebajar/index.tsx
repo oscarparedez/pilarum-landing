@@ -14,7 +14,7 @@ import {
   TablaLineasInventario,
   useLineasInventario,
   LineaInventarioUI,
-} from '../components/tabla-lineas-inventario';
+} from 'src/sections/oficina/inventario/components/tabla-lineas-inventario';
 
 const Page: NextPage = () => {
   const router = useRouter();

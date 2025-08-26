@@ -15,8 +15,8 @@ import {
 } from '@mui/material';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import { ModalRegistrarPersona } from './crear-personal-modal';
-import { ModalEditarPersona } from './editar-personal-modal';
+import { ModalRegistrarPersona } from 'src/sections/oficina/gestion-planilla/crear-personal-modal';
+import { ModalEditarPersona } from 'src/sections/oficina/gestion-planilla/editar-personal-modal';
 import { NextPage } from 'next';
 import { usePlanillaApi } from 'src/api/planilla/usePlanillaApi';
 import toast from 'react-hot-toast';
@@ -24,7 +24,7 @@ import { NuevoUsuario, NuevoUsuarioConPassword, Rol, Usuario } from 'src/api/typ
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { useRolesApi } from 'src/api/roles/useRolesApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { FullPageLoader } from 'src/components/loader/Loader';
 
 const Page: NextPage = () => {

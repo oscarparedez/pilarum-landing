@@ -8,14 +8,13 @@ import { usePageView } from 'src/hooks/use-page-view';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { useProyectosApi } from 'src/api/proyectos/useProyectosApi';
 
-import { Timeline } from './timeline/timeline';
-import { ResumenFinanciero } from './resumen-financiero/resumen-financiero';
-import { MaterialPlanificado } from './material-planificado/material-planificado';
-import { Revisiones } from './revisiones/revisiones';
-import { Maquinaria } from './maquinaria/maquinaria';
-import { PersonalAsignado } from './personal/personal';
-import { EditarDatosBasicosModal } from './editar-datos-modal';
-import { ConfigProyecto, Tarea } from './index.d';
+import { Timeline } from 'src/sections/proyectos/timeline-ampliaciones/timeline';
+import { ResumenFinanciero } from 'src/sections/proyectos/resumen-financiero/resumen-financiero';
+import { MaterialPlanificado } from 'src/sections/proyectos/gestion-material-planificado/material-planificado';
+import { Revisiones } from 'src/sections/proyectos/seguimiento-revisiones/revisiones';
+import { Maquinaria } from 'src/sections/proyectos/gestion-maquinaria/maquinaria';
+import { PersonalAsignado } from 'src/sections/proyectos/gestion-personal/personal';
+import { EditarDatosBasicosModal } from 'src/sections/proyectos/gestion-datos/editar-datos-modal';
 import { useAmpliacionesApi } from 'src/api/ampliaciones/useAmpliacionesApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
@@ -25,13 +24,11 @@ import { usePagosApi } from 'src/api/pagos/usePagosApi';
 import { useAsignacionesMaquinariaApi } from 'src/api/asignacionesMaquinaria/useAsignacionesMaquinaria';
 import { useAsignacionesPersonalApi } from 'src/api/asignacionesPersonal/useAsignacionesPersonal';
 import { useRevisionesApi } from 'src/api/revisiones/useRevisionesApi';
-import { ActualizarRevision, NuevaAsignacionMaquinaria, NuevaRevision, NuevoProyecto, Proyecto } from 'src/api/types';
+import { ActualizarRevision, ConfigProyecto, NuevaAsignacionMaquinaria, NuevaRevision, NuevoProyecto, Proyecto } from 'src/api/types';
 import { format } from 'date-fns';
 import { PizarronPendientes } from 'src/components/pendientes/pizarron-pendientes';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
-
-export const tareasEjemplo: Tarea[] = [];
+import { PermissionId } from 'src/constants/roles/permissions';
 
 const Page: NextPage = () => {
   const settings = useSettings();

@@ -20,14 +20,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
-import { ModalCrearProveedor } from './crear-proveedor-modal';
-import { ModalEditarProveedor } from './editar-proveedor-modal';
+import { ModalCrearProveedor } from 'src/sections/oficina/gestion-proveedores/crear-proveedor-modal';
+import { ModalEditarProveedor } from 'src/sections/oficina/gestion-proveedores/editar-proveedor-modal';
 import { Proveedor, NuevoProveedor } from 'src/api/types';
 import { useProveedoresApi } from 'src/api/proveedores/useProveedoresApi';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);

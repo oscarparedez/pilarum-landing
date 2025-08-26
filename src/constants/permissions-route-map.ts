@@ -1,5 +1,5 @@
 // src/constants/permissions-route-map.ts
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { paths } from 'src/paths';
 
 export const routePermissions: Record<string, number> = {

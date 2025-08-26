@@ -5,11 +5,11 @@ import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { useSettings } from 'src/hooks/use-settings';
 import { usePageView } from 'src/hooks/use-page-view';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import { EstadisticasRapidas } from './estadisticas-rapidas/estadisticas-rapidas';
-import { Asignaciones } from './asignaciones/asignaciones';
-import { HistorialServicios } from './historial-servicios/historial-servicios';
-import { HistorialConsumos } from './historial-consumos/historial-consumos';
-import { EditarDatosBasicosModal } from './editar-datos-modal';
+import { EstadisticasRapidas } from 'src/sections/maquinaria/estadisticas-rapidas/estadisticas-rapidas';
+import { Asignaciones } from 'src/sections/maquinaria/asignaciones/asignaciones';
+import { HistorialServicios } from 'src/sections/maquinaria/historial-servicios/historial-servicios';
+import { HistorialConsumos } from 'src/sections/maquinaria/historial-consumos/historial-consumos';
+import { EditarDatosBasicosModal } from 'src/sections/maquinaria/datos-basicos/editar-datos-modal';
 import { ConfigMaquinaria, TipoMaquinaria } from './index.d';
 import toast from 'react-hot-toast';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
@@ -17,7 +17,7 @@ import { FullPageLoader } from 'src/components/loader/Loader';
 import { useGastosOperativosApi } from 'src/api/gastosOperativosMaquinaria/useGastosOperativosMaquinariaApi';
 import { ActualizarGastoOperativo, NuevaMaquinaria, NuevoGastoOperativo } from 'src/api/types';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 
 const Page: NextPage = () => {
   const settings = useSettings();

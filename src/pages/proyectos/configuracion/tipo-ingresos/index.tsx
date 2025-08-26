@@ -23,11 +23,11 @@ import { NextPage } from 'next';
 import toast from 'react-hot-toast';
 
 import { FullPageLoader } from 'src/components/loader/Loader';
-import { ModalCrearTipoIngreso } from './crear-tipo-ingreso-modal';
-import { ModalEditarTipoIngreso } from './editar-tipo-ingreso-modal';
+import { ModalCrearTipoIngreso } from 'src/sections/proyectos/configuracion/tipos-ingresos/crear-tipo-ingreso-modal';
+import { ModalEditarTipoIngreso } from 'src/sections/proyectos/configuracion/tipos-ingresos/editar-tipo-ingreso-modal';
 import { useTiposIngresoApi } from 'src/api/tipoIngresos/useTipoIngresosApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { NuevoTipoIngreso, TipoIngreso } from 'src/api/types';
 import { formatearFecha } from 'src/utils/format-date';
 
@@ -121,11 +121,6 @@ const Page: NextPage = () => {
           {(currentPage, orden) => {
             const items = tiposIngreso
               .filter((tipo) => tipo.nombre.toLowerCase().includes(search.toLowerCase()))
-              .sort((a, b) =>
-                orden === 'asc'
-                  ? a.nombre.localeCompare(b.nombre)
-                  : b.nombre.localeCompare(a.nombre)
-              )
               .slice((currentPage - 1) * 5, currentPage * 5);
 
             return (

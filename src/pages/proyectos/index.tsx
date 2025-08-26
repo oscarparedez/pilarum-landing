@@ -23,10 +23,10 @@ import { useRouter } from 'next/router';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { CrearProyectoModal } from './crear/crear-proyecto-modal';
+import { CrearProyectoModal } from 'src/sections/proyectos/creacion/crear-proyecto-modal';
 import { useProyectosApi } from 'src/api/proyectos/useProyectosApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { formatearFecha } from 'src/utils/format-date';
 
 const Page: NextPage = () => {

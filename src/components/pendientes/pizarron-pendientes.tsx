@@ -14,7 +14,7 @@ import { ModalPendientesPorEstado } from './pendientes-por-estado-modal';
 import { Box } from '@mui/system';
 import { useRouter } from 'next/router';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 
 interface Props {
   tipo: 'oficina' | 'proyecto';

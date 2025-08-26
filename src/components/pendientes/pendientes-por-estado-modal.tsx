@@ -15,7 +15,7 @@ import { Pendiente } from 'src/api/types';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 import { useTheme } from '@mui/material/styles';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/pages/oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { formatearFecha } from 'src/utils/format-date';
 
 interface Props {

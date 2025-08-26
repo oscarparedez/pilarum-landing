@@ -1,7 +1,4 @@
-import type { AmpliacionFecha, ConfigProyecto, Personal } from 'src/pages/proyectos/[id]/index.d';
-import { TipoIngreso } from 'src/pages/proyectos/configuracion/tipo-ingresos/index.d';
-import { TipoPago } from 'src/pages/proyectos/configuracion/tipo-pagos/index.d';
-import { AsignacionMaquinaria, AsignacionPersonal, Proyecto, Revision, Socio, Maquinaria, InventarioConfig } from '../types';
+import { AsignacionMaquinaria, AsignacionPersonal, Proyecto, Revision, Socio, Maquinaria, InventarioConfig, AmpliacionFecha, ConfigProyecto, TipoIngreso, TipoCosto } from 'src/api/types';
 
 
 export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
@@ -29,7 +26,7 @@ export const mapProyectoToConfig = (data: {
   ampliaciones: AmpliacionFecha[];
   presupuestos: any[];
   tiposIngreso: TipoIngreso[];
-  tiposPago: TipoPago[];
+  tiposPago: TipoCosto[];
   maquinaria: Maquinaria[];
   asignacionesMaquinaria: AsignacionMaquinaria[];
   usuarios: any[];

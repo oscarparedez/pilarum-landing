@@ -3,12 +3,12 @@ import {
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
-import { HistorialOrdenesDeCompra } from './historial-ordenes-de-compra';
-import { Inventario } from './inventario';
-import { HistorialRebajasInventario } from './historial-rebajas-de-inventario';
+import { HistorialOrdenesDeCompra } from 'src/sections/oficina/inventario/historial/historial-ordenes-de-compra';
+import { Inventario } from 'src/sections/oficina/inventario/inventario';
+import { HistorialRebajasInventario } from 'src/sections/oficina/inventario/historial/historial-rebajas-de-inventario';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../roles/permissions';
-import { HistorialTrasladosInventario } from './historial-movimientos-de-inventario';
+import { PermissionId } from 'src/constants/roles/permissions';
+import { HistorialTrasladosInventario } from 'src/sections/oficina/inventario/historial/historial-movimientos-de-inventario';
 
 const Page: NextPage = () => {
   const canViewHistorialOrdenesCompra = useHasPermission(PermissionId.VER_HIST_OC);

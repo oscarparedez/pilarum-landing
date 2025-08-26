@@ -21,12 +21,12 @@ import { usePageView } from 'src/hooks/use-page-view';
 import { useSettings } from 'src/hooks/use-settings';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { paths } from 'src/paths';
-import { ModalAgregarRecurso } from './agregar-recurso-modal';
+import { ModalAgregarRecurso } from 'src/sections/maquinaria/asignaciones/agregar-recurso-modal';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from '../oficina/roles/permissions';
+import { PermissionId } from 'src/constants/roles/permissions';
 import { MaquinariaConfig, NuevaMaquinaria } from 'src/api/types';
 import { formatearFecha } from 'src/utils/format-date';
 
