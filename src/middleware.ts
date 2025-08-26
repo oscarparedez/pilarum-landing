@@ -35,7 +35,7 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  // --- 🔹 Normalizar ruta para rutas dinámicas ---
+  // --- 🔹 Normalizar ruta para rutas dinamicas ---
   let normalizedPath = currentPath.replace(/\/\d+(?=\/|$)/g, '');
 
   // Determinar si la ruta requiere permiso específico
