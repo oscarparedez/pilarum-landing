@@ -270,6 +270,7 @@ export interface CostoGeneral {
   tipo_documento: string;
   monto: number;
   descripcion: string;
+  fecha_creacion: string;    // ISO date-time
   fecha: string;              // ISO date
   usuario_registro: Usuario;  // ya tienes esta interface definida
 }

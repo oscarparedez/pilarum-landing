@@ -20,6 +20,13 @@ import { useSociosApi } from '../socios/useSociosApi';
 import { NuevoProyecto, Proyecto } from '../types';
 import { useInventarioApi } from '../inventario/useInventarioApi';
 
+export type ProyectosQuery = { socio?: number | string };
+
+const buildQuery = (q?: ProyectosQuery) => {
+  if (!q?.socio) return '';
+  const p = new URLSearchParams({ socio: String(q.socio) });
+  return `?${p.toString()}`;
+};
 
 export const useProyectosApi = () => {
   const { fetchWithAuth } = useAuthApi();
@@ -37,11 +44,15 @@ export const useProyectosApi = () => {
   const { getInventarioPorProyecto: getInventario } = useInventarioApi();
   const { getRevisiones } = useRevisionesApi();
 
-  const getProyectos = useCallback(async (): Promise<Proyecto[]> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/`, { method: 'GET' });
-    if (!res.ok) throw new Error('Error al obtener proyectos');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const getProyectos = useCallback(
+    async (query?: ProyectosQuery): Promise<Proyecto[]> => {
+      const url = `${API_BASE_URL}/proyectos/${buildQuery(query)}`;
+      const res = await fetchWithAuth(url, { method: 'GET' });
+      if (!res.ok) throw new Error('Error al obtener proyectos');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   const getProyectoById = useCallback(
     async (id: number): Promise<Proyecto> => {
@@ -117,85 +128,84 @@ export const useProyectosApi = () => {
   );
 
   const getProyectoInfo = useCallback(
-  async (id: number): Promise<ConfigProyecto> => {
-    try {
-      const [
-        proyectoRaw,
-        socios,
-        ingresos,
-        pagos,
-        ampliaciones,
-        presupuestos,
-        tiposIngreso,
-        tiposPago,
-        maquinaria,
-        asignacionesMaquinaria,
-        usuarios,
-        asignacionesPersonal,
-        materialPlanificado,
-        revisiones
-      ] = await Promise.all([
-        getProyectoById(id),
-        getSociosInternos(),
-        getIngresos(id),
-        getPagos(id),
-        getAmpliaciones(id),
-        getPresupuestos(id),
-        getTiposIngreso(),
-        getTiposPago(),
-        getMaquinarias(),
-        getAsignacionesMaquinaria(id),
-        getUsuarios(),
-        getAsignacionesPersonal(id),
-        getInventario(id),
-        getRevisiones(id)
-      ]);
+    async (id: number): Promise<ConfigProyecto> => {
+      try {
+        const [
+          proyectoRaw,
+          socios,
+          ingresos,
+          pagos,
+          ampliaciones,
+          presupuestos,
+          tiposIngreso,
+          tiposPago,
+          maquinaria,
+          asignacionesMaquinaria,
+          usuarios,
+          asignacionesPersonal,
+          materialPlanificado,
+          revisiones,
+        ] = await Promise.all([
+          getProyectoById(id),
+          getSociosInternos(),
+          getIngresos(id),
+          getPagos(id),
+          getAmpliaciones(id),
+          getPresupuestos(id),
+          getTiposIngreso(),
+          getTiposPago(),
+          getMaquinarias(),
+          getAsignacionesMaquinaria(id),
+          getUsuarios(),
+          getAsignacionesPersonal(id),
+          getInventario(id),
+          getRevisiones(id),
+        ]);
 
-      const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
+        const proyecto = mapProyectoDatosBasicosToFrontend(proyectoRaw);
 
-      return mapProyectoToConfig({
-        id: proyecto.id,
-        nombre: proyecto.nombre,
-        ubicacion: proyecto.ubicacion,
-        fecha_inicio: proyecto.fechaInicio,
-        fecha_fin: proyecto.fechaFin,
-        socio_asignado: proyecto.socio_asignado,
-        socios: socios,
-        ingresos,
-        pagos,
-        ampliaciones,
-        presupuestos,
-        tiposIngreso,
-        tiposPago,
-        maquinaria,
-        asignacionesMaquinaria,
-        usuarios,
-        asignacionesPersonal,
-        materialPlanificado,
-        revisiones
-      });
-    } catch (error) {
-      console.error('Error al obtener los datos del proyecto completo:', error);
-      throw new Error('No se pudo obtener la información completa del proyecto');
-    }
-  },
-  [
-    getProyectoById,
-    getIngresos,
-    getPagos,
-    getAmpliaciones,
-    getPresupuestos,
-    getTiposIngreso,
-    getTiposPago,
-    getAsignacionesMaquinaria,
-    getMaquinarias,
-    getUsuarios,
-    getAsignacionesPersonal,
-    getRevisiones,
-    getSociosInternos
-  ]
-);
-
+        return mapProyectoToConfig({
+          id: proyecto.id,
+          nombre: proyecto.nombre,
+          ubicacion: proyecto.ubicacion,
+          fecha_inicio: proyecto.fechaInicio,
+          fecha_fin: proyecto.fechaFin,
+          socio_asignado: proyecto.socio_asignado,
+          socios: socios,
+          ingresos,
+          pagos,
+          ampliaciones,
+          presupuestos,
+          tiposIngreso,
+          tiposPago,
+          maquinaria,
+          asignacionesMaquinaria,
+          usuarios,
+          asignacionesPersonal,
+          materialPlanificado,
+          revisiones,
+        });
+      } catch (error) {
+        console.error('Error al obtener los datos del proyecto completo:', error);
+        throw new Error('No se pudo obtener la información completa del proyecto');
+      }
+    },
+    [
+      getProyectoById,
+      getIngresos,
+      getPagos,
+      getAmpliaciones,
+      getPresupuestos,
+      getTiposIngreso,
+      getTiposPago,
+      getAsignacionesMaquinaria,
+      getMaquinarias,
+      getUsuarios,
+      getAsignacionesPersonal,
+      getRevisiones,
+      getSociosInternos,
+    ]
+  );
 
   return {
     getProyectos,

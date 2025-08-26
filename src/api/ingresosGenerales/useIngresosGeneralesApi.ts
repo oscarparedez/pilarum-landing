@@ -3,26 +3,44 @@ import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { IngresoGeneral } from '../types';
 
+export type IngresosQuery = {
+  empresa?: number | string;      // id de socio/empresa
+  proyecto?: number | string;     // id de proyecto
+  tipo_ingreso?: number | string; // id de tipo de ingreso
+  fecha_inicio?: string;          // "DD-MM-YYYY"
+  fecha_fin?: string;             // "DD-MM-YYYY"
+};
+
+const buildQuery = (q?: IngresosQuery) => {
+  if (!q) return '';
+  const params = new URLSearchParams();
+  if (q.empresa) params.set('empresa', String(q.empresa));
+  if (q.proyecto) params.set('proyecto', String(q.proyecto));
+  if (q.tipo_ingreso) params.set('tipo_ingreso', String(q.tipo_ingreso));
+  if (q.fecha_inicio) params.set('fecha_inicio', q.fecha_inicio);
+  if (q.fecha_fin) params.set('fecha_fin', q.fecha_fin);
+  const s = params.toString();
+  return s ? `?${s}` : '';
+};
+
 export const useIngresosGeneralesApi = () => {
   const { fetchWithAuth } = useAuthApi();
 
-  const getIngresosGenerales = useCallback(async (): Promise<IngresoGeneral[]> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/ingresos/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener ingresos generales');
-    const data = await res.json();
-    return data;
-  }, [fetchWithAuth]);
+  const getIngresosGenerales = useCallback(
+    async (query?: IngresosQuery): Promise<IngresoGeneral[]> => {
+      const url = `${API_BASE_URL}/ingresos/${buildQuery(query)}`;
+      const res = await fetchWithAuth(url, { method: 'GET' });
+      if (!res.ok) throw new Error('Error al obtener ingresos generales');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   const getIngresoById = useCallback(
     async (ingresoId: number) => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/ingresos/${ingresoId}/`, {
-        method: 'GET',
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/ingresos/${ingresoId}/`, { method: 'GET' });
       if (!res.ok) throw new Error('Error al obtener ingreso general');
-      const data = await res.json();
-      return data;
+      return await res.json();
     },
     [fetchWithAuth]
   );
@@ -68,9 +86,7 @@ export const useIngresosGeneralesApi = () => {
 
   const eliminarIngreso = useCallback(
     async (ingresoId: number) => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/ingresos/${ingresoId}/`, {
-        method: 'DELETE',
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/ingresos/${ingresoId}/`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar ingreso general');
     },
     [fetchWithAuth]
