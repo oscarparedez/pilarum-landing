@@ -24,29 +24,28 @@ import {
   ExtraFilterOption,
 } from 'src/components/busqueda-filtrada-ingresos/busqueda-filtrada-ingresos';
 
-// Opcional: colores distintos por tipo de ingreso
-const chipColorPorIngreso = (nombre: string) => {
-  const lower = (nombre || '').toLowerCase();
-  if (lower.includes('venta')) return 'success';
-  if (lower.includes('aporte')) return 'info';
-  if (lower.includes('donación')) return 'warning';
-  return 'default';
-};
-
 const Page: NextPage = () => {
   const { getIngresosGenerales } = useIngresosGeneralesApi();
   const { getSociosInternos } = useSociosApi();
   const { getProyectos } = useProyectosApi();
   const { getTiposIngreso } = useTiposIngresoApi();
+  const [ loading, setLoading ] = useState(true);
 
   const [socios, setSocios] = useState<Socio[]>([]);
   const [tiposIngreso, setTiposIngreso] = useState<TipoIngreso[]>([]);
 
   useEffect(() => {
-    Promise.all([getSociosInternos(), getTiposIngreso()]).then(([s, t]) => {
-      setSocios(s);
-      setTiposIngreso(t);
-    });
+    setLoading(true);
+    try {
+      Promise.all([getSociosInternos(), getTiposIngreso()]).then(([s, t]) => {
+        setSocios(s);
+        setTiposIngreso(t);
+      });
+    } catch (error) {
+      console.error('Hubo un error cargando los socios o tipos de ingreso');
+    } finally {
+      setLoading(false);
+    }
   }, [getSociosInternos, getTiposIngreso]);
 
   const extraFilters: ExtraFilterOption[] = [

@@ -140,7 +140,7 @@ export function BusquedaFiltrada<T>({
             direction={{ xs: 'column', md: 'row' }}
             spacing={2}
           >
-            {/* Empresa */}
+            {/* Socio */}
             <TextField
               select
               fullWidth
@@ -153,7 +153,7 @@ export function BusquedaFiltrada<T>({
                 }))
               }
             >
-              <MenuItem value="">Todas</MenuItem>
+              <MenuItem value="">Todos</MenuItem>
               {socios.map((s) => (
                 <MenuItem
                   key={s.id}

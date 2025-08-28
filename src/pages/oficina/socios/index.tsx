@@ -44,12 +44,14 @@ const Page: NextPage = () => {
   const { getSocios, crearSocio, actualizarSocio } = useSociosApi();
 
   const fetchSocios = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await getSocios();
-      console.log("SOCIOSS", data);
       setSocios(data);
     } catch {
       toast.error('Error al obtener socios');
+    } finally {
+      setLoading(false);
     }
   }, [getSocios, setSocios]);
 
@@ -63,8 +65,8 @@ const Page: NextPage = () => {
   };
 
   const handleCrear = async (nuevo: NuevoSocio) => {
+    setLoading(true);
     try {
-      setLoading(true);
       await crearSocio(nuevo);
       toast.success('Socio creado correctamente');
       setModalCrearOpen(false);

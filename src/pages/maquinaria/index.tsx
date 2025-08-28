@@ -70,10 +70,9 @@ const Page: NextPage = () => {
   const canCreateMaquinaria = useHasPermission(PermissionId.CREAR_MAQUINARIA);
 
   const cargarRecursos = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const data = await getMaquinariasConAsignaciones();
-      console.log('DATA MAQUINARIA CON ASIGNACIONES:', JSON.stringify(data, null, 2));
       setRecursos(data as any);
     } catch (err) {
       console.error('Error al cargar recursos:', err);
@@ -95,6 +94,7 @@ const Page: NextPage = () => {
   };
 
   const crearRecurso = async (nuevoRecurso: NuevaMaquinaria) => {
+    setLoading(true);
     try {
       await crearMaquinaria(nuevoRecurso);
       await cargarRecursos();
@@ -104,6 +104,7 @@ const Page: NextPage = () => {
       toast.error('Error al crear recurso');
     } finally {
       setAgregarModalOpen(false);
+      setLoading(false);
     }
   };
 

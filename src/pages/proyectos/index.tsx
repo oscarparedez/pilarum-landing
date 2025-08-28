@@ -28,6 +28,7 @@ import { useProyectosApi } from 'src/api/proyectos/useProyectosApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { formatearFecha } from 'src/utils/format-date';
+import { FullPageLoader } from 'src/components/loader/Loader';
 
 const Page: NextPage = () => {
   const settings = useSettings();
@@ -39,6 +40,7 @@ const Page: NextPage = () => {
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [modalCrearProyectoOpen, setModalCrearProyectoOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [ loading, setLoading ] = useState(false);
 
   usePageView();
 
@@ -63,11 +65,14 @@ const Page: NextPage = () => {
   }, []);
 
   const cargarProyectos = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await getProyectos();
       setProyectos(data);
     } catch (error) {
       toast.error('Error al cargar proyectos');
+    } finally {
+      setLoading(false);
     }
   }, [getProyectos, setProyectos]);
 
@@ -76,6 +81,7 @@ const Page: NextPage = () => {
   }, [cargarProyectos]);
 
   const handleCrearProyecto = async (data: any) => {
+    setLoading(true);
     try {
       await crearProyecto(data);
       toast.success('Proyecto creado exitosamente');
@@ -83,6 +89,8 @@ const Page: NextPage = () => {
       cargarProyectos();
     } catch (error) {
       toast.error('Error al crear proyecto');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -95,6 +103,7 @@ const Page: NextPage = () => {
 
   return (
     <>
+      {loading && <FullPageLoader />}
       <Seo title="Proyectos" />
       <Box
         component="main"

@@ -35,8 +35,8 @@ const Page: NextPage = () => {
   const [rolSeleccionado, setRolSeleccionado] = useState<RolApiType | null>(null);
 
   const fetchRoles = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const data = await getRoles();
       setRoles(data);
     } catch (error) {
@@ -52,6 +52,7 @@ const Page: NextPage = () => {
 
   const handleCrear = useCallback(
     async (data: NuevoRol) => {
+      setLoading(true);
       try {
         await crearRol(data);
         await fetchRoles();
@@ -59,6 +60,8 @@ const Page: NextPage = () => {
         toast.success('Rol creado exitosamente');
       } catch (error) {
         toast.error('Error al crear el rol');
+      } finally {
+        setLoading(false);
       }
     },
     [crearRol, fetchRoles]
@@ -66,7 +69,8 @@ const Page: NextPage = () => {
 
   const handleActualizarRol = useCallback(
     async (updatedPermissions: number[]) => {
-      if (!rolSeleccionado) return;
+      if (!rolSeleccionado) return
+      setLoading(true);
       try {
         await actualizarRol(rolSeleccionado.id, { permissions: updatedPermissions });
         await fetchRoles();
@@ -74,6 +78,8 @@ const Page: NextPage = () => {
         toast.success('Rol actualizado exitosamente');
       } catch (error) {
         toast.error('Error al actualizar el rol');
+      } finally {
+        setLoading(false);
       }
     },
     [actualizarRol, fetchRoles, rolSeleccionado]

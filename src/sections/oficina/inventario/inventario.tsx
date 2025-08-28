@@ -29,6 +29,7 @@ import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 export const Inventario = () => {
   const [filtros, setFiltros] = useState({ search: '' });
   const [inventario, setInventario] = useState<InventarioInterface[]>([]);
+  const [ loading, setLoading ] = useState(false);
   const router = useRouter();
   const { getInventario } = useInventarioApi();
   const canCreateOrdenCompra = useHasPermission(PermissionId.GENERAR_ORDEN_COMPRA);
@@ -45,12 +46,15 @@ export const Inventario = () => {
 
   const fetchInventario = useCallback(async () => {
     try {
+      setLoading(true);
       const data = await getInventario();
       const { inventarios } = data
       setInventario(inventarios ?? []);
     } catch (error) {
       console.error(error);
       toast.error('Error al obtener inventario');
+    } finally {
+      setLoading(false);
     }
   }, [getInventario]);
 
