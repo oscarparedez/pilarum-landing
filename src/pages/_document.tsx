@@ -39,6 +39,67 @@ const CustomDocument = ({ emotionStyleTags }: CustomDocumentProps) => {
           type="image/png"
           sizes="180x180"
         />
+
+        {/* Open Graph Meta Tags */}
+        <meta
+          property="og:type"
+          content="website"
+        />
+        <meta
+          property="og:site_name"
+          content="Pilarum"
+        />
+        <meta
+          property="og:url"
+          content="https://pilarum.com"
+        />
+        <meta
+          property="og:title"
+          content="Pilarum"
+        />
+        <meta
+          property="og:description"
+          content="Pilarum - Construction Management Platform"
+        />
+        <meta
+          property="og:image"
+          content="https://pilarum.com/assets/logo.png"
+        />
+        <meta
+          property="og:image:type"
+          content="image/png"
+        />
+        <meta
+          property="og:image:width"
+          content="1200"
+        />
+        <meta
+          property="og:image:height"
+          content="630"
+        />
+        <meta
+          property="og:image:alt"
+          content="Pilarum Logo"
+        />
+
+        {/* Twitter Card Meta Tags */}
+        <meta
+          name="twitter:card"
+          content="summary_large_image"
+        />
+        <meta
+          name="twitter:title"
+          content="Pilarum"
+        />
+        <meta
+          name="twitter:description"
+          content="Pilarum - Construction Management Platform"
+        />
+        <meta
+          name="twitter:image"
+          content="https://pilarum.com/assets/logo.png"
+        />
+
         <meta
           name="emotion-insertion-point"
           content=""
