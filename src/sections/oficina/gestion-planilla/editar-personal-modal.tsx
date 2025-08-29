@@ -10,6 +10,8 @@ import {
   CircularProgress,
   Stack,
   Divider,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useRolesApi } from 'src/api/roles/useRolesApi';
 import { NuevoUsuario, Rol, Usuario } from 'src/api/types';
@@ -29,6 +31,9 @@ export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onCo
 
   const [roles, setRoles] = useState<Rol[]>([]);
   const [rolesLoading, setRolesLoading] = useState(true);
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [form, setForm] = useState<NuevoUsuario>({
     username: initialData.username,
@@ -103,13 +108,19 @@ export const ModalEditarPersona: FC<Props> = ({ open, onClose, initialData, onCo
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
     >
       <DialogTitle sx={{ pb: 1 }}>Editar persona</DialogTitle>
       <DialogContent
         dividers
-        sx={{ pt: 2 }}
+        sx={{ 
+          pt: 2,
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
       >
         <Stack spacing={2}>
           <Stack

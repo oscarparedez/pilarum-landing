@@ -1,18 +1,17 @@
 import { FC, useState, useMemo, useEffect, useCallback } from 'react';
 import {
-  Modal,
-  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Typography,
   IconButton,
   TextField,
   MenuItem,
   Button,
   Stack,
-  Card,
-  CardHeader,
-  Divider,
-  CardContent,
-  CardActions,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { usePendientesApi } from 'src/api/pendientes/usePendientesApi';
@@ -46,6 +45,9 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
     referencia_id: tipo === 'proyecto' ? Number(id) || null : null,
     estado: 'no_iniciado',
   });
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (tipo === 'proyecto' && id) {
@@ -90,35 +92,37 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
   const mostrarSelectorCategoria = useMemo(() => !['oficina', 'proyecto'].includes(tipo), [tipo]);
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullScreen={fullScreen}
+      fullWidth
+      maxWidth="sm"
+      keepMounted
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '95%',
-          maxWidth: 500,
+      <DialogTitle
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          pb: 1 
         }}
       >
-        <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
-          <CardHeader
-            title="Nueva tarea"
-            action={
-              <IconButton
-                onClick={onClose}
-                size="small"
-              >
-                <CloseIcon />
-              </IconButton>
-            }
-            sx={{ pb: 1 }}
-          />
-          <Divider />
-          <CardContent>
+        Nueva tarea
+        <IconButton
+          onClick={onClose}
+          size="small"
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
             <Stack spacing={2}>
               <TextField
                 label="Título"
@@ -156,25 +160,22 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
                 </TextField>
               )}
             </Stack>
-          </CardContent>
-          <Divider />
-          <CardActions sx={{ justifyContent: 'flex-end', px: 3, pb: 2 }}>
-            <Button
-              onClick={onClose}
-              color="inherit"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              disabled={loading}
-            >
-              {loading ? 'Creando...' : 'Crear'}
-            </Button>
-          </CardActions>
-        </Card>
-      </Box>
-    </Modal>
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: 'flex-end', px: 3, pb: 2 }}>
+        <Button
+          onClick={onClose}
+          color="inherit"
+        >
+          Cancelar
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={loading}
+        >
+          {loading ? 'Creando...' : 'Crear'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

@@ -1,5 +1,8 @@
 import { Box, Button, Card, Divider, Stack, TextField, Typography, Tooltip } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es } from 'date-fns/locale';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import type { NextPage } from 'next';
@@ -90,7 +93,6 @@ const Page: NextPage = () => {
         <Divider sx={{ my: 3 }} />
 
         <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2">Motivo</Typography>
           <TextField
             fullWidth
             value={motivo}
@@ -101,10 +103,21 @@ const Page: NextPage = () => {
 
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2">Fecha de rebaja</Typography>
-          <DateCalendar
-            value={fechaRebaja}
-            onChange={(d) => d && setFechaRebaja(d)}
-          />
+          <LocalizationProvider
+            dateAdapter={AdapterDateFns}
+            adapterLocale={es}
+          >
+            <DateCalendar
+              value={fechaRebaja}
+              onChange={(d) => d && setFechaRebaja(d)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0,
+                },
+              }}
+            />
+          </LocalizationProvider>
         </Box>
 
         <TablaLineasInventario

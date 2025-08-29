@@ -1,7 +1,9 @@
 import { FC, useCallback, useMemo, useState } from 'react';
 import {
   Box,
-  Modal,
+  Dialog,
+  DialogActions,
+  DialogContent,
   Card,
   CardHeader,
   Divider,
@@ -12,9 +14,13 @@ import {
   Typography,
   IconButton,
   Stack,
+  Button,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { ModalEditarCosto } from './editar-costo-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
@@ -126,24 +132,19 @@ export const ModalListaCostos: FC<ModalListaCostosProps> = ({
     setCostoAEliminar(null);
   }, []);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <>
-      <Modal
+      <Dialog
         open={open}
         onClose={onClose}
+        fullScreen={isMobile}
+        maxWidth="lg"
+        fullWidth
       >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: { xs: '95%', sm: '90%', md: 900 },
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            p: 2,
-          }}
-        >
+        <DialogContent sx={{ p: 0 }}>
           <Card>
             <CardHeader title="Historial de costos" />
             <Divider />
@@ -246,8 +247,12 @@ export const ModalListaCostos: FC<ModalListaCostosProps> = ({
               )}
             </TablaPaginadaConFiltros>
           </Card>
-        </Box>
-      </Modal>
+        </DialogContent>
+        
+        <DialogActions>
+          <Button onClick={onClose}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
 
       {costoEditando && (
         <ModalEditarCosto

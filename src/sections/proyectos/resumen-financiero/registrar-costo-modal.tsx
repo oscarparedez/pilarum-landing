@@ -6,11 +6,12 @@ import {
   Stack,
   TextField,
   MenuItem,
-  Modal,
-  Card,
-  CardContent,
-  CardActions,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -39,6 +40,9 @@ export const ModalRegistrarPago: FC<ModalRegistrarPagoProps> = ({
   onClose,
   onSave,
 }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [monto, setMonto] = useState<number | ''>('');
   const [tipoPago, setTipoPago] = useState<number | ''>('');
@@ -65,74 +69,74 @@ export const ModalRegistrarPago: FC<ModalRegistrarPagoProps> = ({
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullScreen={fullScreen}
+      fullWidth
+      maxWidth="sm"
+      keepMounted
     >
-      <Box
+      <DialogTitle>
+        Nuevo pago del proyecto
+      </DialogTitle>
+      <DialogContent
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 600,
-          p: 2,
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
         }}
       >
-        <Card>
-          <CardContent>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 'bold' }}
-            >
-              Nuevo pago del proyecto
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 2 }}
-            >
-              Completa los siguientes campos para registrar un nuevo pago
-            </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          Completa los siguientes campos para registrar un nuevo pago
+        </Typography>
 
-            <Stack spacing={3}>
-              <TextField
-                label="Monto total (Q)"
-                type="number"
-                fullWidth
-                required
-                value={monto}
-                onChange={(e) => setMonto(Number(e.target.value))}
+        <Stack spacing={3}>
+          <TextField
+            label="Monto total (Q)"
+            type="number"
+            fullWidth
+            required
+            value={monto}
+            onChange={(e) => setMonto(Number(e.target.value))}
+          />
+
+          <Box>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1 }}
+            >
+              Fecha de pago
+            </Typography>
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
+            >
+              <DateCalendar
+                value={selectedDate}
+                onChange={setSelectedDate}
+                sx={{
+                  width: '100%',
+                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                    mx: 0,
+                  },
+                }}
               />
+            </LocalizationProvider>
+          </Box>
 
-              <Box>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 1 }}
-                >
-                  Fecha de pago <span style={{ color: 'red' }}>*</span>
-                </Typography>
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={es}
-                >
-                  <DateCalendar
-                    value={selectedDate}
-                    onChange={setSelectedDate}
-                  />
-                </LocalizationProvider>
-              </Box>
-
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <TextField
-                  label="Tipo de pago"
-                  select
-                  fullWidth
-                  required
-                  value={tipoPago}
-                  onChange={(e) => setTipoPago(Number(e.target.value))}
-                >
+          <Stack spacing={2}>
+            <TextField
+              label="Tipo de pago"
+              select
+              fullWidth
+              required
+              value={tipoPago}
+              onChange={(e) => setTipoPago(Number(e.target.value))}
+            >
                   {tiposPago.map((tipo) => (
                     <MenuItem
                       key={tipo.id}
@@ -151,20 +155,18 @@ export const ModalRegistrarPago: FC<ModalRegistrarPagoProps> = ({
                   value={tipoDocumento}
                   onChange={(e) => setTipoDocumento(e.target.value)}
                 >
-                  <MenuItem value="cheque">Cheque</MenuItem>
-                  <MenuItem value="efectivo">Efectivo</MenuItem>
-                  <MenuItem value="transferencia">Transferencia</MenuItem>
-                </TextField>
-              </Box>
+                <MenuItem value="cheque">Cheque</MenuItem>
+                <MenuItem value="efectivo">Efectivo</MenuItem>
+                <MenuItem value="transferencia">Transferencia</MenuItem>
+              </TextField>
+            </Stack>
 
-              <TextField
-                label="Correlativo"
-                fullWidth
-                value={correlativo}
-                onChange={(e) => setCorrelativo(e.target.value)}
-              />
-
-              <TextField
+            <TextField
+              label="Correlativo"
+              fullWidth
+              value={correlativo}
+              onChange={(e) => setCorrelativo(e.target.value)}
+            />              <TextField
                 label="Anotaciones"
                 multiline
                 rows={3}
@@ -173,23 +175,19 @@ export const ModalRegistrarPago: FC<ModalRegistrarPagoProps> = ({
                 onChange={(e) => setAnotaciones(e.target.value)}
               />
             </Stack>
-          </CardContent>
+          </DialogContent>
 
-          <Divider />
-
-          <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSave}
-              disabled={!selectedDate || !monto || tipoPago === '' || !tipoDocumento}
-            >
-              Guardar pago
-            </Button>
-          </CardActions>
-        </Card>
-      </Box>
-    </Modal>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSave}
+          disabled={!selectedDate || !monto || tipoPago === '' || !tipoDocumento}
+        >
+          Guardar pago
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

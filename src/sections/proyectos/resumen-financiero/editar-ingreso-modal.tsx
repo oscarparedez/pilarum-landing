@@ -6,11 +6,12 @@ import {
   Stack,
   TextField,
   MenuItem,
-  Modal,
-  Card,
-  CardContent,
-  CardActions,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -44,6 +45,9 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
   tiposIngreso,
   onConfirm,
 }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [monto, setMonto] = useState<number | ''>('');
   const [tipoIngreso, setTipoIngreso] = useState<number | ''>('');
@@ -89,131 +93,122 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
   ]);
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullWidth
+      maxWidth="md"
+      fullScreen={fullScreen}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 600,
-          p: 2,
-        }}
-      >
-        <Card>
-          <CardContent>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 'bold' }}
-            >
-              Editar ingreso
-            </Typography>
+      <DialogTitle>
+        Editar ingreso
+      </DialogTitle>
+      
+      <DialogContent dividers>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          Modifica los campos necesarios y guarda los cambios
+        </Typography>
+
+        <Stack spacing={3}>
+          <TextField
+            label="Monto total (Q)"
+            type="number"
+            fullWidth
+            required
+            value={monto}
+            onChange={(e) => setMonto(Number(e.target.value))}
+          />
+
+          <Box>
             <Typography
               variant="body2"
-              color="text.secondary"
-              sx={{ mb: 2 }}
+              sx={{ mb: 1 }}
             >
-              Modifica los campos necesarios y guarda los cambios
+              Fecha de ingreso <span style={{ color: 'red' }}>*</span>
             </Typography>
-
-            <Stack spacing={3}>
-              <TextField
-                label="Monto total (Q)"
-                type="number"
-                fullWidth
-                required
-                value={monto}
-                onChange={(e) => setMonto(Number(e.target.value))}
-              />
-
-              <Box>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 1 }}
-                >
-                  Fecha de ingreso <span style={{ color: 'red' }}>*</span>
-                </Typography>
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={es}
-                >
-                  <DateCalendar
-                    value={selectedDate}
-                    onChange={setSelectedDate}
-                  />
-                </LocalizationProvider>
-              </Box>
-
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <TextField
-                  label="Tipo de ingreso"
-                  select
-                  fullWidth
-                  required
-                  value={tipoIngreso}
-                  onChange={(e) => setTipoIngreso(Number(e.target.value))}
-                >
-                  {tiposIngreso.map((tipo) => (
-                    <MenuItem
-                      key={tipo.id}
-                      value={tipo.id}
-                    >
-                      {tipo.nombre}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  label="Tipo de documento"
-                  select
-                  fullWidth
-                  required
-                  value={tipoDocumento}
-                  onChange={(e) => setTipoDocumento(e.target.value)}
-                >
-                  <MenuItem value="cheque">Cheque</MenuItem>
-                  <MenuItem value="transferencia">Transferencia</MenuItem>
-                  <MenuItem value="efectivo">Efectivo</MenuItem>
-                </TextField>
-              </Box>
-
-              <TextField
-                label="Correlativo"
-                fullWidth
-                value={correlativo}
-                onChange={(e) => setCorrelativo(e.target.value)}
-              />
-
-              <TextField
-                label="Anotaciones"
-                multiline
-                rows={3}
-                fullWidth
-                value={anotaciones}
-                onChange={(e) => setAnotaciones(e.target.value)}
-              />
-            </Stack>
-          </CardContent>
-
-          <Divider />
-
-          <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSave}
-              disabled={!selectedDate || !monto || tipoIngreso === '' || !tipoDocumento}
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
             >
-              Guardar cambios
-            </Button>
-          </CardActions>
-        </Card>
-      </Box>
-    </Modal>
+              <DateCalendar
+                value={selectedDate}
+                onChange={setSelectedDate}
+                sx={{
+                  width: '100%',
+                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                    mx: 0,
+                  },
+                }}
+              />
+            </LocalizationProvider>
+          </Box>
+
+          <Stack spacing={2}>
+            <TextField
+              label="Tipo de ingreso"
+              select
+              fullWidth
+              required
+              value={tipoIngreso}
+              onChange={(e) => setTipoIngreso(Number(e.target.value))}
+            >
+              {tiposIngreso.map((tipo) => (
+                <MenuItem
+                  key={tipo.id}
+                  value={tipo.id}
+                >
+                  {tipo.nombre}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              label="Tipo de documento"
+              select
+              fullWidth
+              required
+              value={tipoDocumento}
+              onChange={(e) => setTipoDocumento(e.target.value)}
+            >
+              <MenuItem value="cheque">Cheque</MenuItem>
+              <MenuItem value="transferencia">Transferencia</MenuItem>
+              <MenuItem value="efectivo">Efectivo</MenuItem>
+            </TextField>
+          </Stack>
+
+          <TextField
+            label="Correlativo"
+            fullWidth
+            value={correlativo}
+            onChange={(e) => setCorrelativo(e.target.value)}
+          />
+
+          <TextField
+            label="Anotaciones"
+            multiline
+            rows={3}
+            fullWidth
+            value={anotaciones}
+            onChange={(e) => setAnotaciones(e.target.value)}
+          />
+        </Stack>
+      </DialogContent>
+
+      <DialogActions sx={{ p: 2 }}>
+        <Button onClick={onClose}>Cerrar</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSave}
+          disabled={!selectedDate || !monto || tipoIngreso === '' || !tipoDocumento}
+        >
+          Guardar cambios
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

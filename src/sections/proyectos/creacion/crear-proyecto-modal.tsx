@@ -1,7 +1,9 @@
 import { FC, useEffect, useState } from 'react';
 import {
-  Modal,
-  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Button,
   TextField,
   Typography,
@@ -10,8 +12,14 @@ import {
   FormControl,
   InputLabel,
   Select,
+  useMediaQuery,
+  useTheme,
+  Box,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es } from 'date-fns/locale';
 import { useSociosApi } from 'src/api/socios/useSociosApi';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -45,6 +53,9 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
   const [socios, setSocios] = useState<Socio[]>([]);
   const { getSociosInternos } = useSociosApi();
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm')); // iPhone → full screen dialog
+
   useEffect(() => {
     const fetchSociosInternos = async () => {
       try {
@@ -75,30 +86,23 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullScreen={fullScreen}
+      fullWidth
+      maxWidth="md"
+      keepMounted
     >
-      <Box
+      <DialogTitle>Crear nuevo proyecto</DialogTitle>
+
+      <DialogContent
+        dividers
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 800,
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 4,
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
         }}
       >
-        <Typography
-          variant="h6"
-          mb={2}
-        >
-          Crear nuevo proyecto
-        </Typography>
-
         <Stack spacing={3}>
           <TextField
             label="Nombre del proyecto"
@@ -120,6 +124,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
             fullWidth
             value={presupuesto}
             onChange={(e) => setPresupuesto(e.target.value === '' ? '' : Number(e.target.value))}
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           />
 
           <FormControl fullWidth>
@@ -128,7 +133,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
               labelId="socio-asignado-label"
               value={socioAsignado}
               label="Socio asignado"
-              onChange={(e) => setSocioAsignado(e.target.value)}
+              onChange={(e) => setSocioAsignado(String(e.target.value))}
             >
               {socios.map((socio) => (
                 <MenuItem
@@ -140,45 +145,68 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
               ))}
             </Select>
           </FormControl>
-
           <Stack
-            direction="row"
+            direction={{ xs: 'column', md: 'row' }}
             spacing={2}
             justifyContent="space-between"
+            alignItems={{ xs: 'stretch', md: 'flex-start' }}
           >
-            <Box>
-              <Typography variant="subtitle2">Fecha de inicio</Typography>
-              <DateCalendar
-                value={fechaInicio}
-                onChange={(d) => setFechaInicio(d)}
-              />
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle2">Fecha final</Typography>
-              <DateCalendar
-                value={fechaFin}
-                onChange={(d) => setFechaFin(d)}
-              />
-            </Box>
-          </Stack>
-
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            spacing={2}
-            mt={2}
-          >
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              onClick={handleConfirm}
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
             >
-              Guardar proyecto
-            </Button>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1 }}
+                >
+                  Fecha de inicio
+                </Typography>
+                <DateCalendar
+                  value={fechaInicio}
+                  onChange={(d) => setFechaInicio(d)}
+                  sx={{
+                    width: '100%',
+                    '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                      mx: 0,
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1 }}
+                >
+                  Fecha final
+                </Typography>
+                <DateCalendar
+                  value={fechaFin}
+                  onChange={(d) => setFechaFin(d)}
+                  sx={{
+                    width: '100%',
+                    '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                      mx: 0,
+                    },
+                  }}
+                />
+              </Box>
+            </LocalizationProvider>
           </Stack>
         </Stack>
-      </Box>
-    </Modal>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button
+          variant="contained"
+          disabled={!nombre || !ubicacion || presupuesto === '' || !socioAsignado || !fechaInicio || !fechaFin}
+          onClick={handleConfirm}
+        >
+          Guardar proyecto
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

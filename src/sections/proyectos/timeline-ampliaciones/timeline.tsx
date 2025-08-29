@@ -1,7 +1,6 @@
 import { FC, useState } from 'react';
 import { Box, Card, Grid, Typography, Button, Stack } from '@mui/material';
 import { AmpliarFechaModal } from './ampliar-fecha-modal';
-import { ModalAmpliacionesFecha } from './ampliaciones-fecha-modal';
 import { ModalAmpliacionesPresupuesto } from './ampliaciones-presupuesto-modal';
 import { ModalAmpliarPresupuesto } from './ampliar-presupuesto-modal';
 import { AmpliacionPresupuesto, AmpliacionFecha } from 'src/api/types';
@@ -9,6 +8,7 @@ import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFechaHora } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
+import { AmpliacionesFechaModal } from 'src/sections/proyectos/timeline-ampliaciones/ampliaciones-fecha-modal';
 
 interface TimelineProps {
   fechaInicio: string;
@@ -242,7 +242,7 @@ export const Timeline: FC<TimelineProps> = ({
         onSave={handleAmpliarFecha}
       />
 
-      <ModalAmpliacionesFecha
+      <AmpliacionesFechaModal
         open={showHistorialFechas}
         onClose={() => setShowHistorialFechas(false)}
         ampliaciones={ampliacionesFecha}

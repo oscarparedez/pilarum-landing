@@ -11,6 +11,8 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useEffect, useMemo, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
@@ -154,6 +156,12 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
             <DateCalendar
               value={fecha}
               onChange={(newValue) => setFecha(newValue)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0
+                }
+              }}
             />
           </Box>
 

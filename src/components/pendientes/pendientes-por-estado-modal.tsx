@@ -107,8 +107,6 @@ export const ModalPendientesPorEstado: FC<Props> = ({
 
   if (!estado) return null;
 
-  console.log("candelete", canDeleteTareaGeneral, canDeleteTareaProyecto)
-
   return (
     <>
       <Modal

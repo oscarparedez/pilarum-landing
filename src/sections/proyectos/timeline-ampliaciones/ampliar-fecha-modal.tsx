@@ -9,12 +9,14 @@ import {
   Typography,
   Stack,
   TextField,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
-import { formatearFechaLocalMasUno } from 'src/utils/format-date';
+import { formatearFecha, formatearFechaLocalMasUno } from 'src/utils/format-date';
 
 interface AmpliarFechaModalProps {
   open: boolean;
@@ -32,6 +34,9 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
   const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
   const [motivo, setMotivo] = useState('');
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const handleSave = () => {
     if (fechaSeleccionada && motivo && onSave) {
       onSave(fechaSeleccionada, motivo);
@@ -43,8 +48,10 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
       PaperProps={{
         sx: { borderRadius: 3, py: 4 },
       }}
@@ -61,11 +68,17 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
           color="text.secondary"
           sx={{ mt: 1 }}
         >
-          Fecha actual estimada: <strong>{fechaActual}</strong>
+          Fecha actual estimada: <strong>{formatearFecha(fechaActual)}</strong>
         </Typography>
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Box
           display="flex"
           justifyContent="center"
@@ -80,12 +93,18 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
               value={fechaSeleccionada}
               onChange={(newDate) => setFechaSeleccionada(newDate)}
               minDate={formatearFechaLocalMasUno(fechaActual)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0,
+                },
+              }}
             />
           </LocalizationProvider>
         </Box>
 
         <TextField
-          label="motivo"
+          label="Motivo"
           multiline
           rows={3}
           fullWidth

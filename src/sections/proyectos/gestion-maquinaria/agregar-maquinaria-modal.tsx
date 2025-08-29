@@ -10,8 +10,9 @@ import {
   MenuItem,
   Select,
   Stack,
-  TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useState } from 'react';
 import { DiaToggle } from './dia-toggle';
@@ -45,6 +46,9 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
   const [hasta, setHasta] = useState<Date | null>(null);
   const [asignadoA, setAsignadoA] = useState<number | null>(null);
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
   const toggleDia = (dia: string) => {
     setDias((prev) => (prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]));
   };
@@ -75,22 +79,29 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="lg"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="md"
+      keepMounted
     >
       <DialogTitle>Asignar maquinaria al proyecto</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent
+        dividers
+        sx={{
+          maxHeight: { xs: '100dvh', sm: '90dvh', md: '80vh' },
+          overflow: 'auto',
+          p: { xs: 2, sm: 3 },
+        }}
+      >
         <Stack
           spacing={3}
           mt={1}
         >
-          {/* Maquinaria + Asignado a (50% / 50%) */}
           <Stack
-            direction={{ xs: 'column', md: 'row' }}
+            direction={{ xs: 'column', lg: 'row' }}
             spacing={2}
           >
-            {/* Maquinaria */}
-            <FormControl sx={{ flexBasis: { xs: '100%', md: '50%' } }}>
+            <FormControl sx={{ width: '100%' }}>
               <InputLabel>Maquinaria</InputLabel>
               <Select
                 value={maquina}
@@ -109,8 +120,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
               </Select>
             </FormControl>
 
-            {/* Asignado a */}
-            <FormControl sx={{ flexBasis: { xs: '100%', md: '50%' } }}>
+            <FormControl sx={{ width: '100%' }}>
               <InputLabel>Asignado a</InputLabel>
               <Select
                 value={asignadoA}
@@ -130,7 +140,6 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
             </FormControl>
           </Stack>
 
-          {/* Días de la semana (debajo de los dropdowns) */}
           <Box>
             <Typography
               variant="subtitle2"
@@ -141,7 +150,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
             <Box
               sx={{
                 display: 'flex',
-                flexWrap: 'wrap', // siempre en fila; hace wrap si no caben
+                flexWrap: 'wrap',
                 gap: 1.5,
                 alignItems: 'center',
               }}
@@ -157,7 +166,6 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
             </Box>
           </Box>
 
-          {/* Fechas (debajo de días) */}
           <Box>
             <Typography
               variant="subtitle2"
@@ -170,21 +178,29 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
               adapterLocale={es}
             >
               <Stack
-                direction={{ xs: 'column', md: 'row' }}
+                direction={{ xs: 'column', lg: 'row' }}
                 spacing={2}
               >
-                <Box flex={1}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="caption">Desde</Typography>
                   <DateCalendar
                     value={desde}
                     onChange={setDesde}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
+                    }}
                   />
                 </Box>
-                <Box flex={1}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="caption">Hasta</Typography>
                   <DateCalendar
                     value={hasta}
                     onChange={setHasta}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
+                    }}
                   />
                 </Box>
               </Stack>
@@ -193,7 +209,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: { xs: 2, sm: 3 } }}>
         <Button onClick={onClose}>Cancelar</Button>
         <Button
           variant="contained"
@@ -205,7 +221,7 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
             !hasta ||
             !asignadoA ||
             asignadoA === null ||
-            desde > hasta
+            (desde && hasta ? desde > hasta : false)
           }
         >
           Confirmar

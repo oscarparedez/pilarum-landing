@@ -119,7 +119,7 @@ const Page: NextPage = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.material.nombre}</TableCell>
                   <TableCell>{item.cantidad}</TableCell>
-                  <TableCell>Q{Number(item.precio_unitario).toFixed(2)}</TableCell>
+                  <TableCell>{formatearQuetzales(Number(item.precio_unitario))}</TableCell>
                   <TableCell>
                     {formatearQuetzales((Number(item.cantidad) * Number(item.precio_unitario)))}
                   </TableCell>
@@ -134,7 +134,7 @@ const Page: NextPage = () => {
           justifyContent="flex-end"
           sx={{ mt: 4 }}
         >
-          <Typography variant="h6">Total: Q{total.toFixed(2)}</Typography>
+          <Typography variant="h6">Total: {formatearQuetzales(Number(total))}</Typography>
         </Stack>
       </Card>
     </Box>

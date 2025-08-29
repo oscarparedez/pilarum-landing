@@ -1,17 +1,20 @@
 import { FC, useState, useCallback, useMemo } from 'react';
 import {
   Box,
-  Modal,
-  Card,
-  CardHeader,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
   Table,
   TableBody,
   TableCell,
   TableRow,
   Typography,
-  Stack,
   IconButton,
+  Stack,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
@@ -46,6 +49,9 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [eliminando, setEliminando] = useState<AmpliacionPresupuesto | null>(null);
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const canEditAmpliacionesFechaFin = useHasPermission(
     PermissionId.EDITAR_AMPLIACIONES_PRESUPUESTO
@@ -97,26 +103,23 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
 
   return (
     <>
-      <Modal
+            <Dialog
         open={open}
         onClose={onClose}
+        fullScreen={fullScreen}
+        fullWidth
+        maxWidth="md"
+        keepMounted
       >
-        <Box
+        <DialogTitle>Historial de ampliaciones de presupuesto</DialogTitle>
+        <DialogContent
+          dividers
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '95%',
-            maxWidth: 900,
-            p: 3,
+            maxHeight: { xs: '90dvh', sm: '80vh' },
+            overflow: 'auto',
           }}
         >
-          <Card>
-            <CardHeader title="Historial de ampliaciones de presupuesto" />
-            <Divider />
-
-            <TablaPaginadaConFiltros
+          <TablaPaginadaConFiltros
               totalItems={ampliacionesFiltradas.length}
               onFiltrar={handleFiltrar}
             >
@@ -214,9 +217,12 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
                 </Table>
               )}
             </TablaPaginadaConFiltros>
-          </Card>
-        </Box>
-      </Modal>
+        </DialogContent>
+        
+        <DialogActions>
+          <Button onClick={onClose}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
 
       {editandoIndex !== null && ampliaciones[editandoIndex] && (
         <ModalEditarAmpliacionPresupuesto

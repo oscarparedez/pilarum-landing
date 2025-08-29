@@ -11,6 +11,8 @@ import {
   Select,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useState } from 'react';
 import { DiaToggle } from 'src/sections/proyectos/gestion-maquinaria/dia-toggle';
@@ -45,6 +47,9 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
   const [desde, setDesde] = useState<Date | null>(null);
   const [hasta, setHasta] = useState<Date | null>(null);
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const toggleDia = (dia: string) => {
     setDias((prev) => (prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]));
   };
@@ -71,11 +76,19 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="md"
+      keepMounted
     >
       <DialogTitle>Asignar recurso técnico</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent 
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Stack
           spacing={3}
           mt={1}
@@ -135,7 +148,7 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
               adapterLocale={es}
             >
               <Stack
-                direction="row"
+                direction={{ xs: 'column', md: 'row' }}
                 spacing={2}
               >
                 <Box flex={1}>
@@ -143,6 +156,12 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
                   <DateCalendar
                     value={desde}
                     onChange={setDesde}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                        mx: 0,
+                      },
+                    }}
                   />
                 </Box>
                 <Box flex={1}>
@@ -150,6 +169,12 @@ export const ModalAgregarPersonal: FC<ModalAgregarPersonalProps> = ({
                   <DateCalendar
                     value={hasta}
                     onChange={setHasta}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                        mx: 0,
+                      },
+                    }}
                   />
                 </Box>
               </Stack>

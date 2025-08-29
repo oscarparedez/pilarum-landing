@@ -11,10 +11,15 @@ import {
   TextField,
   Typography,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es } from 'date-fns/locale';
 import { ActualizarRevision, Revision } from 'src/api/types';
 import { format } from 'date-fns';
 
@@ -37,6 +42,9 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
   const [titulo, setTitulo] = useState('');
   const [anotaciones, setAnotaciones] = useState('');
   const [fecha, setFecha] = useState<Date | null>(new Date());
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Separar estado entre existentes y nuevas
   const [existentes, setExistentes] = useState<FotoExistente[]>([]);
@@ -133,11 +141,19 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
     >
       <DialogTitle>Editar revisión</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent 
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Stack
           spacing={3}
           mt={1}
@@ -164,10 +180,21 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
             >
               Fecha de la revisión
             </Typography>
-            <DateCalendar
-              value={fecha}
-              onChange={(newValue) => setFecha(newValue)}
-            />
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
+            >
+              <DateCalendar
+                value={fecha}
+                onChange={(newValue) => setFecha(newValue)}
+                sx={{
+                  width: '100%',
+                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                    mx: 0,
+                  },
+                }}
+              />
+            </LocalizationProvider>
           </Box>
 
           <Box>

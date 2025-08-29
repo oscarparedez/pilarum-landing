@@ -12,6 +12,8 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useState } from 'react';
 import { usePermisosPorGrupo } from 'src/hooks/roles/usePermisosPorGrupo';
@@ -26,6 +28,9 @@ interface CrearRolModalProps {
 
 export const CrearRolModal: FC<CrearRolModalProps> = ({ open, onClose, onConfirm }) => {
   const [name, setNombreRol] = useState('');
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const {
     seleccionados,
@@ -52,11 +57,19 @@ export const CrearRolModal: FC<CrearRolModalProps> = ({ open, onClose, onConfirm
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="md"
+      keepMounted
     >
       <DialogTitle>Crear nuevo rol</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent 
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <TextField
           label="Nombre del rol"
           fullWidth

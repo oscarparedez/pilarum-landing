@@ -20,6 +20,9 @@ import {
   MenuItem,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es } from 'date-fns/locale';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import AddIcon from '@mui/icons-material/Add';
@@ -259,10 +262,21 @@ const Page: NextPage = () => {
         {/* Fecha factura */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2">Fecha de factura</Typography>
-          <DateCalendar
-            value={fechaFactura}
-            onChange={(d) => setFechaFactura(d as Date)}
-          />
+          <LocalizationProvider
+            dateAdapter={AdapterDateFns}
+            adapterLocale={es}
+          >
+            <DateCalendar
+              value={fechaFactura}
+              onChange={(d) => setFechaFactura(d as Date)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0,
+                },
+              }}
+            />
+          </LocalizationProvider>
         </Box>
 
         {/* Tabla de compras */}
@@ -350,7 +364,7 @@ const Page: NextPage = () => {
           alignItems="center"
           sx={{ mt: 4 }}
         >
-          <Typography variant="h6">Total: Q{calcularTotal.toFixed(2)}</Typography>
+          <Typography variant="h6">Total: {formatearQuetzales(Number(calcularTotal))}</Typography>
           <Button
             variant="contained"
             color="primary"

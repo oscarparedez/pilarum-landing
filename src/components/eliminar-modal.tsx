@@ -9,6 +9,7 @@ import {
   Stack,
   Box,
   useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
@@ -21,16 +22,20 @@ interface Props {
 
 export const ModalEliminar: FC<Props> = ({ type = '', open, onClose, onConfirm }) => {
   const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      keepMounted
       PaperProps={{
         sx: {
           borderRadius: 3,
           p: 3,
-          width: 420,
+          width: { xs: '100%', sm: 420 },
           textAlign: 'center',
         },
       }}

@@ -11,6 +11,8 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
@@ -36,6 +38,9 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
   const [fotos, setFotos] = useState<File[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
   const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento | ''>('');
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -74,11 +79,19 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
     >
       <DialogTitle>Registrar consumo</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent 
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Stack
           spacing={3}
           mt={1}
@@ -93,6 +106,12 @@ export const ModalRegistrarConsumo: FC<ModalRegistrarConsumoProps> = ({
             <DateCalendar
               value={fecha}
               onChange={(newValue) => setFecha(newValue)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0
+                }
+              }}
             />
           </Box>
 

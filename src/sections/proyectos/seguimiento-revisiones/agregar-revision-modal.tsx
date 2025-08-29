@@ -9,12 +9,17 @@ import {
   Stack,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useState } from 'react';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es } from 'date-fns/locale';
 import { NuevaRevision } from 'src/api/types';
 import { format } from 'date-fns';
 
@@ -34,6 +39,9 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
   const [fecha, setFecha] = useState<Date | null>(new Date());
   const [fotos, setFotos] = useState<File[]>([]);
   const [cargadas, setCargadas] = useState<boolean[]>([]);
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -70,11 +78,19 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
     >
       <DialogTitle>Agregar revisión</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent 
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Stack
           spacing={3}
           mt={1}
@@ -101,10 +117,21 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
             >
               Fecha de la revisión
             </Typography>
-            <DateCalendar
-              value={fecha}
-              onChange={(newValue) => setFecha(newValue)}
-            />
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
+            >
+              <DateCalendar
+                value={fecha}
+                onChange={(newValue) => setFecha(newValue)}
+                sx={{
+                  width: '100%',
+                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                    mx: 0,
+                  },
+                }}
+              />
+            </LocalizationProvider>
           </Box>
 
           <Box>

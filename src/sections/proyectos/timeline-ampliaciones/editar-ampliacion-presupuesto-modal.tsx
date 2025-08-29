@@ -74,6 +74,12 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
             <DateCalendar
               value={fecha}
               onChange={(newValue) => setFecha(newValue)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0,
+                },
+              }}
             />
           </Box>
 

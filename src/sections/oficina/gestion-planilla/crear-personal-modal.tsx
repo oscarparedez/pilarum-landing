@@ -7,6 +7,8 @@ import {
   TextField,
   Button,
   MenuItem,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { NuevoUsuarioConPassword, Rol, Usuario } from 'src/api/types';
 
@@ -27,6 +29,9 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfi
     groups: [],
     is_active: true,
   });
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,11 +61,19 @@ export const ModalRegistrarPersona: FC<Props> = ({ open, roles, onClose, onConfi
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
     >
       <DialogTitle>Registrar nuevo usuario</DialogTitle>
-      <DialogContent>
+      <DialogContent
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <TextField
           fullWidth
           label="Username"

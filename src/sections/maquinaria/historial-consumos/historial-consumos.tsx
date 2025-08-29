@@ -25,6 +25,7 @@ import { formatearFechaHora } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
+import { formatearQuetzales } from 'src/utils/format-currency';
 
 interface HistorialConsumosProps {
   consumos: GastoOperativo[];
@@ -145,7 +146,7 @@ export const HistorialConsumos: FC<HistorialConsumosProps> = ({
                       >
                         <TableCell>{formatearFechaHora(c.fecha_creacion)}</TableCell>
                         <TableCell>{formatearFechaHora(c.fecha_gasto)}</TableCell>
-                        <TableCell>Q{c.costo.toLocaleString()}</TableCell>
+                        <TableCell>{formatearQuetzales(Number(c.costo))}</TableCell>
                         <TableCell>{c.descripcion}</TableCell>
                         <TableCell>
                           {c.usuario_creador.first_name} {c.usuario_creador.last_name}

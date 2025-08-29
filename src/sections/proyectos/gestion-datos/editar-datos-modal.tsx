@@ -1,7 +1,9 @@
 import { FC, useState, useCallback } from 'react';
 import {
-  Modal,
-  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Button,
   TextField,
   Typography,
@@ -10,8 +12,14 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  useTheme,
+  useMediaQuery,
+  Box,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { es } from 'date-fns/locale';
 import { NuevoProyecto, Proyecto, Socio } from 'src/api/types';
 import { format } from 'date-fns';
 
@@ -32,13 +40,18 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
 }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
   const [ubicacion, setUbicacion] = useState(initialData.ubicacion);
-  const [presupuestoInicial, setPresupuestoInicial] = useState(initialData.presupuestoInicial);
-  const [socio, setSocio] = useState(initialData.socio_asignado);
+  const [presupuestoInicial, setPresupuestoInicial] = useState<number>(
+    initialData.presupuestoInicial
+  );
+  const [socio, setSocio] = useState<Socio | null>(initialData.socio_asignado ?? null);
   const [fechaInicio, setFechaInicio] = useState<Date | null>(new Date(initialData.fechaInicio));
   const [fechaFin, setFechaFin] = useState<Date | null>(new Date(initialData.fechaFin));
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const handleEditarDatosBasicos = useCallback(() => {
-    if (nombre && ubicacion && presupuestoInicial && fechaInicio && fechaFin && socio) {
+    if (nombre && ubicacion && presupuestoInicial && fechaInicio && fechaFin && socio?.id) {
       onEditarDatosBasicos({
         nombre,
         ubicacion,
@@ -61,30 +74,23 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   ]);
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullScreen={fullScreen}
+      fullWidth
+      maxWidth="md"
+      keepMounted
     >
-      <Box
+      <DialogTitle>Editar datos básicos del proyecto</DialogTitle>
+
+      <DialogContent
+        dividers
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 800,
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 4,
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
         }}
       >
-        <Typography
-          variant="h6"
-          mb={2}
-        >
-          Editar datos básicos del proyecto
-        </Typography>
-
         <Stack spacing={3}>
           <TextField
             label="Nombre del proyecto"
@@ -105,69 +111,93 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
             fullWidth
             type="number"
             value={presupuestoInicial}
-            onChange={(e) => setPresupuestoInicial(Number(e.target.value))}
+            onChange={(e) => {
+              const v = e.target.value;
+              setPresupuestoInicial(v === '' ? 0 : Number(v));
+            }}
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           />
 
           <FormControl fullWidth>
             <InputLabel id="socio-label">Socio asignado</InputLabel>
             <Select
               labelId="socio-label"
-              value={socio?.id || ''}
+              value={socio?.id ?? ''}
               label="Socio asignado"
               onChange={(e) => {
-                const selected = socios.find((s) => s.id === e.target.value);
-                if (selected) setSocio(selected);
+                const id = Number(e.target.value);
+                const selected = socios.find((s) => s.id === id) || null;
+                setSocio(selected);
               }}
             >
-              {socios.map((socio) => (
+              {socios.map((s) => (
                 <MenuItem
-                  key={socio.id}
-                  value={socio.id}
+                  key={s.id}
+                  value={s.id}
                 >
-                  {socio.nombre}
+                  {s.nombre}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-
           <Stack
-            direction="row"
+            direction={{ xs: 'column', md: 'row' }}
             spacing={2}
             justifyContent="space-between"
+            alignItems={{ xs: 'stretch', md: 'flex-start' }}
           >
-            <Box>
-              <Typography variant="subtitle2">Fecha de inicio</Typography>
-              <DateCalendar
-                value={fechaInicio}
-                onChange={(d) => setFechaInicio(d)}
-              />
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle2">Fecha final</Typography>
-              <DateCalendar
-                value={fechaFin}
-                onChange={(d) => setFechaFin(d)}
-              />
-            </Box>
-          </Stack>
-
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            spacing={2}
-            mt={2}
-          >
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              onClick={handleEditarDatosBasicos}
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={es}
             >
-              Guardar
-            </Button>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1 }}
+                >
+                  Fecha de inicio
+                </Typography>
+                <DateCalendar
+                  value={fechaInicio}
+                  onChange={(d) => setFechaInicio(d)}
+                  sx={{
+                    width: '100%',
+                    '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
+                  }}
+                />
+              </Box>
+
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1 }}
+                >
+                  Fecha final
+                </Typography>
+                <DateCalendar
+                  value={fechaFin}
+                  onChange={(d) => setFechaFin(d)}
+                  sx={{
+                    width: '100%',
+                    '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
+                  }}
+                />
+              </Box>
+            </LocalizationProvider>
           </Stack>
         </Stack>
-      </Box>
-    </Modal>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button
+          variant="contained"
+          disabled={!nombre || !ubicacion || !presupuestoInicial || !fechaInicio || !fechaFin || !socio}
+          onClick={handleEditarDatosBasicos}
+        >
+          Guardar
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

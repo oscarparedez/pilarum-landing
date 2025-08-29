@@ -1,15 +1,16 @@
 import { FC, useState } from 'react';
 import {
   Box,
-  Modal,
-  Card,
-  CardContent,
-  CardActions,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Typography,
   TextField,
   Button,
-  Divider,
   Stack,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -31,44 +32,46 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({
   const [anotaciones, setAnotaciones] = useState('');
   const [fecha, setFecha] = useState<Date | null>(new Date());
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const handleGuardar = () => {
     if (!monto || !fecha) return;
     onSave({ monto: parseFloat(monto), motivo: anotaciones });
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullScreen={fullScreen}
+      fullWidth
+      maxWidth="sm"
+      keepMounted
     >
-      <Box
+      <DialogTitle>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+        >
+          Ampliar presupuesto
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          Completa los campos para registrar una ampliación de presupuesto
+        </Typography>
+      </DialogTitle>
+      <DialogContent
+        dividers
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 600,
-          p: 2,
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
         }}
       >
-        <Card>
-          <CardContent>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-            >
-              Ampliar presupuesto
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 2 }}
-            >
-              Completa los campos para registrar una ampliación de presupuesto
-            </Typography>
-
-            <Stack spacing={3}>
+        <Stack spacing={3}>
               <TextField
                 label="Monto (Q)"
                 type="number"
@@ -92,6 +95,12 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({
                   <DateCalendar
                     value={fecha}
                     onChange={setFecha}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                        mx: 0,
+                      },
+                    }}
                   />
                 </LocalizationProvider>
               </Box>
@@ -105,23 +114,18 @@ export const ModalAmpliarPresupuesto: FC<ModalAmpliarPresupuestoProps> = ({
                 onChange={(e) => setAnotaciones(e.target.value)}
               />
             </Stack>
-          </CardContent>
-
-          <Divider />
-
-          <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleGuardar}
-              disabled={!monto || !fecha}
-            >
-              Guardar ampliación
-            </Button>
-          </CardActions>
-        </Card>
-      </Box>
-    </Modal>
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: 'flex-end', p: 2 }}>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleGuardar}
+          disabled={!monto || !fecha}
+        >
+          Guardar ampliación
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

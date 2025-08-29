@@ -72,8 +72,6 @@ export const useGastosOperativosApi = () => {
     formData.append('tipo_gasto', String(data.tipo_gasto));     // "2"
     formData.append('tipo_documento', data.tipo_documento);     // cheque/efectivo/transferencia
 
-    console.log("mantener ids:", data.mantener_ids);
-
     const key = 'mantener_ids';
       data.mantener_ids.forEach((id) => {
         formData.append(key, String(id)); // DRF acepta string numérica

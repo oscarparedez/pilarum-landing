@@ -10,8 +10,9 @@ import {
   MenuItem,
   Select,
   Stack,
-  TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
@@ -47,6 +48,9 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
   const [hastaDate, setHastaDate] = useState<Date | null>(null);
   const [asignadoA, setAsignadoA] = useState<number | null>(null);
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   useEffect(() => {
     setEquipo(initialData.equipo.id);
     setDias(initialData.dias_asignados || []);
@@ -68,7 +72,6 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
         fecha_fin: format(hastaDate, 'yyyy-MM-dd'),
         usuario_recibe: asignadoA,
       });
-
       onClose();
     }
   };
@@ -77,37 +80,64 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="md"
+      keepMounted
     >
       <DialogTitle>Editar maquinaria asignada</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Stack
           spacing={3}
           mt={1}
         >
-          {/* Maquinaria */}
-          <FormControl
-            fullWidth
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
           >
-            <InputLabel shrink>Maquinaria</InputLabel>
-            <Select
-              value={equipo}
-              label="Maquinaria"
-              onChange={(e) => setEquipo(e.target.value as number)}
-            >
-              {maquinasDisponibles.map((m) => (
-                <MenuItem
-                  key={m.id}
-                  value={m.id}
-                >
-                  {m.nombre}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            <FormControl fullWidth>
+              <InputLabel shrink>Maquinaria</InputLabel>
+              <Select
+                value={equipo}
+                label="Maquinaria"
+                onChange={(e) => setEquipo(e.target.value as number)}
+              >
+                {maquinasDisponibles.map((m) => (
+                  <MenuItem
+                    key={m.id}
+                    value={m.id}
+                  >
+                    {m.nombre}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-          {/* Días */}
+            <FormControl fullWidth>
+              <InputLabel shrink>Asignado a</InputLabel>
+              <Select
+                value={asignadoA}
+                label="Asignado a"
+                onChange={(e) => setAsignadoA(e.target.value as number)}
+              >
+                {usuarios.map((usuario) => (
+                  <MenuItem
+                    key={usuario.id}
+                    value={usuario.id}
+                  >
+                    {usuario.first_name} {usuario.last_name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+
           <Box>
             <Typography
               variant="subtitle2"
@@ -118,6 +148,8 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
             <Stack
               direction="row"
               flexWrap="wrap"
+              gap={1.5}
+              alignItems="center"
             >
               {DIAS_SEMANA.map((dia) => (
                 <DiaToggle
@@ -130,7 +162,6 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
             </Stack>
           </Box>
 
-          {/* Fecha hasta */}
           <Box>
             <Typography
               variant="subtitle2"
@@ -143,45 +174,34 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
               adapterLocale={es}
             >
               <Stack
-                direction="row"
+                direction={{ xs: 'column', md: 'row' }}
                 spacing={2}
               >
-                <Box flex={1}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="caption">Desde</Typography>
                   <DateCalendar
                     value={desdeDate}
                     onChange={setDesdeDate}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
+                    }}
                   />
                 </Box>
-                <Box flex={1}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="caption">Hasta</Typography>
                   <DateCalendar
                     value={hastaDate}
                     onChange={setHastaDate}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
+                    }}
                   />
                 </Box>
               </Stack>
             </LocalizationProvider>
           </Box>
-
-          {/* Asignado a */}
-          <FormControl fullWidth>
-            <InputLabel shrink>Asignado a</InputLabel>
-            <Select
-              value={asignadoA}
-              label="Asignado a"
-              onChange={(e) => setAsignadoA(e.target.value as number)}
-            >
-              {usuarios.map((usuario) => (
-                <MenuItem
-                  key={usuario.id}
-                  value={usuario.id}
-                >
-                  {usuario.first_name} {usuario.last_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
         </Stack>
       </DialogContent>
 
@@ -190,7 +210,15 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
         <Button
           variant="contained"
           onClick={handleConfirm}
-          disabled={!equipo || !dias_asignados.length || !hastaDate || !asignadoA}
+          disabled={
+            !equipo ||
+            !dias_asignados.length ||
+            !desdeDate ||
+            !hastaDate ||
+            !asignadoA ||
+            asignadoA === null ||
+            (desdeDate && hastaDate ? desdeDate > hastaDate : false)
+          }
         >
           Guardar cambios
         </Button>

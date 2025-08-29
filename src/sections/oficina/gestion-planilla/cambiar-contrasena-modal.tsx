@@ -6,6 +6,8 @@ import {
   DialogActions,
   TextField,
   Button,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 
 interface Props {
@@ -18,6 +20,9 @@ export const ModalCambiarContrasena: FC<Props> = ({ open, onClose, onConfirm }) 
   const [password, setPassword] = useState('');
   const [oldPassword, setOldPassword] = useState('');
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const handleGuardar = () => {
     onConfirm({ new_password: password, old_password: oldPassword });
     setPassword('');
@@ -28,11 +33,19 @@ export const ModalCambiarContrasena: FC<Props> = ({ open, onClose, onConfirm }) 
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="xs"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="xs"
+      keepMounted
     >
       <DialogTitle>Cambiar contraseña</DialogTitle>
-      <DialogContent>
+      <DialogContent
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <TextField
           fullWidth
           label="Contraseña actual"

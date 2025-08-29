@@ -11,6 +11,8 @@ import {
   IconButton,
   CircularProgress,
   MenuItem,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useEffect, useMemo, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
@@ -39,6 +41,9 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
   const [descripcion, setDescripcion] = useState('');
   const [costo, setCosto] = useState<number>(0);
   const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento | ''>('');
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   // imágenes separadas
   const [existentes, setExistentes] = useState<FotoExistente[]>([]);
@@ -138,11 +143,19 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
     >
       <DialogTitle>Editar servicio</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent 
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Stack
           spacing={3}
           mt={1}
@@ -157,6 +170,12 @@ export const ModalEditarServicio: FC<ModalEditarServicioProps> = ({
             <DateCalendar
               value={fecha}
               onChange={(v) => setFecha(v)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0
+                }
+              }}
             />
           </Box>
 

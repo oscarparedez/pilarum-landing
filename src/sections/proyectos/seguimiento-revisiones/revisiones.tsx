@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  TableContainer,
 } from '@mui/material';
 import { FC, useCallback, useMemo, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
@@ -131,47 +132,49 @@ export const Revisiones: FC<RevisionesProps> = ({
             onFiltrar={handleFiltrar}
           >
             {(currentPage) => (
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Fecha creación</TableCell>
-                    <TableCell>Fecha revisión</TableCell>
-                    <TableCell>Título</TableCell>
-                    <TableCell>Anotaciones</TableCell>
-                    <TableCell>Usuario creador</TableCell>
-                    <TableCell>Acciones</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {revisionesFiltradas.slice((currentPage - 1) * 5, currentPage * 5).map((rev) => (
-                    <TableRow
-                      key={rev.id}
-                      hover
-                    >
-                      <TableCell>{formatearFecha(rev.fecha_creacion)}</TableCell>
-                      <TableCell>{formatearFecha(rev.fecha_review)}</TableCell>
-                      <TableCell>{rev.titulo}</TableCell>
-                      <TableCell>{rev.anotaciones}</TableCell>
-                      <TableCell>{rev.usuario_creador.first_name} {rev.usuario_creador.last_name}</TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => abrirModal(rev.fotos.map((f) => f.imagen))}>
-                          <VisibilityIcon />
-                        </IconButton>
-                        {canEditRevision && (
-                          <IconButton onClick={() => setEditarRevision(rev)}>
-                            <EditIcon />
-                          </IconButton>
-                        )}
-                        {canDeleteRevision && (
-                          <IconButton onClick={() => setRevisionAEliminar(rev)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        )}
-                      </TableCell>
+              <TableContainer sx={{ overflowX: 'auto', maxHeight: 600 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Fecha creación</TableCell>
+                      <TableCell>Fecha revisión</TableCell>
+                      <TableCell>Título</TableCell>
+                      <TableCell>Anotaciones</TableCell>
+                      <TableCell>Usuario creador</TableCell>
+                      <TableCell>Acciones</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {revisionesFiltradas.slice((currentPage - 1) * 5, currentPage * 5).map((rev) => (
+                      <TableRow
+                        key={rev.id}
+                        hover
+                      >
+                        <TableCell>{formatearFecha(rev.fecha_creacion)}</TableCell>
+                        <TableCell>{formatearFecha(rev.fecha_review)}</TableCell>
+                        <TableCell>{rev.titulo}</TableCell>
+                        <TableCell>{rev.anotaciones}</TableCell>
+                        <TableCell>{rev.usuario_creador.first_name} {rev.usuario_creador.last_name}</TableCell>
+                        <TableCell>
+                          <IconButton onClick={() => abrirModal(rev.fotos.map((f) => f.imagen))}>
+                            <VisibilityIcon />
+                          </IconButton>
+                          {canEditRevision && (
+                            <IconButton onClick={() => setEditarRevision(rev)}>
+                              <EditIcon />
+                            </IconButton>
+                          )}
+                          {canDeleteRevision && (
+                            <IconButton onClick={() => setRevisionAEliminar(rev)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             )}
           </TablaPaginadaConFiltros>
         </CardContent>

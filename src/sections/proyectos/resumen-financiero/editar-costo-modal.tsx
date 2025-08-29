@@ -6,11 +6,12 @@ import {
   Stack,
   TextField,
   MenuItem,
-  Modal,
-  Card,
-  CardContent,
-  CardActions,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -45,6 +46,9 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
   tiposPago,
   onConfirm,
 }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [fecha, setFecha] = useState<Date | null>(null);
   const [monto, setMonto] = useState<number | ''>('');
   const [tipoPago, setTipoPago] = useState<number | ''>('');
@@ -92,38 +96,24 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
   ]);
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullScreen={fullScreen}
+      maxWidth="sm"
+      fullWidth
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 600,
-          p: 2,
-        }}
-      >
-        <Card>
-          <CardContent>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 'bold' }}
-            >
-              Editar costo
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 2 }}
-            >
-              Modifica los campos necesarios y guarda los cambios
-            </Typography>
+      <DialogTitle>Editar costo</DialogTitle>
+      <DialogContent>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          Modifica los campos necesarios y guarda los cambios
+        </Typography>
 
-            <Stack spacing={3}>
+        <Stack spacing={3}>
               <TextField
                 label="Monto total (Q)"
                 type="number"
@@ -147,11 +137,17 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
                   <DateCalendar
                     value={fecha}
                     onChange={setFecha}
+                    sx={{
+                      width: '100%',
+                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                        mx: 0,
+                      },
+                    }}
                   />
                 </LocalizationProvider>
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <Stack spacing={2}>
                 <TextField
                   label="Tipo de pago"
                   select
@@ -182,7 +178,7 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
                   <MenuItem value="transferencia">Transferencia</MenuItem>
                   <MenuItem value="efectivo">Efectivo</MenuItem>
                 </TextField>
-              </Box>
+              </Stack>
 
               <TextField
                 label="Correlativo"
@@ -200,23 +196,19 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
                 onChange={(e) => setAnotaciones(e.target.value)}
               />
             </Stack>
-          </CardContent>
-
-          <Divider />
-
-          <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSave}
-              disabled={!fecha || !monto || !tipoPago || !tipoDocumento}
-            >
-              Guardar cambios
-            </Button>
-          </CardActions>
-        </Card>
-      </Box>
-    </Modal>
+      </DialogContent>
+      
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSave}
+          disabled={!fecha || !monto || !tipoPago || !tipoDocumento}
+        >
+          Guardar cambios
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

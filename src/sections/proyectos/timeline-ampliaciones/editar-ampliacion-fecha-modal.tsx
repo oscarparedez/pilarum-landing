@@ -8,6 +8,8 @@ import {
   Typography,
   Stack,
   TextField,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
@@ -37,6 +39,9 @@ export const ModalEditarAmpliacionFecha: FC<ModalEditarAmpliacionFechaProps> = (
   const [fecha, setFecha] = useState<Date | null>(formatearFechaLocal(initialData.fecha));
   const [motivo, setMotivo] = useState(initialData.motivo);
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   useEffect(() => {
     if (initialData) {
       setFecha(formatearFechaLocal(initialData.fecha));
@@ -61,8 +66,10 @@ export const ModalEditarAmpliacionFecha: FC<ModalEditarAmpliacionFechaProps> = (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="sm"
+      keepMounted
       PaperProps={{
         sx: { borderRadius: 3, py: 4 },
       }}
@@ -83,7 +90,13 @@ export const ModalEditarAmpliacionFecha: FC<ModalEditarAmpliacionFechaProps> = (
         </Typography>
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         <Box
           display="flex"
           justifyContent="center"
@@ -98,6 +111,12 @@ export const ModalEditarAmpliacionFecha: FC<ModalEditarAmpliacionFechaProps> = (
               value={fecha}
               onChange={(newDate) => setFecha(newDate)}
               minDate={formatearFechaLocalMasUno(initialData.fecha)}
+              sx={{
+                width: '100%',
+                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
+                  mx: 0,
+                },
+              }}
             />
           </LocalizationProvider>
         </Box>

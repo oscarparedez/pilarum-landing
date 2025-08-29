@@ -1,23 +1,23 @@
 import { FC, useEffect, useState } from 'react';
 import {
-  Modal,
-  Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  Stack,
   TextField,
   Typography,
-  Stack,
-  MenuItem,
-  Card,
-  CardContent,
-  CardActions,
-  Divider,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { es } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
-import { Maquinaria, NuevaMaquinaria, TipoDocumento, TipoMaquinaria } from 'src/api/types';
+import { NuevaMaquinaria, TipoDocumento, TipoMaquinaria } from 'src/api/types';
 
 interface EditarDatosBasicosModalProps {
   open: boolean;
@@ -41,6 +41,9 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   );
   const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento>(initialData.tipo_documento);
   const [anotaciones, setAnotaciones] = useState(initialData.anotaciones || '');
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (open) {
@@ -70,131 +73,123 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
+      fullScreen={fullScreen}
+      fullWidth
+      maxWidth="sm"
+      keepMounted
     >
-      <Box
+      <DialogTitle>Editar maquinaria</DialogTitle>
+      <DialogContent
+        dividers
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 500,
-          p: 2,
+          maxHeight: { xs: '100dvh', sm: '90dvh' },
+          overflow: 'auto',
+          p: { xs: 2, sm: 3 },
         }}
       >
-        <Card>
-          <CardContent>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 'bold', mb: 2 }}
-            >
-              Editar recurso
-            </Typography>
+        <Stack spacing={2}>
+          <TextField
+            select
+            label="Tipo"
+            value={tipo}
+            onChange={(e) => setTipo(e.target.value as TipoMaquinaria)}
+            fullWidth
+          >
+            <MenuItem value="maquinaria">Maquinaria</MenuItem>
+            <MenuItem value="herramienta">Herramienta</MenuItem>
+          </TextField>
 
-            <Stack spacing={2}>
-              <TextField
-                select
-                label="Tipo"
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value as TipoMaquinaria)}
-                fullWidth
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+          >
+            <TextField
+              label="Nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Identificador"
+              value={identificador}
+              onChange={(e) => setIdentificador(e.target.value)}
+              fullWidth
+            />
+          </Stack>
+
+          <LocalizationProvider
+            dateAdapter={AdapterDateFns}
+            adapterLocale={es}
+          >
+            <div>
+              <Typography
+                variant="body2"
+                sx={{ mb: 1 }}
               >
-                <MenuItem value="maquinaria">Maquinaria</MenuItem>
-                <MenuItem value="herramienta">Herramienta</MenuItem>
-              </TextField>
-
-              {/* Nombre + Identificador */}
-              <Stack
-                direction="row"
-                spacing={2}
-              >
-                <TextField
-                  label="Nombre"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  fullWidth
-                />
-                <TextField
-                  label="Identificador"
-                  value={identificador}
-                  onChange={(e) => setIdentificador(e.target.value)}
-                  fullWidth
-                />
-              </Stack>
-
-              <Box>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 1 }}
-                >
-                  Fecha de compra <span style={{ color: 'red' }}>*</span>
-                </Typography>
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={es}
-                >
-                  <DateCalendar
-                    value={fechaCompra}
-                    onChange={setFechaCompra}
-                  />
-                </LocalizationProvider>
-              </Box>
-
-              {/* Tipo de documento + Costo */}
-              <Stack
-                direction="row"
-                spacing={2}
-              >
-                <TextField
-                  label="Tipo de documento"
-                  select
-                  fullWidth
-                  value={tipoDocumento}
-                  onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
-                >
-                  <MenuItem value="cheque">Cheque</MenuItem>
-                  <MenuItem value="efectivo">Efectivo</MenuItem>
-                  <MenuItem value="transferencia">Transferencia</MenuItem>
-                </TextField>
-
-                <TextField
-                  label="Costo"
-                  type="number"
-                  value={costo}
-                  onChange={(e) => setCosto(e.target.value)}
-                  fullWidth
-                />
-              </Stack>
-
-              <TextField
-                label="Anotaciones"
-                multiline
-                rows={3}
-                fullWidth
-                value={anotaciones}
-                onChange={(e) => setAnotaciones(e.target.value)}
+                Fecha de compra <span style={{ color: 'red' }}>*</span>
+              </Typography>
+              <DateCalendar
+                value={fechaCompra}
+                onChange={setFechaCompra}
+                sx={{
+                  width: '100%',
+                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
+                }}
               />
-            </Stack>
-          </CardContent>
+            </div>
+          </LocalizationProvider>
 
-          <Divider />
-
-          <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleConfirm}
-              disabled={!nombre || !costo || !fechaCompra}
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+          >
+            <TextField
+              label="Tipo de documento"
+              select
+              fullWidth
+              value={tipoDocumento}
+              onChange={(e) => setTipoDocumento(e.target.value as TipoDocumento)}
             >
-              Guardar cambios
-            </Button>
-          </CardActions>
-        </Card>
-      </Box>
-    </Modal>
+              <MenuItem value="cheque">Cheque</MenuItem>
+              <MenuItem value="efectivo">Efectivo</MenuItem>
+              <MenuItem value="transferencia">Transferencia</MenuItem>
+            </TextField>
+
+            <TextField
+              label="Costo"
+              type="number"
+              value={costo}
+              onChange={(e) => setCosto(e.target.value)}
+              fullWidth
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+            />
+          </Stack>
+
+          <TextField
+            label="Anotaciones"
+            multiline
+            rows={3}
+            fullWidth
+            value={anotaciones}
+            onChange={(e) => setAnotaciones(e.target.value)}
+          />
+        </Stack>
+      </DialogContent>
+
+      <DialogActions sx={{ p: { xs: 2, sm: 3 } }}>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleConfirm}
+          disabled={!nombre || !costo || !fechaCompra}
+        >
+          Guardar cambios
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

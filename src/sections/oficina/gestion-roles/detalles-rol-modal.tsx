@@ -11,6 +11,8 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import { usePermisosPorGrupo } from 'src/hooks/roles/usePermisosPorGrupo';
@@ -25,6 +27,9 @@ interface DetalleRolModalProps {
 }
 
 export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, onUpdate }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const {
     seleccionados,
     togglePermiso,
@@ -46,11 +51,19 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      fullScreen={fullScreen}
       fullWidth
+      maxWidth="md"
+      keepMounted
     >
       <DialogTitle>Detalle del rol: {rol.name}</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent 
+        dividers
+        sx={{
+          maxHeight: { xs: '90dvh', sm: '80vh' },
+          overflow: 'auto',
+        }}
+      >
         {Object.entries(permisosAgrupados).map(([modulo, secciones]) => (
           <Box
             key={modulo}

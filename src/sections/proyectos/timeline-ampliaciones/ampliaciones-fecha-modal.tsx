@@ -1,10 +1,11 @@
 import { FC, useState, useCallback, useMemo } from 'react';
 import {
   Box,
-  Modal,
-  Card,
-  CardHeader,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -12,6 +13,8 @@ import {
   Typography,
   IconButton,
   Stack,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
@@ -41,22 +44,21 @@ interface ModalAmpliacionesFechaProps {
   onEliminarAmpliacion: (id: number) => Promise<void>;
 }
 
-export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
-  open,
+export const AmpliacionesFechaModal: FC<ModalAmpliacionesFechaProps> = ({
+  open = false,
   onClose,
-  ampliaciones,
+  ampliaciones = [],
   onAmpliacionActualizada,
   onEliminarAmpliacion,
+  ...other
 }) => {
-  const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [eliminando, setEliminando] = useState<Ampliacion | null>(null);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [filtros, setFiltros] = useState<{
-    search: string;
-    fechaInicio?: Date | null;
-    fechaFin?: Date | null;
-  }>({ search: '' });
+  const [filtros, setFiltros] = useState({ search: '' });
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
+  const [eliminando, setEliminando] = useState<Ampliacion | null>(null);
 
   const handleFiltrar = useCallback((f: typeof filtros) => {
     setFiltros(f);
@@ -96,28 +98,28 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
 
   return (
     <>
-      <Modal
+            <Dialog
         open={open}
         onClose={onClose}
+        fullScreen={fullScreen}
+        fullWidth
+        maxWidth="md"
+        keepMounted
+        {...other}
       >
-        <Box
+        <DialogTitle>
+          Historial de ampliaciones de fecha
+        </DialogTitle>
+        <DialogContent
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '95%',
-            maxWidth: 900,
-            p: 2,
+            maxHeight: { xs: '90dvh', sm: '80vh' },
+            overflow: 'auto',
           }}
         >
-          <Card>
-            <CardHeader title="Historial de ampliaciones de fecha" />
-            <Divider />
-            <TablaPaginadaConFiltros
-              totalItems={ampliacionesFiltradas.length}
-              onFiltrar={handleFiltrar}
-            >
+          <TablaPaginadaConFiltros
+            totalItems={ampliacionesFiltradas.length}
+            onFiltrar={handleFiltrar}
+          >
               {(currentPage) => (
                 <Table>
                   <TableBody>
@@ -200,11 +202,14 @@ export const ModalAmpliacionesFecha: FC<ModalAmpliacionesFechaProps> = ({
                 </Table>
               )}
             </TablaPaginadaConFiltros>
-          </Card>
-        </Box>
-      </Modal>
+        </DialogContent>
+        
+        <DialogActions>
+          <Button onClick={onClose}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
 
-      {editandoIndex !== null && ampliaciones[editandoIndex] && (
+      {editandoIndex !== null && editandoIndex < ampliaciones.length && ampliaciones[editandoIndex] && (
         <ModalEditarAmpliacionFecha
           open={editModalOpen}
           onClose={() => setEditModalOpen(false)}

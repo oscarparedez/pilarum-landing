@@ -37,13 +37,10 @@ const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [personaSeleccionada, setPersonaSeleccionada] = useState<Usuario | null>(null);
-  const [ loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [personal, setPersonal] = useState<Usuario[]>([]);
   const [roles, setRoles] = useState<Rol[]>([]);
-  const [filtros, setFiltros] = useState<{
-    search: string;
-    rol?: string;
-  }>({ search: '' });
+  const [filtros, setFiltros] = useState<{ search: string; rol?: string }>({ search: '' });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -102,7 +99,6 @@ const Page: NextPage = () => {
   );
 
   const handleFiltrar = useCallback((f: typeof filtros) => {
-    console.log("Aplicando filtros:", f);
     setFiltros(f);
   }, []);
 
@@ -114,15 +110,15 @@ const Page: NextPage = () => {
   }, [personal, filtros]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      { loading && <FullPageLoader /> }
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
+      {loading && <FullPageLoader />}
       <Card>
         <CardContent sx={{ p: 0 }}>
-          {/* Header */}
           <Stack
-            direction="row"
+            direction={{ xs: 'column', sm: 'row' }}
             justifyContent="space-between"
-            alignItems="center"
+            alignItems={{ xs: 'stretch', sm: 'center' }}
+            gap={2}
             sx={{ px: 3, py: 3 }}
           >
             <Typography
@@ -132,16 +128,19 @@ const Page: NextPage = () => {
               Planilla de personal
             </Typography>
             {canCreateUsuarios && (
-              <Button
-                variant="contained"
-                onClick={() => setModalCrearOpen(true)}
-              >
-                Agregar persona
-              </Button>
+              <Box sx={{ alignSelf: { xs: 'stretch', sm: 'auto' } }}>
+                <Button
+                  fullWidth={true}
+                  sx={{ minWidth: { sm: 180 } }}
+                  variant="contained"
+                  onClick={() => setModalCrearOpen(true)}
+                >
+                  Agregar persona
+                </Button>
+              </Box>
             )}
           </Stack>
 
-          {/* Tabla con filtros */}
           <TablaPaginadaConFiltros
             totalItems={personalFiltrado.length}
             onFiltrar={handleFiltrar}
@@ -157,14 +156,18 @@ const Page: NextPage = () => {
                   sx={{
                     maxHeight: 600,
                     borderRadius: 2,
-                    overflow: 'hidden',
+                    overflowX: 'auto',
+                    overflowY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
                   }}
                 >
                   <Table
                     stickyHeader
                     sx={{
+                      minWidth: 960,
                       borderCollapse: 'separate',
                       borderSpacing: '0 8px',
+                      '& th, & td': { whiteSpace: 'nowrap' },
                     }}
                   >
                     <TableHead>
@@ -193,7 +196,10 @@ const Page: NextPage = () => {
                           <TableCell>{persona.telefono ?? '—'}</TableCell>
                           <TableCell>{persona.groups?.[0]?.name || '—'}</TableCell>
                           <TableCell>{persona.is_active ? 'Activo' : 'Inactivo'}</TableCell>
-                          <TableCell>{persona.usuario_creador?.first_name} {persona.usuario_creador?.last_name}</TableCell>
+                          <TableCell>
+                            {persona.usuario_creador?.first_name}{' '}
+                            {persona.usuario_creador?.last_name}
+                          </TableCell>
                           {canEditUsuarios && (
                             <TableCell align="center">
                               <Button
@@ -217,7 +223,6 @@ const Page: NextPage = () => {
             }}
           </TablaPaginadaConFiltros>
 
-          {/* Modales */}
           <ModalRegistrarPersona
             open={modalCrearOpen}
             onClose={() => setModalCrearOpen(false)}
