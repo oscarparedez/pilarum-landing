@@ -13,10 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { format } from 'date-fns';
 import { Costo } from 'src/api/types';
 
@@ -130,21 +127,10 @@ export const ModalEditarCosto: FC<ModalEditarCostoProps> = ({
                 >
                   Fecha del costo <span style={{ color: 'red' }}>*</span>
                 </Typography>
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={es}
-                >
-                  <DateCalendar
-                    value={fecha}
-                    onChange={setFecha}
-                    sx={{
-                      width: '100%',
-                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                        mx: 0,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
+                <CustomDateCalendar
+                  value={fecha}
+                  onChange={setFecha}
+                />
               </Box>
 
               <Stack spacing={2}>

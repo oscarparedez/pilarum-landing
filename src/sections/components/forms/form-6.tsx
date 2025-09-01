@@ -7,7 +7,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { CustomDateTimePicker } from 'src/components/custom-date-components';
 
 export const Form6: FC = () => {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
@@ -33,12 +33,12 @@ export const Form6: FC = () => {
               label="All day"
             />
           </div>
-          <DateTimePicker
+          <CustomDateTimePicker
             onChange={(newDate) => setStartDate(newDate)}
             label="Start date"
             value={startDate}
           />
-          <DateTimePicker
+          <CustomDateTimePicker
             onChange={(newDate) => setEndDate(newDate)}
             label="End date"
             value={endDate}

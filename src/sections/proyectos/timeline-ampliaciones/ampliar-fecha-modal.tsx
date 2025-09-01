@@ -12,10 +12,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { formatearFecha, formatearFechaLocalMasUno } from 'src/utils/format-date';
 
 interface AmpliarFechaModalProps {
@@ -84,23 +81,12 @@ export const AmpliarFechaModal: FC<AmpliarFechaModalProps> = ({
           justifyContent="center"
           py={2}
         >
-          <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={es}
-          >
-            <DateCalendar
-              views={['year', 'month', 'day']}
-              value={fechaSeleccionada}
-              onChange={(newDate) => setFechaSeleccionada(newDate)}
-              minDate={formatearFechaLocalMasUno(fechaActual)}
-              sx={{
-                width: '100%',
-                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                  mx: 0,
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <CustomDateCalendar
+            views={['year', 'month', 'day']}
+            value={fechaSeleccionada}
+            onChange={(newDate) => setFechaSeleccionada(newDate)}
+            minDate={formatearFechaLocalMasUno(fechaActual)}
+          />
         </Box>
 
         <TextField

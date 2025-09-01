@@ -10,10 +10,7 @@ import {
   Paper,
   Tooltip,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
@@ -126,21 +123,10 @@ const Page: NextPage = () => {
 
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2">Fecha de traslado</Typography>
-          <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={es}
-          >
-            <DateCalendar
-              value={fechaTraslado}
-              onChange={(d) => d && setFechaTraslado(d)}
-              sx={{
-                width: '100%',
-                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                  mx: 0,
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <CustomDateCalendar
+            value={fechaTraslado}
+            onChange={(d) => d && setFechaTraslado(d)}
+          />
         </Box>
 
         <TablaLineasInventario

@@ -19,10 +19,7 @@ import {
   Tooltip,
   MenuItem,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import AddIcon from '@mui/icons-material/Add';
@@ -262,21 +259,10 @@ const Page: NextPage = () => {
         {/* Fecha factura */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2">Fecha de factura</Typography>
-          <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={es}
-          >
-            <DateCalendar
-              value={fechaFactura}
-              onChange={(d) => setFechaFactura(d as Date)}
-              sx={{
-                width: '100%',
-                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                  mx: 0,
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <CustomDateCalendar
+            value={fechaFactura}
+            onChange={(d) => setFechaFactura(d as Date)}
+          />
         </Box>
 
         {/* Tabla de compras */}

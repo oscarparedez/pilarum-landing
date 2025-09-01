@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { Box, Button, Modal, Stack, TextField, Typography } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { format } from 'date-fns';
 
 interface ModalEditarAmpliacionPresupuestoProps {
@@ -71,15 +71,9 @@ export const ModalEditarAmpliacionPresupuesto: FC<ModalEditarAmpliacionPresupues
             >
               Fecha
             </Typography>
-            <DateCalendar
+            <CustomDateCalendar
               value={fecha}
               onChange={(newValue) => setFecha(newValue)}
-              sx={{
-                width: '100%',
-                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                  mx: 0,
-                },
-              }}
             />
           </Box>
 

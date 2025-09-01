@@ -12,11 +12,8 @@ import {
   useTheme,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { formatearFechaLocal, formatearFechaLocalMasUno } from 'src/utils/format-date';
 
 interface ModalEditarAmpliacionFechaProps {
@@ -102,23 +99,12 @@ export const ModalEditarAmpliacionFecha: FC<ModalEditarAmpliacionFechaProps> = (
           justifyContent="center"
           py={2}
         >
-          <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={es}
-          >
-            <DateCalendar
-              views={['year', 'month', 'day']}
-              value={fecha}
-              onChange={(newDate) => setFecha(newDate)}
-              minDate={formatearFechaLocalMasUno(initialData.fecha)}
-              sx={{
-                width: '100%',
-                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                  mx: 0,
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <CustomDateCalendar
+            views={['year', 'month', 'day']}
+            value={fecha}
+            onChange={(newDate) => setFecha(newDate)}
+            minDate={formatearFechaLocalMasUno(initialData.fecha)}
+          />
         </Box>
 
         <TextField

@@ -10,7 +10,7 @@ import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { CustomMobileDatePicker } from 'src/components/custom-date-components';
 
 export const Form8: FC = () => {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
@@ -76,12 +76,12 @@ export const Form8: FC = () => {
               direction="row"
               spacing={3}
             >
-              <MobileDatePicker
+              <CustomMobileDatePicker
                 label="Start Date"
                 onChange={(newDate) => setStartDate(newDate)}
                 value={startDate}
               />
-              <MobileDatePicker
+              <CustomMobileDatePicker
                 label="End Date"
                 onChange={(newDate) => setEndDate(newDate)}
                 value={endDate}

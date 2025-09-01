@@ -17,7 +17,7 @@ import {
 import { FC, useEffect, useMemo, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { ActualizarGastoOperativo, GastoOperativo, TipoDocumento } from 'src/api/types';
 import { format } from 'date-fns';
 
@@ -153,15 +153,9 @@ export const ModalEditarConsumo: FC<ModalEditarConsumoProps> = ({
             >
               Fecha del consumo
             </Typography>
-            <DateCalendar
+            <CustomDateCalendar
               value={fecha}
               onChange={(newValue) => setFecha(newValue)}
-              sx={{
-                width: '100%',
-                '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                  mx: 0
-                }
-              }}
             />
           </Box>
 

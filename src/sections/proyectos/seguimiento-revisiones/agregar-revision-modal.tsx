@@ -16,10 +16,7 @@ import { FC, useState } from 'react';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { NuevaRevision } from 'src/api/types';
 import { format } from 'date-fns';
 
@@ -117,21 +114,10 @@ export const ModalAgregarRevision: FC<ModalAgregarRevisionProps> = ({
             >
               Fecha de la revisión
             </Typography>
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={es}
-            >
-              <DateCalendar
-                value={fecha}
-                onChange={(newValue) => setFecha(newValue)}
-                sx={{
-                  width: '100%',
-                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                    mx: 0,
-                  },
-                }}
-              />
-            </LocalizationProvider>
+            <CustomDateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
 
           <Box>

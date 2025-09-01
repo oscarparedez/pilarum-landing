@@ -16,10 +16,7 @@ import {
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { ActualizarRevision, Revision } from 'src/api/types';
 import { format } from 'date-fns';
 
@@ -180,21 +177,10 @@ export const ModalEditarRevision: FC<ModalEditarRevisionProps> = ({
             >
               Fecha de la revisión
             </Typography>
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={es}
-            >
-              <DateCalendar
-                value={fecha}
-                onChange={(newValue) => setFecha(newValue)}
-                sx={{
-                  width: '100%',
-                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                    mx: 0,
-                  },
-                }}
-              />
-            </LocalizationProvider>
+            <CustomDateCalendar
+              value={fecha}
+              onChange={(newValue) => setFecha(newValue)}
+            />
           </Box>
 
           <Box>

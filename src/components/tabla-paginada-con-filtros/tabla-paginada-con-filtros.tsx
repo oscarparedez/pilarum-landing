@@ -12,7 +12,7 @@ import {
   InputLabel,
   Button,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { CustomDatePicker } from 'src/components/custom-date-components';
 import SearchMdIcon from '@untitled-ui/icons-react/build/esm/SearchMd';
 import debounce from 'lodash.debounce';
 import { Rol, TipoIngreso } from 'src/api/types';
@@ -174,7 +174,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
 
           {filtrosFecha && (
             <>
-              <DatePicker
+              <CustomDatePicker
                 label="Fecha inicio"
                 value={fechaInicio}
                 onChange={(date) => {
@@ -184,7 +184,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
                 slotProps={{ textField: { sx: { width: 180 } } }}
               />
 
-              <DatePicker
+              <CustomDatePicker
                 label="Fecha fin"
                 value={fechaFin}
                 onChange={(date) => {

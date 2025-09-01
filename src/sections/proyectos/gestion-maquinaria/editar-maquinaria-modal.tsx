@@ -15,13 +15,10 @@ import {
   useTheme,
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { format } from 'date-fns';
 import { DiaToggle } from './dia-toggle';
 import { AsignacionMaquinaria, Maquinaria, NuevaAsignacionMaquinaria } from 'src/api/types';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { es } from 'date-fns/locale';
 
 interface ModalEditarMaquinariaProps {
   open: boolean;
@@ -169,38 +166,25 @@ export const ModalEditarMaquinaria: FC<ModalEditarMaquinariaProps> = ({
             >
               Fechas de asignación <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={es}
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              spacing={2}
             >
-              <Stack
-                direction={{ xs: 'column', md: 'row' }}
-                spacing={2}
-              >
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="caption">Desde</Typography>
-                  <DateCalendar
+                  <CustomDateCalendar
                     value={desdeDate}
                     onChange={setDesdeDate}
-                    sx={{
-                      width: '100%',
-                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
-                    }}
                   />
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="caption">Hasta</Typography>
-                  <DateCalendar
+                  <CustomDateCalendar
                     value={hastaDate}
                     onChange={setHastaDate}
-                    sx={{
-                      width: '100%',
-                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
-                    }}
                   />
                 </Box>
               </Stack>
-            </LocalizationProvider>
           </Box>
         </Stack>
       </DialogContent>

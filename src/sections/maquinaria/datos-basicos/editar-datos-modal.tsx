@@ -12,10 +12,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { format, parseISO } from 'date-fns';
 import { NuevaMaquinaria, TipoDocumento, TipoMaquinaria } from 'src/api/types';
 
@@ -120,27 +117,18 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
             />
           </Stack>
 
-          <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={es}
-          >
-            <div>
+          <div>
               <Typography
                 variant="body2"
                 sx={{ mb: 1 }}
               >
                 Fecha de compra <span style={{ color: 'red' }}>*</span>
               </Typography>
-              <DateCalendar
+              <CustomDateCalendar
                 value={fechaCompra}
                 onChange={setFechaCompra}
-                sx={{
-                  width: '100%',
-                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
-                }}
               />
             </div>
-          </LocalizationProvider>
 
           <Stack
             direction={{ xs: 'column', md: 'row' }}

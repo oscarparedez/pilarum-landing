@@ -13,10 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { format } from 'date-fns';
 import { Ingreso } from 'src/api/types';
 
@@ -130,21 +127,10 @@ export const ModalEditarIngreso: FC<ModalEditarIngresoProps> = ({
             >
               Fecha de ingreso <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={es}
-            >
-              <DateCalendar
-                value={selectedDate}
-                onChange={setSelectedDate}
-                sx={{
-                  width: '100%',
-                  '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                    mx: 0,
-                  },
-                }}
-              />
-            </LocalizationProvider>
+            <CustomDateCalendar
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
           </Box>
 
           <Stack spacing={2}>

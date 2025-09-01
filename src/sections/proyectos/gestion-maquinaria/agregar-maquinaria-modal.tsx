@@ -16,10 +16,7 @@ import {
 } from '@mui/material';
 import { FC, useState } from 'react';
 import { DiaToggle } from './dia-toggle';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { Maquinaria, NuevaAsignacionMaquinaria } from 'src/api/types';
 import { format } from 'date-fns';
 
@@ -173,38 +170,25 @@ export const ModalAgregarMaquinaria: FC<ModalAgregarMaquinariaProps> = ({
             >
               Fechas de asignación <span style={{ color: 'red' }}>*</span>
             </Typography>
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={es}
+            <Stack
+              direction={{ xs: 'column', lg: 'row' }}
+              spacing={2}
             >
-              <Stack
-                direction={{ xs: 'column', lg: 'row' }}
-                spacing={2}
-              >
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="caption">Desde</Typography>
-                  <DateCalendar
-                    value={desde}
-                    onChange={setDesde}
-                    sx={{
-                      width: '100%',
-                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
-                    }}
-                  />
-                </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="caption">Hasta</Typography>
-                  <DateCalendar
-                    value={hasta}
-                    onChange={setHasta}
-                    sx={{
-                      width: '100%',
-                      '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': { mx: 0 },
-                    }}
-                  />
-                </Box>
-              </Stack>
-            </LocalizationProvider>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="caption">Desde</Typography>
+                <CustomDateCalendar
+                  value={desde}
+                  onChange={setDesde}
+                />
+              </Box>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="caption">Hasta</Typography>
+                <CustomDateCalendar
+                  value={hasta}
+                  onChange={setHasta}
+                />
+              </Box>
+            </Stack>
           </Box>
         </Stack>
       </DialogContent>

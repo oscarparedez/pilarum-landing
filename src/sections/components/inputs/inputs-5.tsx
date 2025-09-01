@@ -6,7 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { CustomDateTimePicker } from 'src/components/custom-date-components';
 
 interface CategoryOption {
   label: string;
@@ -51,7 +51,7 @@ export const Inputs5: FC = () => (
           label="Schedule Publish"
         />
       </div>
-      <DateTimePicker
+      <CustomDateTimePicker
         label="Start date"
         onChange={() => {}}
         value={now}

@@ -12,7 +12,7 @@ import {
   Paper,
   Divider,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { CustomDatePicker } from 'src/components/custom-date-components';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { formatearQuetzales } from 'src/utils/format-currency';
@@ -306,18 +306,20 @@ export function BusquedaFiltradaCostos<T>({
               />
             )}
 
-            <DatePicker
-              label="Fecha inicio"
-              value={filters.fechaInicio}
-              onChange={(v) => setFilters((s) => ({ ...s, fechaInicio: v }))}
-              slotProps={{ textField: { fullWidth: true } }}
-            />
-            <DatePicker
-              label="Fecha fin"
-              value={filters.fechaFin}
-              onChange={(v) => setFilters((s) => ({ ...s, fechaFin: v }))}
-              slotProps={{ textField: { fullWidth: true } }}
-            />
+            <>
+              <CustomDatePicker
+                label="Fecha inicio"
+                value={filters.fechaInicio}
+                onChange={(v) => setFilters((s) => ({ ...s, fechaInicio: v }))}
+                slotProps={{ textField: { fullWidth: true } }}
+              />
+              <CustomDatePicker
+                label="Fecha fin"
+                value={filters.fechaFin}
+                onChange={(v) => setFilters((s) => ({ ...s, fechaFin: v }))}
+                slotProps={{ textField: { fullWidth: true } }}
+              />
+            </>
           </Stack>
 
           <Stack

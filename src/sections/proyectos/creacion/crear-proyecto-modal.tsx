@@ -16,10 +16,7 @@ import {
   useTheme,
   Box,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { es } from 'date-fns/locale';
+import { CustomDateCalendar } from 'src/components/custom-date-components';
 import { useSociosApi } from 'src/api/socios/useSociosApi';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -151,48 +148,31 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
             justifyContent="space-between"
             alignItems={{ xs: 'stretch', md: 'flex-start' }}
           >
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={es}
-            >
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{ mb: 1 }}
-                >
-                  Fecha de inicio
-                </Typography>
-                <DateCalendar
-                  value={fechaInicio}
-                  onChange={(d) => setFechaInicio(d)}
-                  sx={{
-                    width: '100%',
-                    '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                      mx: 0,
-                    },
-                  }}
-                />
-              </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mb: 1 }}
+              >
+                Fecha de inicio
+              </Typography>
+              <CustomDateCalendar
+                value={fechaInicio}
+                onChange={(d) => setFechaInicio(d)}
+              />
+            </Box>
 
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{ mb: 1 }}
-                >
-                  Fecha final
-                </Typography>
-                <DateCalendar
-                  value={fechaFin}
-                  onChange={(d) => setFechaFin(d)}
-                  sx={{
-                    width: '100%',
-                    '& .MuiDayCalendar-header, & .MuiPickersCalendarHeader-root': {
-                      mx: 0,
-                    },
-                  }}
-                />
-              </Box>
-            </LocalizationProvider>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mb: 1 }}
+              >
+                Fecha final
+              </Typography>
+              <CustomDateCalendar
+                value={fechaFin}
+                onChange={(d) => setFechaFin(d)}
+              />
+            </Box>
           </Stack>
         </Stack>
       </DialogContent>
