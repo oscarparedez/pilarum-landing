@@ -80,7 +80,7 @@ export const LandingCta: FC = () => {
             }}
           >
             Únete a los profesionales que ya están transformando
-            la gestión de sus proyectos de construcción.
+            la gestión de sus proyectos industriales.
           </Typography>
         </Box>
       </Container>

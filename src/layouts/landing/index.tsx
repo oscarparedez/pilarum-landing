@@ -11,7 +11,7 @@ interface LandingLayoutProps {
 export const LandingLayout: FC<LandingLayoutProps> = ({ children }) => {
   return (
     <>
-      <Seo title="Pilarum - Plataforma de gestión de obras industriales" />
+      <Seo title="Plataforma de gestión de obras industriales" />
       <Box
         sx={{
           minHeight: '100vh',

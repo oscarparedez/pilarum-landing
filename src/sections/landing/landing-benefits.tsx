@@ -134,7 +134,7 @@ export const LandingBenefits: FC = () => {
               mx: 'auto',
             }}
           >
-            Diseñado específicamente para profesionales de la construcción
+            Diseñado específicamente para profesionales de la ingeniería
             que buscan eficiencia y control total.
           </Typography>
         </Box>

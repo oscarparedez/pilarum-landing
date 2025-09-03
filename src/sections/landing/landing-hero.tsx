@@ -62,7 +62,7 @@ export const LandingHero: FC = () => {
                     color: '#2970FF',
                   }}
                 >
-                  proyectos de construcción
+                  proyectos industriales
                 </Box>
               </Typography>
               <Typography

@@ -192,7 +192,7 @@ export const LandingModules: FC = () => {
               mx: 'auto',
             }}
           >
-            Todo lo que necesitas para gestionar tus proyectos de construcción
+            Todo lo que necesitas para gestionar tus obras industriales
             de manera eficiente y profesional.
           </Typography>
         </Box>

@@ -60,7 +60,7 @@ export const LandingFooter: FC = () => {
               textAlign: { xs: 'center', md: 'right' },
             }}
           >
-            Software de gestión para la construcción moderna
+            Plataforma de gestión de obras industriales
           </Typography>
         </Box>
         <Divider
