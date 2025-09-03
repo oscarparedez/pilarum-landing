@@ -75,7 +75,7 @@ export const LandingHero: FC = () => {
                   lineHeight: 1.6,
                 }}
               >
-                Gestiona proyectos, inventario, personal, maquinaria y finanzas en una sola plataforma.
+                Gestiona proyectos industriales, inventario, personal, maquinaria y finanzas en una sola plataforma.
                 Optimiza tiempos, reduce costos y maximiza la eficiencia de tus obras.
               </Typography>
             </Box>
