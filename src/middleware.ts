@@ -9,7 +9,7 @@ export function middleware(req: NextRequest) {
   const currentPath = req.nextUrl.pathname;
 
   // Rutas públicas que no requieren autenticación
-  const publicPaths = ['/auth/login', '/401'];
+  const publicPaths = ['/', '/auth/login', '/401'];
   if (publicPaths.includes(currentPath)) {
     return NextResponse.next();
   }
@@ -54,5 +54,10 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/oficina/:path*', '/proyectos/:path*', '/maquinaria/:path*'],
+  matcher: [
+    '/dashboard/:path*', 
+    '/oficina/:path*', 
+    '/proyectos/:path*', 
+    '/maquinaria/:path*'
+  ],
 };

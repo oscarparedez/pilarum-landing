@@ -273,6 +273,32 @@ const Page: NextPage = () => {
                 </Button>
               </Stack>
             </form>
+            
+            {/* Botón discreto para volver a la landing */}
+            <Box
+              sx={{
+                mt: 3,
+                textAlign: 'center',
+              }}
+            >
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => router.push(paths.index)}
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                  fontWeight: 400,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: 'primary.main',
+                  },
+                }}
+              >
+                ← Volver al inicio
+              </Button>
+            </Box>
           </CardContent>
         </Card>
       </Fade>

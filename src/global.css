@@ -28,3 +28,25 @@
 
 /* Remove if mapbox is not used */
 @import '~mapbox-gl/dist/mapbox-gl.css';
+
+/* Landing page animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.float-animation-delay-1 {
+  animation: float 3s ease-in-out infinite 0.5s;
+}
+
+.float-animation-delay-2 {
+  animation: float 3s ease-in-out infinite 1s;
+}
+
+.float-animation-delay-3 {
+  animation: float 3s ease-in-out infinite 1.5s;
+}

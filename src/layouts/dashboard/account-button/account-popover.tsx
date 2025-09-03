@@ -51,7 +51,7 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
         }
       }
 
-      router.push(paths.auth.login);
+      router.push(paths.index);
     } catch (err) {
       console.error(err);
       toast.error('Something went wrong!');
