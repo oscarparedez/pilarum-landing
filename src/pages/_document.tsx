@@ -59,7 +59,7 @@ const CustomDocument = ({ emotionStyleTags }: CustomDocumentProps) => {
         />
         <meta
           property="og:description"
-          content="Pilarum - Construction Management Platform"
+          content="Pilarum - Control total de tus proyectos de construcción"
         />
         <meta
           property="og:image"
@@ -93,7 +93,7 @@ const CustomDocument = ({ emotionStyleTags }: CustomDocumentProps) => {
         />
         <meta
           name="twitter:description"
-          content="Pilarum - Construction Management Platform"
+          content="Pilarum - Control total de tus proyectos de construcción"
         />
         <meta
           name="twitter:image"
