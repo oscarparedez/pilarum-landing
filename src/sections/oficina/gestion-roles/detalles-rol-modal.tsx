@@ -13,8 +13,10 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
-import { FC, useEffect, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { usePermisosPorGrupo } from 'src/hooks/roles/usePermisosPorGrupo';
 import { permisosAgrupados } from 'src/constants/roles/permissions';
 import { Rol } from 'src/api/types';
@@ -22,13 +24,17 @@ import { Rol } from 'src/api/types';
 interface DetalleRolModalProps {
   open: boolean;
   onClose: () => void;
-  rol: Rol;
-  onUpdate: (permissionsIds: number[]) => void;
+  rol: Rol; // rol.permissions: number[]
+  // Ideal: Promise<void> para poder esperar al éxito
+  onUpdate: (permissionsIds: number[]) => Promise<void> | void;
 }
 
 export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, onUpdate }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Evita recrear el objeto si no cambia (opcional, por performance)
+  const groups = useMemo(() => permisosAgrupados, []);
 
   const {
     seleccionados,
@@ -40,31 +46,60 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
     cantidadSeleccionados,
     isEqualToOriginal,
     selectedIds,
-  } = usePermisosPorGrupo(permisosAgrupados, rol.permissions);
+    markAsSaved,
+  } = usePermisosPorGrupo(groups, rol.permissions);
 
-  const handleUpdate = () => {
-    onUpdate(selectedIds());
-    onClose();
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleUpdate = async () => {
+    setErrorMsg(null);
+    try {
+      setLoading(true);
+      const ids = selectedIds();
+
+      const result = onUpdate(ids);
+      // Si onUpdate retorna promesa, espera
+      if (result && typeof (result as Promise<void>).then === 'function') {
+        await (result as Promise<void>);
+      }
+
+      // Commit local del snapshot
+      markAsSaved();
+
+      // Cierra modal
+      onClose();
+    } catch (e: any) {
+      setErrorMsg(e?.message ?? 'Ocurrió un error al actualizar el rol.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={loading ? undefined : onClose}
       fullScreen={fullScreen}
       fullWidth
       maxWidth="md"
-      keepMounted
     >
       <DialogTitle>Detalle del rol: {rol.name}</DialogTitle>
-      <DialogContent 
+
+      <DialogContent
         dividers
         sx={{
           maxHeight: { xs: '90dvh', sm: '80vh' },
           overflow: 'auto',
         }}
       >
-        {Object.entries(permisosAgrupados).map(([modulo, secciones]) => (
+        {errorMsg && (
+          <Box mb={2}>
+            <Alert severity="error">{errorMsg}</Alert>
+          </Box>
+        )}
+
+        {Object.entries(groups).map(([modulo, secciones]) => (
           <Box
             key={modulo}
             sx={{ mt: 3 }}
@@ -75,6 +110,7 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
             >
               {modulo}
             </Typography>
+
             {Object.entries(secciones).map(([subgrupo, permisos]) => (
               <Box
                 key={subgrupo}
@@ -98,12 +134,14 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
                         ? deseleccionarTodos(subgrupo)
                         : seleccionarTodos(subgrupo, permisos)
                     }
+                    disabled={loading}
                   >
                     {todosSeleccionados(subgrupo, permisos)
                       ? 'Deseleccionar todos'
                       : 'Seleccionar todos'}
                   </Button>
                 </Stack>
+
                 <Grid
                   container
                   spacing={1}
@@ -122,6 +160,7 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
                           <Checkbox
                             checked={estaSeleccionado(subgrupo, permiso)}
                             onChange={() => togglePermiso(subgrupo, permiso)}
+                            disabled={loading}
                           />
                         }
                         label={permiso}
@@ -131,18 +170,26 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
                 </Grid>
               </Box>
             ))}
+
             <Divider sx={{ my: 2 }} />
           </Box>
         ))}
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose}>Cerrar</Button>
+        <Button
+          onClick={onClose}
+          disabled={loading}
+        >
+          Cerrar
+        </Button>
         <Button
           variant="contained"
           onClick={handleUpdate}
-          disabled={isEqualToOriginal()}
+          disabled={isEqualToOriginal() || loading}
+          startIcon={loading ? <CircularProgress size={16} /> : undefined}
         >
-          Actualizar
+          {loading ? 'Guardando...' : 'Actualizar'}
         </Button>
       </DialogActions>
     </Dialog>

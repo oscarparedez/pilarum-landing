@@ -131,7 +131,7 @@ const Page: NextPage = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Nombre</TableCell>
-                      <TableCell>Tipo</TableCell>
+                      {/* <TableCell>Tipo</TableCell> */}
                       <TableCell>Usuario creador</TableCell>
                       {canEditSocios && <TableCell align="center">Acciones</TableCell>}
                     </TableRow>
@@ -143,7 +143,7 @@ const Page: NextPage = () => {
                         hover
                       >
                         <TableCell>{socio.nombre}</TableCell>
-                        <TableCell>{socio.tipo === 'interno' ? 'Interno' : 'Externo'}</TableCell>
+                        {/* <TableCell>{socio.tipo === 'interno' ? 'Interno' : 'Externo'}</TableCell> */}
                         <TableCell>{socio.usuario_creador.first_name} {socio.usuario_creador.last_name}</TableCell>
                         {canEditSocios && (
                           <TableCell align="center">

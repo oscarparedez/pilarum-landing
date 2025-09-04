@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PERMISSION_LABEL_TO_ID } from 'src/constants/roles/permissions';
 
 export type PermisosAgrupados = Record<string, Record<string, string[]>>;
@@ -19,10 +19,16 @@ export const usePermisosPorGrupo = (
     return next;
   }, [permisos]);
 
-  const [seleccionados, setSeleccionados] = useState<Seleccionados>(
-    idsToSeleccionados(initialIds)
-  );
-  const originalRef = useRef(idsToSeleccionados(initialIds));
+  const [seleccionados, setSeleccionados] = useState<Seleccionados>(idsToSeleccionados(initialIds));
+
+  // Mantener snapshot de IDs originales (ordenados)
+  const originalIdsRef = useRef<number[]>([...initialIds].sort((a, b) => a - b));
+
+  // Rehidratar cuando cambie initialIds (por ej. tras fetch/update externo)
+  useEffect(() => {
+    setSeleccionados(idsToSeleccionados(initialIds));
+    originalIdsRef.current = [...initialIds].sort((a, b) => a - b);
+  }, [initialIds, idsToSeleccionados]);
 
   const togglePermiso = useCallback((grupo: string, permiso: string) => {
     setSeleccionados((prev) => {
@@ -59,11 +65,6 @@ export const usePermisosPorGrupo = (
     [seleccionados]
   );
 
-  const isEqualToOriginal = useCallback(
-    () => JSON.stringify(seleccionados) === JSON.stringify(originalRef.current),
-    [seleccionados]
-  );
-
   const selectedIds = useCallback((): number[] => {
     const ids = new Set<number>();
     Object.values(seleccionados).forEach((labels) => {
@@ -74,6 +75,21 @@ export const usePermisosPorGrupo = (
     });
     return Array.from(ids).sort((a, b) => a - b);
   }, [seleccionados]);
+
+  const isEqualToOriginal = useCallback(() => {
+    const current = selectedIds();
+    const original = originalIdsRef.current;
+    if (current.length !== original.length) return false;
+    for (let i = 0; i < current.length; i++) {
+      if (current[i] !== original[i]) return false;
+    }
+    return true;
+  }, [selectedIds]);
+
+  // Llamar tras un guardado exitoso (o cuando quieras “committear” localmente)
+  const markAsSaved = useCallback(() => {
+    originalIdsRef.current = selectedIds();
+  }, [selectedIds]);
 
   return {
     seleccionados,
@@ -86,5 +102,6 @@ export const usePermisosPorGrupo = (
     cantidadSeleccionados,
     isEqualToOriginal,
     selectedIds,
+    markAsSaved,
   };
 };

@@ -70,7 +70,7 @@ export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
               onChange={(e) => setNombre(e.target.value)}
             />
 
-            <Box>
+            {/* <Box>
               <Typography
                 variant="subtitle1"
                 sx={{ mb: 1 }}
@@ -98,7 +98,7 @@ export const ModalEditarSocio: FC<ModalEditarSocioProps> = ({
                   Externo
                 </ToggleButton>
               </ToggleButtonGroup>
-            </Box>
+            </Box> */}
 
             <Stack
               direction="row"
