@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import StraightenIcon from '@mui/icons-material/Straighten';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
 import { ModalCrearUnidad } from 'src/sections/oficina/gestion-unidades/crear-unidad-modal';
@@ -99,7 +99,8 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Card>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -110,14 +111,17 @@ const Page: NextPage = () => {
           {canCreateUnidad && (
             <Button
               variant="contained"
-              startIcon={<AddIcon />}
+              startIcon={<StraightenIcon />}
               onClick={() => setModalCrearOpen(true)}
             >
               Crear unidad
             </Button>
           )}
         </Stack>
+      </Card>
 
+      {/* TABLA CARD */}
+      <Card>
         <TablaPaginadaConFiltros
           totalItems={unidadesFiltradas.length}
           onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}

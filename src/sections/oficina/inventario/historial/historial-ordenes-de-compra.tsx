@@ -72,20 +72,14 @@ export const HistorialOrdenesDeCompra = () => {
     <Card>
       {loading && <FullPageLoader />}
 
-      <Typography
-        variant="h6"
-        sx={{ px: 3, pt: 3 }}
-      >
-        Historial de órdenes de compra
-      </Typography>
-
       <TablaPaginadaConFiltros
         totalItems={ordenesFiltradas.length}
+        itemsPerPage={25}
         onFiltrar={(f) => setFiltros(f)}
         filtrosFecha
       >
         {(currentPage) => {
-          const items = ordenesFiltradas.slice((currentPage - 1) * 5, currentPage * 5);
+          const items = ordenesFiltradas.slice((currentPage - 1) * 25, currentPage * 25);
 
           return (
             <TableContainer component={Paper}>

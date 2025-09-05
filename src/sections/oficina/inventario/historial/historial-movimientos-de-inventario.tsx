@@ -75,24 +75,18 @@ export const HistorialTrasladosInventario = () => {
 
   return (
     <Card sx={{ mt: 4 }}>
-      <Typography
-        variant="h6"
-        sx={{ px: 3, pt: 3 }}
-      >
-        Historial de movimientos de inventario
-      </Typography>
-
       {loading ? (
         <CircularProgress sx={{ m: 3 }} />
       ) : (
         <TablaPaginadaConFiltros
           totalItems={ordenesFiltradas.length}
+          itemsPerPage={25}
           onFiltrar={(f) => setFiltros(f)}
           filtrosFecha // 👈 ahora activamos filtro por fecha
           filtrosEstado={false}
         >
           {(currentPage) => {
-            const items = ordenesFiltradas.slice((currentPage - 1) * 5, currentPage * 5);
+            const items = ordenesFiltradas.slice((currentPage - 1) * 25, currentPage * 25);
 
             return (
               <TableContainer component={Paper}>

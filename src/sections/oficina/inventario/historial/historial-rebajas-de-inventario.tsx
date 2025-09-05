@@ -60,23 +60,17 @@ export const HistorialRebajasInventario = () => {
 
   return (
     <Card sx={{ mt: 4 }}>
-      <Typography
-        variant="h6"
-        sx={{ px: 3, pt: 3 }}
-      >
-        Historial de rebajas de inventario
-      </Typography>
-
       {loading && <FullPageLoader />}
 
       <TablaPaginadaConFiltros
         totalItems={rebajasFiltradas.length}
+        itemsPerPage={25}
         onFiltrar={(f) => setFiltros(f)}
         filtrosFecha // 👈 ahora activamos filtro por fecha
         filtrosEstado={false}
       >
         {(currentPage) => {
-          const items = rebajasFiltradas.slice((currentPage - 1) * 5, currentPage * 5);
+          const items = rebajasFiltradas.slice((currentPage - 1) * 25, currentPage * 25);
 
           return (
             <TableContainer component={Paper}>

@@ -12,6 +12,8 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  Grid,
+  Chip,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
@@ -20,6 +22,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Rebaja, DetalleInventarioMaterial } from 'src/api/types';
 import { formatearFecha } from 'src/utils/format-date';
+import { formatearQuetzales } from 'src/utils/format-currency';
 import { useRebajasInventarioApi } from 'src/api/rebajas/useRebajasApi';
 
 const Page: NextPage = () => {
@@ -57,64 +60,160 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Card sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h5">Rebaja de inventario #{rebaja?.id}</Typography>
-        </Stack>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={2}
+          >
+            <Typography variant="h5">Rebaja de Inventario #{rebaja?.id}</Typography>
+            <Chip
+              label="Procesada"
+              color="warning"
+              size="small"
+            />
+          </Stack>
+        </Box>
+      </Card>
 
-        <Divider sx={{ my: 3 }} />
+      {/* INFORMACIÓN GENERAL CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+          >
+            Información General
+          </Typography>
 
-        <Typography variant="subtitle1">
-          Fecha: <strong>{rebaja && formatearFecha(rebaja.fecha_rebaja)}</strong>
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{ mb: 2 }}
-        >
-          Motivo: <strong>{rebaja?.motivo ?? '-'}</strong>
-        </Typography>
-
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>Material</TableCell>
-                <TableCell>Marca</TableCell>
-                <TableCell>Unidad</TableCell>
-                <TableCell>Precio unitario</TableCell>
-                <TableCell>Cantidad rebajada</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rebaja?.materiales?.length ? (
-                rebaja.materiales.map((detalle: DetalleInventarioMaterial, index) => (
-                  <TableRow key={detalle.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{detalle.inventario.material.nombre}</TableCell>
-                    <TableCell>{detalle.inventario.material.marca?.nombre}</TableCell>
-                    <TableCell>{detalle.inventario.material.unidad?.nombre}</TableCell>
-                    <TableCell>{detalle.inventario.precio_unitario}</TableCell>
-                    <TableCell>{detalle.cantidad}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    align="center"
+          <Grid
+            container
+            spacing={3}
+          >
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
                   >
-                    No se encontraron materiales en esta rebaja
-                  </TableCell>
+                    Fecha de Rebaja
+                  </Typography>
+                  <Typography variant="body1">
+                    {rebaja && formatearFecha(rebaja.fecha_rebaja)}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Motivo
+                  </Typography>
+                  <Typography variant="body1">{rebaja?.motivo || 'No especificado'}</Typography>
+                </Box>
+              </Stack>
+            </Grid>
+
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Usuario Creador
+                  </Typography>
+                  <Typography variant="body1">
+                    {rebaja?.usuario_creador?.first_name} {rebaja?.usuario_creador?.last_name}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+
+      {/* MATERIALES REBAJADOS CARD */}
+      <Card>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+          >
+            Materiales Rebajados
+          </Typography>
+
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+          >
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Material</TableCell>
+                  <TableCell>Marca</TableCell>
+                  <TableCell>Unidad</TableCell>
+                  <TableCell align="right">Cantidad Rebajada</TableCell>
+                  <TableCell align="right">Precio Unitario</TableCell>
+                  <TableCell align="right">Valor Total</TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {rebaja?.materiales?.length ? (
+                  rebaja.materiales.map((detalle: DetalleInventarioMaterial, index) => (
+                    <TableRow
+                      key={detalle.id}
+                      hover
+                    >
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2">
+                          {detalle.inventario.material.nombre}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{detalle.inventario.material.marca?.nombre || '-'}</TableCell>
+                      <TableCell>{detalle.inventario.material.unidad?.nombre || '-'}</TableCell>
+                      <TableCell align="right">{detalle.cantidad}</TableCell>
+                      <TableCell align="right">
+                        {formatearQuetzales(Number(detalle.inventario.precio_unitario))}
+                      </TableCell>
+                      <TableCell align="right">
+                        {formatearQuetzales(
+                          Number(detalle.inventario.precio_unitario) * Number(detalle.cantidad)
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      align="center"
+                      sx={{ py: 3 }}
+                    >
+                      <Typography color="text.secondary">
+                        No se encontraron materiales en esta rebaja
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
       </Card>
     </Box>
   );

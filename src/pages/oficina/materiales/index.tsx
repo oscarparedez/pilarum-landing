@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
 
@@ -102,7 +102,8 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Card>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -113,13 +114,17 @@ const Page: NextPage = () => {
           {canCreateMaterial && (
             <Button
               variant="contained"
-              startIcon={<AddIcon />}
+              startIcon={<Inventory2Icon />}
               onClick={() => setModalCrearOpen(true)}
             >
               Crear material
             </Button>
           )}
         </Stack>
+      </Card>
+
+      {/* TABLA CARD */}
+      <Card>
 
         <TablaPaginadaConFiltros
           totalItems={materialesFiltrados.length}

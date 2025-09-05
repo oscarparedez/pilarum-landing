@@ -13,12 +13,13 @@ import {
   Paper,
   CircularProgress,
   IconButton,
-  SvgIcon,
+  Grid,
+  Chip,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
-import { use, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { InventarioConMovimientos } from 'src/api/types';
 import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
@@ -74,80 +75,178 @@ const Page: NextPage = () => {
   return (
     <Box sx={{ p: 3 }}>
       {loading && <FullPageLoader />}
-      <Card sx={{ p: 3 }}>
-        <Typography
-          variant="h4"
-          mb={3}
-        >
-          Movimientos de Material en Proyecto
-        </Typography>
 
-        <Stack
-          direction="column"
-          spacing={1}
-          mb={2}
-        >
-          <Typography variant="h5">{inventario?.material?.nombre || 'N/A'}</Typography>
-          <Typography variant="h6">
-            Precio unitario: {formatearQuetzales(Number(inventario?.precio_unitario)) ?? 'N/A'}
-          </Typography>
-          <Typography variant="h6">
-            Marca: {inventario?.material?.marca?.nombre || 'N/A'}
-          </Typography>
-          <Typography variant="h6">
-            Unidad: {inventario?.material?.unidad?.nombre || 'N/A'}
-          </Typography>
-        </Stack>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={2}
+          >
+            <Typography variant="h5">Movimientos de Material en Proyecto</Typography>
+            <Chip
+              label="Por Proyecto"
+              color="info"
+              size="small"
+            />
+          </Stack>
+        </Box>
+      </Card>
 
-        <Divider sx={{ my: 2 }} />
+      {/* INFORMACIÓN DEL MATERIAL CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+          >
+            Información del Material
+          </Typography>
 
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>ID movimiento</TableCell>
-                <TableCell>Tipo movimiento</TableCell>
-                <TableCell>Cantidad</TableCell>
-                <TableCell>Proyecto</TableCell>
-                <TableCell>Fecha Movimiento</TableCell>
-                <TableCell align="center">Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {inventario?.movimientos?.length ? (
-                inventario.movimientos.map((mov, index) => (
-                  <TableRow key={mov.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{mov.orden_movimiento_id}</TableCell>
-                    <TableCell>
-                      {mov.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida de bodega'}
-                    </TableCell>
-                    <TableCell>{mov.cantidad}</TableCell>
-                    <TableCell>{mov.proyecto?.nombre ?? 'N/A'}</TableCell>
-                    <TableCell>{formatearFecha(mov.fecha_movimiento)}</TableCell>
-                    <TableCell align="center">
-                      <IconButton onClick={() => verMovimiento(mov.orden_movimiento_id)}>
-                        <SvgIcon>
+          <Grid
+            container
+            spacing={3}
+          >
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Nombre del Material
+                  </Typography>
+                  <Typography variant="body1">{inventario?.material?.nombre || 'N/A'}</Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Marca
+                  </Typography>
+                  <Typography variant="body1">
+                    {inventario?.material?.marca?.nombre || 'No especificada'}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Precio Unitario
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="primary"
+                  >
+                    {formatearQuetzales(Number(inventario?.precio_unitario)) ?? 'N/A'}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Unidad de Medida
+                  </Typography>
+                  <Typography variant="body1">
+                    {inventario?.material?.unidad?.nombre || 'No especificada'}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+
+      {/* MOVIMIENTOS DEL PROYECTO CARD */}
+      <Card>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+          >
+            Movimientos en este Proyecto
+          </Typography>
+
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+          >
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>ID Movimiento</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Proyecto</TableCell>
+                  <TableCell>Fecha</TableCell>
+                  <TableCell align="right">Cantidad</TableCell>
+                  <TableCell align="center">Ver detalles</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {inventario?.movimientos?.length ? (
+                  inventario.movimientos.map((mov, index) => (
+                    <TableRow
+                      key={mov.id}
+                      hover
+                    >
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2">#{mov.orden_movimiento_id}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={mov.tipo_movimiento === 1 ? 'Entrada' : 'Salida'}
+                          color={mov.tipo_movimiento === 1 ? 'success' : 'warning'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>{mov.proyecto?.nombre ?? 'N/A'}</TableCell>
+                      <TableCell>{formatearFecha(mov.fecha_movimiento)}</TableCell>
+                      <TableCell align="right">{mov.cantidad}</TableCell>
+                      <TableCell align="center">
+                        <IconButton onClick={() => verMovimiento(mov.orden_movimiento_id)}>
                           <VisibilityIcon />
-                        </SvgIcon>
-                      </IconButton>
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      align="center"
+                      sx={{ py: 3 }}
+                    >
+                      <Typography color="text.secondary">
+                        No se encontraron movimientos para este material en el proyecto
+                      </Typography>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    align="center"
-                  >
-                    No se encontraron movimientos para este material
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
       </Card>
     </Box>
   );

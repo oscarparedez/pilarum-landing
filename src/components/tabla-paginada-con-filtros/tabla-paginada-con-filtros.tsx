@@ -39,6 +39,7 @@ interface TablaPaginadaConFiltrosProps {
   onFiltrar: (filtros: Filtros) => void;
   onPageChange?: (page: number) => void;
   totalItems: number;
+  itemsPerPage?: number; // Nueva prop para controlar elementos por página
   filtrosSearch?: boolean;
   filtrosFecha?: boolean;
   filtrosEstado?: boolean;
@@ -63,6 +64,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   onFiltrar,
   onPageChange,
   totalItems,
+  itemsPerPage = 5, // Valor por defecto es 5
   filtrosSearch = true,
   filtrosFecha = true,
   filtrosEstado = false,
@@ -87,7 +89,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
 
   const [page, setPage] = useState(1);
 
-  const rowsPerPage = 5;
+  const rowsPerPage = itemsPerPage; // Usar el valor de la prop
   const totalPages = Math.ceil(totalItems / rowsPerPage);
 
   const debouncedFiltrar = useMemo(

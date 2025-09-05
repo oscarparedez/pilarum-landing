@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import BusinessIcon from '@mui/icons-material/Business';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
 import { ModalCrearProveedor } from 'src/sections/oficina/gestion-proveedores/crear-proveedor-modal';
@@ -97,25 +97,29 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Card>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
           sx={{ px: 3, py: 3 }}
         >
-          <Typography variant="h5">proveedores</Typography>
+          <Typography variant="h5">Proveedores</Typography>
           {canCreateProveedor && (
             <Button
               variant="contained"
-              startIcon={<AddIcon />}
+              startIcon={<BusinessIcon />}
               onClick={() => setModalCrearOpen(true)}
             >
               Crear proveedor
             </Button>
           )}
         </Stack>
+      </Card>
 
+      {/* TABLA CARD */}
+      <Card>
         <TablaPaginadaConFiltros
           totalItems={proveedoresFiltrados.length}
           onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}

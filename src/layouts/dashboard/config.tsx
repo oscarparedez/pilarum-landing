@@ -41,6 +41,9 @@ export const useSections = (): Section[] => {
   const canViewIngresos = useHasPermission(PermissionId.VER_INGRESOS_GENERALES);
   const canViewCostos = useHasPermission(PermissionId.VER_COSTOS_GENERALES);
   const canViewInventario = useHasPermission(PermissionId.VER_INVENTARIO);
+  const canViewHistorialOrdenesCompra = useHasPermission(PermissionId.VER_HIST_OC);
+  const canViewHistorialRebajasInventario = useHasPermission(PermissionId.VER_HIST_REBAJAS);
+  const canViewHistorialTrasladosInventario = useHasPermission(PermissionId.VER_HIST_TRASLADOS);
   const canViewMateriales = useHasPermission(PermissionId.VER_MATERIALES);
   const canViewUnidades = useHasPermission(PermissionId.VER_UNIDADES);
   const canViewMarcas = useHasPermission(PermissionId.VER_MARCAS);
@@ -93,6 +96,15 @@ export const useSections = (): Section[] => {
     const bodegaItems: Item[] = [];
     if (canViewInventario) {
       bodegaItems.push({ title: t(tokens.nav.inventario), path: paths.dashboard.oficina.inventario });
+    }
+    if (canViewHistorialOrdenesCompra) {
+      bodegaItems.push({ title: 'Órdenes de Compra', path: paths.dashboard.oficina.ordenesCompra });
+    }
+    if (canViewHistorialRebajasInventario) {
+      bodegaItems.push({ title: 'Rebajas', path: paths.dashboard.oficina.rebajas });
+    }
+    if (canViewHistorialTrasladosInventario) {
+      bodegaItems.push({ title: 'Traslados', path: paths.dashboard.oficina.traslados });
     }
     if (canViewMateriales) {
       bodegaItems.push({ title: t(tokens.nav.materiales), path: paths.dashboard.oficina.materiales });
@@ -174,6 +186,9 @@ export const useSections = (): Section[] => {
     canViewIngresos,
     canViewCostos,
     canViewInventario,
+    canViewHistorialOrdenesCompra,
+    canViewHistorialRebajasInventario,
+    canViewHistorialTrasladosInventario,
     canViewMateriales,
     canViewUnidades,
     canViewMarcas,

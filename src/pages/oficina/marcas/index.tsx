@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
+import LabelIcon from '@mui/icons-material/Label';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
 import { ModalCrearMarca } from 'src/sections/oficina/gestion-marcas/crear-marca-modal';
@@ -97,7 +97,8 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Card>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -108,14 +109,17 @@ const Page: NextPage = () => {
           {canCreateMarca && (
             <Button
               variant="contained"
-              startIcon={<AddIcon />}
+              startIcon={<LabelIcon />}
               onClick={() => setModalCrearOpen(true)}
             >
               Crear marca
             </Button>
           )}
         </Stack>
+      </Card>
 
+      {/* TABLA CARD */}
+      <Card>
         <TablaPaginadaConFiltros
           totalItems={marcasFiltradas.length}
           onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}

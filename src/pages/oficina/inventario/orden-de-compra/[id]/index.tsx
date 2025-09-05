@@ -12,6 +12,8 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  Chip,
+  Grid,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
@@ -21,6 +23,7 @@ import { OrdenCompra } from 'src/api/types';
 import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
 import toast from 'react-hot-toast';
 import { formatearQuetzales } from 'src/utils/format-currency';
+import { formatearFecha } from 'src/utils/format-date';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -69,73 +72,156 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Card sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h5">Orden de compra #{orden.id}</Typography>
-        </Stack>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={2}
+          >
+            <Typography variant="h5">Orden de Compra #{orden.id}</Typography>
+            <Chip
+              label="Completada"
+              color="success"
+              size="small"
+            />
+          </Stack>
+        </Box>
+      </Card>
 
-        <Divider sx={{ my: 2 }} />
+      {/* INFORMACIÓN GENERAL CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+          >
+            Información General
+          </Typography>
 
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-        >
-          Número de factura: <strong>{orden.numero_factura}</strong>
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-        >
-          Proveedor: <strong>{orden.proveedor?.nombre ?? 'No especificado'}</strong>
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-        >
-          Usuario creador: <strong>{orden.usuario_creador?.first_name} {orden.usuario_creador?.last_name}</strong>
-        </Typography>
+          <Grid
+            container
+            spacing={3}
+          >
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Nombre de Factura
+                  </Typography>
+                  <Typography variant="body1">{orden.numero_factura}</Typography>
+                </Box>
 
-        <TableContainer
-          component={Paper}
-          sx={{ mt: 2 }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>Material</TableCell>
-                <TableCell>Cantidad</TableCell>
-                <TableCell>Precio Unitario (Q)</TableCell>
-                <TableCell>Subtotal (Q)</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {orden.compras.map((item, index) => (
-                <TableRow key={item.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{item.material.nombre}</TableCell>
-                  <TableCell>{item.cantidad}</TableCell>
-                  <TableCell>{formatearQuetzales(Number(item.precio_unitario))}</TableCell>
-                  <TableCell>
-                    {formatearQuetzales((Number(item.cantidad) * Number(item.precio_unitario)))}
-                  </TableCell>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Proveedor
+                  </Typography>
+                  <Typography variant="body1">
+                    {orden.proveedor?.nombre ?? 'No especificado'}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Fecha de Factura
+                  </Typography>
+                  <Typography variant="body1">{formatearFecha(orden.fecha_factura)}</Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Usuario Creador
+                  </Typography>
+                  <Typography variant="body1">
+                    {orden.usuario_creador?.first_name} {orden.usuario_creador?.last_name}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+
+      {/* MATERIALES CARD */}
+      <Card>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">Materiales Comprados</Typography>
+            <Typography
+              variant="h6"
+              color="primary"
+            >
+              Total: {formatearQuetzales(Number(total))}
+            </Typography>
+          </Stack>
+
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+          >
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Material</TableCell>
+                  <TableCell align="right">Cantidad</TableCell>
+                  <TableCell align="right">Precio Unitario</TableCell>
+                  <TableCell align="right">Subtotal</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Stack
-          direction="row"
-          justifyContent="flex-end"
-          sx={{ mt: 4 }}
-        >
-          <Typography variant="h6">Total: {formatearQuetzales(Number(total))}</Typography>
-        </Stack>
+              </TableHead>
+              <TableBody>
+                {orden.compras.map((item, index) => (
+                  <TableRow
+                    key={item.id}
+                    hover
+                  >
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2">{item.material.nombre}</Typography>
+                    </TableCell>
+                    <TableCell align="right">{item.cantidad}</TableCell>
+                    <TableCell align="right">
+                      {formatearQuetzales(Number(item.precio_unitario))}
+                    </TableCell>
+                    <TableCell align="right">
+                      {formatearQuetzales(Number(item.cantidad) * Number(item.precio_unitario))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
       </Card>
     </Box>
   );

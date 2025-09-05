@@ -12,6 +12,8 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  Grid,
+  Chip,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
@@ -58,70 +60,168 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Card sx={{ p: 3 }}>
-        {/* ENCABEZADO */}
-        <Stack
-          direction="column"
-          spacing={1}
-          mb={2}
-        >
-          <Typography variant="h5">Proyecto: {orden?.proyecto?.nombre ?? 'N/A'}</Typography>
-          <Typography variant="body1">
-            Tipo: {orden?.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida hacia proyecto'}
-          </Typography>
-          <Typography variant="body1">
-            Fecha movimiento: {orden && formatearFecha(orden.fecha_movimiento)}
-          </Typography>
-        </Stack>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={2}
+          >
+            <Typography variant="h5">Movimiento de Inventario #{orden?.id}</Typography>
+            <Chip
+              label={orden?.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida de bodega'}
+              color={orden?.tipo_movimiento === 1 ? 'success' : 'warning'}
+              size="small"
+            />
+          </Stack>
+        </Box>
+      </Card>
 
-        <Divider sx={{ my: 2 }} />
+      {/* INFORMACIÓN GENERAL CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+          >
+            Información General
+          </Typography>
 
-        {/* TABLA DE MATERIALES */}
-        <Typography
-          variant="h6"
-          sx={{ mb: 2 }}
-        >
-          Materiales
-        </Typography>
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>Material</TableCell>
-                <TableCell>Marca</TableCell>
-                <TableCell>Unidad</TableCell>
-                <TableCell>Precio Unitario</TableCell>
-                <TableCell>Cantidad solicitada</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {orden?.materiales?.length ? (
-                orden.materiales.map((detalle: DetalleInventarioMaterial, index) => (
-                  <TableRow key={detalle.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{detalle.inventario.material.nombre}</TableCell>
-                    <TableCell>{detalle.inventario.material.marca?.nombre}</TableCell>
-                    <TableCell>{detalle.inventario.material.unidad?.nombre}</TableCell>
-                    <TableCell>
-                      {formatearQuetzales(Number(detalle.inventario.precio_unitario))}
-                    </TableCell>
-                    <TableCell>{detalle.cantidad}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    align="center"
+          <Grid
+            container
+            spacing={3}
+          >
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
                   >
-                    No se encontraron materiales en esta orden
-                  </TableCell>
+                    Proyecto
+                  </Typography>
+                  <Typography variant="body1">
+                    {orden?.proyecto?.nombre ?? 'No especificado'}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Tipo de Movimiento
+                  </Typography>
+                  <Typography variant="body1">
+                    {orden?.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida hacia proyecto'}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Fecha de Movimiento
+                  </Typography>
+                  <Typography variant="body1">
+                    {orden && formatearFecha(orden.fecha_movimiento)}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Usuario Creador
+                  </Typography>
+                  <Typography variant="body1">
+                    {orden?.usuario_creador?.first_name} {orden?.usuario_creador?.last_name}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+
+      {/* MATERIALES CARD */}
+      <Card>
+        <Box sx={{ px: 3, py: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+          >
+            Materiales
+          </Typography>
+
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+          >
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Material</TableCell>
+                  <TableCell>Marca</TableCell>
+                  <TableCell>Unidad</TableCell>
+                  <TableCell align="right">Precio Unitario</TableCell>
+                  <TableCell align="right">Cantidad</TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {orden?.materiales?.length ? (
+                  orden.materiales.map((detalle: DetalleInventarioMaterial, index) => (
+                    <TableRow
+                      key={detalle.id}
+                      hover
+                    >
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2">
+                          {detalle.inventario.material.nombre}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{detalle.inventario.material.marca?.nombre || '-'}</TableCell>
+                      <TableCell>{detalle.inventario.material.unidad?.nombre || '-'}</TableCell>
+                      <TableCell align="right">
+                        {formatearQuetzales(Number(detalle.inventario.precio_unitario))}
+                      </TableCell>
+                      <TableCell align="right">{detalle.cantidad}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      align="center"
+                      sx={{ py: 3 }}
+                    >
+                      <Typography color="text.secondary">
+                        No se encontraron materiales en esta orden
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
       </Card>
     </Box>
   );

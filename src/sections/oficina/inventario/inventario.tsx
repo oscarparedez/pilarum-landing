@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Card,
   Typography,
@@ -11,13 +12,11 @@ import {
   TableContainer,
   Paper,
   SvgIcon,
-  Button,
   Box,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
-import SendIcon from '@mui/icons-material/SendRounded';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
@@ -25,8 +24,6 @@ import { useInventarioApi } from 'src/api/inventario/useInventarioApi';
 import toast from 'react-hot-toast';
 import { Inventario as InventarioInterface } from 'src/api/types';
 import { formatearQuetzales } from 'src/utils/format-currency';
-import { useHasPermission } from 'src/hooks/use-has-permissions';
-import { PermissionId } from 'src/constants/roles/permissions';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 
 export const Inventario = () => {
@@ -35,9 +32,6 @@ export const Inventario = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { getInventario } = useInventarioApi();
-  const canCreateOrdenCompra = useHasPermission(PermissionId.GENERAR_ORDEN_COMPRA);
-  const canCreateRebajarInventario = useHasPermission(PermissionId.REBAJAR_INVENTARIO);
-  const canTrasladarMateriales = useHasPermission(PermissionId.GENERAR_TRASLADO);
 
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('sm'));
@@ -70,125 +64,85 @@ export const Inventario = () => {
   };
 
   return (
-    <Card sx={{ mb: 4 }}>
-      <Stack
-        direction={{ xs: 'column', md: 'row' }}
-        justifyContent="space-between"
-        alignItems={{ xs: 'stretch', md: 'center' }}
-        gap={2}
-        sx={{ px: { xs: 2, md: 3 }, py: { xs: 2, md: 3 } }}
-      >
-        <Typography variant="h5">Inventario en bodega central</Typography>
+    <React.Fragment>
+      {/* HEADER CARD */}
+      <Card sx={{ mb: 3 }}>
+        <Box sx={{ px: { xs: 2, md: 3 }, py: { xs: 2, md: 3 } }}>
+          <Typography variant="h5">Inventario en bodega central</Typography>
+        </Box>
+      </Card>
 
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={1.5}
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
-          useFlexGap
-          flexWrap={{ sm: 'wrap' } as any}
+      {/* LISTADO DE MATERIALES CARD */}
+      <Card>
+        <TablaPaginadaConFiltros
+          totalItems={inventarioFiltrado.length}
+          itemsPerPage={25}
+          onFiltrar={(f) => setFiltros(f)}
+          filtrosFecha={false}
+          filtrosEstado={false}
         >
-          {canCreateRebajarInventario && (
-            <Button
-              variant="outlined"
-              size={isXs ? 'small' : 'medium'}
-              fullWidth={isXs}
-              onClick={() => router.push('/oficina/inventario/rebajar')}
-            >
-              Rebajar inventario
-            </Button>
-          )}
-          {canCreateOrdenCompra && (
-            <Button
-              variant="contained"
-              size={isXs ? 'small' : 'medium'}
-              fullWidth={isXs}
-              onClick={() => router.push('/oficina/inventario/crear')}
-            >
-              Crear orden de compra
-            </Button>
-          )}
-          {canTrasladarMateriales && (
-            <Button
-              variant="contained"
-              color="secondary"
-              size={isXs ? 'small' : 'medium'}
-              fullWidth={isXs}
-              onClick={() => router.push('/oficina/inventario/trasladar')}
-              endIcon={<SendIcon />}
-            >
-              Trasladar materiales
-            </Button>
-          )}
-        </Stack>
-      </Stack>
-
-      <TablaPaginadaConFiltros
-        totalItems={inventarioFiltrado.length}
-        onFiltrar={(f) => setFiltros(f)}
-        filtrosFecha={false}
-        filtrosEstado={false}
-      >
-        {(currentPage) => {
-          const items = inventarioFiltrado.slice((currentPage - 1) * 5, currentPage * 5);
-          return (
-            <TableContainer
-              component={Paper}
-              sx={{
-                overflowX: 'auto',
-                overflowY: 'auto',
-                maxHeight: { xs: 420, md: 560 },
-                WebkitOverflowScrolling: 'touch',
-              }}
-            >
-              <Box sx={{ minWidth: 720 }}>
-                <Table
-                  size="small"
-                  stickyHeader
-                >
-                  <TableHead>
-                    <TableRow>
-                      <TableCell></TableCell>
-                      <TableCell>Material</TableCell>
-                      <TableCell>Unidad</TableCell>
-                      <TableCell>Cantidad</TableCell>
-                      <TableCell>Precio Unitario</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {items.map((item, index) => (
-                      <TableRow
-                        key={item.id}
-                        hover
-                      >
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          {item.material?.nombre || '-'}
-                        </TableCell>
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          {item.material?.unidad?.nombre || '-'}
-                        </TableCell>
-                        <TableCell>{item.cantidad}</TableCell>
-                        <TableCell>{formatearQuetzales(Number(item.precio_unitario))}</TableCell>
-                        <TableCell align="center">
-                          <IconButton
-                            size={isXs ? 'small' : 'medium'}
-                            onClick={() => verMovimientos(item.id)}
-                          >
-                            <SvgIcon fontSize={isXs ? 'small' : 'medium'}>
-                              <VisibilityIcon />
-                            </SvgIcon>
-                          </IconButton>
-                        </TableCell>
+          {(currentPage) => {
+            const items = inventarioFiltrado.slice((currentPage - 1) * 25, currentPage * 25);
+            return (
+              <TableContainer
+                component={Paper}
+                sx={{
+                  overflowX: 'auto',
+                  overflowY: 'auto',
+                  maxHeight: { xs: 420, md: 560 },
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                <Box sx={{ minWidth: 720 }}>
+                  <Table
+                    size="small"
+                    stickyHeader
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell></TableCell>
+                        <TableCell>Material</TableCell>
+                        <TableCell>Unidad</TableCell>
+                        <TableCell>Cantidad</TableCell>
+                        <TableCell>Precio Unitario</TableCell>
+                        <TableCell align="center">Ver movimientos</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Box>
-            </TableContainer>
-          );
-        }}
-      </TablaPaginadaConFiltros>
-    </Card>
+                    </TableHead>
+                    <TableBody>
+                      {items.map((item, index) => (
+                        <TableRow
+                          key={item.id}
+                          hover
+                        >
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            {item.material?.nombre || '-'}
+                          </TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            {item.material?.unidad?.nombre || '-'}
+                          </TableCell>
+                          <TableCell>{item.cantidad}</TableCell>
+                          <TableCell>{formatearQuetzales(Number(item.precio_unitario))}</TableCell>
+                          <TableCell align="center">
+                            <IconButton
+                              size={isXs ? 'small' : 'medium'}
+                              onClick={() => verMovimientos(item.id)}
+                            >
+                              <SvgIcon fontSize={isXs ? 'small' : 'medium'}>
+                                <VisibilityIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Box>
+              </TableContainer>
+            );
+          }}
+        </TablaPaginadaConFiltros>
+      </Card>
+    </React.Fragment>
   );
 };
