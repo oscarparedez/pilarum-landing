@@ -24,6 +24,7 @@ import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
 import toast from 'react-hot-toast';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
+import { ErrorOverlay } from 'src/components/error-overlay';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -32,6 +33,7 @@ const Page: NextPage = () => {
 
   const [orden, setOrden] = useState<OrdenCompra | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchOrden = async () => {
@@ -39,9 +41,10 @@ const Page: NextPage = () => {
       try {
         const data = await getOrdenCompraById(Number(id));
         setOrden(data);
+        setError(false);
       } catch {
-        toast.error('Error al cargar la orden de compra');
         setOrden(null);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -57,21 +60,13 @@ const Page: NextPage = () => {
     );
   }
 
-  if (!orden) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h6">No se encontró la orden de compra</Typography>
-      </Box>
-    );
-  }
-
-  const total = orden.compras.reduce(
+  const total = orden?.compras.reduce(
     (sum, c) => sum + Number(c.cantidad) * Number(c.precio_unitario),
     0
   );
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, position: 'relative' }}>
       {/* HEADER CARD */}
       <Card sx={{ mb: 3 }}>
         <Box sx={{ px: 3, py: 3 }}>
@@ -80,7 +75,7 @@ const Page: NextPage = () => {
             alignItems="center"
             spacing={2}
           >
-            <Typography variant="h5">Orden de Compra #{orden.id}</Typography>
+            <Typography variant="h5">Orden de Compra #{orden?.id}</Typography>
             <Chip
               label="Completada"
               color="success"
@@ -117,7 +112,7 @@ const Page: NextPage = () => {
                   >
                     Nombre de Factura
                   </Typography>
-                  <Typography variant="body1">{orden.numero_factura}</Typography>
+                  <Typography variant="body1">{orden?.numero_factura}</Typography>
                 </Box>
 
                 <Box>
@@ -128,7 +123,7 @@ const Page: NextPage = () => {
                     Proveedor
                   </Typography>
                   <Typography variant="body1">
-                    {orden.proveedor?.nombre ?? 'No especificado'}
+                    {orden?.proveedor?.nombre ?? 'No especificado'}
                   </Typography>
                 </Box>
               </Stack>
@@ -147,7 +142,9 @@ const Page: NextPage = () => {
                   >
                     Fecha de Factura
                   </Typography>
-                  <Typography variant="body1">{formatearFecha(orden.fecha_factura)}</Typography>
+                  <Typography variant="body1">
+                    {orden && formatearFecha(orden.fecha_factura)}
+                    </Typography>
                 </Box>
 
                 <Box>
@@ -158,7 +155,7 @@ const Page: NextPage = () => {
                     Usuario Creador
                   </Typography>
                   <Typography variant="body1">
-                    {orden.usuario_creador?.first_name} {orden.usuario_creador?.last_name}
+                    {orden?.usuario_creador?.first_name} {orden?.usuario_creador?.last_name}
                   </Typography>
                 </Box>
               </Stack>
@@ -200,7 +197,7 @@ const Page: NextPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {orden.compras.map((item, index) => (
+                {orden?.compras.map((item, index) => (
                   <TableRow
                     key={item.id}
                     hover
@@ -223,6 +220,9 @@ const Page: NextPage = () => {
           </TableContainer>
         </Box>
       </Card>
+
+      {/* ERROR OVERLAY */}
+      {error && <ErrorOverlay tipoReporte="Orden de compra" />}
     </Box>
   );
 };

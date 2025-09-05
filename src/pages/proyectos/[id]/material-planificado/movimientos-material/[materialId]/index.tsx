@@ -28,6 +28,7 @@ import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import { paths } from 'src/paths';
+import { ErrorOverlay } from 'src/components/error-overlay';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -36,6 +37,7 @@ const Page: NextPage = () => {
 
   const [inventario, setInventario] = useState<InventarioConMovimientos | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchInventario = async () => {
@@ -46,9 +48,10 @@ const Page: NextPage = () => {
           Number(materialId)
         );
         setInventario(data);
+        setError(false);
       } catch {
-        toast.error('Error al cargar el inventario del material');
         setInventario(null);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -73,7 +76,7 @@ const Page: NextPage = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, position: 'relative' }}>
       {loading && <FullPageLoader />}
 
       {/* HEADER CARD */}
@@ -211,7 +214,7 @@ const Page: NextPage = () => {
                     >
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
-                        <Typography variant="body2">#{mov.orden_movimiento_id}</Typography>
+                        <Typography variant="body2">#{mov?.orden_movimiento_id}</Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
@@ -248,6 +251,9 @@ const Page: NextPage = () => {
           </TableContainer>
         </Box>
       </Card>
+
+      {/* ERROR OVERLAY */}
+      {error && <ErrorOverlay tipoReporte="Material Planificado" />}
     </Box>
   );
 };

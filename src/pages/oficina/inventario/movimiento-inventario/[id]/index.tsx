@@ -24,6 +24,7 @@ import { OrdenMovimientoInventario, DetalleInventarioMaterial } from 'src/api/ty
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { formatearFecha } from 'src/utils/format-date';
+import { ErrorOverlay } from 'src/components/error-overlay';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -32,6 +33,7 @@ const Page: NextPage = () => {
 
   const [orden, setOrden] = useState<OrdenMovimientoInventario | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchOrden = async () => {
@@ -39,9 +41,10 @@ const Page: NextPage = () => {
       try {
         const data = await getOrdenById(Number(id));
         setOrden(data);
+        setError(false);
       } catch {
-        toast.error('Error al cargar la orden de movimiento');
         setOrden(null);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -59,7 +62,7 @@ const Page: NextPage = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, position: 'relative' }}>
       {/* HEADER CARD */}
       <Card sx={{ mb: 3 }}>
         <Box sx={{ px: 3, py: 3 }}>
@@ -223,6 +226,9 @@ const Page: NextPage = () => {
           </TableContainer>
         </Box>
       </Card>
+
+      {/* ERROR OVERLAY */}
+      {error && <ErrorOverlay tipoReporte="Movimiento de inventario" />}
     </Box>
   );
 };

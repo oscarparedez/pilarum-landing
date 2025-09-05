@@ -28,6 +28,7 @@ import { formatearFecha } from 'src/utils/format-date';
 import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { paths } from 'src/paths';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import { ErrorOverlay } from 'src/components/error-overlay';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -36,6 +37,7 @@ const Page: NextPage = () => {
 
   const [inventario, setInventario] = useState<InventarioConMovimientos | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchInventario = async () => {
@@ -43,9 +45,10 @@ const Page: NextPage = () => {
       try {
         const data = await getMovimientosPorInventario(Number(id));
         setInventario(data);
+        setError(false);
       } catch {
-        toast.error('Error al cargar el inventario del material');
         setInventario(null);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -70,7 +73,7 @@ const Page: NextPage = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, position: 'relative' }}>
       {loading && <FullPageLoader />}
 
       {/* HEADER CARD */}
@@ -245,6 +248,9 @@ const Page: NextPage = () => {
           </TableContainer>
         </Box>
       </Card>
+
+      {/* ERROR OVERLAY */}
+      {error && <ErrorOverlay tipoReporte="Movimientos de material" />}
     </Box>
   );
 };

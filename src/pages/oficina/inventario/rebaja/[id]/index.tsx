@@ -24,6 +24,7 @@ import { Rebaja, DetalleInventarioMaterial } from 'src/api/types';
 import { formatearFecha } from 'src/utils/format-date';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { useRebajasInventarioApi } from 'src/api/rebajas/useRebajasApi';
+import { ErrorOverlay } from 'src/components/error-overlay';
 
 const Page: NextPage = () => {
   const router = useRouter();
@@ -32,6 +33,7 @@ const Page: NextPage = () => {
 
   const [rebaja, setRebaja] = useState<Rebaja | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchRebaja = async () => {
@@ -39,9 +41,10 @@ const Page: NextPage = () => {
       try {
         const data = await getRebajaById(Number(id));
         setRebaja(data);
+        setError(false);
       } catch {
-        toast.error('Error al cargar la rebaja');
         setRebaja(null);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -59,7 +62,7 @@ const Page: NextPage = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, position: 'relative' }}>
       {/* HEADER CARD */}
       <Card sx={{ mb: 3 }}>
         <Box sx={{ px: 3, py: 3 }}>
@@ -215,6 +218,9 @@ const Page: NextPage = () => {
           </TableContainer>
         </Box>
       </Card>
+
+      {/* ERROR OVERLAY */}
+      {error && <ErrorOverlay tipoReporte="Rebaja de inventario" />}
     </Box>
   );
 };
