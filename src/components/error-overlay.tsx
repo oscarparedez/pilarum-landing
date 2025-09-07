@@ -6,6 +6,28 @@ interface ErrorOverlayProps {
 }
 
 export const ErrorOverlay = ({ tipoReporte }: ErrorOverlayProps) => {
+  const getArticleAndText = (tipo: string) => {
+    const tipoLower = tipo.toLowerCase();
+    switch (tipoLower) {
+      case 'maquinaria':
+        return { article: 'la', text: 'maquinaria' };
+      case 'material planificado':
+        return { article: 'el', text: 'material planificado' };
+      case 'orden de compra':
+        return { article: 'la', text: 'orden de compra' };
+      case 'rebaja':
+        return { article: 'la', text: 'rebaja' };
+      case 'traslado inventario':
+        return { article: 'el', text: 'traslado de inventario' };
+      case 'traslados material':
+        return { article: 'los', text: 'traslados de material' };
+      default:
+        return { article: 'el', text: tipoLower };
+    }
+  };
+
+  const { article, text } = getArticleAndText(tipoReporte);
+
   return (
     <Box
       sx={{
@@ -50,7 +72,7 @@ export const ErrorOverlay = ({ tipoReporte }: ErrorOverlayProps) => {
             variant="body2"
             color="text.secondary"
           >
-            No pudimos encontrar el {tipoReporte.toLowerCase()} que buscas.
+            No pudimos encontrar {article} {text} que buscas.
           </Typography>
           <Typography
             variant="caption"

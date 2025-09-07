@@ -14,6 +14,7 @@ import { ConfigMaquinaria, TipoMaquinaria } from './index.d';
 import toast from 'react-hot-toast';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
+import { ErrorOverlay } from 'src/components/error-overlay';
 import { useGastosOperativosApi } from 'src/api/gastosOperativosMaquinaria/useGastosOperativosMaquinariaApi';
 import { ActualizarGastoOperativo, NuevaMaquinaria, NuevoGastoOperativo } from 'src/api/types';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
@@ -26,6 +27,7 @@ const Page: NextPage = () => {
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [data, setData] = useState<ConfigMaquinaria | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const { getMaquinariaInfo, actualizarMaquinaria } = useMaquinariasApi();
   const { crearGastoOperativo, actualizarGastoOperativo, eliminarGastoOperativo } =
@@ -41,10 +43,11 @@ const Page: NextPage = () => {
     try {
       if (!maquinariaId) return;
       setLoading(true);
+      setError(false);
       const res = await getMaquinariaInfo(Number(maquinariaId));
       setData(res);
     } catch (e) {
-      toast.error('Error al obtener la maquinaria');
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -118,6 +121,25 @@ const Page: NextPage = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  if (!data && !loading && error) {
+    return (
+      <Box
+        component="main"
+        sx={{ 
+          flexGrow: 1, 
+          py: 8,
+          position: 'relative'
+        }}
+      >
+        <Container maxWidth={settings.stretch ? false : 'xl'}>
+          <Box sx={{ position: 'relative', minHeight: '60vh' }}>
+            <ErrorOverlay tipoReporte="Maquinaria" />
+          </Box>
+        </Container>
+      </Box>
+    );
+  }
 
   if (!data) return null;
 

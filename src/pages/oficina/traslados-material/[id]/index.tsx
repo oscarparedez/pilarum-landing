@@ -12,9 +12,9 @@ import {
   Typography,
   Paper,
   CircularProgress,
-  IconButton,
   Grid,
   Chip,
+  IconButton,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
@@ -22,12 +22,12 @@ import { NextPage } from 'next';
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { InventarioConMovimientos } from 'src/api/types';
-import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
 import { paths } from 'src/paths';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { ErrorOverlay } from 'src/components/error-overlay';
 
 const Page: NextPage = () => {
@@ -41,11 +41,12 @@ const Page: NextPage = () => {
 
   useEffect(() => {
     const fetchInventario = async () => {
-      if (!materialId) return;
+      if (!materialId || Array.isArray(materialId)) return;
       try {
+        setLoading(true);
+        setError(false);
         const data = await getMovimientosPorInventario(Number(materialId));
         setInventario(data);
-        setError(false);
       } catch {
         setInventario(null);
         setError(true);
@@ -84,9 +85,9 @@ const Page: NextPage = () => {
             alignItems="center"
             spacing={2}
           >
-            <Typography variant="h5">Historial de Traslados de Material</Typography>
+            <Typography variant="h5">Traslados de Material</Typography>
             <Chip
-              label="Todos los traslados"
+              label="Historial Completo"
               color="primary"
               size="small"
             />
@@ -176,14 +177,14 @@ const Page: NextPage = () => {
         </Box>
       </Card>
 
-      {/* HISTORIAL COMPLETO DE MOVIMIENTOS CARD */}
+      {/* HISTORIAL DE MOVIMIENTOS CARD */}
       <Card>
         <Box sx={{ px: 3, py: 3 }}>
           <Typography
             variant="h6"
             gutterBottom
           >
-            Historial Completo de Movimientos
+            Historial de Traslados
           </Typography>
 
           <TableContainer
@@ -211,7 +212,7 @@ const Page: NextPage = () => {
                     >
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
-                        <Typography variant="body2">#{mov?.orden_movimiento_id}</Typography>
+                        <Typography variant="body2">#{mov.orden_movimiento_id}</Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
@@ -225,7 +226,7 @@ const Page: NextPage = () => {
                       <TableCell align="right">{mov.cantidad}</TableCell>
                       <TableCell align="center">
                         <IconButton onClick={() => verMovimiento(mov.orden_movimiento_id)}>
-                          <VisibilityIcon />
+                          <VisibilityOutlinedIcon />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -250,7 +251,7 @@ const Page: NextPage = () => {
       </Card>
 
       {/* ERROR OVERLAY */}
-      {error && <ErrorOverlay tipoReporte="Material" />}
+      {error && <ErrorOverlay tipoReporte="Traslados de material" />}
     </Box>
   );
 };

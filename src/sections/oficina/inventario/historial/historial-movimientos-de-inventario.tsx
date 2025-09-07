@@ -11,6 +11,7 @@ import {
   Paper,
   SvgIcon,
   CircularProgress,
+  Chip,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
@@ -48,9 +49,9 @@ export const HistorialTrasladosInventario = () => {
   const mapTipoMovimiento = (tipo: number) => {
     switch (tipo) {
       case 1:
-        return 'Entrada';
+        return 'Entrada a bodega';
       case 2:
-        return 'Salida';
+        return 'Salida de bodega';
       default:
         return 'Desconocido';
     }
@@ -95,7 +96,7 @@ export const HistorialTrasladosInventario = () => {
                     <TableRow>
                       <TableCell></TableCell>
                       <TableCell>Fecha de orden de movimiento</TableCell>
-                      <TableCell>Tipo</TableCell>
+                      <TableCell>Tipo Traslado</TableCell>
                       <TableCell>Proyecto</TableCell>
                       <TableCell>Usuario creador</TableCell>
                       <TableCell align="center">Ver detalles</TableCell>
@@ -106,7 +107,13 @@ export const HistorialTrasladosInventario = () => {
                       <TableRow key={orden.id}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{formatearFecha(orden.fecha_movimiento)}</TableCell>
-                        <TableCell>{mapTipoMovimiento(orden.tipo_movimiento)}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={mapTipoMovimiento(orden.tipo_movimiento)}
+                            color={orden.tipo_movimiento === 1 ? 'success' : 'warning'}
+                            size="small"
+                          />
+                        </TableCell>
                         <TableCell>{orden.proyecto.nombre}</TableCell>
                         <TableCell>{orden.usuario_creador.first_name} {orden.usuario_creador.last_name}</TableCell>
                         <TableCell align="center">

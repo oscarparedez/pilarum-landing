@@ -15,6 +15,7 @@ import { Revisiones } from 'src/sections/proyectos/seguimiento-revisiones/revisi
 import { Maquinaria } from 'src/sections/proyectos/gestion-maquinaria/maquinaria';
 import { PersonalAsignado } from 'src/sections/proyectos/gestion-personal/personal';
 import { EditarDatosBasicosModal } from 'src/sections/proyectos/gestion-datos/editar-datos-modal';
+import { ErrorOverlay } from 'src/components/error-overlay';
 import { useAmpliacionesApi } from 'src/api/ampliaciones/useAmpliacionesApi';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
@@ -66,6 +67,7 @@ const Page: NextPage = () => {
   const [config, setConfig] = useState<ConfigProyecto | null>(null);
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -74,9 +76,11 @@ const Page: NextPage = () => {
 
       try {
         setLoading(true);
+        setError(false);
         const proyecto = await getProyectoInfo(parseInt(id, 10));
         setConfig(proyecto);
       } catch (error) {
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -606,6 +610,25 @@ const Page: NextPage = () => {
     },
     [router.query.id, eliminarRevision, getProyectoInfo]
   );
+
+  if (!config && !loading && error) {
+    return (
+      <Box
+        component="main"
+        sx={{ 
+          flexGrow: 1, 
+          py: 8,
+          position: 'relative'
+        }}
+      >
+        <Container maxWidth={settings.stretch ? false : 'xl'}>
+          <Box sx={{ position: 'relative', minHeight: '60vh' }}>
+            <ErrorOverlay tipoReporte="Proyecto" />
+          </Box>
+        </Container>
+      </Box>
+    );
+  }
 
   if (!config) return null;
 

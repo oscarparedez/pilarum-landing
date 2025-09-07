@@ -14,7 +14,7 @@ export const useMovimientosInventarioApi = () => {
   // Listar todas las órdenes
   const getOrdenesMovimientoInventario = useCallback(async (): Promise<OrdenMovimientoInventario[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/ordenes-movimiento-inventario/`);
-    if (!res.ok) throw new Error('Error al obtener órdenes de movimiento de inventario');
+    if (!res.ok) throw new Error('Error al obtener órdenes de traslado de inventario');
     return res.json();
   }, [fetchWithAuth]);
 
@@ -26,7 +26,7 @@ export const useMovimientosInventarioApi = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Error al crear orden de movimiento de inventario');
+      if (!res.ok) throw new Error('Error al crear orden de traslado de inventario');
       return res.json();
     },
     [fetchWithAuth]
@@ -50,7 +50,7 @@ export const useMovimientosInventarioApi = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Error al actualizar orden de movimiento de inventario');
+      if (!res.ok) throw new Error('Error al actualizar orden de traslado de inventario');
       return res.json();
     },
     [fetchWithAuth]
@@ -62,7 +62,7 @@ export const useMovimientosInventarioApi = () => {
       const res = await fetchWithAuth(`${API_BASE_URL}/ordenes-movimiento-inventario/${id}/`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('Error al eliminar orden de movimiento de inventario');
+      if (!res.ok) throw new Error('Error al eliminar orden de traslado de inventario');
     },
     [fetchWithAuth]
   );

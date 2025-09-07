@@ -50,7 +50,7 @@ export const ModalMovimientos: FC<ModalMovimientosProps> = ({
             <TableBody>
               {movimientos.map((mov) => {
                 const fechaCompleta = format(mov.fecha, 'dd LLL yyyy').toUpperCase();
-                const tipo = mov.tipo === 'entrada' ? 'Ingreso de material' : 'Salida de material';
+                const tipo = mov.tipo === 'entrada' ? 'Entrada a bodega' : 'Salida de bodega';
                 const cantidadTexto = `${mov.tipo === 'entrada' ? '+' : '-'} ${mov.cantidad} ${
                   mov.unidad
                 }`;

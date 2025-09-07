@@ -25,6 +25,7 @@ import toast from 'react-hot-toast';
 import { Inventario as InventarioInterface } from 'src/api/types';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
+import { paths } from 'src/paths';
 
 export const Inventario = () => {
   const [filtros, setFiltros] = useState({ search: '' });
@@ -60,7 +61,7 @@ export const Inventario = () => {
   }, [fetchInventario]);
 
   const verMovimientos = (productoId: number) => {
-    router.push(`/oficina/inventario/movimientos-material/${productoId}`);
+    router.push(paths.dashboard.oficina.movimientos_material(productoId));
   };
 
   return (

@@ -68,7 +68,7 @@ const Page: NextPage = () => {
             <TableRow>
               <TableCell>#</TableCell>
               <TableCell>Fecha de creación</TableCell>
-              <TableCell>Fecha de movimiento</TableCell>
+              <TableCell>Fecha de traslado</TableCell>
               <TableCell>Origen</TableCell>
               <TableCell>Tipo origen</TableCell>
               <TableCell>Usuario</TableCell>

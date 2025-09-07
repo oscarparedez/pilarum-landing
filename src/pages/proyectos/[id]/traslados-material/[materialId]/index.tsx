@@ -12,46 +12,71 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  IconButton,
   Grid,
   Chip,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { OrdenMovimientoInventario, DetalleInventarioMaterial } from 'src/api/types';
-import { formatearQuetzales } from 'src/utils/format-currency';
+import { InventarioConMovimientos } from 'src/api/types';
 import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosInventarioApi';
+import { FullPageLoader } from 'src/components/loader/Loader';
+import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
+import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import { paths } from 'src/paths';
 import { ErrorOverlay } from 'src/components/error-overlay';
 
 const Page: NextPage = () => {
   const router = useRouter();
-  const { id } = router.query;
-  const { getOrdenById } = useMovimientosInventarioApi();
+  const { id: proyectoId, materialId } = router.query;
+  const { getMovimientosPorInventarioPorProyecto } = useMovimientosInventarioApi();
 
-  const [orden, setOrden] = useState<OrdenMovimientoInventario | null>(null);
+  const [inventario, setInventario] = useState<InventarioConMovimientos | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const mapTipoMovimiento = (tipo: number) => {
+    switch (tipo) {
+      case 1:
+        return 'Entrada a bodega';
+      case 2:
+        return 'Salida de bodega';
+      default:
+        return 'Desconocido';
+    }
+  };
+
   useEffect(() => {
-    const fetchOrden = async () => {
-      if (!id) return;
+    const fetchInventario = async () => {
+      if (!materialId || !proyectoId) return;
       try {
-        const data = await getOrdenById(Number(id));
-        setOrden(data);
+        const data = await getMovimientosPorInventarioPorProyecto(
+          Number(proyectoId),
+          Number(materialId)
+        );
+        setInventario(data);
         setError(false);
       } catch {
-        setOrden(null);
+        setInventario(null);
         setError(true);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrden();
-  }, [id, getOrdenById]);
+    fetchInventario();
+  }, [materialId, proyectoId, getMovimientosPorInventarioPorProyecto]);
+
+  const verMovimiento = useCallback(
+    (movimientoId: number) => {
+      router.push(paths.dashboard.oficina.movimiento_inventario(movimientoId));
+    },
+    [router]
+  );
 
   if (loading) {
     return (
@@ -63,6 +88,8 @@ const Page: NextPage = () => {
 
   return (
     <Box sx={{ p: 3, position: 'relative' }}>
+      {loading && <FullPageLoader />}
+
       {/* HEADER CARD */}
       <Card sx={{ mb: 3 }}>
         <Box sx={{ px: 3, py: 3 }}>
@@ -71,24 +98,24 @@ const Page: NextPage = () => {
             alignItems="center"
             spacing={2}
           >
-            <Typography variant="h5">Movimiento de Inventario #{orden?.id}</Typography>
+            <Typography variant="h5">Traslados de Material en Proyecto</Typography>
             <Chip
-              label={orden?.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida de bodega'}
-              color={orden?.tipo_movimiento === 1 ? 'success' : 'warning'}
+              label="Por Proyecto"
+              color="info"
               size="small"
             />
           </Stack>
         </Box>
       </Card>
 
-      {/* INFORMACIÓN GENERAL CARD */}
+      {/* INFORMACIÓN DEL MATERIAL CARD */}
       <Card sx={{ mb: 3 }}>
         <Box sx={{ px: 3, py: 3 }}>
           <Typography
             variant="h6"
             gutterBottom
           >
-            Información General
+            Información del Material
           </Typography>
 
           <Grid
@@ -106,11 +133,9 @@ const Page: NextPage = () => {
                     variant="caption"
                     color="text.secondary"
                   >
-                    Proyecto
+                    Nombre del Material
                   </Typography>
-                  <Typography variant="body1">
-                    {orden?.proyecto?.nombre ?? 'No especificado'}
-                  </Typography>
+                  <Typography variant="body1">{inventario?.material?.nombre || 'N/A'}</Typography>
                 </Box>
 
                 <Box>
@@ -118,10 +143,10 @@ const Page: NextPage = () => {
                     variant="caption"
                     color="text.secondary"
                   >
-                    Tipo de Movimiento
+                    Marca
                   </Typography>
                   <Typography variant="body1">
-                    {orden?.tipo_movimiento === 1 ? 'Entrada a bodega' : 'Salida hacia proyecto'}
+                    {inventario?.material?.marca?.nombre || 'No especificada'}
                   </Typography>
                 </Box>
               </Stack>
@@ -138,10 +163,13 @@ const Page: NextPage = () => {
                     variant="caption"
                     color="text.secondary"
                   >
-                    Fecha de Movimiento
+                    Precio Unitario
                   </Typography>
-                  <Typography variant="body1">
-                    {orden && formatearFecha(orden.fecha_movimiento)}
+                  <Typography
+                    variant="body1"
+                    color="primary"
+                  >
+                    {formatearQuetzales(Number(inventario?.precio_unitario)) ?? 'N/A'}
                   </Typography>
                 </Box>
 
@@ -150,10 +178,10 @@ const Page: NextPage = () => {
                     variant="caption"
                     color="text.secondary"
                   >
-                    Usuario Creador
+                    Unidad de Medida
                   </Typography>
                   <Typography variant="body1">
-                    {orden?.usuario_creador?.first_name} {orden?.usuario_creador?.last_name}
+                    {inventario?.material?.unidad?.nombre || 'No especificada'}
                   </Typography>
                 </Box>
               </Stack>
@@ -162,14 +190,14 @@ const Page: NextPage = () => {
         </Box>
       </Card>
 
-      {/* MATERIALES CARD */}
+      {/* MOVIMIENTOS DEL PROYECTO CARD */}
       <Card>
         <Box sx={{ px: 3, py: 3 }}>
           <Typography
             variant="h6"
             gutterBottom
           >
-            Materiales
+            Movimientos en este Proyecto
           </Typography>
 
           <TableContainer
@@ -180,43 +208,51 @@ const Page: NextPage = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>#</TableCell>
-                  <TableCell>Material</TableCell>
-                  <TableCell>Marca</TableCell>
-                  <TableCell>Unidad</TableCell>
-                  <TableCell align="right">Precio Unitario</TableCell>
+                  <TableCell>ID Traslado</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Proyecto</TableCell>
+                  <TableCell>Fecha</TableCell>
                   <TableCell align="right">Cantidad</TableCell>
+                  <TableCell align="center">Ver detalles</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {orden?.materiales?.length ? (
-                  orden.materiales.map((detalle: DetalleInventarioMaterial, index) => (
+                {inventario?.movimientos?.length ? (
+                  inventario.movimientos.map((mov, index) => (
                     <TableRow
-                      key={detalle.id}
+                      key={mov.id}
                       hover
                     >
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
-                        <Typography variant="body2">
-                          {detalle.inventario.material.nombre}
-                        </Typography>
+                        <Typography variant="body2">#{mov?.orden_movimiento_id}</Typography>
                       </TableCell>
-                      <TableCell>{detalle.inventario.material.marca?.nombre || '-'}</TableCell>
-                      <TableCell>{detalle.inventario.material.unidad?.nombre || '-'}</TableCell>
-                      <TableCell align="right">
-                        {formatearQuetzales(Number(detalle.inventario.precio_unitario))}
+                      <TableCell>
+                        <Chip
+                          label={mapTipoMovimiento(mov.tipo_movimiento)}
+                          color={mov.tipo_movimiento === 1 ? 'success' : 'warning'}
+                          size="small"
+                        />
                       </TableCell>
-                      <TableCell align="right">{detalle.cantidad}</TableCell>
+                      <TableCell>{mov.proyecto?.nombre ?? 'N/A'}</TableCell>
+                      <TableCell>{formatearFecha(mov.fecha_movimiento)}</TableCell>
+                      <TableCell align="right">{mov.cantidad}</TableCell>
+                      <TableCell align="center">
+                        <IconButton onClick={() => verMovimiento(mov.orden_movimiento_id)}>
+                          <VisibilityIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       align="center"
                       sx={{ py: 3 }}
                     >
                       <Typography color="text.secondary">
-                        No se encontraron materiales en esta orden
+                        No se encontraron movimientos para este material en el proyecto
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -228,7 +264,7 @@ const Page: NextPage = () => {
       </Card>
 
       {/* ERROR OVERLAY */}
-      {error && <ErrorOverlay tipoReporte="Movimiento de inventario" />}
+      {error && <ErrorOverlay tipoReporte="Material planificado" />}
     </Box>
   );
 };

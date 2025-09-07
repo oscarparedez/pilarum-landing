@@ -88,7 +88,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
 
   // 🏗️ PROYECTOS — 📦 Material asignado (280–289)
   'Ver materiales planificados del proyecto': 280,
-  'Ver movimientos de materiales del proyecto': 281,
+  'Ver traslados de materiales del proyecto': 281,
   'Trasladar material de proyecto a bodega central': 282,
 
   // 🏗️ PROYECTOS — 🖼️ Revisiones de avance (290–299)
@@ -335,7 +335,7 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
     ],
     '📦 Material asignado a proyecto': [
       'Ver materiales planificados del proyecto',
-      'Ver movimientos de materiales del proyecto',
+      'Ver traslados de materiales del proyecto',
       'Trasladar material de proyecto a bodega central',
     ],
     '🖼️ Revisiones de avance': [
