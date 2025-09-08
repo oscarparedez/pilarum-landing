@@ -21,7 +21,7 @@ import { FullPageLoader } from '../loader/Loader';
 
 export type BaseFilters = {
   empresa?: number | '';
-  proyectoId?: number | '';
+  proyecto?: number | '';
   fechaInicio?: Date | null;
   fechaFin?: Date | null;
   [key: string]: any; // extras dinámicos
@@ -44,7 +44,12 @@ type Props<T> = {
   /** Cómo obtener el monto de un registro para sumar el total. */
   getMonto?: (item: T) => number;
   /** Botones adicionales en la barra de resultados */
-  extraButtons?: (items: T[], filters: BaseFilters, socios: { id: number; nombre: string }[], proyectos: { id: number; nombre: string }[]) => React.ReactNode;
+  extraButtons?: (
+    items: T[],
+    filters: BaseFilters,
+    socios: { id: number; nombre: string }[],
+    proyectos: { id: number; nombre: string }[]
+  ) => React.ReactNode;
 };
 
 export function BusquedaFiltrada<T>({
@@ -63,7 +68,7 @@ export function BusquedaFiltrada<T>({
 
   const [draftFilters, setDraftFilters] = useState<BaseFilters>({
     empresa: '',
-    proyectoId: '',
+    proyecto: '',
     fechaInicio: null,
     fechaFin: null,
   });
@@ -95,7 +100,7 @@ export function BusquedaFiltrada<T>({
         }
       } else {
         setProyectos([]);
-        setDraftFilters((s) => ({ ...s, proyectoId: '' }));
+        setDraftFilters((s) => ({ ...s, proyecto: '' }));
       }
     };
     fetchProyectos();
@@ -104,7 +109,7 @@ export function BusquedaFiltrada<T>({
   const handleBuscar = () => {
     const q: any = {
       empresa: draftFilters.empresa ? Number(draftFilters.empresa) : undefined,
-      proyecto: draftFilters.proyectoId ? Number(draftFilters.proyectoId) : undefined,
+      proyecto: draftFilters.proyecto ? Number(draftFilters.proyecto) : undefined,
       fecha_inicio: draftFilters.fechaInicio
         ? format(draftFilters.fechaInicio, 'dd-MM-yyyy')
         : undefined,
@@ -119,7 +124,7 @@ export function BusquedaFiltrada<T>({
   };
 
   const handleLimpiar = () => {
-    setDraftFilters({ empresa: '', proyectoId: '', fechaInicio: null, fechaFin: null });
+    setDraftFilters({ empresa: '', proyecto: '', fechaInicio: null, fechaFin: null });
     setItems([]); // no fetch; limpia resultados visibles
   };
 
@@ -172,11 +177,11 @@ export function BusquedaFiltrada<T>({
               select
               fullWidth
               label="Proyecto"
-              value={draftFilters.proyectoId ?? ''}
+              value={draftFilters.proyecto ?? ''}
               onChange={(e) =>
                 setDraftFilters((s) => ({
                   ...s,
-                  proyectoId: e.target.value === '' ? '' : Number(e.target.value),
+                  proyecto: e.target.value === '' ? '' : Number(e.target.value),
                 }))
               }
               disabled={!draftFilters.empresa}
@@ -271,9 +276,15 @@ export function BusquedaFiltrada<T>({
             backgroundColor: 'background.default',
           }}
         >
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+          >
             <Chip label={`${items.length} resultados`} />
-            {extraButtons && items.length > 0 && extraButtons(items, draftFilters, socios, proyectos)}
+            {extraButtons &&
+              items.length > 0 &&
+              extraButtons(items, draftFilters, socios, proyectos)}
           </Stack>
           <Stack
             spacing={0}

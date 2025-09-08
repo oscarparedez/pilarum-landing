@@ -12,8 +12,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  TableContainer,
-  Paper,
   Chip,
   Stack,
   Button,
@@ -32,7 +30,7 @@ const Page: NextPage = () => {
   const { getSociosInternos } = useSociosApi();
   const { getProyectos } = useProyectosApi();
   const { getTiposIngreso } = useTiposIngresoApi();
-  const [ loading, setLoading ] = useState(true);
+  
   const [chartsModalOpen, setChartsModalOpen] = useState(false);
   const [currentIngresos, setCurrentIngresos] = useState<IngresoGeneral[]>([]);
   const [currentFilters, setCurrentFilters] = useState<any>({});
@@ -41,7 +39,6 @@ const Page: NextPage = () => {
   const [tiposIngreso, setTiposIngreso] = useState<TipoIngreso[]>([]);
 
   useEffect(() => {
-    setLoading(true);
     try {
       Promise.all([getSociosInternos(), getTiposIngreso()]).then(([s, t]) => {
         setSocios(s);
@@ -49,8 +46,6 @@ const Page: NextPage = () => {
       });
     } catch (error) {
       console.error('Hubo un error cargando los socios o tipos de ingreso');
-    } finally {
-      setLoading(false);
     }
   }, [getSociosInternos, getTiposIngreso]);
 
@@ -83,50 +78,48 @@ const Page: NextPage = () => {
           </Button>
         )}
         renderTable={(ingresos) => (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>#</TableCell>
-                  <TableCell>Fecha de creación</TableCell>
-                  <TableCell>Fecha de ingreso</TableCell>
-                  <TableCell>Proyecto</TableCell>
-                  <TableCell>Socio</TableCell>
-                  <TableCell>Tipo de ingreso</TableCell>
-                  <TableCell>Usuario</TableCell>
-                  <TableCell>Documento</TableCell>
-                  <TableCell>Anotaciones</TableCell>
-                  <TableCell>Monto</TableCell>
+          <Table sx={{ minWidth: 1100 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Fecha de creación</TableCell>
+                <TableCell>Fecha de ingreso</TableCell>
+                <TableCell>Proyecto</TableCell>
+                <TableCell>Socio</TableCell>
+                <TableCell>Tipo de ingreso</TableCell>
+                <TableCell>Usuario</TableCell>
+                <TableCell>Documento</TableCell>
+                <TableCell>Anotaciones</TableCell>
+                <TableCell>Monto</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {ingresos.map((ing, index) => (
+                <TableRow key={ing.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{formatearFecha(ing.fecha_creacion)}</TableCell>
+                  <TableCell>{formatearFecha(ing.fecha_ingreso)}</TableCell>
+                  <TableCell>{ing.proyecto?.nombre ?? '—'}</TableCell>
+                  <TableCell>{ing.proyecto?.socio_asignado?.nombre ?? 'Sin socio'}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={ing.tipo_ingreso?.nombre ?? '—'}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {ing.usuario_creador?.first_name} {ing.usuario_creador?.last_name}
+                  </TableCell>
+                  <TableCell>{ing.tipo_documento}</TableCell>
+                  <TableCell>{ing.anotaciones}</TableCell>
+                  <TableCell>
+                    <b>{formatearQuetzales(Number(ing.monto_total))}</b>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {ingresos.map((ing, index) => (
-                  <TableRow key={ing.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{formatearFecha(ing.fecha_creacion)}</TableCell>
-                    <TableCell>{formatearFecha(ing.fecha_ingreso)}</TableCell>
-                    <TableCell>{ing.proyecto?.nombre ?? '—'}</TableCell>
-                    <TableCell>{ing.proyecto?.socio_asignado?.nombre ?? 'Sin socio'}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={ing.tipo_ingreso?.nombre ?? '—'}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {ing.usuario_creador?.first_name} {ing.usuario_creador?.last_name}
-                    </TableCell>
-                    <TableCell>{ing.tipo_documento}</TableCell>
-                    <TableCell>{ing.anotaciones}</TableCell>
-                    <TableCell>
-                      <b>{formatearQuetzales(Number(ing.monto_total))}</b>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              ))}
+            </TableBody>
+          </Table>
         )}
       />
 
@@ -135,8 +128,8 @@ const Page: NextPage = () => {
         onClose={() => setChartsModalOpen(false)}
         ingresos={currentIngresos}
         proyectoFiltrado={
-          currentFilters.proyectoId 
-            ? currentIngresos.find(ing => ing.proyecto?.id === currentFilters.proyectoId)?.proyecto?.nombre
+          currentFilters.proyecto 
+            ? currentIngresos.find(ing => ing.proyecto?.id === currentFilters.proyecto)?.proyecto?.nombre
             : undefined
         }
         socioFiltrado={

@@ -3,19 +3,30 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { useCostosGeneralesApi } from 'src/api/costosGenerales/useCostosGeneralesApi';
 import { useSociosApi } from 'src/api/socios/useSociosApi';
 import { useProyectosApi } from 'src/api/proyectos/useProyectosApi';
-import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
+import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { useEffect, useState } from 'react';
 import { CostoGeneral, Socio } from 'src/api/types';
-import { Table, TableHead, TableBody, TableRow, TableCell, Chip, Stack, Button } from '@mui/material';
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Chip,
+  Stack,
+  Button,
+} from '@mui/material';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import BuildCircleIcon from '@mui/icons-material/BuildCircle';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
-import { BusquedaFiltradaCostos } from 'src/components/busqueda-filtrada-costos/busqueda-filtrada-costos';
+import {
+  BusquedaFiltradaCostos,
+  ExtraFilterOptionCostos,
+} from 'src/components/busqueda-filtrada-costos/busqueda-filtrada-costos';
 import { CostosChartsModal } from 'src/components/costos-charts-modal';
 
 const labelTipoOrigen: Record<string, string> = {
@@ -48,169 +59,121 @@ const Page: NextPage = () => {
   const { getSociosInternos } = useSociosApi();
   const { getProyectos } = useProyectosApi();
   const { getMaquinarias } = useMaquinariasApi();
-  const { getOrdenesCompra } = useOrdenesCompraApi();
-
-  const [socios, setSocios] = useState<Socio[]>([]);
+  
   const [chartsModalOpen, setChartsModalOpen] = useState(false);
   const [currentCostos, setCurrentCostos] = useState<CostoGeneral[]>([]);
   const [currentFilters, setCurrentFilters] = useState<any>({});
 
-  // Estados para filtros individuales
-  const [tipoOrigenFiltrado, setTipoOrigenFiltrado] = useState<string | undefined>();
-  const [empresaFiltrada, setEmpresaFiltrada] = useState<string | undefined>();
-  const [proyectoFiltrado, setProyectoFiltrado] = useState<string | undefined>();
-  const [equipoFiltrado, setEquipoFiltrado] = useState<string | undefined>();
-  const [ordenCompraFiltrada, setOrdenCompraFiltrada] = useState<string | undefined>();
-  const [fechaInicio, setFechaInicio] = useState<Date | null>(null);
-  const [fechaFin, setFechaFin] = useState<Date | null>(null);
+  const [socios, setSocios] = useState<Socio[]>([]);
 
   useEffect(() => {
-    getSociosInternos().then(setSocios);
+    try {
+      getSociosInternos().then((s) => {
+        setSocios(s);
+      });
+    } catch (error) {
+      console.error('Hubo un error cargando los socios');
+    }
   }, [getSociosInternos]);
 
   return (
     <>
       <BusquedaFiltradaCostos<CostoGeneral>
         title="Costos Generales"
-        fetchData={(filters) => {
-          setCurrentFilters(filters);
-          
-          // Guardar filtros individuales para el modal
-          setTipoOrigenFiltrado(filters.tipo_origen);
-          
-          // Encontrar nombres de empresa y proyecto
-          if (filters.empresa) {
-            const empresa = socios.find(s => s.id === filters.empresa);
-            setEmpresaFiltrada(empresa?.nombre);
-          } else {
-            setEmpresaFiltrada(undefined);
-          }
-          
-          // Para proyecto, necesitamos hacer una llamada para obtener el nombre
-          if (filters.proyecto) {
-            getProyectos({ socio: filters.empresa }).then(proyectos => {
-              const proyecto = proyectos.find(p => p.id === filters.proyecto);
-              setProyectoFiltrado(proyecto?.nombre);
-            });
-          } else {
-            setProyectoFiltrado(undefined);
-          }
-          
-          // Para equipo
-          if (filters.equipo) {
-            getMaquinarias().then(equipos => {
-              const equipo = equipos.find(e => e.id === filters.equipo);
-              setEquipoFiltrado(equipo?.nombre);
-            });
-          } else {
-            setEquipoFiltrado(undefined);
-          }
-          
-          // Para orden de compra (es string, no necesita lookup)
-          setOrdenCompraFiltrada(filters.orden_compra);
-          
-          // Procesar fechas
-          if (filters.fecha_inicio) {
-            const [day, month, year] = filters.fecha_inicio.split('-');
-            setFechaInicio(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
-          } else {
-            setFechaInicio(null);
-          }
-          
-          if (filters.fecha_fin) {
-            const [day, month, year] = filters.fecha_fin.split('-');
-            setFechaFin(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
-          } else {
-            setFechaFin(null);
-          }
-          
-          return getCostosGenerales(filters).then(data => {
-            setCurrentCostos(data);
-            return data;
-          });
-        }}
         socios={socios}
-        getProyectosByEmpresa={(empresaId) => getProyectos({ socio: empresaId })}
-        getEquiposAll={() => getMaquinarias()}
-        getOrdenesCompraAll={() => getOrdenesCompra()}
+        fetchData={(filters) => getCostosGenerales(filters)}
+        getProyectos={(empresaId) => getProyectos({ socio: empresaId })}
+        getEquiposAll={getMaquinarias}
         getMonto={(c) => Number(c.monto || 0)}
-        extraButtons={(costos) => (
+        extraButtons={(costos, filters, socios, proyectos) => (
           <Button
             variant="outlined"
             size="small"
             startIcon={<BarChartIcon />}
-            onClick={() => setChartsModalOpen(true)}
+            onClick={() => {
+              // Guardar datos actuales para el modal solo cuando se hace clic
+              setCurrentCostos(costos);
+              setCurrentFilters(filters);
+              setChartsModalOpen(true);
+            }}
             sx={{ ml: 1 }}
           >
             Mostrar Gráficos
           </Button>
         )}
         renderTable={(costos) => (
-        <Table sx={{ minWidth: 1100 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Fecha de creación</TableCell>
-              <TableCell>Fecha de traslado</TableCell>
-              <TableCell>Origen</TableCell>
-              <TableCell>Tipo origen</TableCell>
-              <TableCell>Usuario</TableCell>
-              <TableCell>Motivo</TableCell>
-              <TableCell>Documento</TableCell>
-              <TableCell>Descripción</TableCell>
-              <TableCell>Monto</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {costos.map((c, index) => (
-              <TableRow key={`${c.tipo_origen}-${index}`}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{formatearFecha(c.fecha_creacion)}</TableCell>
-                <TableCell>{formatearFecha(c.fecha)}</TableCell>
-                <TableCell>{c.origen}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={
-                      <Stack
-                        direction="row"
-                        spacing={0.5}
-                        alignItems="center"
-                      >
-                        {iconPorOrigen(String(c.tipo_origen))}
-                        <span>{labelTipoOrigen[c.tipo_origen] ?? c.tipo_origen}</span>
-                      </Stack>
-                    }
-                    size="small"
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell>
-                  {c.usuario_registro?.first_name} {c.usuario_registro?.last_name}
-                </TableCell>
-                <TableCell>{c.tipo_pago}</TableCell>
-                <TableCell>{c.tipo_documento}</TableCell>
-                <TableCell>{c.descripcion}</TableCell>
-                <TableCell>
-                  <b>{formatearQuetzales(Number(c.monto))}</b>
-                </TableCell>
+          <Table sx={{ minWidth: 1100 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Fecha de creación</TableCell>
+                <TableCell>Fecha de traslado</TableCell>
+                <TableCell>Origen</TableCell>
+                <TableCell>Tipo origen</TableCell>
+                <TableCell>Usuario</TableCell>
+                <TableCell>Motivo</TableCell>
+                <TableCell>Documento</TableCell>
+                <TableCell>Descripción</TableCell>
+                <TableCell>Monto</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+            </TableHead>
+            <TableBody>
+              {costos.map((c, index) => (
+                <TableRow key={`${c.tipo_origen}-${index}`}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{formatearFecha(c.fecha_creacion)}</TableCell>
+                  <TableCell>{formatearFecha(c.fecha)}</TableCell>
+                  <TableCell>{c.origen}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={
+                        <Stack
+                          direction="row"
+                          spacing={0.5}
+                          alignItems="center"
+                        >
+                          {iconPorOrigen(String(c.tipo_origen))}
+                          <span>{labelTipoOrigen[c.tipo_origen] ?? c.tipo_origen}</span>
+                        </Stack>
+                      }
+                      size="small"
+                      variant="outlined"
+                      color={chipColorPorOrigen(String(c.tipo_origen))}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {c.usuario_registro?.first_name} {c.usuario_registro?.last_name}
+                  </TableCell>
+                  <TableCell>{c.tipo_pago}</TableCell>
+                  <TableCell>{c.tipo_documento}</TableCell>
+                  <TableCell>{c.descripcion}</TableCell>
+                  <TableCell>
+                    <b>{formatearQuetzales(Number(c.monto))}</b>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       />
 
       <CostosChartsModal
         open={chartsModalOpen}
         onClose={() => setChartsModalOpen(false)}
         costos={currentCostos}
-        tipoOrigenFiltrado={tipoOrigenFiltrado}
-        empresaFiltrada={empresaFiltrada}
-        proyectoFiltrado={proyectoFiltrado}
-        equipoFiltrado={equipoFiltrado}
-        ordenCompraFiltrada={ordenCompraFiltrada}
-        fechaInicio={fechaInicio}
-        fechaFin={fechaFin}
+        tipoOrigenFiltrado={currentFilters.tipo_origen}
+        empresaFiltrada={
+          currentFilters.empresa 
+            ? socios.find(s => s.id === currentFilters.empresa)?.nombre
+            : undefined
+        }
+        proyectoFiltrado={
+          currentFilters.proyecto 
+            ? currentCostos.find(c => c.origen_id === currentFilters.proyecto)?.origen || undefined
+            : undefined
+        }
+        fechaInicio={currentFilters.fechaInicio}
+        fechaFin={currentFilters.fechaFin}
       />
     </>
   );

@@ -63,10 +63,10 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
 
   const getTipoOrigenLabel = (tipo: string) => {
     const labelMap: Record<string, string> = {
-      'proyecto': 'Proyecto',
-      'orden_compra': 'Orden de Compra',
-      'gasto_maquinaria': 'Maquinaria',
-      'compra_maquinaria': 'Maquinaria',
+      proyecto: 'Proyecto',
+      orden_compra: 'Orden de Compra',
+      gasto_maquinaria: 'Maquinaria',
+      compra_maquinaria: 'Maquinaria',
     };
     return labelMap[tipo] || tipo;
   };
@@ -81,11 +81,11 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
 
   const procesarDatosPorTipoOrigen = () => {
     const tiposMap = new Map();
-    
-    costos.forEach(costo => {
+
+    costos.forEach((costo) => {
       const tipoOrigen = costo.tipo_origen || 'Sin tipo';
       const monto = Number(costo.monto || 0);
-      
+
       if (tiposMap.has(tipoOrigen)) {
         tiposMap.set(tipoOrigen, tiposMap.get(tipoOrigen) + monto);
       } else {
@@ -93,61 +93,40 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       }
     });
 
-    const tipos = Array.from(tiposMap.entries())
-      .sort((a, b) => b[1] - a[1]);
+    const tipos = Array.from(tiposMap.entries()).sort((a, b) => b[1] - a[1]);
 
     return {
       labels: tipos.map(([nombre]) => {
         const labelMap: Record<string, string> = {
-          'proyecto': 'Proyectos',
-          'orden_compra': 'Órdenes de Compra',
-          'gasto_maquinaria': 'Gastos de Maquinaria',
-          'compra_maquinaria': 'Compra de Maquinaria',
+          proyecto: 'Proyectos',
+          orden_compra: 'Órdenes de Compra',
+          gasto_maquinaria: 'Gastos de Maquinaria',
+          compra_maquinaria: 'Compra de Maquinaria',
         };
         return labelMap[nombre] || nombre;
       }),
-      series: tipos.map(([, monto]) => monto)
-    };
-  };
-
-  const procesarDatosPorTipoPago = () => {
-    const tiposMap = new Map();
-    
-    costos.forEach(costo => {
-      const tipoPago = costo.tipo_pago || 'Sin tipo';
-      const monto = Number(costo.monto || 0);
-      
-      if (tiposMap.has(tipoPago)) {
-        tiposMap.set(tipoPago, tiposMap.get(tipoPago) + monto);
-      } else {
-        tiposMap.set(tipoPago, monto);
-      }
-    });
-
-    const tipos = Array.from(tiposMap.entries())
-      .sort((a, b) => b[1] - a[1]);
-
-    return {
-      labels: tipos.map(([nombre]) => nombre),
-      series: tipos.map(([, monto]) => monto)
+      series: tipos.map(([, monto]) => monto),
     };
   };
 
   const procesarDatosPorOrigen = () => {
     const origenesMap = new Map();
     const origenesInfo = new Map();
-    
-    costos.forEach(costo => {
+
+    costos.forEach((costo) => {
       const origen = costo.origen || 'Sin origen';
+      const tipoOrigenLabel = getTipoOrigenLabel(costo.tipo_origen || '');
+      const origenCompleto = `${tipoOrigenLabel} - ${origen}`;
       const monto = Number(costo.monto || 0);
-      
-      if (origenesMap.has(origen)) {
-        origenesMap.set(origen, origenesMap.get(origen) + monto);
+
+      if (origenesMap.has(origenCompleto)) {
+        origenesMap.set(origenCompleto, origenesMap.get(origenCompleto) + monto);
       } else {
-        origenesMap.set(origen, monto);
-        origenesInfo.set(origen, {
+        origenesMap.set(origenCompleto, monto);
+        origenesInfo.set(origenCompleto, {
           tipo_origen: costo.tipo_origen,
-          origen_id: costo.origen_id
+          origen_id: costo.origen_id,
+          origen_original: origen,
         });
       }
     });
@@ -157,24 +136,26 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       .slice(0, 10); // Top 10
 
     return {
-      categories: origenes.map(([nombre]) => truncateText(nombre, 15)), // Truncar para el gráfico
+      categories: origenes.map(([nombre]) => truncateText(nombre, 20)), // Aumentar límite para incluir prefijo
       fullNames: origenes.map(([nombre]) => nombre), // Nombres completos para tooltip
-      series: [{
-        name: 'Costos',
-        data: origenes.map(([, monto]) => monto)
-      }],
-      origenesInfo: origenes.map(([nombre]) => origenesInfo.get(nombre))
+      series: [
+        {
+          name: 'Costos',
+          data: origenes.map(([, monto]) => monto),
+        },
+      ],
+      origenesInfo: origenes.map(([nombre]) => origenesInfo.get(nombre)),
     };
   };
 
   const procesarDatosTemporal = () => {
     const mesesMap = new Map();
-    
-    costos.forEach(costo => {
+
+    costos.forEach((costo) => {
       const fecha = new Date(costo.fecha);
       const mesAnio = format(fecha, 'MMM yyyy', { locale: es });
       const monto = Number(costo.monto || 0);
-      
+
       if (mesesMap.has(mesAnio)) {
         mesesMap.set(mesAnio, mesesMap.get(mesAnio) + monto);
       } else {
@@ -182,25 +163,38 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       }
     });
 
-    // Ordenar por fecha
-    const mesesOrdenados = Array.from(mesesMap.entries())
-      .sort((a, b) => {
-        const fechaA = new Date(a[0]);
-        const fechaB = new Date(b[0]);
-        return fechaA.getTime() - fechaB.getTime();
-      });
+    // Ordenar por fecha usando la fecha original del primer costo de cada mes
+    const mesesConFecha = new Map();
+    costos.forEach((costo) => {
+      const fecha = new Date(costo.fecha);
+      const mesAnio = format(fecha, 'MMM yyyy', { locale: es });
+      if (!mesesConFecha.has(mesAnio)) {
+        // Usar el primer día del mes para ordenamiento
+        const año = fecha.getFullYear();
+        const mes = fecha.getMonth();
+        mesesConFecha.set(mesAnio, new Date(año, mes, 1));
+      }
+    });
+
+    const mesesOrdenados = Array.from(mesesMap.entries()).sort((a, b) => {
+      const fechaA = mesesConFecha.get(a[0]);
+      const fechaB = mesesConFecha.get(b[0]);
+      return fechaA.getTime() - fechaB.getTime();
+    });
 
     return {
       categories: mesesOrdenados.map(([mes]) => mes),
-      series: [{
-        name: 'Costos',
-        data: mesesOrdenados.map(([, monto]) => monto)
-      }]
+      series: [
+        {
+          name: 'Costos',
+          data: mesesOrdenados.map(([, monto]) => monto),
+        },
+      ],
     };
   };
 
   // Opciones para gráfico de barras (por origen)
-  const useBarChartOptions = (categories: string[], fullNames: string[]): ApexOptions => ({
+  const getBarChartOptions = (categories: string[], fullNames: string[]): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
@@ -209,11 +203,11 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       theme.palette.error.main,
       theme.palette.warning.main,
       theme.palette.info.main,
-      theme.palette.secondary.main, 
+      theme.palette.secondary.main,
       theme.palette.success.main,
       theme.palette.primary.main,
       '#9C27B0', // Purple
-      '#FF9800', // Orange  
+      '#FF9800', // Orange
       '#607D8B', // Blue Grey
       '#795548', // Brown
     ],
@@ -223,14 +217,14 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       borderColor: theme.palette.divider,
       strokeDashArray: 3,
     },
-    legend: { 
+    legend: {
       show: true,
       position: 'bottom',
       horizontalAlign: 'center',
       labels: {
         colors: theme.palette.text.primary,
       },
-      formatter: function(seriesName: string, opts: any) {
+      formatter: function (seriesName: string, opts: any) {
         // Mostrar nombres completos en la leyenda
         return fullNames[opts.seriesIndex] || seriesName;
       },
@@ -273,8 +267,8 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
     },
   });
 
-  // Opciones para gráfico de dona
-  const useDonutChartOptions = (labels: string[]): ApexOptions => ({
+  // Opciones para gráfico de barras con leyenda (sin etiquetas en X)
+  const getBarChartOptionsWithLegend = (fullNames: string[]): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
@@ -287,15 +281,101 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       theme.palette.success.main,
       theme.palette.primary.main,
       '#9C27B0', // Purple
-      '#FF9800', // Orange  
+      '#FF9800', // Orange
+      '#607D8B', // Blue Grey
+      '#795548', // Brown
+      '#E91E63', // Pink
+      '#00BCD4', // Cyan
+      '#4CAF50', // Green
+      '#FFC107', // Amber
+      '#673AB7', // Deep Purple
+    ],
+    dataLabels: { enabled: false },
+    fill: { opacity: 0.8 },
+    grid: {
+      borderColor: theme.palette.divider,
+      strokeDashArray: 3,
+    },
+    legend: {
+      show: true,
+      position: 'right',
+      offsetY: 0,
+      height: 400,
+      labels: {
+        colors: theme.palette.text.primary,
+        useSeriesColors: true,
+      },
+      formatter: function (seriesName: string, opts: any) {
+        return fullNames[opts.seriesIndex] || seriesName;
+      },
+      itemMargin: {
+        horizontal: 5,
+        vertical: 2,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '70%',
+        borderRadius: 4,
+        distributed: true, // Cada barra tendrá un color diferente
+      },
+    },
+    xaxis: {
+      categories: fullNames.map((_, index) => `Item ${index + 1}`), // Etiquetas genéricas
+      labels: {
+        show: false, // Ocultar etiquetas del eje X
+      },
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    yaxis: {
+      labels: {
+        formatter: (value) => formatearQuetzales(value),
+        style: {
+          colors: theme.palette.text.secondary,
+        },
+      },
+    },
+    tooltip: {
+      x: {
+        formatter: (value, opts) => {
+          return fullNames[opts.dataPointIndex] || '';
+        },
+      },
+      y: {
+        formatter: (value) => formatearQuetzales(value),
+      },
+    },
+  });
+
+  // Opciones para gráfico de dona
+  const getDonutChartOptions = (labels: string[]): ApexOptions => ({
+    chart: {
+      background: 'transparent',
+      toolbar: { show: false },
+    },
+    colors: [
+      theme.palette.error.main,
+      theme.palette.warning.main,
+      theme.palette.info.main,
+      theme.palette.secondary.main,
+      theme.palette.success.main,
+      theme.palette.primary.main,
+      '#9C27B0', // Purple
+      '#FF9800', // Orange
       '#607D8B', // Blue Grey
       '#795548', // Brown
     ],
-    dataLabels: { 
+    dataLabels: {
       enabled: false,
     },
     fill: { opacity: 1, type: 'solid' },
-    labels: labels.map(label => truncateText(label, 15)),
+    labels: labels.map((label: string) => truncateText(label, 15)),
     legend: {
       show: true,
       position: 'bottom',
@@ -303,7 +383,7 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       labels: {
         colors: theme.palette.text.primary,
       },
-      formatter: function(seriesName: string, opts: any) {
+      formatter: function (seriesName: string, opts: any) {
         return labels[opts.seriesIndex];
       },
     },
@@ -322,7 +402,7 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
   });
 
   // Opciones para gráfico de pie
-  const usePieChartOptions = (labels: string[]): ApexOptions => ({
+  const getPieChartOptions = (labels: string[]): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
@@ -335,15 +415,15 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       theme.palette.success.main,
       theme.palette.primary.main,
       '#9C27B0', // Purple
-      '#FF9800', // Orange  
+      '#FF9800', // Orange
       '#607D8B', // Blue Grey
       '#795548', // Brown
     ],
-    dataLabels: { 
+    dataLabels: {
       enabled: false,
     },
     fill: { opacity: 1, type: 'solid' },
-    labels: labels.map(label => truncateText(label, 20)),
+    labels: labels.map((label) => truncateText(label, 20)),
     legend: {
       show: true,
       position: 'bottom',
@@ -351,7 +431,7 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       labels: {
         colors: theme.palette.text.primary,
       },
-      formatter: function(seriesName: string, opts: any) {
+      formatter: function (seriesName: string, opts: any) {
         return labels[opts.seriesIndex];
       },
     },
@@ -368,7 +448,7 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
   });
 
   // Opciones para gráfico temporal (área)
-  const useAreaChartOptions = (categories: string[]): ApexOptions => ({
+  const getAreaChartOptions = (categories: string[]): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
@@ -427,15 +507,14 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
   });
 
   const datosTipoOrigen = procesarDatosPorTipoOrigen();
-  const datosTipoPago = procesarDatosPorTipoPago();
   const datosOrigen = procesarDatosPorOrigen();
   const datosTemporal = procesarDatosTemporal();
-  
+
   const totalCostos = costos.reduce((acc, costo) => acc + Number(costo.monto || 0), 0);
 
   const renderFiltrosInfo = () => {
     const filtros = [];
-    
+
     // Tipo de origen
     filtros.push(
       <Chip
@@ -443,11 +522,11 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
         icon={<SourceIcon />}
         label={tipoOrigenFiltrado ? `Origen: ${tipoOrigenFiltrado}` : 'Origen: Todos'}
         size="small"
-        color={tipoOrigenFiltrado ? "error" : "default"}
-        variant={tipoOrigenFiltrado ? "outlined" : "filled"}
+        color={tipoOrigenFiltrado ? 'error' : 'default'}
+        variant={tipoOrigenFiltrado ? 'outlined' : 'filled'}
       />
     );
-    
+
     // Empresa
     if (empresaFiltrada) {
       filtros.push(
@@ -461,7 +540,7 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
         />
       );
     }
-    
+
     // Proyecto
     if (proyectoFiltrado) {
       filtros.push(
@@ -475,7 +554,7 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
         />
       );
     }
-    
+
     // Equipo
     if (equipoFiltrado) {
       filtros.push(
@@ -489,7 +568,7 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
         />
       );
     }
-    
+
     // Orden de compra
     if (ordenCompraFiltrada) {
       filtros.push(
@@ -504,97 +583,120 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
       );
     }
 
-    console.log("fehca inicio", fechaInicio);
-    console.log("fehca fin", fechaFin);
-    
+    console.log('fehca inicio', fechaInicio);
+    console.log('fehca fin', fechaFin);
+
     // Fechas - siempre mostrar
-    const fechaTexto = fechaInicio && fechaFin && !isNaN(fechaInicio.getTime()) && !isNaN(fechaFin.getTime())
-      ? `${formatearFecha(fechaInicio.toISOString())} - ${formatearFecha(fechaFin.toISOString())}`
-      : fechaInicio && !isNaN(fechaInicio.getTime())
-      ? `Desde: ${formatearFecha(fechaInicio.toISOString())}`
-      : fechaFin && !isNaN(fechaFin.getTime())
-      ? `Hasta: ${formatearFecha(fechaFin.toISOString())}`
-      : 'Fechas: Sin filtro';
-        
+    const fechaTexto =
+      fechaInicio && fechaFin && !isNaN(fechaInicio.getTime()) && !isNaN(fechaFin.getTime())
+        ? `${formatearFecha(fechaInicio.toISOString())} - ${formatearFecha(fechaFin.toISOString())}`
+        : fechaInicio && !isNaN(fechaInicio.getTime())
+        ? `Desde: ${formatearFecha(fechaInicio.toISOString())}`
+        : fechaFin && !isNaN(fechaFin.getTime())
+        ? `Hasta: ${formatearFecha(fechaFin.toISOString())}`
+        : 'Fechas: Sin filtro';
+
     filtros.push(
       <Chip
         key="fechas"
         icon={<CalendarTodayIcon />}
         label={fechaTexto}
         size="small"
-        color={fechaInicio || fechaFin ? "error" : "default"}
-        variant={fechaInicio || fechaFin ? "outlined" : "filled"}
+        color={fechaInicio || fechaFin ? 'error' : 'default'}
+        variant={fechaInicio || fechaFin ? 'outlined' : 'filled'}
       />
     );
-    
+
     return filtros;
   };
 
   // Determinar qué gráficos mostrar basado en los filtros
   const tieneMultiplesOrigenes = datosOrigen.categories.length > 1;
   const tieneMultiplosTiposOrigen = datosTipoOrigen.labels.length > 1;
-  const tieneMultiplosTiposPago = datosTipoPago.labels.length > 1;
   const tieneMultiplesPeriodos = datosTemporal.categories.length > 1;
 
-  // Lógica para determinar layout
-  const mostrarAnalisisEspecifico = (tipoOrigenFiltrado && proyectoFiltrado) || 
-                                   (tipoOrigenFiltrado && equipoFiltrado) ||
-                                   (tipoOrigenFiltrado && ordenCompraFiltrada);
-
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="lg" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { 
+        sx: {
           height: 'auto',
           maxHeight: '85vh',
-          maxWidth: { 
-            xs: '95vw',     // Móvil: 95% del ancho
-            sm: '90vw',     // Tablet pequeña: 90%
-            md: '85vw',     // Tablet grande: 85%
-            lg: '80vw',     // Desktop: 80%
-            xl: '75vw'      // Desktop grande: 75%
-          }
-        }
+          maxWidth: {
+            xs: '95vw', // Móvil: 95% del ancho
+            sm: '90vw', // Tablet pequeña: 90%
+            md: '85vw', // Tablet grande: 85%
+            lg: '80vw', // Desktop: 80%
+            xl: '75vw', // Desktop grande: 75%
+          },
+        },
       }}
     >
       <DialogTitle sx={{ pb: 1 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h6">Análisis de Costos</Typography>
-          <IconButton onClick={onClose} size="small">
+          <IconButton
+            onClick={onClose}
+            size="small"
+          >
             <CloseIcon />
           </IconButton>
         </Box>
       </DialogTitle>
-      
+
       <DialogContent sx={{ pt: 0 }}>
         {/* Información de filtros y resumen */}
         <Box sx={{ mb: 3 }}>
-          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ mb: 2 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            flexWrap="wrap"
+            sx={{ mb: 2 }}
+          >
             {renderFiltrosInfo()}
           </Stack>
-          
-          <Box 
-            sx={{ 
-              p: 2, 
-              backgroundColor: 'background.default', 
+
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: 'background.default',
               borderRadius: 1,
               border: '1px solid',
-              borderColor: 'divider'
+              borderColor: 'divider',
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="body2" color="text.secondary">
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography
+                variant="body2"
+                color="text.secondary"
+              >
                 {costos.length} {costos.length === 1 ? 'costo encontrado' : 'costos encontrados'}
               </Typography>
               <Box textAlign="right">
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                >
                   Total General
                 </Typography>
-                <Typography variant="h6" color="error" fontWeight="bold">
+                <Typography
+                  variant="h6"
+                  color="error"
+                  fontWeight="bold"
+                >
                   {formatearQuetzales(totalCostos)}
                 </Typography>
               </Box>
@@ -602,135 +704,167 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
           </Box>
         </Box>
 
-        <Grid container spacing={2}>
-          {/* Análisis específico cuando hay filtros muy específicos */}
-          {mostrarAnalisisEspecifico && (
-            <>
-              {/* Gráfico de Tipos de Pago */}
-              {tieneMultiplosTiposPago && (
-                <Grid item xs={12} sm={12} md={tieneMultiplesPeriodos ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          Distribución por Tipo de Pago
-                        </Typography>
-                      }
-                      subtitle={
-                        <Typography variant="body2" color="text.secondary">
-                          Análisis detallado de gastos
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={usePieChartOptions(datosTipoPago.labels)}
-                        series={datosTipoPago.series}
-                        type="pie"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
+        <Grid
+          container
+          spacing={2}
+        >
+          {/* Siempre mostrar al menos una gráfica */}
 
-              {/* Gráfico Temporal */}
-              {tieneMultiplesPeriodos && (
-                <Grid item xs={12} sm={12} md={tieneMultiplosTiposPago ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          Evolución Temporal
-                        </Typography>
-                      }
-                      subtitle={
-                        <Typography variant="body2" color="text.secondary">
-                          Costos mes a mes
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={useAreaChartOptions(datosTemporal.categories)}
-                        series={datosTemporal.series}
-                        type="area"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-            </>
+          {/* Prioridad 1: Gráfico de Tipo de Origen (siempre que haya datos) */}
+          {datosTipoOrigen.labels.length > 0 && (
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={6}
+            >
+              <Card variant="outlined">
+                <CardHeader
+                  title={
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                    >
+                      Distribución por Tipo de Origen
+                    </Typography>
+                  }
+                  subtitle={
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {tieneMultiplosTiposOrigen
+                        ? 'Clasificación de costos'
+                        : 'Vista consolidada de origen'}
+                    </Typography>
+                  }
+                  sx={{ pb: 1 }}
+                />
+                <CardContent sx={{ pt: 0 }}>
+                  <Chart
+                    height={350}
+                    options={getDonutChartOptions(datosTipoOrigen.labels)}
+                    series={datosTipoOrigen.series}
+                    type="donut"
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
           )}
 
-          {/* Gráficos para vista general */}
-          {!mostrarAnalisisEspecifico && (
-            <>
-              {/* Gráfico de Barras por Origen */}
-              {tieneMultiplesOrigenes && (
-                <Grid item xs={12} sm={12} md={tieneMultiplosTiposOrigen ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          {getOrigenTitle()}
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={useBarChartOptions(datosOrigen.categories, datosOrigen.fullNames)}
-                        series={datosOrigen.series}
-                        type="bar"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-
-              {/* Gráfico de Dona por Tipo de Origen */}
-              {tieneMultiplosTiposOrigen && (
-                <Grid item xs={12} sm={12} md={tieneMultiplesOrigenes ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          Distribución por Tipo de Origen
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={useDonutChartOptions(datosTipoOrigen.labels)}
-                        series={datosTipoOrigen.series}
-                        type="donut"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-            </>
+          {/* Prioridad 2: Gráfico de Orígenes específicos (solo si hay variedad y espacio) */}
+          {tieneMultiplesOrigenes && datosTipoOrigen.labels.length > 0 && (
+            <Grid
+              item
+              xs={12}
+            >
+              <Card variant="outlined">
+                <CardHeader
+                  title={
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                    >
+                      {getOrigenTitle()}
+                    </Typography>
+                  }
+                  subtitle={
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      Desglose por origen específico
+                    </Typography>
+                  }
+                  sx={{ pb: 1 }}
+                />
+                <CardContent sx={{ pt: 0 }}>
+                  <Chart
+                    height={400}
+                    options={getBarChartOptionsWithLegend(datosOrigen.fullNames)}
+                    series={datosOrigen.series}
+                    type="bar"
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
           )}
 
-          {/* Mensaje informativo cuando no hay datos suficientes */}
-          {!tieneMultiplesOrigenes && !tieneMultiplosTiposOrigen && !tieneMultiplosTiposPago && (
-            <Grid item xs={12}>
-              <Card variant="outlined" sx={{ textAlign: 'center', py: 4 }}>
+          {/* Prioridad 4: Evolución temporal (si hay múltiples períodos O filtros específicos) */}
+          {(tieneMultiplesPeriodos ||
+            (tipoOrigenFiltrado && empresaFiltrada) ||
+            (tipoOrigenFiltrado && proyectoFiltrado) ||
+            (empresaFiltrada && proyectoFiltrado)) &&
+            datosTemporal.categories.length > 0 && (
+              <Grid
+                item
+                xs={12}
+              >
+                <Card variant="outlined">
+                  <CardHeader
+                    title={
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight={600}
+                      >
+                        Evolución Temporal
+                      </Typography>
+                    }
+                    subtitle={
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {tieneMultiplesPeriodos
+                          ? 'Costos mes a mes'
+                          : tipoOrigenFiltrado && proyectoFiltrado
+                          ? `Historial de ${proyectoFiltrado}`
+                          : 'Historial consolidado'}
+                      </Typography>
+                    }
+                    sx={{ pb: 1 }}
+                  />
+                  <CardContent sx={{ pt: 0 }}>
+                    <Chart
+                      height={300}
+                      options={getAreaChartOptions(datosTemporal.categories)}
+                      series={datosTemporal.series}
+                      type="area"
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            )}
+
+          {/* Fallback: Si no hay datos para ninguna gráfica */}
+          {datosTipoOrigen.labels.length === 0 && datosOrigen.categories.length === 0 && (
+            <Grid
+              item
+              xs={12}
+            >
+              <Card
+                variant="outlined"
+                sx={{ textAlign: 'center', py: 4 }}
+              >
                 <CardContent>
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
-                    📊 Vista Consolidada
+                  <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    📊 Sin Datos Suficientes
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Los filtros aplicados muestran datos muy específicos.
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
+                    No hay datos suficientes para generar gráficas con los filtros aplicados.
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
                     Total de costos: {formatearQuetzales(totalCostos)}
                   </Typography>
                 </CardContent>

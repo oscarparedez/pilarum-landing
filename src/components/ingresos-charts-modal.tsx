@@ -64,22 +64,22 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
   const procesarDatosPorProyecto = () => {
     const proyectosMap = new Map();
     const proyectosInfo = new Map(); // Para guardar info adicional
-    
-    ingresos.forEach(ingreso => {
+
+    ingresos.forEach((ingreso) => {
       const nombreProyecto = ingreso.proyecto?.nombre || 'Sin proyecto';
       const monto = Number(ingreso.monto_total || 0);
-      
+
       if (proyectosMap.has(nombreProyecto)) {
         proyectosMap.set(nombreProyecto, proyectosMap.get(nombreProyecto) + monto);
       } else {
         proyectosMap.set(nombreProyecto, monto);
       }
-      
+
       // Guardar info del proyecto para navegación
       if (ingreso.proyecto && !proyectosInfo.has(nombreProyecto)) {
         proyectosInfo.set(nombreProyecto, {
           id: ingreso.proyecto.id,
-          nombre: nombreProyecto
+          nombre: nombreProyecto,
         });
       }
     });
@@ -92,20 +92,22 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       categories: proyectos.map(([nombre]) => truncateText(nombre)),
       fullNames: proyectos.map(([nombre]) => nombre), // Nombres completos para tooltip
       projectsInfo: proyectos.map(([nombre]) => proyectosInfo.get(nombre)), // Info para navegación
-      series: [{
-        name: 'Ingresos',
-        data: proyectos.map(([, monto]) => monto)
-      }]
+      series: [
+        {
+          name: 'Ingresos',
+          data: proyectos.map(([, monto]) => monto),
+        },
+      ],
     };
   };
 
   const procesarDatosPorSocio = () => {
     const sociosMap = new Map();
-    
-    ingresos.forEach(ingreso => {
+
+    ingresos.forEach((ingreso) => {
       const nombreSocio = ingreso.proyecto?.socio_asignado?.nombre || 'Sin socio';
       const monto = Number(ingreso.monto_total || 0);
-      
+
       if (sociosMap.has(nombreSocio)) {
         sociosMap.set(nombreSocio, sociosMap.get(nombreSocio) + monto);
       } else {
@@ -113,22 +115,21 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       }
     });
 
-    const socios = Array.from(sociosMap.entries())
-      .sort((a, b) => b[1] - a[1]);
+    const socios = Array.from(sociosMap.entries()).sort((a, b) => b[1] - a[1]);
 
     return {
       labels: socios.map(([nombre]) => nombre),
-      series: socios.map(([, monto]) => monto)
+      series: socios.map(([, monto]) => monto),
     };
   };
 
   const procesarDatosPorTipoIngreso = () => {
     const tiposMap = new Map();
-    
-    ingresos.forEach(ingreso => {
+
+    ingresos.forEach((ingreso) => {
       const tipoIngreso = ingreso.tipo_ingreso?.nombre || 'Sin tipo';
       const monto = Number(ingreso.monto_total || 0);
-      
+
       if (tiposMap.has(tipoIngreso)) {
         tiposMap.set(tipoIngreso, tiposMap.get(tipoIngreso) + monto);
       } else {
@@ -136,23 +137,22 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       }
     });
 
-    const tipos = Array.from(tiposMap.entries())
-      .sort((a, b) => b[1] - a[1]);
+    const tipos = Array.from(tiposMap.entries()).sort((a, b) => b[1] - a[1]);
 
     return {
       labels: tipos.map(([nombre]) => nombre),
-      series: tipos.map(([, monto]) => monto)
+      series: tipos.map(([, monto]) => monto),
     };
   };
 
   const procesarDatosTemporal = () => {
     const mesesMap = new Map();
-    
-    ingresos.forEach(ingreso => {
+
+    ingresos.forEach((ingreso) => {
       const fecha = new Date(ingreso.fecha_ingreso);
       const mesAnio = format(fecha, 'MMM yyyy', { locale: es });
       const monto = Number(ingreso.monto_total || 0);
-      
+
       if (mesesMap.has(mesAnio)) {
         mesesMap.set(mesAnio, mesesMap.get(mesAnio) + monto);
       } else {
@@ -160,48 +160,65 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       }
     });
 
-    // Ordenar por fecha
-    const mesesOrdenados = Array.from(mesesMap.entries())
-      .sort((a, b) => {
-        const fechaA = new Date(a[0]);
-        const fechaB = new Date(b[0]);
-        return fechaA.getTime() - fechaB.getTime();
-      });
+    // Ordenar por fecha usando la fecha original del primer ingreso de cada mes
+    const mesesConFecha = new Map();
+    ingresos.forEach((ingreso) => {
+      const fecha = new Date(ingreso.fecha_ingreso);
+      const mesAnio = format(fecha, 'MMM yyyy', { locale: es });
+      if (!mesesConFecha.has(mesAnio)) {
+        // Usar el primer día del mes para ordenamiento
+        const año = fecha.getFullYear();
+        const mes = fecha.getMonth();
+        mesesConFecha.set(mesAnio, new Date(año, mes, 1));
+      }
+    });
+
+    const mesesOrdenados = Array.from(mesesMap.entries()).sort((a, b) => {
+      const fechaA = mesesConFecha.get(a[0]);
+      const fechaB = mesesConFecha.get(b[0]);
+      return fechaA.getTime() - fechaB.getTime();
+    });
 
     return {
       categories: mesesOrdenados.map(([mes]) => mes),
-      series: [{
-        name: 'Ingresos',
-        data: mesesOrdenados.map(([, monto]) => monto)
-      }]
+      series: [
+        {
+          name: 'Ingresos',
+          data: mesesOrdenados.map(([, monto]) => monto),
+        },
+      ],
     };
   };
 
   // Opciones para gráfico de barras (por proyecto)
-  const useBarChartOptions = (categories: string[], fullNames: string[], projectsInfo: any[]): ApexOptions => ({
+  const getBarChartOptions = (
+    categories: string[],
+    fullNames: string[],
+    projectsInfo: any[]
+  ): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
       events: {
-        legendClick: function(chartContext: any, seriesIndex: number) {
+        legendClick: function (chartContext: any, seriesIndex: number) {
           const projectInfo = projectsInfo[seriesIndex];
           if (projectInfo && projectInfo.id) {
             // Navegar al detalle del proyecto
             router.push(paths.dashboard.proyectos.detalle(projectInfo.id));
             onClose(); // Cerrar el modal
           }
-        }
-      }
+        },
+      },
     },
     colors: [
       theme.palette.primary.main,
-      theme.palette.secondary.main, 
+      theme.palette.secondary.main,
       theme.palette.success.main,
       theme.palette.warning.main,
       theme.palette.error.main,
       theme.palette.info.main,
       '#9C27B0', // Purple
-      '#FF9800', // Orange  
+      '#FF9800', // Orange
       '#607D8B', // Blue Grey
       '#795548', // Brown
     ],
@@ -262,7 +279,7 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
   });
 
   // Opciones para gráfico de dona (por socio)
-  const useDonutChartOptions = (labels: string[]): ApexOptions => ({
+  const getDonutChartOptions = (labels: string[]): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
@@ -275,15 +292,15 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       theme.palette.error.main,
       theme.palette.info.main,
       '#9C27B0', // Purple
-      '#FF9800', // Orange  
+      '#FF9800', // Orange
       '#607D8B', // Blue Grey
       '#795548', // Brown
     ],
-    dataLabels: { 
+    dataLabels: {
       enabled: false, // Quitar los porcentajes
     },
     fill: { opacity: 1, type: 'solid' },
-    labels: labels.map(label => truncateText(label, 15)), // Truncar también las etiquetas
+    labels: labels.map((label) => truncateText(label, 15)), // Truncar también las etiquetas
     legend: {
       show: true,
       position: 'bottom',
@@ -291,7 +308,7 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       labels: {
         colors: theme.palette.text.primary,
       },
-      formatter: function(seriesName: string, opts: any) {
+      formatter: function (seriesName: string, opts: any) {
         // Mostrar nombre completo en la leyenda
         return labels[opts.seriesIndex];
       },
@@ -311,7 +328,7 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
   });
 
   // Opciones para gráfico de pie (por tipo de ingreso)
-  const usePieChartOptions = (labels: string[]): ApexOptions => ({
+  const getPieChartOptions = (labels: string[]): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
@@ -324,15 +341,15 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       theme.palette.error.main,
       theme.palette.info.main,
       '#9C27B0', // Purple
-      '#FF9800', // Orange  
+      '#FF9800', // Orange
       '#607D8B', // Blue Grey
       '#795548', // Brown
     ],
-    dataLabels: { 
+    dataLabels: {
       enabled: false, // Quitar los porcentajes
     },
     fill: { opacity: 1, type: 'solid' },
-    labels: labels.map(label => truncateText(label, 20)),
+    labels: labels.map((label) => truncateText(label, 20)),
     legend: {
       show: true,
       position: 'bottom',
@@ -340,7 +357,7 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       labels: {
         colors: theme.palette.text.primary,
       },
-      formatter: function(seriesName: string, opts: any) {
+      formatter: function (seriesName: string, opts: any) {
         return labels[opts.seriesIndex];
       },
     },
@@ -357,7 +374,7 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
   });
 
   // Opciones para gráfico temporal (línea)
-  const useLineChartOptions = (categories: string[]): ApexOptions => ({
+  const getLineChartOptions = (categories: string[]): ApexOptions => ({
     chart: {
       background: 'transparent',
       toolbar: { show: false },
@@ -419,12 +436,12 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
   const datosSocio = procesarDatosPorSocio();
   const datosTipoIngreso = procesarDatosPorTipoIngreso();
   const datosTemporal = procesarDatosTemporal();
-  
+
   const totalIngresos = ingresos.reduce((acc, ing) => acc + Number(ing.monto_total || 0), 0);
 
   const renderFiltrosInfo = () => {
     const filtros = [];
-    
+
     // Socio - siempre mostrar
     filtros.push(
       <Chip
@@ -432,20 +449,22 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
         icon={<BusinessIcon />}
         label={socioFiltrado ? `Socio: ${socioFiltrado}` : 'Socio: Todos'}
         size="small"
-        color={socioFiltrado ? "primary" : "default"}
-        variant={socioFiltrado ? "outlined" : "filled"}
+        color={socioFiltrado ? 'primary' : 'default'}
+        variant={socioFiltrado ? 'outlined' : 'filled'}
       />
     );
-    
+
     // Proyecto - siempre mostrar
     filtros.push(
       <Chip
         key="proyecto"
         icon={<AccountTreeIcon />}
-        label={proyectoFiltrado ? `Proyecto: ${truncateText(proyectoFiltrado, 25)}` : 'Proyecto: Todos'}
+        label={
+          proyectoFiltrado ? `Proyecto: ${truncateText(proyectoFiltrado, 25)}` : 'Proyecto: Todos'
+        }
         size="small"
-        color={proyectoFiltrado ? "secondary" : "default"}
-        variant={proyectoFiltrado ? "outlined" : "filled"}
+        color={proyectoFiltrado ? 'secondary' : 'default'}
+        variant={proyectoFiltrado ? 'outlined' : 'filled'}
       />
     );
 
@@ -454,13 +473,15 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
       <Chip
         key="tipo-ingreso"
         icon={<CategoryIcon />}
-        label={tipoIngresoFiltrado ? `Tipo de ingreso: ${tipoIngresoFiltrado}` : 'Tipo de ingreso: Todos'}
+        label={
+          tipoIngresoFiltrado ? `Tipo de ingreso: ${tipoIngresoFiltrado}` : 'Tipo de ingreso: Todos'
+        }
         size="small"
-        color={tipoIngresoFiltrado ? "success" : "default"}
-        variant={tipoIngresoFiltrado ? "outlined" : "filled"}
+        color={tipoIngresoFiltrado ? 'success' : 'default'}
+        variant={tipoIngresoFiltrado ? 'outlined' : 'filled'}
       />
     );
-    
+
     // Fechas - siempre mostrar
     if (fechaInicio && fechaFin) {
       filtros.push(
@@ -512,59 +533,88 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="lg" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { 
+        sx: {
           height: 'auto',
           maxHeight: '85vh',
-          maxWidth: { 
-            xs: '95vw',     // Móvil: 95% del ancho
-            sm: '90vw',     // Tablet pequeña: 90%
-            md: '85vw',     // Tablet grande: 85%
-            lg: '80vw',     // Desktop: 80%
-            xl: '75vw'      // Desktop grande: 75%
-          }
-        }
+          maxWidth: {
+            xs: '95vw', // Móvil: 95% del ancho
+            sm: '90vw', // Tablet pequeña: 90%
+            md: '85vw', // Tablet grande: 85%
+            lg: '80vw', // Desktop: 80%
+            xl: '75vw', // Desktop grande: 75%
+          },
+        },
       }}
     >
       <DialogTitle sx={{ pb: 1 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h6">Análisis de Ingresos</Typography>
-          <IconButton onClick={onClose} size="small">
+          <IconButton
+            onClick={onClose}
+            size="small"
+          >
             <CloseIcon />
           </IconButton>
         </Box>
       </DialogTitle>
-      
+
       <DialogContent sx={{ pt: 0 }}>
         {/* Información de filtros y resumen */}
         <Box sx={{ mb: 3 }}>
-          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ mb: 2 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            flexWrap="wrap"
+            sx={{ mb: 2 }}
+          >
             {renderFiltrosInfo()}
           </Stack>
-          
-          <Box 
-            sx={{ 
-              p: 2, 
-              backgroundColor: 'background.default', 
+
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: 'background.default',
               borderRadius: 1,
               border: '1px solid',
-              borderColor: 'divider'
+              borderColor: 'divider',
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="body2" color="text.secondary">
-                {ingresos.length} {ingresos.length === 1 ? 'ingreso encontrado' : 'ingresos encontrados'}
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography
+                variant="body2"
+                color="text.secondary"
+              >
+                {ingresos.length}{' '}
+                {ingresos.length === 1 ? 'ingreso encontrado' : 'ingresos encontrados'}
               </Typography>
               <Box textAlign="right">
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                >
                   Total General
                 </Typography>
-                <Typography variant="h6" color="primary" fontWeight="bold">
+                <Typography
+                  variant="h6"
+                  color="primary"
+                  fontWeight="bold"
+                >
                   {formatearQuetzales(totalIngresos)}
                 </Typography>
               </Box>
@@ -572,161 +622,229 @@ export const IngresosChartsModal: React.FC<IngresosChartsModalProps> = ({
           </Box>
         </Box>
 
-        <Grid container spacing={2}>
-          {/* Gráficos para filtro específico: Socio + Proyecto */}
-          {socioFiltrado && proyectoFiltrado && (
-            <>
-              {/* Gráfico de Tipos de Ingreso */}
-              {datosTipoIngreso.labels.length > 0 && (
-                <Grid item xs={12} sm={12} md={datosTemporal.categories.length > 1 ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          Distribución por Tipo de Ingreso
-                        </Typography>
-                      }
-                      subtitle={
-                        <Typography variant="body2" color="text.secondary">
-                          {truncateText(proyectoFiltrado, 30)} - {truncateText(socioFiltrado, 30)}
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={usePieChartOptions(datosTipoIngreso.labels)}
-                        series={datosTipoIngreso.series}
-                        type="pie"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
+        <Grid
+          container
+          spacing={2}
+        >
+          {/* Siempre mostrar al menos una gráfica */}
 
-              {/* Gráfico Temporal */}
-              {datosTemporal.categories.length > 1 && (
-                <Grid item xs={12} sm={12} md={datosTipoIngreso.labels.length > 0 ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          Evolución Temporal
-                        </Typography>
-                      }
-                      subtitle={
-                        <Typography variant="body2" color="text.secondary">
-                          Ingresos mes a mes
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={useLineChartOptions(datosTemporal.categories)}
-                        series={datosTemporal.series}
-                        type="area"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}              {/* Mensaje si solo hay datos de un período */}
-              {datosTemporal.categories.length <= 1 && datosTipoIngreso.labels.length === 0 && (
-                <Grid item xs={12}>
-                  <Card variant="outlined" sx={{ textAlign: 'center', py: 4 }}>
-                    <CardContent>
-                      <Typography variant="h6" color="text.secondary" gutterBottom>
-                        📊 Análisis Específico
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        No hay datos suficientes para mostrar gráficos detallados.
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        Total de ingresos: {formatearQuetzales(totalIngresos)}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-            </>
+          {/* Prioridad 1: Gráfico de Tipos de Ingreso (siempre que haya datos) */}
+          {datosTipoIngreso.labels.length > 0 && (
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={6}
+            >
+              <Card variant="outlined">
+                <CardHeader
+                  title={
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                    >
+                      Distribución por Tipo de Ingreso
+                    </Typography>
+                  }
+                  subtitle={
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {socioFiltrado && proyectoFiltrado
+                        ? `${truncateText(proyectoFiltrado, 30)} - ${truncateText(
+                            socioFiltrado,
+                            30
+                          )}`
+                        : datosTipoIngreso.labels.length > 1
+                        ? 'Análisis detallado de ingresos'
+                        : 'Vista consolidada de ingresos'}
+                    </Typography>
+                  }
+                  sx={{ pb: 1 }}
+                />
+                <CardContent sx={{ pt: 0 }}>
+                  <Chart
+                    height={350}
+                    options={getDonutChartOptions(datosTipoIngreso.labels)}
+                    series={datosTipoIngreso.series}
+                    type="donut"
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
           )}
 
-          {/* Gráficos para otros casos (sin filtros específicos) */}
-          {!(socioFiltrado && proyectoFiltrado) && (
-            <>
-              {/* Gráfico de Barras por Proyecto */}
-              {datosProyecto.categories.length > 1 && (
-                <Grid item xs={12} sm={12} md={datosProyecto.categories.length > 1 && datosSocio.labels.length >= 1 && !socioFiltrado ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          {socioFiltrado ? `Proyectos de ${truncateText(socioFiltrado, 20)}` : "Ingresos por Proyecto"}
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={useBarChartOptions(datosProyecto.categories, datosProyecto.fullNames, datosProyecto.projectsInfo)}
-                        series={datosProyecto.series}
-                        type="bar"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-
-              {/* Gráfico de Dona por Socio - mostrar cuando NO hay filtro de socio */}
-              {!socioFiltrado && datosSocio.labels.length >= 1 && (
-                <Grid item xs={12} sm={12} md={datosProyecto.categories.length > 1 ? 6 : 12}>
-                  <Card variant="outlined">
-                    <CardHeader 
-                      title={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          Distribución por Socio
-                        </Typography>
-                      }
-                      sx={{ pb: 1 }}
-                    />
-                    <CardContent sx={{ pt: 0 }}>
-                      <Chart
-                        height={350}
-                        options={useDonutChartOptions(datosSocio.labels)}
-                        series={datosSocio.series}
-                        type="donut"
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-
-              {/* Mensaje informativo para casos generales */}
-              {datosProyecto.categories.length <= 1 && (socioFiltrado || datosSocio.labels.length <= 1) && (
-                <Grid item xs={12}>
-                  <Card variant="outlined" sx={{ textAlign: 'center', py: 4 }}>
-                    <CardContent>
-                      <Typography variant="h6" color="text.secondary" gutterBottom>
-                        📊 Vista Simplificada
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {datosProyecto.categories.length <= 1 
-                          ? "Solo hay un proyecto en los resultados filtrados."
-                          : "Los filtros aplicados muestran datos de un solo socio."
-                        }
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        Intenta ajustar los filtros para ver comparaciones entre múltiples proyectos o socios.
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-            </>
+          {/* Prioridad 2: Gráfico de Socios (si no hay tipos de ingreso O si hay variedad) */}
+          {!socioFiltrado && datosSocio.labels.length > 0 && (
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={datosTipoIngreso.labels.length > 0 ? 6 : 12}
+            >
+              <Card variant="outlined">
+                <CardHeader
+                  title={
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                    >
+                      Distribución por Socio
+                    </Typography>
+                  }
+                  subtitle={
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {datosSocio.labels.length > 1
+                        ? 'Comparación entre socios'
+                        : 'Vista consolidada por socio'}
+                    </Typography>
+                  }
+                  sx={{ pb: 1 }}
+                />
+                <CardContent sx={{ pt: 0 }}>
+                  <Chart
+                    height={350}
+                    options={getDonutChartOptions(datosSocio.labels)}
+                    series={datosSocio.series}
+                    type="donut"
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
           )}
+
+          {/* Prioridad 3: Gráfico de Proyectos (solo si hay variedad y espacio) */}
+          {datosProyecto.categories.length > 1 &&
+            (datosTipoIngreso.labels.length > 0 || datosSocio.labels.length > 0) && (
+              <Grid
+                item
+                xs={12}
+              >
+                <Card variant="outlined">
+                  <CardHeader
+                    title={
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight={600}
+                      >
+                        {socioFiltrado
+                          ? `Proyectos de ${truncateText(socioFiltrado, 20)}`
+                          : 'Ingresos por Proyecto'}
+                      </Typography>
+                    }
+                    subtitle={
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        Desglose por proyecto específico
+                      </Typography>
+                    }
+                    sx={{ pb: 1 }}
+                  />
+                  <CardContent sx={{ pt: 0 }}>
+                    <Chart
+                      height={300}
+                      options={getBarChartOptions(
+                        datosProyecto.categories,
+                        datosProyecto.fullNames,
+                        datosProyecto.projectsInfo
+                      )}
+                      series={datosProyecto.series}
+                      type="bar"
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            )}
+
+          {/* Prioridad 4: Evolución temporal (si hay múltiples períodos O filtros específicos) */}
+          {(datosTemporal.categories.length > 1 ||
+            (socioFiltrado && proyectoFiltrado) ||
+            (socioFiltrado && tipoIngresoFiltrado) ||
+            (proyectoFiltrado && tipoIngresoFiltrado)) &&
+            datosTemporal.categories.length > 0 && (
+              <Grid
+                item
+                xs={12}
+              >
+                <Card variant="outlined">
+                  <CardHeader
+                    title={
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight={600}
+                      >
+                        Evolución Temporal
+                      </Typography>
+                    }
+                    subtitle={
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {datosTemporal.categories.length > 1
+                          ? 'Ingresos mes a mes'
+                          : socioFiltrado && proyectoFiltrado
+                          ? `Historial de ${truncateText(proyectoFiltrado, 30)}`
+                          : 'Historial consolidado'}
+                      </Typography>
+                    }
+                    sx={{ pb: 1 }}
+                  />
+                  <CardContent sx={{ pt: 0 }}>
+                    <Chart
+                      height={300}
+                      options={getLineChartOptions(datosTemporal.categories)}
+                      series={datosTemporal.series}
+                      type="area"
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            )}
+
+          {/* Fallback: Si no hay datos para ninguna gráfica */}
+          {datosTipoIngreso.labels.length === 0 &&
+            datosSocio.labels.length === 0 &&
+            datosProyecto.categories.length === 0 && (
+              <Grid
+                item
+                xs={12}
+              >
+                <Card
+                  variant="outlined"
+                  sx={{ textAlign: 'center', py: 4 }}
+                >
+                  <CardContent>
+                    <Typography
+                      variant="h6"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      📊 Sin Datos Suficientes
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      No hay datos suficientes para generar gráficas con los filtros aplicados.
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mt: 1 }}
+                    >
+                      Total de ingresos: {formatearQuetzales(totalIngresos)}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            )}
         </Grid>
       </DialogContent>
     </Dialog>

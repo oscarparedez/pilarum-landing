@@ -11,68 +11,75 @@ import {
   Chip,
   Paper,
   Divider,
+  CircularProgress,
 } from '@mui/material';
 import { CustomDatePicker } from 'src/components/custom-date-components';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { formatearQuetzales } from 'src/utils/format-currency';
-
-import { Socio, Proyecto, Maquinaria, OrdenCompra } from 'src/api/types';
+import { FullPageLoader } from '../loader/Loader';
+import { Socio, Proyecto, Maquinaria } from 'src/api/types';
 
 export type CostosBaseFilters = {
+  empresa?: number | '';
+  proyecto?: number | '';
   fechaInicio?: Date | null;
   fechaFin?: Date | null;
-  tipo_origen?: '' | 'proyecto' | 'gasto_maquinaria' | 'compra_maquinaria' | 'orden_compra';
-
-  empresa?: number | '';
-  proyectoId?: number | '';
-
+  tipo_origen?: string | '';
   equipoId?: number | '';
   ordenCompraId?: string | '';
+  [key: string]: any; // extras dinámicos
+};
+
+export type ExtraFilterOptionCostos = {
+  label: string;
+  name: string;
+  options: { id: number; nombre: string }[];
 };
 
 type Props<T> = {
   title: string;
-
   fetchData: (filters: any) => Promise<T[]>;
-
-  socios: Socio[];
-  getProyectosByEmpresa: (empresaId: number) => Promise<Proyecto[]>;
-  getEquiposAll: () => Promise<Maquinaria[]>;
-  getOrdenesCompraAll: () => Promise<OrdenCompra[]>;
-
+  socios: { id: number; nombre: string }[];
+  getProyectos: (empresaId: number) => Promise<{ id: number; nombre: string }[]>;
+  getEquiposAll?: () => Promise<Maquinaria[]>;
+  extraFilters?: ExtraFilterOptionCostos[];
+  /** Debe devolver SOLO <Table> (sin Paper/TableContainer). */
   renderTable: (items: T[]) => React.ReactNode;
+  /** Cómo obtener el monto de un registro para sumar el total. */
   getMonto?: (item: T) => number;
-  extraButtons?: (items: T[], filters: CostosBaseFilters) => React.ReactNode;
+  /** Botones adicionales en la barra de resultados */
+  extraButtons?: (
+    items: T[],
+    filters: CostosBaseFilters,
+    socios: { id: number; nombre: string }[],
+    proyectos: { id: number; nombre: string }[]
+  ) => React.ReactNode;
 };
 
 export function BusquedaFiltradaCostos<T>({
   title,
   fetchData,
   socios,
-  getProyectosByEmpresa,
+  getProyectos,
   getEquiposAll,
-  getOrdenesCompraAll,
+  extraFilters = [],
   renderTable,
   getMonto,
   extraButtons,
 }: Props<T>) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const [proyectos, setProyectos] = useState<Proyecto[]>([]);
+  const [proyectos, setProyectos] = useState<{ id: number; nombre: string }[]>([]);
   const [equipos, setEquipos] = useState<Maquinaria[]>([]);
-  const [ordenes, setOrdenes] = useState<OrdenCompra[]>([]);
-
   const [loadedEquipos, setLoadedEquipos] = useState(false);
-  const [loadedOrdenes, setLoadedOrdenes] = useState(false);
 
-  const [filters, setFilters] = useState<CostosBaseFilters>({
+  const [draftFilters, setDraftFilters] = useState<CostosBaseFilters>({
+    empresa: '',
+    proyecto: '',
     fechaInicio: null,
     fechaFin: null,
     tipo_origen: '',
-    empresa: '',
-    proyectoId: '',
     equipoId: '',
     ordenCompraId: '',
   });
@@ -92,14 +99,36 @@ export function BusquedaFiltradaCostos<T>({
     [fetchData, title]
   );
 
-  // Reset dependientes al cambiar tipo_origen
+  // Cargar proyectos al cambiar empresa
   useEffect(() => {
-    setFilters((s) => ({ ...s, empresa: '', proyectoId: '' }));
+    const fetchProyectos = async () => {
+      if (draftFilters.empresa && draftFilters.tipo_origen === 'proyecto') {
+        try {
+          const data = await getProyectos(Number(draftFilters.empresa));
+          setProyectos(data);
+        } catch {
+          toast.error('Error cargando proyectos');
+        }
+      } else {
+        setProyectos([]);
+        setDraftFilters((s) => ({ ...s, proyecto: '' }));
+      }
+    };
+    fetchProyectos();
+  }, [draftFilters.empresa, draftFilters.tipo_origen, getProyectos]);
 
+  // Reset dependientes y cargar datos específicos al cambiar tipo_origen
+  useEffect(() => {
+    // Reset campos dependientes
+    setDraftFilters((s) => ({ ...s, empresa: '', proyecto: '', equipoId: '', ordenCompraId: '' }));
     setProyectos([]);
 
-    if (filters.tipo_origen === 'gasto_maquinaria' || filters.tipo_origen === 'compra_maquinaria') {
-      if (!loadedEquipos) {
+    // Cargar equipos si es necesario
+    if (
+      draftFilters.tipo_origen === 'gasto_maquinaria' ||
+      draftFilters.tipo_origen === 'compra_maquinaria'
+    ) {
+      if (!loadedEquipos && getEquiposAll) {
         getEquiposAll()
           .then((res) => {
             setEquipos(res);
@@ -108,85 +137,57 @@ export function BusquedaFiltradaCostos<T>({
           .catch(() => toast.error('Error cargando maquinarias'));
       }
     }
+  }, [draftFilters.tipo_origen, loadedEquipos, getEquiposAll]);
 
-    if (filters.tipo_origen === 'orden_compra') {
-      if (!loadedOrdenes) {
-        getOrdenesCompraAll()
-          .then((res) => {
-            setOrdenes(res);
-            setLoadedOrdenes(true);
-          })
-          .catch(() => toast.error('Error cargando órdenes de compra'));
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.tipo_origen]);
-
-  // Cargar proyectos si empresa cambia
-  useEffect(() => {
-    if (filters.tipo_origen !== 'proyecto') return;
-
-    const empresaId = Number(filters.empresa);
-    if (!empresaId) {
-      setProyectos([]);
-      setFilters((s) => ({ ...s, proyectoId: '' }));
-      return;
-    }
-
-    getProyectosByEmpresa(empresaId)
-      .then(setProyectos)
-      .catch(() => toast.error('Error cargando proyectos'));
-  }, [filters.tipo_origen, filters.empresa, getProyectosByEmpresa]);
-
-  // ...
   const handleBuscar = () => {
     const q: any = {
-      tipo_origen: filters.tipo_origen || undefined,
-      fecha_inicio: filters.fechaInicio ? format(filters.fechaInicio, 'dd-MM-yyyy') : undefined,
-      fecha_fin: filters.fechaFin ? format(filters.fechaFin, 'dd-MM-yyyy') : undefined,
+      empresa: draftFilters.empresa ? Number(draftFilters.empresa) : undefined,
+      proyecto: draftFilters.proyecto ? Number(draftFilters.proyecto) : undefined,
+      tipo_origen: draftFilters.tipo_origen || undefined,
+      fecha_inicio: draftFilters.fechaInicio
+        ? format(draftFilters.fechaInicio, 'dd-MM-yyyy')
+        : undefined,
+      fecha_fin: draftFilters.fechaFin ? format(draftFilters.fechaFin, 'dd-MM-yyyy') : undefined,
     };
 
-    if (filters.tipo_origen === 'proyecto') {
-      q.empresa = filters.empresa ? Number(filters.empresa) : undefined;
-      q.proyecto = filters.proyectoId ? Number(filters.proyectoId) : undefined;
+    // Parámetros específicos por tipo de origen
+    if (
+      draftFilters.tipo_origen === 'gasto_maquinaria' ||
+      draftFilters.tipo_origen === 'compra_maquinaria'
+    ) {
+      q.equipo = draftFilters.equipoId ? Number(draftFilters.equipoId) : undefined;
     }
 
-    if (filters.tipo_origen === 'gasto_maquinaria' || filters.tipo_origen === 'compra_maquinaria') {
-      q.equipo = filters.equipoId ? Number(filters.equipoId) : undefined;
+    if (draftFilters.tipo_origen === 'orden_compra') {
+      q.orden_compra = draftFilters.ordenCompraId || undefined;
     }
 
-    if (filters.tipo_origen === 'orden_compra') {
-      q.orden_compra = filters.ordenCompraId || undefined; // string o vacío
-    }
+    extraFilters.forEach((f) => {
+      if (draftFilters[f.name]) q[f.name] = Number(draftFilters[f.name]);
+    });
 
     loadData(q);
   };
 
   const handleLimpiar = () => {
-    setFilters({
+    setDraftFilters({
+      empresa: '',
+      proyecto: '',
       fechaInicio: null,
       fechaFin: null,
       tipo_origen: '',
-      empresa: '',
-      proyectoId: '',
       equipoId: '',
       ordenCompraId: '',
     });
-    setItems([]);
-    setProyectos([]);
+    setItems([]); // no fetch; limpia resultados visibles
   };
 
   const total =
     items.length > 0 && getMonto ? items.reduce((acc, it) => acc + (getMonto(it) || 0), 0) : 0;
 
-  const showEmpresa = filters.tipo_origen === 'proyecto';
-  const showProyecto = filters.tipo_origen === 'proyecto';
-  const showEquipo =
-    filters.tipo_origen === 'gasto_maquinaria' || filters.tipo_origen === 'compra_maquinaria';
-  const showOrden = filters.tipo_origen === 'orden_compra';
-
   return (
     <Box sx={{ p: 3 }}>
+      {/* Header superior simple */}
       <Typography
         variant="h5"
         sx={{ mb: 2 }}
@@ -206,30 +207,39 @@ export function BusquedaFiltradaCostos<T>({
               select
               fullWidth
               label="Tipo de origen"
-              value={filters.tipo_origen ?? ''}
-              onChange={(e) => setFilters((s) => ({ ...s, tipo_origen: e.target.value as any }))}
+              value={draftFilters.tipo_origen ?? ''}
+              onChange={(e) =>
+                setDraftFilters((s) => ({
+                  ...s,
+                  tipo_origen: e.target.value,
+                  // Reset dependientes cuando cambia tipo de origen
+                  empresa: e.target.value !== 'proyecto' ? '' : s.empresa,
+                  proyecto: e.target.value !== 'proyecto' ? '' : s.proyecto,
+                }))
+              }
             >
               <MenuItem value="">Todos</MenuItem>
               <MenuItem value="proyecto">Proyecto</MenuItem>
+              <MenuItem value="orden_compra">Orden de compra</MenuItem>
               <MenuItem value="gasto_maquinaria">Gasto de Maquinaria</MenuItem>
               <MenuItem value="compra_maquinaria">Compra de Maquinaria</MenuItem>
-              <MenuItem value="orden_compra">Orden de compra</MenuItem>
             </TextField>
 
-            {showEmpresa && (
+            {/* Socio - solo mostrar si tipo_origen es específicamente "proyecto" */}
+            {draftFilters.tipo_origen === 'proyecto' && (
               <TextField
                 select
                 fullWidth
                 label="Socio"
-                value={filters.empresa ?? ''}
+                value={draftFilters.empresa ?? ''}
                 onChange={(e) =>
-                  setFilters((s) => ({
+                  setDraftFilters((s) => ({
                     ...s,
                     empresa: e.target.value === '' ? '' : Number(e.target.value),
                   }))
                 }
               >
-                <MenuItem value="">Todas</MenuItem>
+                <MenuItem value="">Todos</MenuItem>
                 {socios.map((s) => (
                   <MenuItem
                     key={s.id}
@@ -241,21 +251,22 @@ export function BusquedaFiltradaCostos<T>({
               </TextField>
             )}
 
-            {showProyecto && (
+            {/* Proyecto - solo mostrar si tipo_origen es específicamente "proyecto" y hay empresa seleccionada */}
+            {draftFilters.tipo_origen === 'proyecto' && (
               <TextField
                 select
                 fullWidth
                 label="Proyecto"
-                value={filters.proyectoId ?? ''}
+                value={draftFilters.proyecto ?? ''}
                 onChange={(e) =>
-                  setFilters((s) => ({
+                  setDraftFilters((s) => ({
                     ...s,
-                    proyectoId: e.target.value === '' ? '' : Number(e.target.value),
+                    proyecto: e.target.value === '' ? '' : Number(e.target.value),
                   }))
                 }
-                disabled={!filters.empresa}
+                disabled={!draftFilters.empresa}
               >
-                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value="">Seleccione proyecto</MenuItem>
                 {proyectos.map((p) => (
                   <MenuItem
                     key={p.id}
@@ -267,14 +278,16 @@ export function BusquedaFiltradaCostos<T>({
               </TextField>
             )}
 
-            {showEquipo && (
+            {/* Campo específico para Maquinaria/Equipo */}
+            {(draftFilters.tipo_origen === 'gasto_maquinaria' ||
+              draftFilters.tipo_origen === 'compra_maquinaria') && (
               <TextField
                 select
                 fullWidth
-                label="Maquinaria / Equipo"
-                value={filters.equipoId ?? ''}
+                label={draftFilters.tipo_origen === 'gasto_maquinaria' ? 'Maquinaria' : 'Equipo'}
+                value={draftFilters.equipoId ?? ''}
                 onChange={(e) =>
-                  setFilters((s) => ({
+                  setDraftFilters((s) => ({
                     ...s,
                     equipoId: e.target.value === '' ? '' : Number(e.target.value),
                   }))
@@ -292,13 +305,14 @@ export function BusquedaFiltradaCostos<T>({
               </TextField>
             )}
 
-            {showOrden && (
+            {/* Campo específico para Orden de Compra */}
+            {draftFilters.tipo_origen === 'orden_compra' && (
               <TextField
                 fullWidth
                 label="Número de factura"
-                value={filters.ordenCompraId ?? ''}
+                value={draftFilters.ordenCompraId ?? ''}
                 onChange={(e) =>
-                  setFilters((s) => ({
+                  setDraftFilters((s) => ({
                     ...s,
                     ordenCompraId: e.target.value,
                   }))
@@ -308,20 +322,48 @@ export function BusquedaFiltradaCostos<T>({
               />
             )}
 
+            {/* Fechas */}
             <>
               <CustomDatePicker
                 label="Fecha inicio"
-                value={filters.fechaInicio}
-                onChange={(v) => setFilters((s) => ({ ...s, fechaInicio: v }))}
+                value={draftFilters.fechaInicio}
+                onChange={(v) => setDraftFilters((s) => ({ ...s, fechaInicio: v }))}
                 slotProps={{ textField: { fullWidth: true } }}
               />
               <CustomDatePicker
                 label="Fecha fin"
-                value={filters.fechaFin}
-                onChange={(v) => setFilters((s) => ({ ...s, fechaFin: v }))}
+                value={draftFilters.fechaFin}
+                onChange={(v) => setDraftFilters((s) => ({ ...s, fechaFin: v }))}
                 slotProps={{ textField: { fullWidth: true } }}
               />
             </>
+
+            {/* Extra filters dinámicos */}
+            {extraFilters.map((f) => (
+              <TextField
+                key={f.name}
+                select
+                fullWidth
+                label={f.label}
+                value={draftFilters[f.name] ?? ''}
+                onChange={(e) =>
+                  setDraftFilters((s) => ({
+                    ...s,
+                    [f.name]: e.target.value === '' ? '' : Number(e.target.value),
+                  }))
+                }
+              >
+                <MenuItem value="">Todos</MenuItem>
+                {f.options.map((opt) => (
+                  <MenuItem
+                    key={opt.id}
+                    value={opt.id}
+                  >
+                    {opt.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            ))}
           </Stack>
 
           <Stack
@@ -346,7 +388,9 @@ export function BusquedaFiltradaCostos<T>({
         </CardContent>
       </Card>
 
+      {/* BLOQUE DE RESULTADOS */}
       <Paper variant="outlined">
+        {/* ResultsBar pegada a la tabla */}
         <Box
           sx={{
             px: 2.5,
@@ -357,9 +401,15 @@ export function BusquedaFiltradaCostos<T>({
             backgroundColor: 'background.default',
           }}
         >
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+          >
             <Chip label={`${items.length} resultados`} />
-            {extraButtons && items.length > 0 && extraButtons(items, filters)}
+            {extraButtons &&
+              items.length > 0 &&
+              extraButtons(items, draftFilters, socios, proyectos)}
           </Stack>
           <Stack
             spacing={0}
@@ -380,11 +430,14 @@ export function BusquedaFiltradaCostos<T>({
             </Typography>
           </Stack>
         </Box>
+
         <Divider />
+
+        {/* Tabla (tú la renderizas) */}
         <Box sx={{ overflowX: 'auto' }}>
           {loading ? (
             <Box sx={{ p: 2 }}>
-              <Typography>Cargando…</Typography>
+              <FullPageLoader />
             </Box>
           ) : items.length === 0 ? (
             <Box
@@ -399,7 +452,7 @@ export function BusquedaFiltradaCostos<T>({
               </Typography>
             </Box>
           ) : (
-            renderTable(items)
+            renderTable(items) // <Table> … </Table>
           )}
         </Box>
       </Paper>
