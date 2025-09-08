@@ -6,15 +6,17 @@ import { useProyectosApi } from 'src/api/proyectos/useProyectosApi';
 import { useOrdenesCompraApi } from 'src/api/ordenesCompra/useOrdenesCompraApi';
 import { useEffect, useState } from 'react';
 import { CostoGeneral, Socio } from 'src/api/types';
-import { Table, TableHead, TableBody, TableRow, TableCell, Chip, Stack } from '@mui/material';
+import { Table, TableHead, TableBody, TableRow, TableCell, Chip, Stack, Button } from '@mui/material';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import BuildCircleIcon from '@mui/icons-material/BuildCircle';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { useMaquinariasApi } from 'src/api/maquinaria/useMaquinariaApi';
 import { BusquedaFiltradaCostos } from 'src/components/busqueda-filtrada-costos/busqueda-filtrada-costos';
+import { CostosChartsModal } from 'src/components/costos-charts-modal';
 
 const labelTipoOrigen: Record<string, string> = {
   proyecto: 'Proyecto',
@@ -49,20 +51,101 @@ const Page: NextPage = () => {
   const { getOrdenesCompra } = useOrdenesCompraApi();
 
   const [socios, setSocios] = useState<Socio[]>([]);
+  const [chartsModalOpen, setChartsModalOpen] = useState(false);
+  const [currentCostos, setCurrentCostos] = useState<CostoGeneral[]>([]);
+  const [currentFilters, setCurrentFilters] = useState<any>({});
+
+  // Estados para filtros individuales
+  const [tipoOrigenFiltrado, setTipoOrigenFiltrado] = useState<string | undefined>();
+  const [empresaFiltrada, setEmpresaFiltrada] = useState<string | undefined>();
+  const [proyectoFiltrado, setProyectoFiltrado] = useState<string | undefined>();
+  const [equipoFiltrado, setEquipoFiltrado] = useState<string | undefined>();
+  const [ordenCompraFiltrada, setOrdenCompraFiltrada] = useState<string | undefined>();
+  const [fechaInicio, setFechaInicio] = useState<Date | null>(null);
+  const [fechaFin, setFechaFin] = useState<Date | null>(null);
+
   useEffect(() => {
     getSociosInternos().then(setSocios);
   }, [getSociosInternos]);
 
   return (
-    <BusquedaFiltradaCostos<CostoGeneral>
-      title="Costos Generales"
-      fetchData={(filters) => getCostosGenerales(filters)}
-      socios={socios}
-      getProyectosByEmpresa={(empresaId) => getProyectos({ socio: empresaId })}
-      getEquiposAll={() => getMaquinarias()}
-      getOrdenesCompraAll={() => getOrdenesCompra()}
-      getMonto={(c) => Number(c.monto || 0)}
-      renderTable={(costos) => (
+    <>
+      <BusquedaFiltradaCostos<CostoGeneral>
+        title="Costos Generales"
+        fetchData={(filters) => {
+          setCurrentFilters(filters);
+          
+          // Guardar filtros individuales para el modal
+          setTipoOrigenFiltrado(filters.tipo_origen);
+          
+          // Encontrar nombres de empresa y proyecto
+          if (filters.empresa) {
+            const empresa = socios.find(s => s.id === filters.empresa);
+            setEmpresaFiltrada(empresa?.nombre);
+          } else {
+            setEmpresaFiltrada(undefined);
+          }
+          
+          // Para proyecto, necesitamos hacer una llamada para obtener el nombre
+          if (filters.proyecto) {
+            getProyectos({ socio: filters.empresa }).then(proyectos => {
+              const proyecto = proyectos.find(p => p.id === filters.proyecto);
+              setProyectoFiltrado(proyecto?.nombre);
+            });
+          } else {
+            setProyectoFiltrado(undefined);
+          }
+          
+          // Para equipo
+          if (filters.equipo) {
+            getMaquinarias().then(equipos => {
+              const equipo = equipos.find(e => e.id === filters.equipo);
+              setEquipoFiltrado(equipo?.nombre);
+            });
+          } else {
+            setEquipoFiltrado(undefined);
+          }
+          
+          // Para orden de compra (es string, no necesita lookup)
+          setOrdenCompraFiltrada(filters.orden_compra);
+          
+          // Procesar fechas
+          if (filters.fecha_inicio) {
+            const [day, month, year] = filters.fecha_inicio.split('-');
+            setFechaInicio(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
+          } else {
+            setFechaInicio(null);
+          }
+          
+          if (filters.fecha_fin) {
+            const [day, month, year] = filters.fecha_fin.split('-');
+            setFechaFin(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
+          } else {
+            setFechaFin(null);
+          }
+          
+          return getCostosGenerales(filters).then(data => {
+            setCurrentCostos(data);
+            return data;
+          });
+        }}
+        socios={socios}
+        getProyectosByEmpresa={(empresaId) => getProyectos({ socio: empresaId })}
+        getEquiposAll={() => getMaquinarias()}
+        getOrdenesCompraAll={() => getOrdenesCompra()}
+        getMonto={(c) => Number(c.monto || 0)}
+        extraButtons={(costos) => (
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<BarChartIcon />}
+            onClick={() => setChartsModalOpen(true)}
+            sx={{ ml: 1 }}
+          >
+            Mostrar Gráficos
+          </Button>
+        )}
+        renderTable={(costos) => (
         <Table sx={{ minWidth: 1100 }}>
           <TableHead>
             <TableRow>
@@ -115,7 +198,21 @@ const Page: NextPage = () => {
           </TableBody>
         </Table>
       )}
-    />
+      />
+
+      <CostosChartsModal
+        open={chartsModalOpen}
+        onClose={() => setChartsModalOpen(false)}
+        costos={currentCostos}
+        tipoOrigenFiltrado={tipoOrigenFiltrado}
+        empresaFiltrada={empresaFiltrada}
+        proyectoFiltrado={proyectoFiltrado}
+        equipoFiltrado={equipoFiltrado}
+        ordenCompraFiltrada={ordenCompraFiltrada}
+        fechaInicio={fechaInicio}
+        fechaFin={fechaFin}
+      />
+    </>
   );
 };
 

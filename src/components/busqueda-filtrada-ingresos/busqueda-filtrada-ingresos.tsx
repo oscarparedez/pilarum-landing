@@ -43,6 +43,8 @@ type Props<T> = {
   renderTable: (items: T[]) => React.ReactNode;
   /** Cómo obtener el monto de un registro para sumar el total. */
   getMonto?: (item: T) => number;
+  /** Botones adicionales en la barra de resultados */
+  extraButtons?: (items: T[], filters: BaseFilters, socios: { id: number; nombre: string }[], proyectos: { id: number; nombre: string }[]) => React.ReactNode;
 };
 
 export function BusquedaFiltrada<T>({
@@ -53,6 +55,7 @@ export function BusquedaFiltrada<T>({
   extraFilters = [],
   renderTable,
   getMonto,
+  extraButtons,
 }: Props<T>) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
@@ -268,7 +271,10 @@ export function BusquedaFiltrada<T>({
             backgroundColor: 'background.default',
           }}
         >
-          <Chip label={`${items.length} resultados`} />
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip label={`${items.length} resultados`} />
+            {extraButtons && items.length > 0 && extraButtons(items, draftFilters, socios, proyectos)}
+          </Stack>
           <Stack
             spacing={0}
             alignItems="flex-end"

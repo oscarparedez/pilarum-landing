@@ -43,6 +43,7 @@ type Props<T> = {
 
   renderTable: (items: T[]) => React.ReactNode;
   getMonto?: (item: T) => number;
+  extraButtons?: (items: T[], filters: CostosBaseFilters) => React.ReactNode;
 };
 
 export function BusquedaFiltradaCostos<T>({
@@ -54,6 +55,7 @@ export function BusquedaFiltradaCostos<T>({
   getOrdenesCompraAll,
   renderTable,
   getMonto,
+  extraButtons,
 }: Props<T>) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
@@ -355,7 +357,10 @@ export function BusquedaFiltradaCostos<T>({
             backgroundColor: 'background.default',
           }}
         >
-          <Chip label={`${items.length} resultados`} />
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip label={`${items.length} resultados`} />
+            {extraButtons && items.length > 0 && extraButtons(items, filters)}
+          </Stack>
           <Stack
             spacing={0}
             alignItems="flex-end"

@@ -6,7 +6,9 @@ import SvgIcon from '@mui/material/SvgIcon';
 import HomeSmileIcon from 'src/icons/untitled-ui/duocolor/home-smile';
 import Settings03Icon from '@untitled-ui/icons-react/build/esm/Settings03';
 import Settings02Icon from '@untitled-ui/icons-react/build/esm/Settings02';
-import ShoppingBag03Icon from 'src/icons/untitled-ui/duocolor/shopping-bag-03';
+import ShoppingCart01Icon from 'src/icons/untitled-ui/duocolor/shopping-cart-01';
+import BarChartSquare02Icon from 'src/icons/untitled-ui/duocolor/bar-chart-square-02';
+import LineChartUp04Icon from 'src/icons/untitled-ui/duocolor/line-chart-up-04';
 import Users03Icon from 'src/icons/untitled-ui/duocolor/users-03';
 import ClipboardIcon from '@untitled-ui/icons-react/build/esm/Clipboard';
 import Truck01Icon from 'src/icons/untitled-ui/duocolor/truck-01';
@@ -88,7 +90,7 @@ export const useSections = (): Section[] => {
     if (finanzasItems.length > 0) {
       oficinaItems.push({
         title: t(tokens.nav.finanzas),
-        icon: <SvgIcon fontSize="small"><ClipboardIcon /></SvgIcon>,
+        icon: <SvgIcon fontSize="small"><LineChartUp04Icon /></SvgIcon>,
         items: finanzasItems,
       });
     }
@@ -106,23 +108,32 @@ export const useSections = (): Section[] => {
     if (canViewHistorialRebajasInventario) {
       bodegaItems.push({ title: 'Rebajas de material', path: paths.dashboard.oficina.rebajas });
     }
-    if (canViewMateriales) {
-      bodegaItems.push({ title: t(tokens.nav.materiales), path: paths.dashboard.oficina.materiales });
-    }
-    if (canViewUnidades) {
-      bodegaItems.push({ title: t(tokens.nav.unidades), path: paths.dashboard.oficina.unidades });
-    }
-    if (canViewMarcas) {
-      bodegaItems.push({ title: t(tokens.nav.marcas), path: paths.dashboard.oficina.marcas });
-    }
-    if (canViewProveedores) {
-      bodegaItems.push({ title: t(tokens.nav.proveedores), path: paths.dashboard.oficina.proveedores });
-    }
     if (bodegaItems.length > 0) {
       oficinaItems.push({
         title: t(tokens.nav.bodega),
-        icon: <SvgIcon fontSize="small"><ShoppingBag03Icon /></SvgIcon>,
+        icon: <SvgIcon fontSize="small"><ShoppingCart01Icon /></SvgIcon>,
         items: bodegaItems,
+      });
+    }
+
+    const catalogoItems: Item[] = [];
+    if (canViewMateriales) {
+      catalogoItems.push({ title: t(tokens.nav.materiales), path: paths.dashboard.oficina.materiales });
+    }
+    if (canViewUnidades) {
+      catalogoItems.push({ title: t(tokens.nav.unidades), path: paths.dashboard.oficina.unidades });
+    }
+    if (canViewMarcas) {
+      catalogoItems.push({ title: t(tokens.nav.marcas), path: paths.dashboard.oficina.marcas });
+    }
+    if (canViewProveedores) {
+      catalogoItems.push({ title: t(tokens.nav.proveedores), path: paths.dashboard.oficina.proveedores });
+    }
+    if (catalogoItems.length > 0) {
+      oficinaItems.push({
+        title: 'Catálogo',
+        icon: <SvgIcon fontSize="small"><BarChartSquare02Icon /></SvgIcon>,
+        items: catalogoItems,
       });
     }
 
