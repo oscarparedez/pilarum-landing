@@ -2,8 +2,7 @@ import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { calcularTotalCombustibleUltimoMes, calcularTotalServicios } from './utils';
-import { ConfigMaquinaria } from 'src/pages/maquinaria/[id]/index.d';
-import { GastoOperativo, Maquinaria, MaquinariaConfig, NuevaMaquinaria, NuevoGastoOperativo } from '../types';
+import { ConfigMaquinaria, GastoOperativo, Maquinaria, MaquinariaGeneralConfig, NuevaMaquinaria, NuevoGastoOperativo } from '../types';
 import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
 
 export const useMaquinariasApi = () => {
@@ -21,17 +20,17 @@ export const useMaquinariasApi = () => {
   }, [fetchWithAuth]);
 
   const getMaquinariasConAsignaciones = useCallback(
-    async (): Promise<MaquinariaConfig[]> => {
+    async (): Promise<MaquinariaGeneralConfig[]> => {
       const maquinarias = await getMaquinarias();
 
       const enriched = await Promise.all(
         maquinarias.map(async (m) => {
           try {
             const asignaciones = await getAsignacionesPorMaquinaria(m.id);
-            return { ...m, asignaciones } as MaquinariaConfig;
+            return { ...m, asignaciones } as MaquinariaGeneralConfig;
           } catch {
             // Si falla una maquinaria, devolvemos su objeto con asignaciones vacías
-            return { ...m, asignaciones: [] } as MaquinariaConfig;
+            return { ...m, asignaciones: [] } as MaquinariaGeneralConfig;
           }
         })
       );

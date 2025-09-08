@@ -66,7 +66,7 @@ export interface ConfigProyecto {
   ingresos: Ingreso[];
   tiposIngreso: TipoIngreso[];
   pagos: Pago[];
-  tiposPago: TipoPago[];
+  tiposPago: TipoCosto[];
   maquinaria: Maquinaria[];
   asignacionesMaquinaria: AsignacionMaquinaria[];
   usuarios: Personal[];
@@ -88,7 +88,7 @@ export interface Costo {
   proyecto_id: string;
   monto_total: number;
   fecha_pago: string;
-  tipo_pago: TipoPago;
+  tipo_pago: TipoCosto;
   tipo_documento: string;
   anotaciones?: string;
   correlativo?: string;
@@ -369,7 +369,7 @@ export interface CostoGeneral {
 export type TipoMaquinaria = 'maquinaria' | 'herramienta';
 export type TipoDocumento = 'efectivo' | 'cheque' | 'transferencia';
 
-export interface MaquinariaConfig {
+export interface MaquinariaGeneralConfig {
   id: number;
   nombre: string;
   tipo: TipoMaquinaria;
@@ -382,6 +382,23 @@ export interface MaquinariaConfig {
   usuario_creador: Usuario;   // Ya tienes esta interface
   asignaciones: AsignacionMaquinaria[];
 }
+
+export interface ConfigMaquinaria {
+  id: number;
+  nombre: string;
+  identificador: string;
+  tipo: TipoMaquinaria;
+  costo: number;
+  fecha_compra: string;
+  tipo_documento: TipoDocumento;
+  anotaciones?: string;
+  totalServicios: number;
+  totalCombustibleUltimoMes: number;
+  asignaciones: AsignacionMaquinaria[];
+  servicios: GastoOperativo[];
+  consumos: GastoOperativo[];
+}
+
 
 export interface Maquinaria {
   id: number;

@@ -27,7 +27,7 @@ import { FullPageLoader } from 'src/components/loader/Loader';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
-import { MaquinariaConfig, NuevaMaquinaria } from 'src/api/types';
+import { MaquinariaGeneralConfig, NuevaMaquinaria } from 'src/api/types';
 import { formatearFecha } from 'src/utils/format-date';
 
 // Helpers simples para fecha
@@ -63,7 +63,7 @@ const Page: NextPage = () => {
 
   const [tab, setTab] = useState<'todos' | 'maquinaria' | 'herramienta'>('todos');
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
-  const [recursos, setRecursos] = useState<MaquinariaConfig[]>([]);
+  const [recursos, setRecursos] = useState<MaquinariaGeneralConfig[]>([]);
   const [loading, setLoading] = useState(true);
 
   const { crearMaquinaria, getMaquinariasConAsignaciones } = useMaquinariasApi();
