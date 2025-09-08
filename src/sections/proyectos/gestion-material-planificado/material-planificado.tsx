@@ -22,7 +22,6 @@ import SendIcon from '@mui/icons-material/SendRounded';
 import { useRouter } from 'next/router';
 
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
-import { ModalMovimientos } from './movimientos-material-planificado-modal';
 import { Inventario, InventarioConfig } from 'src/api/types';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearQuetzales } from 'src/utils/format-currency';
@@ -39,11 +38,8 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
   const proyectoIdParam = router.query.id;
   const proyectoId = typeof proyectoIdParam === 'string' ? Number(proyectoIdParam) : NaN;
 
-  const [loading, setLoading] = useState(false);
+  const [loading, ] = useState(false);
   const [inventarioProyecto, setInventarioProyecto] = useState<Inventario[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [movimientos, setMovimientos] = useState<any[]>([]);
-  const [productoSeleccionado, setProductoSeleccionado] = useState('');
 
   const canViewHistorialMovimientos = useHasPermission(PermissionId.VER_MOV_MATERIALES_PROYECTO);
   const canTrasladarABodegaCentral = useHasPermission(PermissionId.TRASLADAR_A_BODEGA_CENTRAL);
@@ -71,7 +67,7 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
   }, [router, proyectoId]);
 
   const irATrasladarDesdeBodega = useCallback(() => {
-    router.push(paths.dashboard.oficina.inventario);
+    router.push(paths.dashboard.oficina.trasladar);
   }, [router]);
 
   const irAMovimientos = useCallback(
@@ -288,13 +284,6 @@ export const MaterialPlanificado: FC<MaterialPlanificadoProps> = ({ materialPlan
           </>
         )}
       </Card>
-
-      <ModalMovimientos
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        movimientos={movimientos}
-        producto={productoSeleccionado}
-      />
     </Box>
   );
 };

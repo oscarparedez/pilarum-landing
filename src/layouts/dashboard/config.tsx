@@ -100,11 +100,11 @@ export const useSections = (): Section[] => {
     if (canViewHistorialOrdenesCompra) {
       bodegaItems.push({ title: 'Órdenes de Compra', path: paths.dashboard.oficina.ordenesCompra });
     }
-    if (canViewHistorialRebajasInventario) {
-      bodegaItems.push({ title: 'Rebajas de material', path: paths.dashboard.oficina.rebajas });
-    }
     if (canViewHistorialTrasladosInventario) {
       bodegaItems.push({ title: 'Traslados de material', path: paths.dashboard.oficina.traslados });
+    }
+    if (canViewHistorialRebajasInventario) {
+      bodegaItems.push({ title: 'Rebajas de material', path: paths.dashboard.oficina.rebajas });
     }
     if (canViewMateriales) {
       bodegaItems.push({ title: t(tokens.nav.materiales), path: paths.dashboard.oficina.materiales });
