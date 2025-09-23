@@ -16,16 +16,15 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo, useState, useEffect } from 'react';
 import { usePermisosPorGrupo } from 'src/hooks/roles/usePermisosPorGrupo';
-import { permisosAgrupados } from 'src/constants/roles/permissions';
+import { permisosAgrupados, PERMISSION_LABEL_TO_ID } from 'src/constants/roles/permissions';
 import { Rol } from 'src/api/types';
 
 interface DetalleRolModalProps {
   open: boolean;
   onClose: () => void;
-  rol: Rol; // rol.permissions: number[]
-  // Ideal: Promise<void> para poder esperar al éxito
+  rol: Rol;
   onUpdate: (permissionsIds: number[]) => Promise<void> | void;
 }
 
@@ -33,7 +32,6 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Evita recrear el objeto si no cambia (opcional, por performance)
   const groups = useMemo(() => permisosAgrupados, []);
 
   const {
@@ -47,27 +45,40 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
     isEqualToOriginal,
     selectedIds,
     markAsSaved,
+    setSeleccionados,
   } = usePermisosPorGrupo(groups, rol.permissions);
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // 👇 Reset solo cuando se abre el modal
+  useEffect(() => {
+    if (open) {
+      const next: Record<string, string[]> = {};
+      Object.entries(groups).forEach(([_, subgrupos]) => {
+        Object.entries(subgrupos).forEach(([subgrupo, labels]) => {
+          const presentes = labels.filter((l) =>
+            rol.permissions.includes(PERMISSION_LABEL_TO_ID[l])
+          );
+          if (presentes.length) next[subgrupo] = presentes;
+        });
+      });
+      setSeleccionados(next);
+      markAsSaved();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleUpdate = async () => {
     setErrorMsg(null);
     try {
       setLoading(true);
       const ids = selectedIds();
-
       const result = onUpdate(ids);
-      // Si onUpdate retorna promesa, espera
       if (result && typeof (result as Promise<void>).then === 'function') {
         await (result as Promise<void>);
       }
-
-      // Commit local del snapshot
       markAsSaved();
-
-      // Cierra modal
       onClose();
     } catch (e: any) {
       setErrorMsg(e?.message ?? 'Ocurrió un error al actualizar el rol.');
@@ -88,10 +99,7 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
 
       <DialogContent
         dividers
-        sx={{
-          maxHeight: { xs: '90dvh', sm: '80vh' },
-          overflow: 'auto',
-        }}
+        sx={{ maxHeight: { xs: '90dvh', sm: '80vh' }, overflow: 'auto' }}
       >
         {errorMsg && (
           <Box mb={2}>
@@ -186,7 +194,7 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
         <Button
           variant="contained"
           onClick={handleUpdate}
-          disabled={isEqualToOriginal() || loading}
+          disabled={isEqualToOriginal() || loading || selectedIds().length === 0}
           startIcon={loading ? <CircularProgress size={16} /> : undefined}
         >
           {loading ? 'Guardando...' : 'Actualizar'}

@@ -15,7 +15,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { usePermisosPorGrupo } from 'src/hooks/roles/usePermisosPorGrupo';
 import { mapSeleccionadosToIds, permisosAgrupados } from 'src/constants/roles/permissions';
 import { NuevoRol } from 'src/api/types';
@@ -50,8 +50,16 @@ export const CrearRolModal: FC<CrearRolModalProps> = ({ open, onClose, onConfirm
     const permissions = mapSeleccionadosToIds(seleccionados);
     onConfirm({ name, permissions });
     setNombreRol('');
-    setSeleccionados({}); // limpiar estado
+    setSeleccionados({});
   };
+
+  // 👇 Reset al cerrarse
+  useEffect(() => {
+    if (!open) {
+      setNombreRol('');
+      setSeleccionados({});
+    }
+  }, [open, setSeleccionados]);
 
   return (
     <Dialog
