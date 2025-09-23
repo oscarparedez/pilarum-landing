@@ -4,24 +4,22 @@ import { PERMISSION_LABEL_TO_ID } from 'src/constants/roles/permissions';
 export type PermisosAgrupados = Record<string, Record<string, string[]>>;
 export type Seleccionados = { [subgrupo: string]: string[] };
 
-export const usePermisosPorGrupo = (
-  permisos: PermisosAgrupados,
-  initialIds: number[] = []
-) => {
-  const idsToSeleccionados = useCallback((ids: number[]): Seleccionados => {
-    const next: Seleccionados = {};
-    Object.entries(permisos).forEach(([_, subgrupos]) => {
-      Object.entries(subgrupos).forEach(([subgrupo, labels]) => {
-        const presentes = labels.filter((l) => ids.includes(PERMISSION_LABEL_TO_ID[l]));
-        if (presentes.length) next[subgrupo] = presentes;
+export const usePermisosPorGrupo = (permisos: PermisosAgrupados, initialIds: number[] = []) => {
+  const idsToSeleccionados = useCallback(
+    (ids: number[]): Seleccionados => {
+      const next: Seleccionados = {};
+      Object.entries(permisos).forEach(([_, subgrupos]) => {
+        Object.entries(subgrupos).forEach(([subgrupo, labels]) => {
+          const presentes = labels.filter((l) => ids.includes(PERMISSION_LABEL_TO_ID[l]));
+          if (presentes.length) next[subgrupo] = presentes;
+        });
       });
-    });
-    return next;
-  }, [permisos]);
-
-  const [seleccionados, setSeleccionados] = useState<Seleccionados>(
-    idsToSeleccionados(initialIds)
+      return next;
+    },
+    [permisos]
   );
+
+  const [seleccionados, setSeleccionados] = useState<Seleccionados>(idsToSeleccionados(initialIds));
 
   const originalIdsRef = useRef<number[]>([...initialIds].sort((a, b) => a - b));
 
