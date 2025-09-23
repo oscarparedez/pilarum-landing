@@ -19,15 +19,18 @@ export const usePermisosPorGrupo = (
     return next;
   }, [permisos]);
 
-  const [seleccionados, setSeleccionados] = useState<Seleccionados>(idsToSeleccionados(initialIds));
+  const [seleccionados, setSeleccionados] = useState<Seleccionados>(
+    idsToSeleccionados(initialIds)
+  );
 
-  // Mantener snapshot de IDs originales (ordenados)
   const originalIdsRef = useRef<number[]>([...initialIds].sort((a, b) => a - b));
 
-  // Rehidratar cuando cambie initialIds (por ej. tras fetch/update externo)
+  // ⚠️ Solo rehidratar si initialIds NO está vacío
   useEffect(() => {
-    setSeleccionados(idsToSeleccionados(initialIds));
-    originalIdsRef.current = [...initialIds].sort((a, b) => a - b);
+    if (initialIds.length > 0) {
+      setSeleccionados(idsToSeleccionados(initialIds));
+      originalIdsRef.current = [...initialIds].sort((a, b) => a - b);
+    }
   }, [initialIds, idsToSeleccionados]);
 
   const togglePermiso = useCallback((grupo: string, permiso: string) => {
@@ -86,7 +89,6 @@ export const usePermisosPorGrupo = (
     return true;
   }, [selectedIds]);
 
-  // Llamar tras un guardado exitoso (o cuando quieras “committear” localmente)
   const markAsSaved = useCallback(() => {
     originalIdsRef.current = selectedIds();
   }, [selectedIds]);
