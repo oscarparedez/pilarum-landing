@@ -4,6 +4,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Ver socios': 0,
   'Crear socios': 1,
   'Editar socios': 2,
+  'Eliminar socios': 3,
 
   // 📂 OFICINA — 👥 Planilla de personal (20–39)
   'Ver planilla de personal': 20,
@@ -151,6 +152,7 @@ export const PermissionId = {
   VER_SOCIOS: 0,
   CREAR_SOCIOS: 1,
   EDITAR_SOCIOS: 2,
+  ELIMINAR_SOCIOS: 3,
   VER_PLANILLA: 20,
   CREAR_USUARIO_PLANILLA: 21,
   EDITAR_USUARIO_PLANILLA: 22,
@@ -267,7 +269,7 @@ export const mapSeleccionadosToIds = (seleccionados: {
 
 export const permisosAgrupados: Record<string, Record<string, string[]>> = {
   '📂 OFICINA': {
-    '🏢 Gestión de socios': ['Ver socios', 'Crear socios', 'Editar socios'],
+    '🏢 Gestión de socios': ['Ver socios', 'Crear socios', 'Editar socios', 'Eliminar socios'],
     '👥 Planilla de personal': [
       'Ver planilla de personal',
       'Crear usuario de planilla',

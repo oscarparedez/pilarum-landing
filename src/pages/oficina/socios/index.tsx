@@ -43,6 +43,7 @@ const Page: NextPage = () => {
 
   const canCreateSocios = useHasPermission(PermissionId.CREAR_SOCIOS);
   const canEditSocios = useHasPermission(PermissionId.EDITAR_SOCIOS);
+  const canDeleteSocios = useHasPermission(PermissionId.ELIMINAR_SOCIOS);
 
   const { getSocios, crearSocio, actualizarSocio, eliminarSocio } = useSociosApi();
 
@@ -152,9 +153,10 @@ const Page: NextPage = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Nombre</TableCell>
-                      {/* <TableCell>Tipo</TableCell> */}
                       <TableCell>Usuario creador</TableCell>
-                      {canEditSocios && <TableCell align="center">Acciones</TableCell>}
+                      {(canEditSocios || canDeleteSocios) && (
+                        <TableCell align="center">Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -164,22 +166,25 @@ const Page: NextPage = () => {
                         hover
                       >
                         <TableCell>{socio.nombre}</TableCell>
-                        {/* <TableCell>{socio.tipo === 'interno' ? 'Interno' : 'Externo'}</TableCell> */}
                         <TableCell>
                           {socio.usuario_creador.first_name} {socio.usuario_creador.last_name}
                         </TableCell>
-                        {canEditSocios && (
+                        {(canEditSocios || canDeleteSocios) && (
                           <TableCell align="center">
-                            <IconButton onClick={() => abrirModalEditar(socio)}>
-                              <SvgIcon>
-                                <EditIcon />
-                              </SvgIcon>
-                            </IconButton>
-                            <IconButton onClick={() => handleDelete(socio.id)}>
-                              <SvgIcon>
-                                <TrashIcon />
-                              </SvgIcon>
-                            </IconButton>
+                            {canEditSocios && (
+                              <IconButton onClick={() => abrirModalEditar(socio)}>
+                                <SvgIcon>
+                                  <EditIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
+                            {canDeleteSocios && (
+                              <IconButton onClick={() => handleDelete(socio.id)}>
+                                <SvgIcon>
+                                  <TrashIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
                           </TableCell>
                         )}
                       </TableRow>
