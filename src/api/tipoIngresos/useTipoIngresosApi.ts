@@ -53,7 +53,13 @@ export const useTiposIngresoApi = () => {
         method: 'DELETE',
       });
 
-      if (!res.ok) throw new Error('Error al eliminar tipo de ingreso');
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar tipo de ingreso');
+      }
     },
     [fetchWithAuth]
   );

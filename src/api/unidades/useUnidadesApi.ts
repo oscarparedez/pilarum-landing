@@ -14,23 +14,29 @@ export const useUnidadesApi = () => {
     return await res.json();
   }, [fetchWithAuth]);
 
-  const getUnidadById = useCallback(async (id: number): Promise<Unidad> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/unidades/${id}/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener unidad');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const getUnidadById = useCallback(
+    async (id: number): Promise<Unidad> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/unidades/${id}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener unidad');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
-  const crearUnidad = useCallback(async (unidad: NuevaUnidad): Promise<Unidad> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/unidades/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(unidad),
-    });
-    if (!res.ok) throw new Error('Error al crear unidad');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const crearUnidad = useCallback(
+    async (unidad: NuevaUnidad): Promise<Unidad> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/unidades/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(unidad),
+      });
+      if (!res.ok) throw new Error('Error al crear unidad');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   const actualizarUnidad = useCallback(
     async (id: number, unidad: NuevaUnidad): Promise<Unidad> => {
@@ -45,12 +51,22 @@ export const useUnidadesApi = () => {
     [fetchWithAuth]
   );
 
-  const eliminarUnidad = useCallback(async (id: number): Promise<void> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/unidades/${id}/`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error('Error al eliminar unidad');
-  }, [fetchWithAuth]);
+  const eliminarUnidad = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/unidades/${id}/`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar unidad');
+      }
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getUnidades,

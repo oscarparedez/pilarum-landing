@@ -16,7 +16,8 @@ import {
   Button,
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Edit02';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import StraightenIcon from '@mui/icons-material/Straighten';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
@@ -28,6 +29,7 @@ import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -36,17 +38,20 @@ const Page: NextPage = () => {
   const [unidades, setUnidades] = useState<Unidad[]>([]);
   const [filtros, setFiltros] = useState({ search: '' });
   const [paginaActual, setPaginaActual] = useState(1);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const rowsPerPage = 5;
 
-  const { getUnidades, crearUnidad, actualizarUnidad } = useUnidadesApi();
+  const { getUnidades, crearUnidad, actualizarUnidad, eliminarUnidad } = useUnidadesApi();
+
   const canCreateUnidad = useHasPermission(PermissionId.CREAR_UNIDAD);
   const canEditUnidad = useHasPermission(PermissionId.EDITAR_UNIDAD);
+  const canDeleteUnidad = useHasPermission(PermissionId.ELIMINAR_UNIDAD);
 
   const handleGetUnidades = useCallback(async () => {
     try {
       const data = await getUnidades();
       setUnidades(data);
-    } catch (error) {
+    } catch {
       toast.error('Error al cargar unidades');
     }
   }, [getUnidades]);
@@ -58,7 +63,7 @@ const Page: NextPage = () => {
         setModalCrearOpen(false);
         await handleGetUnidades();
         toast.success('Unidad creada exitosamente');
-      } catch (error) {
+      } catch {
         toast.error('Error al crear unidad');
       }
     },
@@ -72,12 +77,25 @@ const Page: NextPage = () => {
         setModalEditarOpen(false);
         await handleGetUnidades();
         toast.success('Unidad actualizada exitosamente');
-      } catch (error) {
+      } catch {
         toast.error('Error al actualizar unidad');
       }
     },
     [actualizarUnidad, handleGetUnidades]
   );
+
+  const handleDeleteUnidad = useCallback(async () => {
+    if (deleteId === null) return;
+    try {
+      await eliminarUnidad(deleteId);
+      toast.success('Unidad eliminada correctamente');
+      await handleGetUnidades();
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al eliminar unidad');
+    } finally {
+      setDeleteId(null);
+    }
+  }, [deleteId, eliminarUnidad, handleGetUnidades]);
 
   useEffect(() => {
     handleGetUnidades();
@@ -88,18 +106,15 @@ const Page: NextPage = () => {
     setModalEditarOpen(true);
   };
 
-  const unidadesFiltradas = useMemo(() => {
-    return aplicarFiltros(unidades, filtros, {
-      camposTexto: ['nombre'],
-    });
-  }, [unidades, filtros]);
-
+  const unidadesFiltradas = useMemo(
+    () => aplicarFiltros(unidades, filtros, { camposTexto: ['nombre'] }),
+    [unidades, filtros]
+  );
   const start = (paginaActual - 1) * rowsPerPage;
   const paginadas = unidadesFiltradas.slice(start, start + rowsPerPage);
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* HEADER CARD */}
       <Card sx={{ mb: 3 }}>
         <Stack
           direction="row"
@@ -120,7 +135,6 @@ const Page: NextPage = () => {
         </Stack>
       </Card>
 
-      {/* TABLA CARD */}
       <Card>
         <TablaPaginadaConFiltros
           totalItems={unidadesFiltradas.length}
@@ -130,13 +144,15 @@ const Page: NextPage = () => {
           filtrosEstado={false}
           filtrosFecha={false}
         >
-          {(currentPage) => (
+          {() => (
             <TableContainer component={Paper}>
               <Table size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>Nombre</TableCell>
-                    {canEditUnidad && <TableCell align="center">Acciones</TableCell>}
+                    {(canEditUnidad || canDeleteUnidad) && (
+                      <TableCell align="center">Acciones</TableCell>
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -146,13 +162,22 @@ const Page: NextPage = () => {
                       hover
                     >
                       <TableCell>{unidad.nombre}</TableCell>
-                      {canEditUnidad && (
+                      {(canEditUnidad || canDeleteUnidad) && (
                         <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(unidad)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
+                          {canEditUnidad && (
+                            <IconButton onClick={() => abrirModalEditar(unidad)}>
+                              <SvgIcon>
+                                <EditIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          )}
+                          {canDeleteUnidad && (
+                            <IconButton onClick={() => setDeleteId(unidad.id)}>
+                              <SvgIcon>
+                                <TrashIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          )}
                         </TableCell>
                       )}
                     </TableRow>
@@ -169,7 +194,6 @@ const Page: NextPage = () => {
         onClose={() => setModalCrearOpen(false)}
         onCrearUnidad={handleCrearUnidad}
       />
-
       {unidadSeleccionada && (
         <ModalEditarUnidad
           open={modalEditarOpen}
@@ -178,10 +202,17 @@ const Page: NextPage = () => {
           onActualizarUnidad={handleActualizarUnidad}
         />
       )}
+      {deleteId !== null && (
+        <ModalEliminar
+          type="unidad"
+          open
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDeleteUnidad}
+        />
+      )}
     </Box>
   );
 };
 
 Page.getLayout = (page: React.ReactNode) => <DashboardLayout>{page}</DashboardLayout>;
-
 export default Page;

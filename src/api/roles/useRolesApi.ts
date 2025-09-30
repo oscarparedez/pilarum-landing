@@ -16,24 +16,30 @@ export const useRolesApi = () => {
   }, [fetchWithAuth]);
 
   // GET /api/roles/{id}/
-  const getRolById = useCallback(async (id: number): Promise<Rol> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/roles/${id}/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener rol');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const getRolById = useCallback(
+    async (id: number): Promise<Rol> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/roles/${id}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener rol');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   // POST /api/roles/
-  const crearRol = useCallback(async (data: NuevoRol): Promise<Rol> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/roles/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error('Error al crear rol');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const crearRol = useCallback(
+    async (data: NuevoRol): Promise<Rol> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/roles/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Error al crear rol');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   // PATCH /api/roles/{id}/
   const actualizarRol = useCallback(
@@ -50,12 +56,19 @@ export const useRolesApi = () => {
   );
 
   // DELETE /api/roles/{id}/
-  const eliminarRol = useCallback(async (id: number): Promise<void> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/roles/${id}/`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error('Error al eliminar rol');
-  }, [fetchWithAuth]);
+  const eliminarRol = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/roles/${id}/`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.detail || 'Error al eliminar rol');
+      }
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getRoles,

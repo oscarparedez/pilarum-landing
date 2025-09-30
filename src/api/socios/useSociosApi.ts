@@ -74,7 +74,10 @@ export const useSociosApi = () => {
         method: 'DELETE',
       });
 
-      if (!res.ok) throw new Error('Error al eliminar socio');
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.detail || 'Error al eliminar socio');
+      }
     },
     [fetchWithAuth]
   );

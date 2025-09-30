@@ -14,23 +14,29 @@ export const useMarcasApi = () => {
     return await res.json();
   }, [fetchWithAuth]);
 
-  const getMarcaById = useCallback(async (id: number): Promise<Marca> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/marcas/${id}/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener marca');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const getMarcaById = useCallback(
+    async (id: number): Promise<Marca> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/marcas/${id}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener marca');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
-  const crearMarca = useCallback(async (marca: NuevaMarca): Promise<Marca> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/marcas/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(marca),
-    });
-    if (!res.ok) throw new Error('Error al crear marca');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const crearMarca = useCallback(
+    async (marca: NuevaMarca): Promise<Marca> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/marcas/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(marca),
+      });
+      if (!res.ok) throw new Error('Error al crear marca');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   const actualizarMarca = useCallback(
     async (id: number, marca: NuevaMarca): Promise<Marca> => {
@@ -45,12 +51,22 @@ export const useMarcasApi = () => {
     [fetchWithAuth]
   );
 
-  const eliminarMarca = useCallback(async (id: number): Promise<void> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/marcas/${id}/`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error('Error al eliminar marca');
-  }, [fetchWithAuth]);
+  const eliminarMarca = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/marcas/${id}/`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar marca');
+      }
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getMarcas,

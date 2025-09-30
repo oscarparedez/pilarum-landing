@@ -15,6 +15,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Ver roles y permisos': 40,
   'Crear nuevo rol': 41,
   'Editar rol y permisos asignados': 42,
+  'Eliminar rol': 43,
 
   // 📂 OFICINA — 💵 Ingresos generales (60–69)
   'Ver ingresos generales': 60,
@@ -44,6 +45,10 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Ver proveedores': 98,
   'Crear proveedor': 99,
   'Editar proveedor': 100,
+  'Eliminar material': 101,
+  'Eliminar unidad de medida': 102,
+  'Eliminar marca': 103,
+  'Eliminar proveedor': 104,
 
   // 🏗️ PROYECTOS — 📁 Gestión de proyectos (200–219)
   'Ver proyectos': 200,
@@ -101,11 +106,13 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Ver tipos de ingresos': 294,
   'Crear tipo de ingreso': 295,
   'Editar tipo de ingreso': 296,
+  'Eliminar tipo de ingreso': 404,
 
   // 🏗️ PROYECTOS — 💰 Tipos de costos (297–299)
   'Ver tipos de costos': 297,
   'Crear tipo de costo': 298,
   'Editar tipo de costo': 299,
+  'Eliminar tipo de costo': 405,
 
   // 🚜 MAQUINARIA — 📁 Gestión de maquinaria (300–309)
   'Ver lista de maquinaria': 300,
@@ -151,6 +158,7 @@ export const PermissionId = {
   VER_ROLES_PERMISOS: 40,
   CREAR_ROL: 41,
   EDITAR_ROL: 42,
+  ELIMINAR_ROL: 43,
   VER_INGRESOS_GENERALES: 60,
   VER_COSTOS_GENERALES: 70,
   VER_INVENTARIO: 80,
@@ -174,6 +182,10 @@ export const PermissionId = {
   VER_PROVEEDORES: 98,
   CREAR_PROVEEDOR: 99,
   EDITAR_PROVEEDOR: 100,
+  ELIMINAR_MATERIAL: 101,
+  ELIMINAR_UNIDAD: 102,
+  ELIMINAR_MARCA: 103,
+  ELIMINAR_PROVEEDOR: 104,
   VER_PROYECTOS: 200,
   CREAR_PROYECTO: 201,
   EDITAR_PROYECTO_BASICO: 202,
@@ -235,6 +247,8 @@ export const PermissionId = {
   CREAR_TAREA_GENERAL: 401,
   CAMBIAR_STATUS_TAREA_GENERAL: 402,
   ELIMINAR_TAREA_GENERAL: 403,
+  ELIMINAR_TIPO_INGRESO: 404,
+  ELIMINAR_TIPO_COSTO: 405,
 } as const;
 
 // Helper: de tu estructura seleccionados -> array de IDs
@@ -264,6 +278,7 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
       'Ver roles y permisos',
       'Crear nuevo rol',
       'Editar rol y permisos asignados',
+      'Eliminar rol',
     ],
     '💵 Ingresos generales': ['Ver ingresos generales'],
     '💼 Costos generales': ['Ver costos generales'],
@@ -280,15 +295,19 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
       'Ver materiales',
       'Crear material',
       'Editar material',
+      'Eliminar material',
       'Ver unidades de medida',
       'Crear unidad de medida',
       'Editar unidad de medida',
+      'Eliminar unidad de medida',
       'Ver marcas',
       'Crear marca',
       'Editar marca',
+      'Eliminar marca',
       'Ver proveedores',
       'Crear proveedor',
       'Editar proveedor',
+      'Eliminar proveedor',
     ],
   },
   '🏗️ PROYECTOS': {
@@ -348,8 +367,14 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
       'Ver tipos de ingresos',
       'Crear tipo de ingreso',
       'Editar tipo de ingreso',
+      'Eliminar tipo de ingreso',
     ],
-    '💰 Tipos de costos': ['Ver tipos de costos', 'Crear tipo de costo', 'Editar tipo de costo'],
+    '💰 Tipos de costos': [
+      'Ver tipos de costos',
+      'Crear tipo de costo',
+      'Editar tipo de costo',
+      'Eliminar tipo de costo',
+    ],
   },
   '🚜 MAQUINARIA': {
     '📁 Gestión de maquinaria': [

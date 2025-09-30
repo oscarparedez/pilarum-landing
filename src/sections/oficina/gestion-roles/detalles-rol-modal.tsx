@@ -15,6 +15,7 @@ import {
   useTheme,
   CircularProgress,
   Alert,
+  Paper,
 } from '@mui/material';
 import { FC, useMemo, useState, useEffect } from 'react';
 import { usePermisosPorGrupo } from 'src/hooks/roles/usePermisosPorGrupo';
@@ -35,7 +36,6 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
   const groups = useMemo(() => permisosAgrupados, []);
 
   const {
-    seleccionados,
     togglePermiso,
     seleccionarTodos,
     deseleccionarTodos,
@@ -114,77 +114,82 @@ export const DetalleRolModal: FC<DetalleRolModalProps> = ({ open, onClose, rol, 
           >
             <Typography
               variant="h6"
-              sx={{ mb: 1 }}
+              fontWeight="600"
+              gutterBottom
             >
               {modulo}
             </Typography>
 
-            {Object.entries(secciones).map(([subgrupo, permisos]) => (
-              <Box
-                key={subgrupo}
-                sx={{ pl: 2, mb: 2 }}
-              >
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
+            <Stack spacing={2}>
+              {Object.entries(secciones).map(([subgrupo, permisos]) => (
+                <Paper
+                  key={subgrupo}
+                  variant="outlined"
+                  sx={{ p: 2 }}
                 >
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight="500"
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={1}
                   >
-                    {subgrupo} — {cantidadSeleccionados(subgrupo)} de {permisos.length}
-                  </Typography>
-                  <Button
-                    size="small"
-                    onClick={() =>
-                      todosSeleccionados(subgrupo, permisos)
-                        ? deseleccionarTodos(subgrupo)
-                        : seleccionarTodos(subgrupo, permisos)
-                    }
-                    disabled={loading}
-                  >
-                    {todosSeleccionados(subgrupo, permisos)
-                      ? 'Deseleccionar todos'
-                      : 'Seleccionar todos'}
-                  </Button>
-                </Stack>
-
-                <Grid
-                  container
-                  spacing={1}
-                  mt={1}
-                >
-                  {permisos.map((permiso) => (
-                    <Grid
-                      item
-                      xs={12}
-                      sm={6}
-                      md={4}
-                      key={permiso}
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="500"
                     >
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={estaSeleccionado(subgrupo, permiso)}
-                            onChange={() => togglePermiso(subgrupo, permiso)}
-                            disabled={loading}
-                          />
-                        }
-                        label={permiso}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-            ))}
+                      {subgrupo} — {cantidadSeleccionados(subgrupo)} de {permisos.length}
+                    </Typography>
+                    <Button
+                      size="small"
+                      onClick={() =>
+                        todosSeleccionados(subgrupo, permisos)
+                          ? deseleccionarTodos(subgrupo)
+                          : seleccionarTodos(subgrupo, permisos)
+                      }
+                      disabled={loading}
+                    >
+                      {todosSeleccionados(subgrupo, permisos)
+                        ? 'Deseleccionar todos'
+                        : 'Seleccionar todos'}
+                    </Button>
+                  </Stack>
+
+                  <Grid
+                    container
+                    spacing={1}
+                  >
+                    {permisos.map((permiso) => (
+                      <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        key={permiso}
+                      >
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              size="small"
+                              checked={estaSeleccionado(subgrupo, permiso)}
+                              onChange={() => togglePermiso(subgrupo, permiso)}
+                              disabled={loading}
+                            />
+                          }
+                          label={<Typography variant="body2">{permiso}</Typography>}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Paper>
+              ))}
+            </Stack>
 
             <Divider sx={{ my: 2 }} />
           </Box>
         ))}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ px: 3, py: 2 }}>
         <Button
           onClick={onClose}
           disabled={loading}

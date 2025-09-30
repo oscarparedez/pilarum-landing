@@ -31,7 +31,7 @@ export const useMaterialesApi = () => {
     };
   }, [fetchWithAuth, getUnidades, getMarcas]);
 
-    const getMateriales = useCallback(async (): Promise<Material[]> => {
+  const getMateriales = useCallback(async (): Promise<Material[]> => {
     const res = await fetchWithAuth(`${API_BASE_URL}/material/`, {
       method: 'GET',
     });
@@ -39,23 +39,29 @@ export const useMaterialesApi = () => {
     return await res.json();
   }, [fetchWithAuth]);
 
-  const getMaterialById = useCallback(async (id: number): Promise<Material> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/material/${id}/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener datos del material');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const getMaterialById = useCallback(
+    async (id: number): Promise<Material> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/material/${id}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener datos del material');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
-  const crearMaterial = useCallback(async (material: NuevoMaterial): Promise<Material> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/material/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(material),
-    });
-    if (!res.ok) throw new Error('Error al crear material');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const crearMaterial = useCallback(
+    async (material: NuevoMaterial): Promise<Material> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/material/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(material),
+      });
+      if (!res.ok) throw new Error('Error al crear material');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   const actualizarMaterial = useCallback(
     async (id: number, material: NuevoMaterial): Promise<Material> => {
@@ -70,12 +76,22 @@ export const useMaterialesApi = () => {
     [fetchWithAuth]
   );
 
-  const eliminarMaterial = useCallback(async (id: number): Promise<void> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/material/${id}/`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error('Error al eliminar material');
-  }, [fetchWithAuth]);
+  const eliminarMaterial = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/material/${id}/`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar material');
+      }
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getMaterialesInfo,

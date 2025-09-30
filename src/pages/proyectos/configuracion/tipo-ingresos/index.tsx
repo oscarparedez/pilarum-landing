@@ -16,7 +16,8 @@ import {
   Button,
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Edit02';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import AddIcon from '@mui/icons-material/Add';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
@@ -25,6 +26,7 @@ import toast from 'react-hot-toast';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { ModalCrearTipoIngreso } from 'src/sections/proyectos/configuracion/tipos-ingresos/crear-tipo-ingreso-modal';
 import { ModalEditarTipoIngreso } from 'src/sections/proyectos/configuracion/tipos-ingresos/editar-tipo-ingreso-modal';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 import { useTiposIngresoApi } from 'src/api/tipoIngresos/useTipoIngresosApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
@@ -38,11 +40,14 @@ const Page: NextPage = () => {
   const [tiposIngreso, setTiposIngreso] = useState<TipoIngreso[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const canCreateTipoIngreso = useHasPermission(PermissionId.CREAR_TIPO_INGRESO);
   const canEditTipoIngreso = useHasPermission(PermissionId.EDITAR_TIPO_INGRESO);
+  const canDeleteTipoIngreso = useHasPermission(PermissionId.ELIMINAR_TIPO_INGRESO);
 
-  const { getTiposIngreso, crearTipoIngreso, actualizarTipoIngreso } = useTiposIngresoApi();
+  const { getTiposIngreso, crearTipoIngreso, actualizarTipoIngreso, eliminarTipoIngreso } =
+    useTiposIngresoApi();
 
   const fetchTiposIngreso = useCallback(async () => {
     try {
@@ -90,6 +95,22 @@ const Page: NextPage = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (deleteId !== null) {
+      try {
+        setLoading(true);
+        await eliminarTipoIngreso(deleteId);
+        toast.success('Tipo de ingreso eliminado correctamente');
+        fetchTiposIngreso();
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+        setDeleteId(null);
+      }
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       {loading && <FullPageLoader />}
@@ -118,7 +139,7 @@ const Page: NextPage = () => {
           filtrosFecha={false}
           filtrosEstado={false}
         >
-          {(currentPage, orden) => {
+          {(currentPage) => {
             const items = tiposIngreso
               .filter((tipo) => tipo.nombre.toLowerCase().includes(search.toLowerCase()))
               .slice((currentPage - 1) * 5, currentPage * 5);
@@ -131,7 +152,9 @@ const Page: NextPage = () => {
                       <TableCell>Fecha creación</TableCell>
                       <TableCell>Nombre</TableCell>
                       <TableCell>Usuario creador</TableCell>
-                      <TableCell align="center">Acciones</TableCell>
+                      {(canEditTipoIngreso || canDeleteTipoIngreso) && (
+                        <TableCell align="center">Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -145,13 +168,22 @@ const Page: NextPage = () => {
                         <TableCell>
                           {tipo.usuario_creador.first_name} {tipo.usuario_creador.last_name}
                         </TableCell>
-                        {canEditTipoIngreso && (
+                        {(canEditTipoIngreso || canDeleteTipoIngreso) && (
                           <TableCell align="center">
-                            <IconButton onClick={() => abrirModalEditar(tipo)}>
-                              <SvgIcon>
-                                <EditIcon />
-                              </SvgIcon>
-                            </IconButton>
+                            {canEditTipoIngreso && (
+                              <IconButton onClick={() => abrirModalEditar(tipo)}>
+                                <SvgIcon>
+                                  <EditIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
+                            {canDeleteTipoIngreso && (
+                              <IconButton onClick={() => setDeleteId(tipo.id)}>
+                                <SvgIcon>
+                                  <TrashIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
                           </TableCell>
                         )}
                       </TableRow>
@@ -176,6 +208,15 @@ const Page: NextPage = () => {
           onClose={() => setModalEditarOpen(false)}
           initialData={tipoSeleccionado}
           onConfirm={handleEditar}
+        />
+      )}
+
+      {deleteId !== null && (
+        <ModalEliminar
+          type="tipo de ingreso"
+          open={true}
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDelete}
         />
       )}
     </Box>

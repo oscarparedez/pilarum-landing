@@ -17,21 +17,24 @@ import { useRolesApi } from 'src/api/roles/useRolesApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { FullPageLoader } from 'src/components/loader/Loader';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 const Page: NextPage = () => {
   const settings = useSettings();
   const router = useRouter();
   usePageView();
 
-  const { getRoles, crearRol, actualizarRol } = useRolesApi();
+  const { getRoles, crearRol, actualizarRol, eliminarRol } = useRolesApi();
   const canCreateRole = useHasPermission(PermissionId.CREAR_ROL);
   const canEditRole = useHasPermission(PermissionId.EDITAR_ROL);
+  const canDeleteRole = useHasPermission(PermissionId.ELIMINAR_ROL);
 
   const [roles, setRoles] = useState<RolApiType[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDetalleOpen, setModalDetalleOpen] = useState(false);
   const [rolSeleccionado, setRolSeleccionado] = useState<RolApiType | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const fetchRoles = useCallback(async () => {
     setLoading(true);
@@ -39,7 +42,7 @@ const Page: NextPage = () => {
       const data = await getRoles();
       setRoles(data);
     } catch (error) {
-      console.error(error);
+      toast.error('Error al obtener roles');
     } finally {
       setLoading(false);
     }
@@ -57,7 +60,7 @@ const Page: NextPage = () => {
         await fetchRoles();
         setModalOpen(false);
         toast.success('Rol creado exitosamente');
-      } catch (error) {
+      } catch {
         toast.error('Error al crear el rol');
       } finally {
         setLoading(false);
@@ -68,14 +71,14 @@ const Page: NextPage = () => {
 
   const handleActualizarRol = useCallback(
     async (updatedPermissions: number[]) => {
-      if (!rolSeleccionado) return
+      if (!rolSeleccionado) return;
       setLoading(true);
       try {
         await actualizarRol(rolSeleccionado.id, { permissions: updatedPermissions });
         await fetchRoles();
         setModalDetalleOpen(false);
         toast.success('Rol actualizado exitosamente');
-      } catch (error) {
+      } catch {
         toast.error('Error al actualizar el rol');
       } finally {
         setLoading(false);
@@ -83,6 +86,22 @@ const Page: NextPage = () => {
     },
     [actualizarRol, fetchRoles, rolSeleccionado]
   );
+
+  const handleDeleteRol = useCallback(async () => {
+    if (deleteId !== null) {
+      try {
+        setLoading(true);
+        await eliminarRol(deleteId);
+        toast.success('Rol eliminado correctamente');
+        await fetchRoles();
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+        setDeleteId(null);
+      }
+    }
+  }, [deleteId, eliminarRol, fetchRoles]);
 
   return (
     <>
@@ -173,24 +192,41 @@ const Page: NextPage = () => {
 
                     <Divider sx={{ my: 1 }} />
 
-                    {canEditRole && (
-                      <Button
-                        onClick={() => {
-                          setRolSeleccionado(rol);
-                          setModalDetalleOpen(true);
-                        }}
-                        size="medium"
-                        variant="outlined"
-                        sx={{
-                          mt: 'auto',
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontWeight: 500,
-                        }}
-                      >
-                        Ver detalles
-                      </Button>
-                    )}
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      sx={{ mt: 'auto' }}
+                    >
+                      {canEditRole && (
+                        <Button
+                          onClick={() => {
+                            setRolSeleccionado(rol);
+                            setModalDetalleOpen(true);
+                          }}
+                          size="medium"
+                          variant="outlined"
+                          sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Ver detalles
+                        </Button>
+                      )}
+
+                      {canDeleteRole && (
+                        <Button
+                          color="error"
+                          size="medium"
+                          variant="outlined"
+                          onClick={() => setDeleteId(rol.id)}
+                          sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 500 }}
+                        >
+                          Eliminar rol
+                        </Button>
+                      )}
+                    </Stack>
                   </Box>
                 </Grid>
               ))
@@ -211,6 +247,15 @@ const Page: NextPage = () => {
           onClose={() => setModalDetalleOpen(false)}
           rol={rolSeleccionado}
           onUpdate={handleActualizarRol}
+        />
+      )}
+
+      {deleteId !== null && (
+        <ModalEliminar
+          type="rol"
+          open={true}
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDeleteRol}
         />
       )}
     </>

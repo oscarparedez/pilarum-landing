@@ -38,10 +38,22 @@ export const useTiposPagoApi = () => {
     [fetchWithAuth]
   );
 
-  const eliminarTipoPago = useCallback(async (id: number): Promise<void> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/tipoPagos/${id}/`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Error al eliminar tipo de pago');
-  }, [fetchWithAuth]);
+  const eliminarTipoPago = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/tipoPagos/${id}/`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar tipo de pago');
+      }
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getTiposPago,

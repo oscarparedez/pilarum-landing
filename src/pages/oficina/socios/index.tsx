@@ -16,7 +16,8 @@ import {
   Button,
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Edit02';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import AddIcon from '@mui/icons-material/Add';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
@@ -29,6 +30,7 @@ import { ModalEditarSocio } from 'src/sections/oficina/gestion-socios/editar-soc
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { NuevoSocio, Socio } from 'src/api/types';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -37,11 +39,12 @@ const Page: NextPage = () => {
   const [socios, setSocios] = useState<Socio[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const canCreateSocios = useHasPermission(PermissionId.CREAR_SOCIOS);
   const canEditSocios = useHasPermission(PermissionId.EDITAR_SOCIOS);
 
-  const { getSocios, crearSocio, actualizarSocio } = useSociosApi();
+  const { getSocios, crearSocio, actualizarSocio, eliminarSocio } = useSociosApi();
 
   const fetchSocios = useCallback(async () => {
     setLoading(true);
@@ -89,6 +92,24 @@ const Page: NextPage = () => {
       toast.error('Error al actualizar socio');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = (id: number) => setDeleteId(id);
+
+  const handleConfirmDelete = async () => {
+    if (deleteId !== null) {
+      try {
+        setLoading(true);
+        await eliminarSocio(deleteId);
+        toast.success('Socio eliminado correctamente');
+        fetchSocios();
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+        setDeleteId(null);
+      }
     }
   };
 
@@ -144,12 +165,19 @@ const Page: NextPage = () => {
                       >
                         <TableCell>{socio.nombre}</TableCell>
                         {/* <TableCell>{socio.tipo === 'interno' ? 'Interno' : 'Externo'}</TableCell> */}
-                        <TableCell>{socio.usuario_creador.first_name} {socio.usuario_creador.last_name}</TableCell>
+                        <TableCell>
+                          {socio.usuario_creador.first_name} {socio.usuario_creador.last_name}
+                        </TableCell>
                         {canEditSocios && (
                           <TableCell align="center">
                             <IconButton onClick={() => abrirModalEditar(socio)}>
                               <SvgIcon>
                                 <EditIcon />
+                              </SvgIcon>
+                            </IconButton>
+                            <IconButton onClick={() => handleDelete(socio.id)}>
+                              <SvgIcon>
+                                <TrashIcon />
                               </SvgIcon>
                             </IconButton>
                           </TableCell>
@@ -176,6 +204,15 @@ const Page: NextPage = () => {
           onClose={() => setModalEditarOpen(false)}
           initialData={socioSeleccionado}
           onConfirm={handleEditar}
+        />
+      )}
+
+      {deleteId !== null && (
+        <ModalEliminar
+          type="socio"
+          open={true}
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </Box>

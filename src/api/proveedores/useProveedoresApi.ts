@@ -14,23 +14,29 @@ export const useProveedoresApi = () => {
     return await res.json();
   }, [fetchWithAuth]);
 
-  const getProveedorById = useCallback(async (id: number): Promise<Proveedor> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/proveedores/${id}/`, {
-      method: 'GET',
-    });
-    if (!res.ok) throw new Error('Error al obtener proveedor');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const getProveedorById = useCallback(
+    async (id: number): Promise<Proveedor> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proveedores/${id}/`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('Error al obtener proveedor');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
-  const crearProveedor = useCallback(async (proveedor: NuevoProveedor): Promise<Proveedor> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/proveedores/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(proveedor),
-    });
-    if (!res.ok) throw new Error('Error al crear proveedor');
-    return await res.json();
-  }, [fetchWithAuth]);
+  const crearProveedor = useCallback(
+    async (proveedor: NuevoProveedor): Promise<Proveedor> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proveedores/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(proveedor),
+      });
+      if (!res.ok) throw new Error('Error al crear proveedor');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
 
   const actualizarProveedor = useCallback(
     async (id: number, proveedor: NuevoProveedor): Promise<Proveedor> => {
@@ -45,12 +51,22 @@ export const useProveedoresApi = () => {
     [fetchWithAuth]
   );
 
-  const eliminarProveedor = useCallback(async (id: number): Promise<void> => {
-    const res = await fetchWithAuth(`${API_BASE_URL}/proveedores/${id}/`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error('Error al eliminar proveedor');
-  }, [fetchWithAuth]);
+  const eliminarProveedor = useCallback(
+    async (id: number): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proveedores/${id}/`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar proveedor');
+      }
+    },
+    [fetchWithAuth]
+  );
 
   return {
     getProveedores,

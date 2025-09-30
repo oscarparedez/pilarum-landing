@@ -16,7 +16,8 @@ import {
   Button,
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Edit02';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import AddIcon from '@mui/icons-material/Add';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
@@ -25,6 +26,7 @@ import toast from 'react-hot-toast';
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { ModalCrearTipoPago } from 'src/sections/proyectos/configuracion/tipos-pagos/crear-tipo-pago-modal';
 import { ModalEditarTipoPago } from 'src/sections/proyectos/configuracion/tipos-pagos/editar-tipo-pago-modal';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 import { useTiposPagoApi } from 'src/api/tipoPagos/useTipoPagosApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
@@ -38,11 +40,13 @@ const Page: NextPage = () => {
   const [tiposPago, setTiposPago] = useState<TipoCosto[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const canCreateTipoPago = useHasPermission(PermissionId.CREAR_TIPO_COSTO);
   const canEditTipoPago = useHasPermission(PermissionId.EDITAR_TIPO_COSTO);
+  const canDeleteTipoPago = useHasPermission(PermissionId.ELIMINAR_TIPO_COSTO);
 
-  const { getTiposPago, crearTipoPago, actualizarTipoPago } = useTiposPagoApi();
+  const { getTiposPago, crearTipoPago, actualizarTipoPago, eliminarTipoPago } = useTiposPagoApi();
 
   const fetchTiposPago = useCallback(async () => {
     try {
@@ -90,6 +94,22 @@ const Page: NextPage = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (deleteId !== null) {
+      try {
+        setLoading(true);
+        await eliminarTipoPago(deleteId);
+        toast.success('Tipo de pago eliminado correctamente');
+        fetchTiposPago();
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+        setDeleteId(null);
+      }
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       {loading && <FullPageLoader />}
@@ -118,7 +138,7 @@ const Page: NextPage = () => {
           filtrosFecha={false}
           filtrosEstado={false}
         >
-          {(currentPage, orden) => {
+          {(currentPage) => {
             const items = tiposPago
               .filter((tipo) => tipo.nombre.toLowerCase().includes(search.toLowerCase()))
               .slice((currentPage - 1) * 5, currentPage * 5);
@@ -131,7 +151,9 @@ const Page: NextPage = () => {
                       <TableCell>Fecha creación</TableCell>
                       <TableCell>Nombre</TableCell>
                       <TableCell>Usuario creador</TableCell>
-                      {canEditTipoPago && <TableCell align="center">Acciones</TableCell>}
+                      {(canEditTipoPago || canDeleteTipoPago) && (
+                        <TableCell align="center">Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -142,14 +164,25 @@ const Page: NextPage = () => {
                       >
                         <TableCell>{formatearFecha(tipo.fecha_creacion)}</TableCell>
                         <TableCell>{tipo.nombre}</TableCell>
-                        <TableCell>{tipo.usuario_creador.first_name} {tipo.usuario_creador.last_name}</TableCell>
-                        {canEditTipoPago && (
+                        <TableCell>
+                          {tipo.usuario_creador.first_name} {tipo.usuario_creador.last_name}
+                        </TableCell>
+                        {(canEditTipoPago || canDeleteTipoPago) && (
                           <TableCell align="center">
-                            <IconButton onClick={() => abrirModalEditar(tipo)}>
-                              <SvgIcon>
-                                <EditIcon />
-                              </SvgIcon>
-                            </IconButton>
+                            {canEditTipoPago && (
+                              <IconButton onClick={() => abrirModalEditar(tipo)}>
+                                <SvgIcon>
+                                  <EditIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
+                            {canDeleteTipoPago && (
+                              <IconButton onClick={() => setDeleteId(tipo.id)}>
+                                <SvgIcon>
+                                  <TrashIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
                           </TableCell>
                         )}
                       </TableRow>
@@ -174,6 +207,15 @@ const Page: NextPage = () => {
           onClose={() => setModalEditarOpen(false)}
           initialData={tipoSeleccionado}
           onConfirm={handleEditar}
+        />
+      )}
+
+      {deleteId !== null && (
+        <ModalEliminar
+          type="tipo de pago"
+          open={true}
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDelete}
         />
       )}
     </Box>

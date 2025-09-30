@@ -16,7 +16,8 @@ import {
   Button,
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Edit02';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import LabelIcon from '@mui/icons-material/Label';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
@@ -28,6 +29,7 @@ import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -36,17 +38,20 @@ const Page: NextPage = () => {
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [filtros, setFiltros] = useState({ search: '' });
   const [paginaActual, setPaginaActual] = useState(1);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const rowsPerPage = 5;
 
-  const { getMarcas, crearMarca, actualizarMarca } = useMarcasApi();
+  const { getMarcas, crearMarca, actualizarMarca, eliminarMarca } = useMarcasApi();
+
   const canCreateMarca = useHasPermission(PermissionId.CREAR_MARCA);
   const canEditMarca = useHasPermission(PermissionId.EDITAR_MARCA);
+  const canDeleteMarca = useHasPermission(PermissionId.ELIMINAR_MARCA);
 
   const handleGetMarcas = useCallback(async () => {
     try {
       const data = await getMarcas();
       setMarcas(data);
-    } catch (error) {
+    } catch {
       toast.error('Error al cargar marcas');
     }
   }, [getMarcas]);
@@ -58,7 +63,7 @@ const Page: NextPage = () => {
         setModalCrearOpen(false);
         await handleGetMarcas();
         toast.success('Marca creada exitosamente');
-      } catch (error) {
+      } catch {
         toast.error('Error al crear marca');
       }
     },
@@ -72,10 +77,25 @@ const Page: NextPage = () => {
         setModalEditarOpen(false);
         await handleGetMarcas();
         toast.success('Marca actualizada exitosamente');
-      } catch (error) {}
+      } catch {
+        toast.error('Error al actualizar marca');
+      }
     },
     [actualizarMarca, handleGetMarcas]
   );
+
+  const handleDeleteMarca = useCallback(async () => {
+    if (deleteId === null) return;
+    try {
+      await eliminarMarca(deleteId);
+      toast.success('Marca eliminada correctamente');
+      await handleGetMarcas();
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al eliminar marca');
+    } finally {
+      setDeleteId(null);
+    }
+  }, [deleteId, eliminarMarca, handleGetMarcas]);
 
   useEffect(() => {
     handleGetMarcas();
@@ -86,18 +106,15 @@ const Page: NextPage = () => {
     setModalEditarOpen(true);
   };
 
-  const marcasFiltradas = useMemo(() => {
-    return aplicarFiltros(marcas, filtros, {
-      camposTexto: ['nombre'],
-    });
-  }, [marcas, filtros]);
-
+  const marcasFiltradas = useMemo(
+    () => aplicarFiltros(marcas, filtros, { camposTexto: ['nombre'] }),
+    [marcas, filtros]
+  );
   const start = (paginaActual - 1) * rowsPerPage;
   const paginadas = marcasFiltradas.slice(start, start + rowsPerPage);
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* HEADER CARD */}
       <Card sx={{ mb: 3 }}>
         <Stack
           direction="row"
@@ -118,7 +135,6 @@ const Page: NextPage = () => {
         </Stack>
       </Card>
 
-      {/* TABLA CARD */}
       <Card>
         <TablaPaginadaConFiltros
           totalItems={marcasFiltradas.length}
@@ -128,13 +144,15 @@ const Page: NextPage = () => {
           filtrosEstado={false}
           filtrosFecha={false}
         >
-          {(currentPage) => (
+          {() => (
             <TableContainer component={Paper}>
               <Table size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>Nombre</TableCell>
-                    {canEditMarca && <TableCell align="center">Acciones</TableCell>}
+                    {(canEditMarca || canDeleteMarca) && (
+                      <TableCell align="center">Acciones</TableCell>
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -144,13 +162,24 @@ const Page: NextPage = () => {
                       hover
                     >
                       <TableCell>{marca.nombre}</TableCell>
-                      {canEditMarca && (
+                      {(canEditMarca || canDeleteMarca) && (
                         <TableCell align="center">
-                          <IconButton onClick={() => abrirModalEditar(marca)}>
-                            <SvgIcon>
-                              <EditIcon />
-                            </SvgIcon>
-                          </IconButton>
+                          {canEditMarca && (
+                            <IconButton onClick={() => abrirModalEditar(marca)}>
+                              <SvgIcon>
+                                <EditIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          )}
+                          {canDeleteMarca && (
+                            <IconButton
+                              onClick={() => setDeleteId(marca.id)}
+                            >
+                              <SvgIcon>
+                                <TrashIcon />
+                              </SvgIcon>
+                            </IconButton>
+                          )}
                         </TableCell>
                       )}
                     </TableRow>
@@ -167,7 +196,6 @@ const Page: NextPage = () => {
         onClose={() => setModalCrearOpen(false)}
         onCrearMarca={handleCrearMarca}
       />
-
       {marcaSeleccionada && (
         <ModalEditarMarca
           open={modalEditarOpen}
@@ -176,10 +204,17 @@ const Page: NextPage = () => {
           onActualizarMarca={handleActualizarMarca}
         />
       )}
+      {deleteId !== null && (
+        <ModalEliminar
+          type="marca"
+          open
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDeleteMarca}
+        />
+      )}
     </Box>
   );
 };
 
 Page.getLayout = (page: React.ReactNode) => <DashboardLayout>{page}</DashboardLayout>;
-
 export default Page;

@@ -16,7 +16,8 @@ import {
   Button,
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Edit02';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { NextPage } from 'next';
@@ -29,6 +30,7 @@ import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import toast from 'react-hot-toast';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 const Page: NextPage = () => {
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -41,11 +43,15 @@ const Page: NextPage = () => {
   });
   const [filtros, setFiltros] = useState({ search: '' });
   const [paginaActual, setPaginaActual] = useState(1);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const rowsPerPage = 5;
 
-  const { getMaterialesInfo, crearMaterial, actualizarMaterial } = useMaterialesApi();
+  const { getMaterialesInfo, crearMaterial, actualizarMaterial, eliminarMaterial } =
+    useMaterialesApi();
+
   const canCreateMaterial = useHasPermission(PermissionId.CREAR_MATERIAL);
   const canEditMaterial = useHasPermission(PermissionId.EDITAR_MATERIAL);
+  const canDeleteMaterial = useHasPermission(PermissionId.ELIMINAR_MATERIAL);
 
   const handleGetMateriales = useCallback(async () => {
     try {
@@ -84,6 +90,20 @@ const Page: NextPage = () => {
     },
     [actualizarMaterial, handleGetMateriales]
   );
+
+  const handleDeleteMaterial = useCallback(async () => {
+    if (deleteId !== null) {
+      try {
+        await eliminarMaterial(deleteId);
+        toast.success('Material eliminado correctamente');
+        await handleGetMateriales();
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setDeleteId(null);
+      }
+    }
+  }, [deleteId, eliminarMaterial, handleGetMateriales]);
 
   useEffect(() => {
     handleGetMateriales();
@@ -125,7 +145,6 @@ const Page: NextPage = () => {
 
       {/* TABLA CARD */}
       <Card>
-
         <TablaPaginadaConFiltros
           totalItems={materialesFiltrados.length}
           onFiltrar={(f) => setFiltros((prev) => ({ ...prev, ...f }))}
@@ -133,7 +152,7 @@ const Page: NextPage = () => {
           filtrosSearch
           filtrosFecha={false}
         >
-          {(currentPage, estadoFiltro) => {
+          {(currentPage) => {
             const start = (currentPage - 1) * rowsPerPage;
             const paginated = materialesFiltrados.slice(start, start + rowsPerPage);
 
@@ -145,7 +164,9 @@ const Page: NextPage = () => {
                       <TableCell>Nombre</TableCell>
                       <TableCell>Unidad</TableCell>
                       <TableCell>Marca</TableCell>
-                      {canEditMaterial && <TableCell align="center">Acciones</TableCell>}
+                      {(canEditMaterial || canDeleteMaterial) && (
+                        <TableCell align="center">Acciones</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -157,13 +178,22 @@ const Page: NextPage = () => {
                         <TableCell>{material.nombre}</TableCell>
                         <TableCell>{material.unidad.nombre}</TableCell>
                         <TableCell>{material.marca.nombre}</TableCell>
-                        {canEditMaterial && (
+                        {(canEditMaterial || canDeleteMaterial) && (
                           <TableCell align="center">
-                            <IconButton onClick={() => abrirModalEditar(material)}>
-                              <SvgIcon>
-                                <EditIcon />
-                              </SvgIcon>
-                            </IconButton>
+                            {canEditMaterial && (
+                              <IconButton onClick={() => abrirModalEditar(material)}>
+                                <SvgIcon>
+                                  <EditIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
+                            {canDeleteMaterial && (
+                              <IconButton onClick={() => setDeleteId(material.id)}>
+                                <SvgIcon>
+                                  <TrashIcon />
+                                </SvgIcon>
+                              </IconButton>
+                            )}
                           </TableCell>
                         )}
                       </TableRow>
@@ -192,6 +222,15 @@ const Page: NextPage = () => {
           onActualizarMaterial={handleActualizarMaterial}
           unidades={configMaterial.unidades}
           marcas={configMaterial.marcas}
+        />
+      )}
+
+      {deleteId !== null && (
+        <ModalEliminar
+          type="material"
+          open={true}
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDeleteMaterial}
         />
       )}
     </Box>
