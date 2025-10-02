@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import { FC, useCallback, useMemo, useState } from 'react';
 import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Pencil01';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import { ModalRegistrarServicio } from './registrar-servicio-modal';
 import { ServicioImagenesModal } from './servicio-imagenes-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
@@ -155,18 +155,25 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
                         </TableCell>
                         <TableCell>
                           <IconButton
+                            color="info"
                             onClick={() => s.fotos && abrirModal(s.fotos.map((f) => f.imagen))}
                           >
                             <VisibilityIcon />
                           </IconButton>
                           {canEditarServicios && (
-                            <IconButton onClick={() => setEditarServicio(s)}>
+                            <IconButton
+                              color="success"
+                              onClick={() => setEditarServicio(s)}
+                            >
                               <EditIcon />
                             </IconButton>
                           )}
                           {canEliminarServicios && (
-                            <IconButton onClick={() => setServicioAEliminar(s)}>
-                              <DeleteIcon />
+                            <IconButton
+                              color="error"
+                              onClick={() => setServicioAEliminar(s)}
+                            >
+                              <TrashIcon />
                             </IconButton>
                           )}
                         </TableCell>

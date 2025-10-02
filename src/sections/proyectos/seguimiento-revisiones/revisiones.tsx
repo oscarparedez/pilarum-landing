@@ -14,8 +14,8 @@ import {
 } from '@mui/material';
 import { FC, useCallback, useMemo, useState } from 'react';
 import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Pencil01';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import { RevisionImagenesModal } from './revision-imagenes-modal';
 import { Stack } from '@mui/system';
 import { ModalAgregarRevision } from './agregar-revision-modal';
@@ -145,33 +145,46 @@ export const Revisiones: FC<RevisionesProps> = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {revisionesFiltradas.slice((currentPage - 1) * 5, currentPage * 5).map((rev) => (
-                      <TableRow
-                        key={rev.id}
-                        hover
-                      >
-                        <TableCell>{formatearFecha(rev.fecha_creacion)}</TableCell>
-                        <TableCell>{formatearFecha(rev.fecha_review)}</TableCell>
-                        <TableCell>{rev.titulo}</TableCell>
-                        <TableCell>{rev.anotaciones}</TableCell>
-                        <TableCell>{rev.usuario_creador.first_name} {rev.usuario_creador.last_name}</TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => abrirModal(rev.fotos.map((f) => f.imagen))}>
-                            <VisibilityIcon />
-                          </IconButton>
-                          {canEditRevision && (
-                            <IconButton onClick={() => setEditarRevision(rev)}>
-                              <EditIcon />
+                    {revisionesFiltradas
+                      .slice((currentPage - 1) * 5, currentPage * 5)
+                      .map((rev) => (
+                        <TableRow
+                          key={rev.id}
+                          hover
+                        >
+                          <TableCell>{formatearFecha(rev.fecha_creacion)}</TableCell>
+                          <TableCell>{formatearFecha(rev.fecha_review)}</TableCell>
+                          <TableCell>{rev.titulo}</TableCell>
+                          <TableCell>{rev.anotaciones}</TableCell>
+                          <TableCell>
+                            {rev.usuario_creador.first_name} {rev.usuario_creador.last_name}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              color="info"
+                              onClick={() => abrirModal(rev.fotos.map((f) => f.imagen))}
+                            >
+                              <VisibilityIcon />
                             </IconButton>
-                          )}
-                          {canDeleteRevision && (
-                            <IconButton onClick={() => setRevisionAEliminar(rev)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            {canEditRevision && (
+                              <IconButton
+                                color="success"
+                                onClick={() => setEditarRevision(rev)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            )}
+                            {canDeleteRevision && (
+                              <IconButton
+                                color="error"
+                                onClick={() => setRevisionAEliminar(rev)}
+                              >
+                                <TrashIcon />
+                              </IconButton>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>

@@ -16,8 +16,8 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
+import EditIcon from '@untitled-ui/icons-react/build/esm/Pencil01';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import PersonIcon from '@mui/icons-material/PersonOutline';
 import NotesIcon from '@mui/icons-material/NotesOutlined';
 
@@ -103,7 +103,7 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
 
   return (
     <>
-            <Dialog
+      <Dialog
         open={open}
         onClose={onClose}
         fullScreen={fullScreen}
@@ -120,105 +120,109 @@ export const ModalAmpliacionesPresupuesto: FC<ModalAmpliacionesPresupuestoProps>
           }}
         >
           <TablaPaginadaConFiltros
-              totalItems={ampliacionesFiltradas.length}
-              onFiltrar={handleFiltrar}
-            >
-              {(currentPage) => (
-                <Table>
-                  <TableBody>
-                    {ampliacionesFiltradas
-                      .slice((currentPage - 1) * 5, currentPage * 5)
-                      .map((item, index) => {
-                        const fechaFormatted = formatearFecha(item.fecha);
-                        const globalIndex = index + (currentPage - 1) * 5;
+            totalItems={ampliacionesFiltradas.length}
+            onFiltrar={handleFiltrar}
+          >
+            {(currentPage) => (
+              <Table>
+                <TableBody>
+                  {ampliacionesFiltradas
+                    .slice((currentPage - 1) * 5, currentPage * 5)
+                    .map((item, index) => {
+                      const fechaFormatted = formatearFecha(item.fecha);
+                      const globalIndex = index + (currentPage - 1) * 5;
 
-                        return (
-                          <TableRow key={item.id ?? index}>
-                            <TableCell width={120}>
-                              <Box sx={{ p: 1 }}>
-                                <Typography
-                                  align="center"
-                                  color="text.secondary"
-                                  variant="subtitle2"
-                                >
-                                  {fechaFormatted}
-                                </Typography>
-                              </Box>
-                            </TableCell>
-
-                            <TableCell>
-                              <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                                sx={{ mb: 0.5 }}
-                              >
-                                <PersonIcon
-                                  fontSize="small"
-                                  color="action"
-                                />
-                                <Typography variant="subtitle2">
-                                  Usuario creador: {nombreUsuario(item.usuario)}
-                                </Typography>
-                              </Stack>
-
-                              <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                              >
-                                <NotesIcon
-                                  fontSize="small"
-                                  color="action"
-                                />
-                                <Typography
-                                  color="text.secondary"
-                                  variant="body2"
-                                >
-                                  Motivo: {item.motivo || 'Sin motivo'}
-                                </Typography>
-                              </Stack>
-                            </TableCell>
-
-                            <TableCell align="right">
+                      return (
+                        <TableRow key={item.id ?? index}>
+                          <TableCell width={120}>
+                            <Box sx={{ p: 1 }}>
                               <Typography
+                                align="center"
+                                color="text.secondary"
                                 variant="subtitle2"
-                                color="success.main"
-                                sx={{ mb: 0.5 }}
                               >
-                                +{formatearQuetzales(Number(item.monto))}
+                                {fechaFormatted}
                               </Typography>
+                            </Box>
+                          </TableCell>
 
-                              <Stack
-                                direction="row"
-                                justifyContent="flex-end"
+                          <TableCell>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                              sx={{ mb: 0.5 }}
+                            >
+                              <PersonIcon
+                                fontSize="small"
+                                color="action"
+                              />
+                              <Typography variant="subtitle2">
+                                Usuario creador: {nombreUsuario(item.usuario)}
+                              </Typography>
+                            </Stack>
+
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
+                              <NotesIcon
+                                fontSize="small"
+                                color="action"
+                              />
+                              <Typography
+                                color="text.secondary"
+                                variant="body2"
                               >
-                                {canEditAmpliacionesFechaFin && (
-                                  <IconButton
-                                    onClick={() => {
-                                      setEditandoIndex(globalIndex);
-                                      setEditModalOpen(true);
-                                    }}
-                                  >
-                                    <EditIcon />
-                                  </IconButton>
-                                )}
-                                {canDeleteAmpliacionesFechaFin && (
-                                  <IconButton onClick={() => setEliminando(item)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                )}
-                              </Stack>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
-              )}
-            </TablaPaginadaConFiltros>
+                                Motivo: {item.motivo || 'Sin motivo'}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+
+                          <TableCell align="right">
+                            <Typography
+                              variant="subtitle2"
+                              color="success.main"
+                              sx={{ mb: 0.5 }}
+                            >
+                              +{formatearQuetzales(Number(item.monto))}
+                            </Typography>
+
+                            <Stack
+                              direction="row"
+                              justifyContent="flex-end"
+                            >
+                              {canEditAmpliacionesFechaFin && (
+                                <IconButton
+                                  color="success"
+                                  onClick={() => {
+                                    setEditandoIndex(globalIndex);
+                                    setEditModalOpen(true);
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              )}
+                              {canDeleteAmpliacionesFechaFin && (
+                                <IconButton
+                                  color="error"
+                                  onClick={() => setEliminando(item)}
+                                >
+                                  <TrashIcon />
+                                </IconButton>
+                              )}
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            )}
+          </TablaPaginadaConFiltros>
         </DialogContent>
-        
+
         <DialogActions>
           <Button onClick={onClose}>Cerrar</Button>
         </DialogActions>

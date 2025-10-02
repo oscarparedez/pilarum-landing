@@ -18,9 +18,8 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
-import CloseIcon from '@mui/icons-material/Close';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 
 import { ModalEditarCosto } from './editar-costo-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
@@ -220,22 +219,24 @@ export const ModalListaCostos: FC<ModalListaCostosProps> = ({
                           >
                             {canEditCosto && (
                               <IconButton
+                                color="success"
                                 onClick={() => {
                                   setCostoEditando(costo);
                                   setModalEditarAbierto(true);
                                 }}
                               >
-                                <EditIcon />
+                                <VisibilityIcon />
                               </IconButton>
                             )}
 
                             {canDeleteCosto && (
                               <IconButton
+                                color="error"
                                 onClick={() => {
                                   setCostoAEliminar(costo);
                                 }}
                               >
-                                <DeleteIcon />
+                                <TrashIcon />
                               </IconButton>
                             )}
                           </Stack>

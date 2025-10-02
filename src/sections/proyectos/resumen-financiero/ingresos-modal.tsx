@@ -18,9 +18,8 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
-import CloseIcon from '@mui/icons-material/Close';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 
 import { ModalEditarIngreso } from './editar-ingreso-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
@@ -216,22 +215,24 @@ export const ModalListaIngresos: FC<ModalListaIngresosProps> = ({
                             >
                               {canEditIngreso && (
                                 <IconButton
+                                  color="success"
                                   onClick={() => {
                                     setIngresoEditando(ingreso);
                                     setModalEditarAbierto(true);
                                   }}
                                 >
-                                  <EditIcon />
+                                  <VisibilityIcon />
                                 </IconButton>
                               )}
 
                               {canDeleteIngreso && (
                                 <IconButton
+                                  color="error"
                                   onClick={() => {
                                     setIngresoAEliminar(ingreso);
                                   }}
                                 >
-                                  <DeleteIcon />
+                                  <TrashIcon />
                                 </IconButton>
                               )}
                             </Stack>
