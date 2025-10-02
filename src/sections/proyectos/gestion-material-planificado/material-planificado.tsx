@@ -17,7 +17,7 @@ import {
   Button,
   Divider,
 } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 import SendIcon from '@mui/icons-material/SendRounded';
 import { useRouter } from 'next/router';
 

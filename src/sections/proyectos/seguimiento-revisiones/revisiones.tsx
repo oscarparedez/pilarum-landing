@@ -13,7 +13,7 @@ import {
   TableContainer,
 } from '@mui/material';
 import { FC, useCallback, useMemo, useState } from 'react';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { RevisionImagenesModal } from './revision-imagenes-modal';

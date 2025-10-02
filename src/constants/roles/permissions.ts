@@ -55,6 +55,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Ver proyectos': 200,
   'Crear proyecto': 201,
   'Editar datos básicos del proyecto': 202,
+  'Eliminar proyecto': 203,
 
   // 🏗️ PROYECTOS — 🧾 Presupuesto y fechas (220–239)
   'Ver presupuesto inicial': 220,
@@ -119,6 +120,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Ver lista de maquinaria': 300,
   'Crear maquinaria': 301,
   'Editar datos básicos de una maquinaria': 302,
+  'Eliminar maquinaria': 303,
 
   // 🚜 MAQUINARIA — 💵 Costos de maquinaria (310–319)
   'Ver costo de adquisición de maquinaria': 310,
@@ -191,6 +193,7 @@ export const PermissionId = {
   VER_PROYECTOS: 200,
   CREAR_PROYECTO: 201,
   EDITAR_PROYECTO_BASICO: 202,
+  ELIMINAR_PROYECTO: 203,
   VER_PRESUPUESTO_INICIAL: 220,
   AMPLIAR_PRESUPUESTO_INICIAL: 221,
   VER_AMPLIACIONES_PRESUPUESTO: 222,
@@ -233,6 +236,7 @@ export const PermissionId = {
   VER_LISTA_MAQUINARIA: 300,
   CREAR_MAQUINARIA: 301,
   EDITAR_MAQUINARIA_BASICO: 302,
+  ELIMINAR_MAQUINARIA: 303,
   VER_COSTO_ADQ_MAQUINARIA: 310,
   VER_TOTAL_SERVICIOS: 311,
   VER_COMBUSTIBLE_ULTIMO_MES: 312,
@@ -317,6 +321,7 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
       'Ver proyectos',
       'Crear proyecto',
       'Editar datos básicos del proyecto',
+      'Eliminar proyecto',
     ],
     '🧾 Presupuesto y fechas': [
       'Ver presupuesto inicial',
@@ -383,6 +388,7 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
       'Ver lista de maquinaria',
       'Crear maquinaria',
       'Editar datos básicos de una maquinaria',
+      'Eliminar maquinaria',
     ],
     '💵 Costos de maquinaria': [
       'Ver costo de adquisición de maquinaria',

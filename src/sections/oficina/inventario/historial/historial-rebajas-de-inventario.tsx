@@ -14,7 +14,7 @@ import {
   Box,
 } from '@mui/material';
 import { useRouter } from 'next/router';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { paths } from 'src/paths';
 import { useHasPermission } from 'src/hooks/use-has-permissions';

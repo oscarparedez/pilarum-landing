@@ -24,7 +24,7 @@ import {
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { ModalEditarMaquinaria } from './editar-maquinaria-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
-import { esHoy, formatearFechaHora } from 'src/utils/format-date';
+import { esHoy, formatearFecha } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 
@@ -193,8 +193,8 @@ export const Maquinaria: FC<MaquinariaProps> = ({
                           >
                             <TableCell>{item.equipo.nombre}</TableCell>
                             <TableCell>{item.equipo.tipo}</TableCell>
-                            <TableCell>{formatearFechaHora(item.fecha_entrada)}</TableCell>
-                            <TableCell>{formatearFechaHora(item.fecha_fin)}</TableCell>
+                            <TableCell>{formatearFecha(item.fecha_entrada)}</TableCell>
+                            <TableCell>{formatearFecha(item.fecha_fin)}</TableCell>
                             <TableCell>{item.estado}</TableCell>
                             <TableCell>{item.dias_asignados.join(', ')}</TableCell>
                             <TableCell>

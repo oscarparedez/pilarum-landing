@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { paths } from 'src/paths';
 import dayjs from 'dayjs';

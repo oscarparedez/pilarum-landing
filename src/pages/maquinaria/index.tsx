@@ -3,6 +3,9 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
 import FilterIcon from '@untitled-ui/icons-react/build/esm/FilterFunnel01';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
+
 import {
   Box,
   Button,
@@ -13,6 +16,7 @@ import {
   Chip,
   Divider,
   alpha,
+  IconButton,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
@@ -29,6 +33,7 @@ import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { MaquinariaGeneralConfig, NuevaMaquinaria } from 'src/api/types';
 import { formatearFecha } from 'src/utils/format-date';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 // Helpers simples para fecha
 const toMidnight = (d: Date) => {
@@ -51,11 +56,6 @@ const estaActivaHoy = (inicio?: string, fin?: string) => {
   return dIni.getTime() <= hoy.getTime() && hoy.getTime() <= dFin.getTime();
 };
 
-const formatDias = (dias?: string[] | string) => {
-  if (!dias) return '';
-  return Array.isArray(dias) ? dias.join(', ') : dias;
-};
-
 const Page: NextPage = () => {
   const settings = useSettings();
   const router = useRouter();
@@ -65,9 +65,12 @@ const Page: NextPage = () => {
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
   const [recursos, setRecursos] = useState<MaquinariaGeneralConfig[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { crearMaquinaria, getMaquinariasConAsignaciones } = useMaquinariasApi();
+  const { crearMaquinaria, getMaquinariasConAsignaciones, eliminarMaquinaria } =
+    useMaquinariasApi();
   const canCreateMaquinaria = useHasPermission(PermissionId.CREAR_MAQUINARIA);
+  const canDeleteMaquinaria = useHasPermission(PermissionId.ELIMINAR_MAQUINARIA);
 
   const cargarRecursos = useCallback(async () => {
     setLoading(true);
@@ -76,6 +79,7 @@ const Page: NextPage = () => {
       setRecursos(data as any);
     } catch (err) {
       console.error('Error al cargar recursos:', err);
+      toast.error('Error al cargar recursos');
     } finally {
       setLoading(false);
     }
@@ -105,6 +109,22 @@ const Page: NextPage = () => {
     } finally {
       setAgregarModalOpen(false);
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleteId !== null) {
+      setLoading(true);
+      try {
+        await eliminarMaquinaria(deleteId);
+        toast.success('Maquinaria eliminada correctamente');
+        await cargarRecursos();
+      } catch (err: any) {
+        toast.error(err.message || 'Error al eliminar maquinaria');
+      } finally {
+        setLoading(false);
+        setDeleteId(null);
+      }
     }
   };
 
@@ -149,7 +169,7 @@ const Page: NextPage = () => {
               </Stack>
             </Grid>
 
-            {/* Filtro minimalista por tipo */}
+            {/* Filtro por tipo */}
             <Grid xs={12}>
               <Stack
                 direction="row"
@@ -328,19 +348,30 @@ const Page: NextPage = () => {
 
                     <Divider sx={{ my: 1 }} />
 
-                    <Button
-                      onClick={() => handleVerDetalles(recurso.id)}
-                      size="medium"
-                      variant="outlined"
-                      sx={{
-                        mt: 'auto',
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                      }}
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      justifyContent="flex-end"
                     >
-                      Ver detalles
-                    </Button>
+                      <IconButton
+                        color="success"
+                        onClick={() => handleVerDetalles(recurso.id)}
+                      >
+                        <SvgIcon>
+                          <VisibilityIcon />
+                        </SvgIcon>
+                      </IconButton>
+                      {canDeleteMaquinaria && (
+                        <IconButton
+                          color="error"
+                          onClick={() => setDeleteId(recurso.id)}
+                        >
+                          <SvgIcon>
+                            <TrashIcon />
+                          </SvgIcon>
+                        </IconButton>
+                      )}
+                    </Stack>
                   </Box>
                 </Grid>
               ))
@@ -354,6 +385,15 @@ const Page: NextPage = () => {
         onClose={() => setAgregarModalOpen(false)}
         onConfirm={crearRecurso}
       />
+
+      {deleteId !== null && (
+        <ModalEliminar
+          type="maquinaria"
+          open={true}
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDelete}
+        />
+      )}
     </>
   );
 };

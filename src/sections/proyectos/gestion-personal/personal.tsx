@@ -19,7 +19,7 @@ import { ModalEditarPersonal } from './editar-personal-modal';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { ModalEliminar } from 'src/components/eliminar-modal';
-import { esHoy, formatearFechaHora } from 'src/utils/format-date';
+import { esHoy, formatearFecha } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 
@@ -152,7 +152,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
             alignItems="center"
             sx={{ px: 3, py: 3 }}
           >
-            <Typography variant="h5">Ingenieros y arquitectos asignados</Typography>
+            <Typography variant="h5">Personal asignado</Typography>
             {canAsignarPersonal && (
               <Button
                 variant="contained"
@@ -201,8 +201,8 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
                               {item.usuario.first_name} {item.usuario.last_name}
                             </TableCell>
                             <TableCell>{item.usuario.groups[0].name}</TableCell>
-                            <TableCell>{formatearFechaHora(item.fecha_entrada)}</TableCell>
-                            <TableCell>{formatearFechaHora(item.fecha_fin)}</TableCell>
+                            <TableCell>{formatearFecha(item.fecha_entrada)}</TableCell>
+                            <TableCell>{formatearFecha(item.fecha_fin)}</TableCell>
                             <TableCell>{item.estado}</TableCell>
                             <TableCell>{item.dias_asignados.join(', ')}</TableCell>
                             <TableCell>{item.usuario_creador.first_name} {item.usuario_creador.last_name}</TableCell>

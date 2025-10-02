@@ -1,6 +1,9 @@
 import type { NextPage } from 'next';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
 import CalendarIcon from '@untitled-ui/icons-react/build/esm/Calendar';
+import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
+
 import {
   Box,
   Button,
@@ -11,6 +14,7 @@ import {
   Chip,
   Divider,
   alpha,
+  IconButton,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
@@ -29,37 +33,34 @@ import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { formatearFecha } from 'src/utils/format-date';
 import { FullPageLoader } from 'src/components/loader/Loader';
+import { ModalEliminar } from 'src/components/eliminar-modal';
 
 const Page: NextPage = () => {
   const settings = useSettings();
   const router = useRouter();
-  const { getProyectos, crearProyecto } = useProyectosApi();
+  const { getProyectos, crearProyecto, eliminarProyecto } = useProyectosApi();
 
   const canCreateProyecto = useHasPermission(PermissionId.CREAR_PROYECTO);
+  const canDeleteProyecto = useHasPermission(PermissionId.ELIMINAR_PROYECTO);
 
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [modalCrearProyectoOpen, setModalCrearProyectoOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [ loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   usePageView();
 
-  // Memorizar años disponibles basados en las fechas de inicio de los proyectos
   const availableYears = useMemo(() => {
-    const years = proyectos.map((proyecto) => new Date(proyecto.fecha_inicio).getFullYear());
-    return [...new Set(years)].sort((a, b) => b - a); // Ordenar descendente
+    const years = proyectos.map((p) => new Date(p.fecha_inicio).getFullYear());
+    return [...new Set(years)].sort((a, b) => b - a);
   }, [proyectos]);
 
-  // Memorizar proyectos filtrados
   const filteredProyectos = useMemo(() => {
     if (!selectedYear) return proyectos;
-
-    return proyectos.filter(
-      (proyecto) => new Date(proyecto.fecha_inicio).getFullYear() === selectedYear
-    );
+    return proyectos.filter((p) => new Date(p.fecha_inicio).getFullYear() === selectedYear);
   }, [proyectos, selectedYear]);
 
-  // Callback para cambiar el año seleccionado
   const handleYearChange = useCallback((year: number | null) => {
     setSelectedYear(year);
   }, []);
@@ -69,12 +70,12 @@ const Page: NextPage = () => {
     try {
       const data = await getProyectos();
       setProyectos(data);
-    } catch (error) {
+    } catch {
       toast.error('Error al cargar proyectos');
     } finally {
       setLoading(false);
     }
-  }, [getProyectos, setProyectos]);
+  }, [getProyectos]);
 
   useEffect(() => {
     cargarProyectos();
@@ -87,7 +88,7 @@ const Page: NextPage = () => {
       toast.success('Proyecto creado exitosamente');
       setModalCrearProyectoOpen(false);
       cargarProyectos();
-    } catch (error) {
+    } catch {
       toast.error('Error al crear proyecto');
     } finally {
       setLoading(false);
@@ -100,6 +101,22 @@ const Page: NextPage = () => {
     },
     [router]
   );
+
+  const handleDelete = async () => {
+    if (deleteId !== null) {
+      setLoading(true);
+      try {
+        await eliminarProyecto(deleteId);
+        toast.success('Proyecto eliminado correctamente');
+        cargarProyectos();
+      } catch (err: any) {
+        toast.error(err.message || 'Error al eliminar proyecto');
+      } finally {
+        setLoading(false);
+        setDeleteId(null);
+      }
+    }
+  };
 
   return (
     <>
@@ -139,7 +156,6 @@ const Page: NextPage = () => {
                 )}
               </Stack>
 
-              {/* Filtros por año */}
               {availableYears.length > 0 && (
                 <Stack
                   direction="row"
@@ -149,7 +165,7 @@ const Page: NextPage = () => {
                   sx={{ mb: 3 }}
                 >
                   <Typography
-                    variant="subtitle1" // más grande que body2
+                    variant="subtitle1"
                     sx={{
                       fontWeight: 600,
                       color: 'text.primary',
@@ -190,13 +206,7 @@ const Page: NextPage = () => {
 
             {filteredProyectos.length === 0 ? (
               <Grid xs={12}>
-                <Box
-                  sx={{
-                    textAlign: 'center',
-                    py: 8,
-                    px: 3,
-                  }}
-                >
+                <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
                   <Typography
                     variant="h6"
                     color="text.secondary"
@@ -255,7 +265,6 @@ const Page: NextPage = () => {
                       <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                       >
                         📍 {proyecto.ubicacion}
                       </Typography>
@@ -263,12 +272,7 @@ const Page: NextPage = () => {
                       <Typography
                         variant="body2"
                         color="primary.main"
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1,
-                          fontWeight: 500,
-                        }}
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 500 }}
                       >
                         <SvgIcon fontSize="small">
                           <CalendarIcon />
@@ -289,26 +293,38 @@ const Page: NextPage = () => {
                           variant="body2"
                           color="text.secondary"
                         >
-                          🏷️ Usuario creador: {proyecto.usuario_creador.first_name} {proyecto.usuario_creador.last_name}
+                          🏷️ Usuario creador: {proyecto.usuario_creador.first_name}{' '}
+                          {proyecto.usuario_creador.last_name}
                         </Typography>
                       )}
                     </Stack>
 
                     <Divider sx={{ my: 1 }} />
 
-                    <Button
-                      onClick={() => handleVerDetalles(proyecto.id)}
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        mt: 'auto',
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                      }}
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      justifyContent="flex-end"
                     >
-                      Ver detalles
-                    </Button>
+                      <IconButton
+                        color="success"
+                        onClick={() => handleVerDetalles(proyecto.id)}
+                      >
+                        <SvgIcon>
+                          <VisibilityIcon />
+                        </SvgIcon>
+                      </IconButton>
+                      {canDeleteProyecto && (
+                        <IconButton
+                          color="error"
+                          onClick={() => setDeleteId(proyecto.id)}
+                        >
+                          <SvgIcon>
+                            <TrashIcon />
+                          </SvgIcon>
+                        </IconButton>
+                      )}
+                    </Stack>
                   </Box>
                 </Grid>
               ))
@@ -321,6 +337,15 @@ const Page: NextPage = () => {
           onClose={() => setModalCrearProyectoOpen(false)}
           onConfirm={handleCrearProyecto}
         />
+
+        {deleteId !== null && (
+          <ModalEliminar
+            type="proyecto"
+            open={true}
+            onClose={() => setDeleteId(null)}
+            onConfirm={handleDelete}
+          />
+        )}
       </Box>
     </>
   );

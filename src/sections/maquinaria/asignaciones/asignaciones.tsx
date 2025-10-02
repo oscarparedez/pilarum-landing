@@ -16,9 +16,9 @@ import {
 import { Stack } from '@mui/system';
 import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 import { AsignacionMaquinaria } from 'src/api/types';
-import { formatearFechaHora } from 'src/utils/format-date';
+import { formatearFecha } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 import { useRouter } from 'next/router';
 import { paths } from 'src/paths';
 
@@ -116,8 +116,8 @@ export const Asignaciones: FC<Props> = ({ asignaciones }) => {
                         hover
                       >
                         <TableCell>{a.proyecto.nombre}</TableCell>
-                        <TableCell>{formatearFechaHora(a.fecha_entrada)}</TableCell>
-                        <TableCell>{formatearFechaHora(a.fecha_fin)}</TableCell>
+                        <TableCell>{formatearFecha(a.fecha_entrada)}</TableCell>
+                        <TableCell>{formatearFecha(a.fecha_fin)}</TableCell>
                         <TableCell>{a.estado}</TableCell>
                         <TableCell>{a.dias_asignados.join(', ')}</TableCell>
                         <TableCell>

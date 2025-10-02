@@ -7,7 +7,7 @@ import { ModalListaCostos } from './costos-modal';
 import { ModalMovimientos } from './movimientos-modal';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { obtenerUltimoMovimiento, transformarMovimientos } from 'src/utils/proyectos/resumen-financiero-utils';
-import { formatearFechaHora } from 'src/utils/format-date';
+import { formatearFecha } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { Costo, Ingreso, TipoCosto, TipoIngreso } from 'src/api/types';
@@ -145,7 +145,7 @@ export const ResumenFinanciero: FC<ResumenFinancieroProps> = ({
     },
     {
       label: 'Último movimiento',
-      value: ultimoMovimiento ? formatearFechaHora(ultimoMovimiento.fecha) : '-',
+      value: ultimoMovimiento ? formatearFecha(ultimoMovimiento.fecha) : '-',
       secondaryText: ultimoMovimiento ? formatearQuetzales(Number(ultimoMovimiento.monto)) : '-',
       buttonLabel: 'Ver movimientos',
       buttonColor: 'info' as ButtonColor,

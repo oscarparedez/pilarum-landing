@@ -62,8 +62,17 @@ export const useProyectosApi = () => {
 
   const eliminarProyecto = useCallback(
     async (id: number): Promise<void> => {
-      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${id}/`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error al eliminar proyecto');
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${id}/`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar proyecto'); // Mensaje genérico
+      }
     },
     [fetchWithAuth]
   );

@@ -2,7 +2,14 @@ import { useCallback } from 'react';
 import { API_BASE_URL } from 'src/config';
 import { useAuthApi } from '../auth/useAuthApi';
 import { calcularTotalCombustibleUltimoMes, calcularTotalServicios } from './utils';
-import { ConfigMaquinaria, GastoOperativo, Maquinaria, MaquinariaGeneralConfig, NuevaMaquinaria, NuevoGastoOperativo } from '../types';
+import {
+  ConfigMaquinaria,
+  GastoOperativo,
+  Maquinaria,
+  MaquinariaGeneralConfig,
+  NuevaMaquinaria,
+  NuevoGastoOperativo,
+} from '../types';
 import { useAsignacionesMaquinariaApi } from '../asignacionesMaquinaria/useAsignacionesMaquinaria';
 
 export const useMaquinariasApi = () => {
@@ -19,26 +26,25 @@ export const useMaquinariasApi = () => {
     return await res.json();
   }, [fetchWithAuth]);
 
-  const getMaquinariasConAsignaciones = useCallback(
-    async (): Promise<MaquinariaGeneralConfig[]> => {
-      const maquinarias = await getMaquinarias();
+  const getMaquinariasConAsignaciones = useCallback(async (): Promise<
+    MaquinariaGeneralConfig[]
+  > => {
+    const maquinarias = await getMaquinarias();
 
-      const enriched = await Promise.all(
-        maquinarias.map(async (m) => {
-          try {
-            const asignaciones = await getAsignacionesPorMaquinaria(m.id);
-            return { ...m, asignaciones } as MaquinariaGeneralConfig;
-          } catch {
-            // Si falla una maquinaria, devolvemos su objeto con asignaciones vacías
-            return { ...m, asignaciones: [] } as MaquinariaGeneralConfig;
-          }
-        })
-      );
+    const enriched = await Promise.all(
+      maquinarias.map(async (m) => {
+        try {
+          const asignaciones = await getAsignacionesPorMaquinaria(m.id);
+          return { ...m, asignaciones } as MaquinariaGeneralConfig;
+        } catch {
+          // Si falla una maquinaria, devolvemos su objeto con asignaciones vacías
+          return { ...m, asignaciones: [] } as MaquinariaGeneralConfig;
+        }
+      })
+    );
 
-      return enriched;
-    },
-    [getMaquinarias, getAsignacionesPorMaquinaria]
-  );
+    return enriched;
+  }, [getMaquinarias, getAsignacionesPorMaquinaria]);
 
   const getMaquinariaById = useCallback(
     async (id: number): Promise<Maquinaria> => {
@@ -82,7 +88,13 @@ export const useMaquinariasApi = () => {
       const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('Error al eliminar maquinaria');
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.detail) {
+          throw new Error(data.detail);
+        }
+        throw new Error('Error al eliminar maquinaria');
+      }
     },
     [fetchWithAuth]
   );

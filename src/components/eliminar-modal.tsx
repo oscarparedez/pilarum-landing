@@ -39,6 +39,7 @@ export const ModalEliminar: FC<Props> = ({ type = '', open, onClose, onConfirm }
           textAlign: 'center',
         },
       }}
+      sx={{ zIndex: theme.zIndex.modal + 10 }}
     >
       <Box
         display="flex"

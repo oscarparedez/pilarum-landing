@@ -5,7 +5,7 @@ import { ModalAmpliacionesPresupuesto } from './ampliaciones-presupuesto-modal';
 import { ModalAmpliarPresupuesto } from './ampliar-presupuesto-modal';
 import { AmpliacionPresupuesto, AmpliacionFecha } from 'src/api/types';
 import { formatearQuetzales } from 'src/utils/format-currency';
-import { formatearFechaHora } from 'src/utils/format-date';
+import { formatearFecha } from 'src/utils/format-date';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { AmpliacionesFechaModal } from 'src/sections/proyectos/timeline-ampliaciones/ampliaciones-fecha-modal';
@@ -115,7 +115,7 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  {formatearFechaHora(fechaInicio)}
+                  {formatearFecha(fechaInicio)}
                 </Typography>
                 <Typography
                   color="text.secondary"
@@ -140,7 +140,7 @@ export const Timeline: FC<TimelineProps> = ({
                   variant="h5"
                   fontWeight="bold"
                 >
-                  {canViewFechaFin ? formatearFechaHora(fechaFin) : '** *** ****'}
+                  {canViewFechaFin ? formatearFecha(fechaFin) : '** *** ****'}
                 </Typography>
                 <Typography
                   color="text.secondary"

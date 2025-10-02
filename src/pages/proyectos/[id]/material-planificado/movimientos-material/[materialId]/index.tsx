@@ -26,7 +26,7 @@ import { useMovimientosInventarioApi } from 'src/api/movimientos/useMovimientosI
 import { FullPageLoader } from 'src/components/loader/Loader';
 import { formatearQuetzales } from 'src/utils/format-currency';
 import { formatearFecha } from 'src/utils/format-date';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 import { paths } from 'src/paths';
 import { ErrorOverlay } from 'src/components/error-overlay';
 

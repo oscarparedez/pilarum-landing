@@ -12,7 +12,7 @@ import {
   Stack,
 } from '@mui/material';
 import { FC, useCallback, useMemo, useState } from 'react';
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { ModalRegistrarServicio } from './registrar-servicio-modal';
@@ -21,7 +21,7 @@ import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtr
 import { ModalEditarServicio } from './editar-servicio-modal';
 import { ModalEliminar } from 'src/components/eliminar-modal';
 import { ActualizarGastoOperativo, GastoOperativo, NuevoGastoOperativo } from 'src/api/types';
-import { formatearFechaHora } from 'src/utils/format-date';
+import { formatearFecha } from 'src/utils/format-date';
 import { aplicarFiltros } from 'src/utils/aplicarFiltros';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
@@ -146,8 +146,8 @@ export const HistorialServicios: FC<HistorialServiciosProps> = ({
                         key={s.id}
                         hover
                       >
-                        <TableCell>{formatearFechaHora(s.fecha_creacion)}</TableCell>
-                        <TableCell>{formatearFechaHora(s.fecha_gasto)}</TableCell>
+                        <TableCell>{formatearFecha(s.fecha_creacion)}</TableCell>
+                        <TableCell>{formatearFecha(s.fecha_gasto)}</TableCell>
                         <TableCell>{formatearQuetzales(Number(s.costo))}</TableCell>
                         <TableCell>{s.descripcion}</TableCell>
                         <TableCell>
