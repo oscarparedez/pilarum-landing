@@ -15,6 +15,15 @@ export const usePlanillaApi = () => {
     return await res.json();
   }, [fetchWithAuth]);
 
+  const getUsuariosActivos = useCallback(async (): Promise<Usuario[]> => {
+    const res = await fetchWithAuth(`${API_BASE_URL}/usuarios/?active_only=true`, {
+      method: 'GET',
+    });
+
+    if (!res.ok) throw new Error('Error al obtener usuarios activos');
+    return await res.json();
+  }, [fetchWithAuth]);
+
   const crearUsuario = useCallback(
     async (usuario: NuevoUsuarioConPassword): Promise<Usuario> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/usuarios/`, {
@@ -77,6 +86,7 @@ export const usePlanillaApi = () => {
 
   return {
     getUsuarios,
+    getUsuariosActivos,
     crearUsuario,
     actualizarUsuario,
     cambiarContrasenaAdmin,

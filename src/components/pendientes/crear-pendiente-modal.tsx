@@ -36,7 +36,7 @@ const categorias = [
 
 export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated }) => {
   const { crearPendiente } = usePendientesApi();
-  const { getUsuarios } = usePlanillaApi();
+  const { getUsuariosActivos } = usePlanillaApi();
   const router = useRouter();
   const { id } = router.query;
 
@@ -48,7 +48,7 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
     estado: 'no_iniciado',
     usuario_asignado: null,
   });
-  
+
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 
   const theme = useTheme();
@@ -67,7 +67,7 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
     const fetchUsuarios = async () => {
       if (open) {
         try {
-          const data = await getUsuarios();
+          const data = await getUsuariosActivos();
           setUsuarios(data);
         } catch (error) {
           console.error('Error fetching usuarios:', error);
@@ -75,7 +75,7 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
       }
     };
     fetchUsuarios();
-  }, [open, getUsuarios]);
+  }, [open, getUsuariosActivos]);
 
   const [loading, setLoading] = useState(false);
 
@@ -88,12 +88,16 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
       toast.error('Por favor, completa el título.');
       return;
     }
+
     try {
       setLoading(true);
       await crearPendiente(form);
-      setLoading(false);
+
+      // Success - reset form and close modal
       if (onCreated) await onCreated();
       onClose();
+
+      // Reset form state
       setForm({
         titulo: '',
         descripcion: '',
@@ -102,8 +106,11 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
         estado: 'no_iniciado',
         usuario_asignado: null,
       });
+
       toast.success('Pendiente creado correctamente');
+      setLoading(false);
     } catch (error) {
+      console.error('Error creating pendiente:', error);
       toast.error('Error al crear el pendiente');
       setLoading(false);
     }
@@ -121,11 +128,11 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
       keepMounted
     >
       <DialogTitle
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          pb: 1 
+          pb: 1,
         }}
       >
         Nueva tarea
@@ -143,61 +150,65 @@ export const ModalCrearPendiente: FC<Props> = ({ open, onClose, tipo, onCreated 
           overflow: 'auto',
         }}
       >
-            <Stack spacing={2}>
-              <TextField
-                label="Título"
-                value={form.titulo}
-                onChange={(e) => handleChange('titulo', e.target.value)}
-                fullWidth
-                required
-              />
-              <TextField
-                label="Descripción"
-                value={form.descripcion}
-                onChange={(e) => handleChange('descripcion', e.target.value)}
-                fullWidth
-                multiline
-                minRows={2}
-              />
+        <Stack spacing={2}>
+          <TextField
+            label="Título"
+            value={form.titulo}
+            onChange={(e) => handleChange('titulo', e.target.value)}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Descripción"
+            value={form.descripcion}
+            onChange={(e) => handleChange('descripcion', e.target.value)}
+            fullWidth
+            multiline
+            minRows={2}
+          />
 
-              {mostrarSelectorCategoria && (
-                <TextField
-                  label="Categoría"
-                  value={form.categoria}
-                  onChange={(e) => handleChange('categoria', e.target.value)}
-                  select
-                  fullWidth
-                  required
+          {mostrarSelectorCategoria && (
+            <TextField
+              label="Categoría"
+              value={form.categoria}
+              onChange={(e) => handleChange('categoria', e.target.value)}
+              select
+              fullWidth
+              required
+            >
+              {categorias.map((c) => (
+                <MenuItem
+                  key={c.value}
+                  value={c.value}
                 >
-                  {categorias.map((c) => (
-                    <MenuItem
-                      key={c.value}
-                      value={c.value}
-                    >
-                      {c.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
-              
-              <TextField
-                label="Asignar a"
-                value={form.usuario_asignado || ''}
-                onChange={(e) => handleChange('usuario_asignado', e.target.value ? Number(e.target.value) : null)}
-                select
-                fullWidth
+                  {c.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+
+          <TextField
+            label="Asignar a"
+            value={form.usuario_asignado?.toString() || ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              const newValue = value === '' ? null : Number(value);
+              handleChange('usuario_asignado', newValue);
+            }}
+            select
+            fullWidth
+          >
+            <MenuItem value="">Sin selección</MenuItem>
+            {usuarios.map((usuario) => (
+              <MenuItem
+                key={usuario.id}
+                value={usuario.id.toString()}
               >
-                <MenuItem value="">Sin selección</MenuItem>
-                {usuarios.map((usuario) => (
-                  <MenuItem
-                    key={usuario.id}
-                    value={usuario.id}
-                  >
-                    {usuario.first_name} {usuario.last_name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Stack>
+                {usuario.first_name} {usuario.last_name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Stack>
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'flex-end', px: 3, pb: 2 }}>
         <Button

@@ -36,7 +36,7 @@ export const useProyectosApi = () => {
   const { getTiposPago } = useTiposPagoApi();
   const { getMaquinarias } = useMaquinariasApi();
   const { getAsignacionesPorProyecto: getAsignacionesMaquinaria } = useAsignacionesMaquinariaApi();
-  const { getUsuarios } = usePlanillaApi();
+  const { getUsuariosActivos } = usePlanillaApi();
   const { getAsignaciones: getAsignacionesPersonal } = useAsignacionesPersonalApi();
   const { getInventarioPorProyecto: getInventario } = useInventarioApi();
   const { getRevisiones } = useRevisionesApi();
@@ -136,7 +136,10 @@ export const useProyectosApi = () => {
   );
 
   const actualizarEstadoProyecto = useCallback(
-    async (id: number, estado: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado'): Promise<void> => {
+    async (
+      id: number,
+      estado: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado'
+    ): Promise<void> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${id}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -176,7 +179,7 @@ export const useProyectosApi = () => {
           getTiposPago(),
           getMaquinarias(),
           getAsignacionesMaquinaria(id),
-          getUsuarios(),
+          getUsuariosActivos(),
           getAsignacionesPersonal(id),
           getInventario(id),
           getRevisiones(id),
@@ -222,7 +225,7 @@ export const useProyectosApi = () => {
       getTiposPago,
       getAsignacionesMaquinaria,
       getMaquinarias,
-      getUsuarios,
+      getUsuariosActivos,
       getAsignacionesPersonal,
       getRevisiones,
       getSociosInternos,
