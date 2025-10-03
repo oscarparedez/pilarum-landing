@@ -9,6 +9,7 @@ import {
   IconButton,
   Chip,
   useMediaQuery,
+  Tooltip,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Pendiente } from 'src/api/types';
@@ -239,19 +240,30 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                         justifyContent="space-between"
                         mb={1.5}
                       >
-                        <Typography
-                          variant="h6"
-                          fontWeight={600}
-                          sx={{
-                            fontSize: '1.1rem',
-                            lineHeight: 1.3,
-                            color: 'text.primary',
-                            flex: 1,
-                            pr: 1,
-                          }}
+                        <Tooltip
+                          title={p.titulo.length > 50 ? p.titulo : ''}
+                          arrow
+                          placement="top"
                         >
-                          {p.titulo}
-                        </Typography>
+                          <Typography
+                            variant="h6"
+                            fontWeight={600}
+                            sx={{
+                              fontSize: '1.1rem',
+                              lineHeight: 1.3,
+                              color: 'text.primary',
+                              flex: 1,
+                              pr: 1,
+                              cursor: p.titulo.length > 50 ? 'help' : 'default',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {p.titulo}
+                          </Typography>
+                        </Tooltip>
                         <Chip
                           size="small"
                           label={
@@ -270,20 +282,27 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                       </Box>
 
                       {/* Descripción */}
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          fontSize: '0.95rem',
-                          lineHeight: 1.5,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
+                      <Tooltip
+                        title={p.descripcion && p.descripcion.length > 80 ? p.descripcion : ''}
+                        arrow
+                        placement="bottom"
                       >
-                        {p.descripcion || 'Sin descripción'}
-                      </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            fontSize: '0.95rem',
+                            lineHeight: 1.5,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            cursor: p.descripcion && p.descripcion.length > 80 ? 'help' : 'default',
+                          }}
+                        >
+                          {p.descripcion || 'Sin descripción'}
+                        </Typography>
+                      </Tooltip>
                     </Box>
 
                     {/* Body with assignment and creator info */}
