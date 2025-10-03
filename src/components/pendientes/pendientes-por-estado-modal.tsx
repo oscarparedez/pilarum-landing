@@ -146,150 +146,307 @@ export const ModalPendientesPorEstado: FC<Props> = ({
                 overflowY: 'auto',
                 display: 'grid',
                 gridTemplateColumns: getColumns(),
-                gap: 2,
-                fontSize: '1.125rem',
+                gap: 3,
+                '&::-webkit-scrollbar': {
+                  width: '8px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: 'transparent',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: 'rgba(0,0,0,0.2)',
+                  borderRadius: '4px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: 'rgba(0,0,0,0.3)',
+                },
               }}
             >
               {pendientes.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  align="center"
-                  sx={{ gridColumn: '1 / -1', py: 4, fontSize: '1.125rem' }}
+                <Box
+                  sx={{
+                    gridColumn: '1 / -1',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    py: 6,
+                    color: 'text.secondary',
+                  }}
                 >
-                  No hay tareas en este estado.
-                </Typography>
+                  <Box
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      bgcolor: 'grey.100',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 2,
+                      fontSize: '2rem',
+                    }}
+                  >
+                    📋
+                  </Box>
+                  <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    align="center"
+                    sx={{ mb: 1 }}
+                  >
+                    No hay tareas en este estado
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.disabled"
+                    align="center"
+                  >
+                    Las tareas aparecerán aquí cuando cambien a este estado
+                  </Typography>
+                </Box>
               ) : (
                 pendientes.map((p) => (
                   <Box
                     key={p.id}
-                    p={3}
-                    borderRadius={2}
-                    bgcolor="background.paper"
-                    boxShadow="0 1px 4px rgba(0,0,0,0.06)"
-                    display="flex"
-                    flexDirection="column"
-                    justifyContent="space-between"
                     sx={{
-                      transition:
-                        'box-shadow 0.25s ease, transform 0.25s ease, background-color 0.25s ease',
+                      borderRadius: 3,
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      overflow: 'hidden',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
-                        boxShadow: '0 6px 18px rgba(0,0,0,0.10)',
-                        transform: 'translateY(-2px)',
-                        backgroundColor: (theme) => theme.palette.background.default,
+                        borderColor: 'primary.main',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                        transform: 'translateY(-4px)',
                       },
-                      fontSize: '1.125rem',
                     }}
                   >
-                    {/* Info */}
-                    <Box mb={1}>
-                      <Typography
-                        variant="subtitle1"
-                        fontWeight={600}
-                        sx={{ fontSize: '1.25rem' }}
+                    {/* Header with status indicator */}
+                    <Box
+                      sx={{
+                        p: 2.5,
+                        pb: 2,
+                        background: (theme) =>
+                          `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                      }}
+                    >
+                      <Box
+                        display="flex"
+                        alignItems="flex-start"
+                        justifyContent="space-between"
+                        mb={1.5}
                       >
-                        {p.titulo}
+                        <Typography
+                          variant="h6"
+                          fontWeight={600}
+                          sx={{
+                            fontSize: '1.1rem',
+                            lineHeight: 1.3,
+                            color: 'text.primary',
+                            flex: 1,
+                            pr: 1,
+                          }}
+                        >
+                          {p.titulo}
+                        </Typography>
+                        <Chip
+                          size="small"
+                          label={
+                            p.estado === 'no_iniciado'
+                              ? 'No iniciado'
+                              : p.estado === 'pendiente'
+                              ? 'En progreso'
+                              : 'Completado'
+                          }
+                          color={chipColor[p.estado]}
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                          }}
+                        />
+                      </Box>
+
+                      {/* Descripción */}
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: '0.95rem',
+                          lineHeight: 1.5,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {p.descripcion || 'Sin descripción'}
                       </Typography>
-                      <Chip
-                        size="small"
-                        label={p.estado}
-                        color={chipColor[p.estado]}
-                        sx={{ mt: 0.5, fontSize: '1rem', height: 28 }}
-                      />
                     </Box>
 
-                    {/* Descripción */}
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      mb={1}
-                      sx={{ fontSize: '1.125rem' }}
-                    >
-                      {p.descripcion || 'Sin descripción'}
-                    </Typography>
+                    {/* Body with assignment and creator info */}
+                    <Box sx={{ p: 2.5, pt: 2 }}>
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        gap={1}
+                        mb={2.5}
+                      >
+                        {/* Assigned user */}
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                        >
+                          <Box
+                            sx={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: '50%',
+                              bgcolor: p.usuario_asignado ? 'success.main' : 'grey.400',
+                            }}
+                          />
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ fontSize: '0.85rem' }}
+                          >
+                            <strong>Asignado:</strong>{' '}
+                            {p.usuario_asignado
+                              ? `${p.usuario_asignado.first_name} ${p.usuario_asignado.last_name}`
+                              : 'Sin asignar'}
+                          </Typography>
+                        </Box>
 
-                    {/* Footer */}
-                    <Typography
-                      fontWeight="bold"
-                      variant="caption"
-                      color="text.disabled"
-                      mb={1}
-                      sx={{ fontSize: '1rem' }}
-                    >
-                      {p.usuario_creador
-                        ? `Creado por ${p.usuario_creador.first_name} ${p.usuario_creador.last_name}`
-                        : '—'}{' '}
-                      • {formatearFecha(p.fecha_creacion)}
-                    </Typography>
+                        {/* Creator and date */}
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                        >
+                          <Box
+                            sx={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: '50%',
+                              bgcolor: 'primary.main',
+                            }}
+                          />
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ fontSize: '0.85rem' }}
+                          >
+                            <strong>Creado por:</strong>{' '}
+                            {p.usuario_creador
+                              ? `${p.usuario_creador.first_name} ${p.usuario_creador.last_name}`
+                              : '—'}{' '}
+                            • {formatearFecha(p.fecha_creacion)}
+                          </Typography>
+                        </Box>
+                      </Box>
 
-                    {/* Acciones */}
-                    <Box
-                      display="flex"
-                      flexWrap="wrap"
-                      gap={1}
-                      mt="auto"
-                    >
-                      {/* Cambiar estado */}
-                      {onChangeEstado && canChangeStatus && (
-                        <>
-                          {estado === 'no_iniciado' && (
-                            <>
+                      {/* Acciones */}
+                      <Box
+                        display="flex"
+                        flexWrap="wrap"
+                        gap={1}
+                        mt="auto"
+                      >
+                        {/* Cambiar estado */}
+                        {onChangeEstado && canChangeStatus && (
+                          <>
+                            {estado === 'no_iniciado' && (
+                              <>
+                                <Chip
+                                  label="▶ Iniciar"
+                                  color="warning"
+                                  size="medium"
+                                  onClick={() => handleChangeEstado(p.id, 'pendiente')}
+                                  sx={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: 600,
+                                    height: 36,
+                                    '&:hover': { transform: 'scale(1.05)' },
+                                  }}
+                                />
+                                <Chip
+                                  label="✓ Completar"
+                                  color="success"
+                                  size="medium"
+                                  onClick={() => handleChangeEstado(p.id, 'completado')}
+                                  sx={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: 600,
+                                    height: 36,
+                                    '&:hover': { transform: 'scale(1.05)' },
+                                  }}
+                                />
+                              </>
+                            )}
+                            {estado === 'pendiente' && (
+                              <>
+                                <Chip
+                                  label="⏸ Reiniciar"
+                                  variant="outlined"
+                                  size="medium"
+                                  onClick={() => handleChangeEstado(p.id, 'no_iniciado')}
+                                  sx={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: 600,
+                                    height: 36,
+                                    '&:hover': { transform: 'scale(1.05)' },
+                                  }}
+                                />
+                                <Chip
+                                  label="✓ Completar"
+                                  color="success"
+                                  size="medium"
+                                  onClick={() => handleChangeEstado(p.id, 'completado')}
+                                  sx={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: 600,
+                                    height: 36,
+                                    '&:hover': { transform: 'scale(1.05)' },
+                                  }}
+                                />
+                              </>
+                            )}
+                            {estado === 'completado' && (
                               <Chip
-                                label="Marcar activo"
+                                label="↻ Reactivar"
                                 color="warning"
-                                size="small"
+                                size="medium"
                                 onClick={() => handleChangeEstado(p.id, 'pendiente')}
-                                sx={{ fontSize: '1rem', height: 28 }}
+                                sx={{
+                                  fontSize: '0.9rem',
+                                  fontWeight: 600,
+                                  height: 36,
+                                  '&:hover': { transform: 'scale(1.05)' },
+                                }}
                               />
-                              <Chip
-                                label="Completar"
-                                color="success"
-                                size="small"
-                                onClick={() => handleChangeEstado(p.id, 'completado')}
-                                sx={{ fontSize: '1rem', height: 28 }}
-                              />
-                            </>
-                          )}
-                          {estado === 'pendiente' && (
-                            <>
-                              <Chip
-                                label="No iniciado"
-                                variant="outlined"
-                                size="small"
-                                onClick={() => handleChangeEstado(p.id, 'no_iniciado')}
-                                sx={{ fontSize: '1rem', height: 28 }}
-                              />
-                              <Chip
-                                label="Completar"
-                                color="success"
-                                size="small"
-                                onClick={() => handleChangeEstado(p.id, 'completado')}
-                                sx={{ fontSize: '1rem', height: 28 }}
-                              />
-                            </>
-                          )}
-                          {estado === 'completado' && (
-                            <Chip
-                              label="Reactivar"
-                              color="warning"
-                              size="small"
-                              onClick={() => handleChangeEstado(p.id, 'pendiente')}
-                              sx={{ fontSize: '1rem', height: 28 }}
-                            />
-                          )}
-                        </>
-                      )}
+                            )}
+                          </>
+                        )}
 
-                      {/* Eliminar */}
-                      {onDeletePendiente && canDelete && (
-                        <Chip
-                          label="Eliminar"
-                          color="error"
-                          size="small"
-                          onClick={() => handleDelete(p.id)}
-                          sx={{ fontSize: '1rem', height: 28 }}
-                        />
-                      )}
+                        {/* Eliminar */}
+                        {onDeletePendiente && canDelete && (
+                          <Chip
+                            label="🗑 Eliminar"
+                            color="error"
+                            size="medium"
+                            onClick={() => handleDelete(p.id)}
+                            sx={{
+                              fontSize: '0.9rem',
+                              fontWeight: 600,
+                              height: 36,
+                              '&:hover': { transform: 'scale(1.05)' },
+                            }}
+                          />
+                        )}
+                      </Box>
                     </Box>
                   </Box>
                 ))

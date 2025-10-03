@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Stack, Typography, Chip } from '@mui/material';
 
 import { useSettings } from 'src/hooks/use-settings';
 import { usePageView } from 'src/hooks/use-page-view';
@@ -25,7 +25,14 @@ import { usePagosApi } from 'src/api/pagos/usePagosApi';
 import { useAsignacionesMaquinariaApi } from 'src/api/asignacionesMaquinaria/useAsignacionesMaquinaria';
 import { useAsignacionesPersonalApi } from 'src/api/asignacionesPersonal/useAsignacionesPersonal';
 import { useRevisionesApi } from 'src/api/revisiones/useRevisionesApi';
-import { ActualizarRevision, ConfigProyecto, NuevaAsignacionMaquinaria, NuevaRevision, NuevoProyecto, Proyecto } from 'src/api/types';
+import {
+  ActualizarRevision,
+  ConfigProyecto,
+  NuevaAsignacionMaquinaria,
+  NuevaRevision,
+  NuevoProyecto,
+  Proyecto,
+} from 'src/api/types';
 import { format } from 'date-fns';
 import { PizarronPendientes } from 'src/components/pendientes/pizarron-pendientes';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
@@ -35,7 +42,7 @@ const Page: NextPage = () => {
   const settings = useSettings();
   usePageView();
   const router = useRouter();
-  const { getProyectoInfo, actualizarProyecto } = useProyectosApi();
+  const { getProyectoInfo, actualizarProyecto, actualizarEstadoProyecto } = useProyectosApi();
   const { crearAmpliacion, editarAmpliacion, eliminarAmpliacion } = useAmpliacionesApi();
   const { crearPresupuestoAmpliacion, actualizarPresupuesto, eliminarPresupuesto } =
     usePresupuestosApi();
@@ -57,6 +64,7 @@ const Page: NextPage = () => {
   const { crearRevision, actualizarRevision, eliminarRevision } = useRevisionesApi();
 
   const canEditDatosBasicos = useHasPermission(PermissionId.EDITAR_PROYECTO_BASICO);
+  const canModifyProjectState = useHasPermission(PermissionId.EDITAR_PROYECTO_BASICO);
   const canViewPizarronProyecto = useHasPermission(PermissionId.VER_TAREAS_PROYECTO);
   const canViewResumenFinanciero = useHasPermission(PermissionId.VER_INGRESOS_COSTOS_PROYECTO);
   const canViewAsignacionesMaquinaria = useHasPermission(PermissionId.VER_ASIGNACIONES_MAQUINARIA);
@@ -107,6 +115,26 @@ const Page: NextPage = () => {
       }
     },
     [router.query.id, actualizarProyecto, getProyectoInfo]
+  );
+
+  const handleActualizarEstado = useCallback(
+    async (nuevoEstado: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado') => {
+      const id = router.query.id;
+      if (!id || Array.isArray(id)) return;
+
+      try {
+        setLoading(true);
+        await actualizarEstadoProyecto(parseInt(id), nuevoEstado);
+        const updated = await getProyectoInfo(parseInt(id));
+        setConfig(updated);
+        toast.success('Estado del proyecto actualizado correctamente');
+      } catch (error) {
+        toast.error('Error al actualizar el estado del proyecto');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router.query.id, actualizarEstadoProyecto, getProyectoInfo]
   );
 
   const handleAmpliarFecha = useCallback(
@@ -615,10 +643,10 @@ const Page: NextPage = () => {
     return (
       <Box
         component="main"
-        sx={{ 
-          flexGrow: 1, 
+        sx={{
+          flexGrow: 1,
           py: 8,
-          position: 'relative'
+          position: 'relative',
         }}
       >
         <Container maxWidth={settings.stretch ? false : 'xl'}>
@@ -652,10 +680,18 @@ const Page: NextPage = () => {
     totalPagos,
   } = config;
 
-  const { id, nombre, ubicacion, fechaInicio, fechaFin, socio_asignado, presupuestoInicial } =
-    datosBasicos;
+  const {
+    id,
+    nombre,
+    ubicacion,
+    fechaInicio,
+    fechaFin,
+    socio_asignado,
+    presupuestoInicial,
+    estado,
+  } = datosBasicos;
 
-  const { valor_total: valorInventarioProyecto} = materialPlanificado
+  const { valor_total: valorInventarioProyecto } = materialPlanificado;
 
   return (
     <Box
@@ -673,8 +709,134 @@ const Page: NextPage = () => {
           >
             <Box>
               <Typography variant="h4">{nombre}</Typography>
-              <Typography color="text.secondary">{ubicacion}</Typography>
-              <Typography color="text.secondary">Empresa - {socio_asignado.nombre}</Typography>
+              {datosBasicos.identificador && (
+                <Typography
+                  color="text.secondary"
+                  sx={{ fontStyle: 'italic', mb: 0.5 }}
+                >
+                  Identificador - {datosBasicos.identificador}
+                </Typography>
+              )}
+              <Typography color="text.secondary">Ubicación - {ubicacion}</Typography>
+              <Typography color="text.secondary">Socio - {socio_asignado.nombre}</Typography>
+
+              <Box sx={{ mt: 2 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 1 }}
+                >
+                  Estado del proyecto:
+                </Typography>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  flexWrap="wrap"
+                  useFlexGap
+                >
+                  {(canModifyProjectState
+                    ? (['pendiente', 'en_progreso', 'pausado', 'completado', 'archivado'] as const)
+                    : ([estado] as (
+                        | 'pendiente'
+                        | 'en_progreso'
+                        | 'pausado'
+                        | 'completado'
+                        | 'archivado'
+                      )[])
+                  ).map((estadoOption) => (
+                    <Chip
+                      key={estadoOption}
+                      label={
+                        estadoOption === 'en_progreso'
+                          ? 'En Progreso'
+                          : estadoOption === 'pendiente'
+                          ? 'Pendiente'
+                          : estadoOption === 'pausado'
+                          ? 'Pausado'
+                          : estadoOption === 'completado'
+                          ? 'Completado'
+                          : 'Archivado'
+                      }
+                      variant={estado === estadoOption ? 'filled' : 'outlined'}
+                      sx={{
+                        cursor: canModifyProjectState ? 'pointer' : 'default',
+                        backgroundColor:
+                          estado === estadoOption
+                            ? estadoOption === 'completado'
+                              ? '#e8f5e8'
+                              : estadoOption === 'en_progreso'
+                              ? '#e3f2fd'
+                              : estadoOption === 'pausado'
+                              ? '#fff8e1'
+                              : estadoOption === 'archivado'
+                              ? '#fce4ec'
+                              : '#f5f5f5'
+                            : 'transparent',
+                        border: `1px solid ${
+                          estadoOption === 'completado'
+                            ? '#66bb6a'
+                            : estadoOption === 'en_progreso'
+                            ? '#42a5f5'
+                            : estadoOption === 'pausado'
+                            ? '#ffa726'
+                            : estadoOption === 'archivado'
+                            ? '#ef5350'
+                            : '#bdbdbd'
+                        }`,
+                        color:
+                          estado === estadoOption
+                            ? estadoOption === 'completado'
+                              ? '#2e7d32'
+                              : estadoOption === 'en_progreso'
+                              ? '#1565c0'
+                              : estadoOption === 'pausado'
+                              ? '#ef6c00'
+                              : estadoOption === 'archivado'
+                              ? '#c62828'
+                              : '#616161'
+                            : estadoOption === 'completado'
+                            ? '#66bb6a'
+                            : estadoOption === 'en_progreso'
+                            ? '#42a5f5'
+                            : estadoOption === 'pausado'
+                            ? '#ffa726'
+                            : estadoOption === 'archivado'
+                            ? '#ef5350'
+                            : '#bdbdbd',
+                        ...(canModifyProjectState && {
+                          '&:hover': {
+                            backgroundColor:
+                              estadoOption === 'completado'
+                                ? '#c8e6c9'
+                                : estadoOption === 'en_progreso'
+                                ? '#bbdefb'
+                                : estadoOption === 'pausado'
+                                ? '#ffecb3'
+                                : estadoOption === 'archivado'
+                                ? '#f8bbd9'
+                                : '#eeeeee',
+                            border: `1px solid ${
+                              estadoOption === 'completado'
+                                ? '#4caf50'
+                                : estadoOption === 'en_progreso'
+                                ? '#2196f3'
+                                : estadoOption === 'pausado'
+                                ? '#ff9800'
+                                : estadoOption === 'archivado'
+                                ? '#e91e63'
+                                : '#9e9e9e'
+                            }`,
+                          },
+                        }),
+                      }}
+                      {...(canModifyProjectState && {
+                        onClick: () => handleActualizarEstado(estadoOption),
+                        clickable: true,
+                      })}
+                    />
+                  ))}
+                </Stack>
+              </Box>
             </Box>
             {canEditDatosBasicos && (
               <Button
@@ -750,7 +912,9 @@ const Page: NextPage = () => {
               handleEliminarAsignacionPersonal={handleEliminarAsignacionPersonal}
             />
           )}
-          {canViewMaterialPlanificado && <MaterialPlanificado materialPlanificado={materialPlanificado} />}
+          {canViewMaterialPlanificado && (
+            <MaterialPlanificado materialPlanificado={materialPlanificado} />
+          )}
           {canViewRevisiones && (
             <Revisiones
               revisiones={revisiones}

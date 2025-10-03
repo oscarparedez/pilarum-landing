@@ -68,6 +68,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Ver ampliaciones de fecha de fin de proyecto': 227,
   'Editar ampliación de fecha de fin de proyecto': 228,
   'Eliminar ampliación de fecha de fin de proyecto': 229,
+  'Modificar estado del proyecto': 230,
 
   // 🏗️ PROYECTOS — 📌 Pizarrón de proyecto (240–249)
   'Ver tareas de proyecto': 240,
@@ -121,6 +122,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Crear maquinaria': 301,
   'Editar datos básicos de una maquinaria': 302,
   'Eliminar maquinaria': 303,
+  'Modificar estado de maquinaria': 304,
 
   // 🚜 MAQUINARIA — 💵 Costos de maquinaria (310–319)
   'Ver costo de adquisición de maquinaria': 310,

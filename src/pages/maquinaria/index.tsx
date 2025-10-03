@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
-import FilterIcon from '@untitled-ui/icons-react/build/esm/FilterFunnel01';
 import TrashIcon from '@untitled-ui/icons-react/build/esm/Trash01';
 import VisibilityIcon from '@untitled-ui/icons-react/build/esm/Eye';
 
@@ -13,12 +12,14 @@ import {
   Stack,
   SvgIcon,
   Typography,
-  Chip,
-  Divider,
+  Card,
+  CardContent,
+  CardActions,
   alpha,
   IconButton,
+  Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
+import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtros/tabla-paginada-con-filtros';
 
 import { Seo } from 'src/components/seo';
 import { usePageView } from 'src/hooks/use-page-view';
@@ -61,9 +62,9 @@ const Page: NextPage = () => {
   const router = useRouter();
   usePageView();
 
-  const [tab, setTab] = useState<'todos' | 'maquinaria' | 'herramienta'>('todos');
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
   const [recursos, setRecursos] = useState<MaquinariaGeneralConfig[]>([]);
+  const [filteredRecursos, setFilteredRecursos] = useState<MaquinariaGeneralConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -77,6 +78,7 @@ const Page: NextPage = () => {
     try {
       const data = await getMaquinariasConAsignaciones();
       setRecursos(data as any);
+      setFilteredRecursos(data as any);
     } catch (err) {
       console.error('Error al cargar recursos:', err);
       toast.error('Error al cargar recursos');
@@ -128,7 +130,198 @@ const Page: NextPage = () => {
     }
   };
 
-  const recursosFiltrados = recursos.filter((r: any) => (tab === 'todos' ? true : r.tipo === tab));
+  const handleFiltrar = useCallback(
+    (filtros: { search: string; estado?: string }) => {
+      let filtered = [...recursos];
+
+      // Filtro por búsqueda de texto
+      if (filtros.search) {
+        const searchLower = filtros.search.toLowerCase();
+        filtered = filtered.filter(
+          (recurso: any) =>
+            recurso.nombre?.toLowerCase().includes(searchLower) ||
+            recurso.identificador?.toLowerCase().includes(searchLower) ||
+            recurso.tipo?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Filtro por estado
+      if (filtros.estado) {
+        filtered = filtered.filter((recurso: any) => recurso.estado === filtros.estado);
+      }
+
+      setFilteredRecursos(filtered);
+    },
+    [recursos]
+  );
+
+  const renderRecursoCard = (recurso: any) => {
+    const asignaciones = (recurso.asignaciones ?? []) as any[];
+    const activas = asignaciones.filter((a) => estaActivaHoy(a?.fecha_entrada, a?.fecha_fin));
+
+    return (
+      <Card
+        key={recurso.id}
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
+          },
+        }}
+      >
+        <CardContent sx={{ flexGrow: 1 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            sx={{ mb: 2 }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600 }}
+            >
+              {recurso.nombre}
+            </Typography>
+            <Chip
+              label={recurso.estado === 'activo' ? 'Activo' : 'Inactivo'}
+              size="small"
+              sx={{
+                backgroundColor: recurso.estado === 'activo' ? '#e8f5e8' : '#fce4ec',
+                color: recurso.estado === 'activo' ? '#2e7d32' : '#c62828',
+                border: `1px solid ${recurso.estado === 'activo' ? '#66bb6a' : '#ef5350'}`,
+                fontWeight: 500,
+                fontSize: '0.75rem',
+              }}
+            />
+          </Stack>
+
+          <Stack spacing={1.5}>
+            <Typography
+              variant="body2"
+              color="primary.main"
+              sx={{ fontWeight: 500, textTransform: 'capitalize' }}
+            >
+              📋 Tipo: {recurso.tipo}
+            </Typography>
+
+            {recurso.identificador && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+              >
+                🏷️ Identificador: {recurso.identificador}
+              </Typography>
+            )}
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontWeight: 500, mt: 2 }}
+            >
+              📅 Asignaciones activas hoy:
+            </Typography>
+
+            {activas.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontStyle: 'italic', pl: 2 }}
+              >
+                Sin asignaciones activas
+              </Typography>
+            ) : (
+              activas.map((a, index) => {
+                const proyectoId = a?.proyecto?.id;
+                const proyectoNombre = a?.proyecto?.nombre ?? 'Proyecto sin nombre';
+                const rango = `${formatearFecha(a?.fecha_entrada)} - ${formatearFecha(
+                  a?.fecha_fin
+                )}`;
+                const dias = a?.dias_asignados?.join(', ') || 'Todos los días';
+
+                return (
+                  <Box
+                    key={index}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => {
+                      if (proyectoId) {
+                        router.push(paths.dashboard.proyectos.detalle(proyectoId));
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (proyectoId) {
+                          router.push(paths.dashboard.proyectos.detalle(proyectoId));
+                        }
+                      }
+                    }}
+                    sx={{
+                      cursor: proyectoId ? 'pointer' : 'default',
+                      p: 1.5,
+                      borderRadius: 1,
+                      backgroundColor: 'action.hover',
+                      transition: 'all 0.2s',
+                      '&:hover': proyectoId
+                        ? {
+                            backgroundColor: 'primary.light',
+                            color: 'primary.contrastText',
+                          }
+                        : undefined,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500 }}
+                    >
+                      🏗️ {proyectoNombre}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      display="block"
+                    >
+                      📅 Período: {rango}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      display="block"
+                    >
+                      📋 Días: {dias}
+                    </Typography>
+                  </Box>
+                );
+              })
+            )}
+          </Stack>
+        </CardContent>
+
+        <CardActions sx={{ justifyContent: 'flex-end', pt: 0 }}>
+          <IconButton
+            color="success"
+            onClick={() => handleVerDetalles(recurso.id)}
+          >
+            <SvgIcon>
+              <VisibilityIcon />
+            </SvgIcon>
+          </IconButton>
+          {canDeleteMaquinaria && (
+            <IconButton
+              color="error"
+              onClick={() => setDeleteId(recurso.id)}
+            >
+              <SvgIcon>
+                <TrashIcon />
+              </SvgIcon>
+            </IconButton>
+          )}
+        </CardActions>
+      </Card>
+    );
+  };
 
   return (
     <>
@@ -139,244 +332,79 @@ const Page: NextPage = () => {
         sx={{ flexGrow: 1, py: 8 }}
       >
         <Container maxWidth={settings.stretch ? false : 'xl'}>
-          <Grid
-            container
-            disableEqualOverflow
-            spacing={{ xs: 3, lg: 4 }}
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            spacing={4}
+            sx={{ mb: 4 }}
           >
-            <Grid xs={12}>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="flex-start"
-                spacing={4}
-                sx={{ mb: 3 }}
-              >
-                <Typography variant="h4">Maquinaria y Herramientas</Typography>
-                {canCreateMaquinaria && (
-                  <Button
-                    startIcon={
-                      <SvgIcon>
-                        <PlusIcon />
-                      </SvgIcon>
-                    }
-                    variant="contained"
-                    onClick={handleCrear}
-                  >
-                    Agregar recurso
-                  </Button>
-                )}
-              </Stack>
-            </Grid>
-
-            {/* Filtro por tipo */}
-            <Grid xs={12}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={1.5}
-                flexWrap="wrap"
-                sx={{ mb: 3 }}
-              >
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: 600,
-                    color: 'text.primary',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
-                  }}
-                >
-                  <SvgIcon fontSize="medium">
-                    <FilterIcon />
+            <Typography variant="h4">Maquinaria y Herramientas</Typography>
+            {canCreateMaquinaria && (
+              <Button
+                startIcon={
+                  <SvgIcon>
+                    <PlusIcon />
                   </SvgIcon>
-                  Filtrar por tipo
-                </Typography>
+                }
+                variant="contained"
+                onClick={handleCrear}
+              >
+                Agregar recurso
+              </Button>
+            )}
+          </Stack>
 
-                <Chip
-                  label="Todos"
-                  size="medium"
-                  variant={tab === 'todos' ? 'filled' : 'outlined'}
-                  color="success"
-                  onClick={() => setTab('todos')}
-                  sx={{ fontSize: '0.9rem', fontWeight: tab === 'todos' ? 600 : 500, px: 1.5 }}
-                />
-                <Chip
-                  label="Maquinarias"
-                  size="medium"
-                  variant={tab === 'maquinaria' ? 'filled' : 'outlined'}
-                  color="success"
-                  onClick={() => setTab('maquinaria')}
-                  sx={{ fontSize: '0.9rem', fontWeight: tab === 'maquinaria' ? 600 : 500, px: 1.5 }}
-                />
-                <Chip
-                  label="Herramientas"
-                  size="medium"
-                  variant={tab === 'herramienta' ? 'filled' : 'outlined'}
-                  color="success"
-                  onClick={() => setTab('herramienta')}
-                  sx={{
-                    fontSize: '0.9rem',
-                    fontWeight: tab === 'herramienta' ? 600 : 500,
-                    px: 1.5,
-                  }}
-                />
-              </Stack>
-            </Grid>
+          <TablaPaginadaConFiltros
+            onFiltrar={handleFiltrar}
+            totalItems={filteredRecursos.length}
+            itemsPerPage={6}
+            filtrosSearch={true}
+            filtrosFecha={false}
+            filtrosEstado={false}
+            filtrosRol={false}
+            filtrosEmpresa={false}
+            filtrosTipoIngreso={false}
+            filtrosTipoOrigen={false}
+            filtrosEstadoOpciones={['activo', 'inactivo']}
+            estadoLabel="Estado maquinaria"
+          >
+            {(currentPage) => {
+              const startIndex = (currentPage - 1) * 6;
+              const endIndex = startIndex + 6;
+              const paginatedRecursos = filteredRecursos.slice(startIndex, endIndex);
 
-            {recursosFiltrados.length === 0 ? (
-              <Grid xs={12}>
-                <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
-                  <Typography
-                    variant="h6"
-                    color="text.secondary"
-                    gutterBottom
-                  >
-                    No hay recursos disponibles
-                  </Typography>
-                </Box>
-              </Grid>
-            ) : (
-              recursosFiltrados.map((recurso: any) => (
-                <Grid
-                  key={recurso.id}
-                  xs={12}
-                  md={6}
-                  lg={4}
-                >
-                  <Box
-                    sx={{
-                      border: '2px solid',
-                      borderColor: 'divider',
-                      borderRadius: 3,
-                      p: 3,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 2,
-                      height: '100%',
-                      transition: 'all 0.2s ease-in-out',
-                      '&:hover': {
-                        borderColor: 'primary.main',
-                        transform: 'translateY(-2px)',
-                        boxShadow: (theme) =>
-                          `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
-                      },
-                    }}
-                  >
+              if (paginatedRecursos.length === 0) {
+                return (
+                  <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
                     <Typography
                       variant="h6"
-                      sx={{ fontWeight: 600 }}
-                    >
-                      {recurso.nombre}
-                    </Typography>
-
-                    {recurso.identificador && (
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        🏷️ {recurso.identificador}
-                      </Typography>
-                    )}
-
-                    {/* Asignaciones activas hoy */}
-                    <Typography
-                      variant="body2"
                       color="text.secondary"
-                      sx={{ mt: 1 }}
+                      gutterBottom
                     >
-                      Asignaciones activas:
+                      No hay recursos disponibles
                     </Typography>
-
-                    {(() => {
-                      const asignaciones = (recurso.asignaciones ?? []) as any[];
-                      const activas = asignaciones.filter((a) =>
-                        estaActivaHoy(a?.fecha_entrada, a?.fecha_fin)
-                      );
-
-                      if (activas.length === 0) {
-                        return (
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                          >
-                            Sin asignaciones activas
-                          </Typography>
-                        );
-                      }
-
-                      return activas.map((a, index) => {
-                        const proyectoId = a?.proyecto?.id;
-                        const proyectoNombre = a?.proyecto?.nombre ?? 'Proyecto';
-                        const rango = `${formatearFecha(a?.fecha_entrada)} - ${formatearFecha(
-                          a?.fecha_fin
-                        )}`;
-                        const dias = a?.dias_asignados.join(', ');
-
-                        return (
-                          <Box
-                            key={index}
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => {
-                              if (proyectoId) {
-                                router.push(paths.dashboard.proyectos.detalle(proyectoId));
-                              }
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                if (proyectoId) {
-                                  router.push(paths.dashboard.proyectos.detalle(proyectoId));
-                                }
-                              }
-                            }}
-                            sx={{
-                              cursor: proyectoId ? 'pointer' : 'default',
-                              color: 'text.secondary',
-                              '&:hover': proyectoId ? { color: 'primary.main' } : undefined,
-                            }}
-                          >
-                            <Typography variant="body2">
-                              {dias}: {proyectoNombre} ({rango})
-                            </Typography>
-                          </Box>
-                        );
-                      });
-                    })()}
-
-                    <Divider sx={{ my: 1 }} />
-
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      justifyContent="flex-end"
-                    >
-                      <IconButton
-                        color="success"
-                        onClick={() => handleVerDetalles(recurso.id)}
-                      >
-                        <SvgIcon>
-                          <VisibilityIcon />
-                        </SvgIcon>
-                      </IconButton>
-                      {canDeleteMaquinaria && (
-                        <IconButton
-                          color="error"
-                          onClick={() => setDeleteId(recurso.id)}
-                        >
-                          <SvgIcon>
-                            <TrashIcon />
-                          </SvgIcon>
-                        </IconButton>
-                      )}
-                    </Stack>
                   </Box>
-                </Grid>
-              ))
-            )}
-          </Grid>
+                );
+              }
+
+              return (
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      sm: 'repeat(2, 1fr)',
+                      lg: 'repeat(3, 1fr)',
+                    },
+                    gap: 3,
+                  }}
+                >
+                  {paginatedRecursos.map((recurso) => renderRecursoCard(recurso))}
+                </Box>
+              );
+            }}
+          </TablaPaginadaConFiltros>
         </Container>
       </Box>
 

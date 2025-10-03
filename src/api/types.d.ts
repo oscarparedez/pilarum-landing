@@ -52,10 +52,12 @@ export interface ConfigProyecto {
     id: number;
     nombre: string;
     ubicacion: string;
+    identificador: string;
     fechaInicio: string;
     fechaFin: string;
     presupuestoInicial: number;
     socio_asignado: Socio;
+    estado: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado';
   };
   presupuestoTotal: number;
   totalIngresos: number;
@@ -262,19 +264,23 @@ export interface Proyecto {
   id: number;
   nombre: string;
   ubicacion: string;
+  identificador: string;
   presupuestoInicial: number;
   socio_asignado: Socio;
   fechaInicio: string;
   fechaFin: string;
+  estado: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado';
 }
 
 export interface NuevoProyecto {
   nombre: string;
   ubicacion: string;
+  identificador: string;
   presupuestoInicial: number;
   socio_asignado: number;
   fecha_inicio: string;
   fecha_fin: string;
+  estado?: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado';
 }
 
 export type TipoGastoOperativo = 1 | 2; // 1 = combustible, 2 = servicio
@@ -392,6 +398,7 @@ export interface ConfigMaquinaria {
   fecha_compra: string;
   tipo_documento: TipoDocumento;
   anotaciones?: string;
+  estado: 'activo' | 'inactivo';
   totalServicios: number;
   totalCombustibleUltimoMes: number;
   asignaciones: AsignacionMaquinaria[];
@@ -411,6 +418,7 @@ export interface Maquinaria {
   anotaciones?: string;
   fecha_creacion: string;     // ISO date-time
   usuario_creador: Usuario;   // Ya tienes esta interface
+  estado: 'activo' | 'inactivo';
 }
 
 export interface NuevaMaquinaria {
@@ -421,6 +429,7 @@ export interface NuevaMaquinaria {
   fecha_compra: string;      // 'YYYY-MM-DD'
   tipo_documento: TipoDocumento;
   anotaciones?: string;
+  estado?: 'activo' | 'inactivo';
 }
 
 export type CategoriaPendiente = 'proyecto' | 'maquinaria' | 'oficina' | 'otro';
@@ -432,6 +441,7 @@ export interface NuevoPendiente {
   categoria: CategoriaPendiente;
   referencia_id: number | null;
   estado?: EstadoPendiente;
+  usuario_asignado?: number | null;
 }
 
 export interface Pendiente {
@@ -445,6 +455,7 @@ export interface Pendiente {
   fecha_completado: string | null; // puede ser null si no está completado
   usuario_creador: Usuario | null;
   usuario_completo: Usuario | null;
+  usuario_asignado: Usuario | null;
 }
 
 export interface Rol {

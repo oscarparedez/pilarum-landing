@@ -46,7 +46,8 @@ export const useProyectosApi = () => {
       const url = `${API_BASE_URL}/proyectos/${buildQuery(query)}`;
       const res = await fetchWithAuth(url, { method: 'GET' });
       if (!res.ok) throw new Error('Error al obtener proyectos');
-      return await res.json();
+      const rawData = await res.json();
+      return rawData.map(mapProyectoDatosBasicosToFrontend);
     },
     [fetchWithAuth]
   );
@@ -86,6 +87,7 @@ export const useProyectosApi = () => {
         body: JSON.stringify({
           nombre: data.nombre,
           ubicacion: data.ubicacion,
+          identificador: data.identificador,
           fecha_inicio: data.fecha_inicio,
           fecha_fin: data.fecha_fin,
           socio_asignado: data.socio_asignado,
@@ -133,6 +135,18 @@ export const useProyectosApi = () => {
     [fetchWithAuth]
   );
 
+  const actualizarEstadoProyecto = useCallback(
+    async (id: number, estado: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado'): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/proyectos/${id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado }),
+      });
+      if (!res.ok) throw new Error('Error al actualizar estado del proyecto');
+    },
+    [fetchWithAuth]
+  );
+
   const getProyectoInfo = useCallback(
     async (id: number): Promise<ConfigProyecto> => {
       try {
@@ -174,8 +188,10 @@ export const useProyectosApi = () => {
           id: proyecto.id,
           nombre: proyecto.nombre,
           ubicacion: proyecto.ubicacion,
+          identificador: proyecto.identificador,
           fecha_inicio: proyecto.fechaInicio,
           fecha_fin: proyecto.fechaFin,
+          estado: proyecto.estado,
           socio_asignado: proyecto.socio_asignado,
           socios: socios,
           ingresos,
@@ -219,6 +235,7 @@ export const useProyectosApi = () => {
     getProyectoById,
     crearProyecto,
     actualizarProyecto,
+    actualizarEstadoProyecto,
     eliminarProyecto,
     getProyectoInfo,
   };

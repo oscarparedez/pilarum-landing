@@ -58,7 +58,7 @@ export const Maquinaria: FC<MaquinariaProps> = ({
 
   const [filtros, setFiltros] = useState<{
     search: string;
-    estado?: 'Activo' | 'Inactivo' | 'Todos';
+    estado?: string;
   }>({
     search: '',
     estado: 'Todos',

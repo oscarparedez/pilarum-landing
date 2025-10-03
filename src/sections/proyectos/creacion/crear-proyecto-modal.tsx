@@ -27,6 +27,7 @@ interface CrearProyectoModalProps {
   onConfirm: (data: {
     nombre: string;
     ubicacion: string;
+    identificador: string;
     presupuestoInicial: number;
     socio_asignado: string;
     fecha_inicio: string;
@@ -43,6 +44,7 @@ interface Socio {
 export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose, onConfirm }) => {
   const [nombre, setNombre] = useState('');
   const [ubicacion, setUbicacion] = useState('');
+  const [identificador, setIdentificador] = useState('');
   const [presupuesto, setPresupuesto] = useState<number | ''>('');
   const [socioAsignado, setSocioAsignado] = useState('');
   const [fechaInicio, setFechaInicio] = useState<Date | null>(new Date());
@@ -68,16 +70,33 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
     }
   }, [open, getSociosInternos]);
 
+  const clearFields = () => {
+    setNombre('');
+    setUbicacion('');
+    setIdentificador('');
+    setPresupuesto('');
+    setSocioAsignado('');
+    setFechaInicio(new Date());
+    setFechaFin(new Date());
+  };
+
+  const handleClose = () => {
+    clearFields();
+    onClose();
+  };
+
   const handleConfirm = () => {
-    if (nombre && ubicacion && presupuesto !== '' && socioAsignado && fechaInicio && fechaFin) {
+    if (nombre && ubicacion && identificador && presupuesto !== '' && socioAsignado && fechaInicio && fechaFin) {
       onConfirm({
         nombre,
         ubicacion,
+        identificador,
         presupuestoInicial: Number(presupuesto),
         socio_asignado: socioAsignado,
         fecha_inicio: format(fechaInicio, 'yyyy-MM-dd'),
         fecha_fin: format(fechaFin, 'yyyy-MM-dd')
       });
+      clearFields();
       onClose();
     }
   };
@@ -85,7 +104,7 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullScreen={fullScreen}
       fullWidth
       maxWidth="md"
@@ -113,6 +132,13 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
             fullWidth
             value={ubicacion}
             onChange={(e) => setUbicacion(e.target.value)}
+          />
+
+          <TextField
+            label="Identificador"
+            fullWidth
+            value={identificador}
+            onChange={(e) => setIdentificador(e.target.value)}
           />
 
           <TextField
@@ -178,10 +204,10 @@ export const CrearProyectoModal: FC<CrearProyectoModalProps> = ({ open, onClose,
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleClose}>Cancelar</Button>
         <Button
           variant="contained"
-          disabled={!nombre || !ubicacion || presupuesto === '' || !socioAsignado || !fechaInicio || !fechaFin}
+          disabled={!nombre || !ubicacion || !identificador || presupuesto === '' || !socioAsignado || !fechaInicio || !fechaFin}
           onClick={handleConfirm}
         >
           Guardar proyecto

@@ -83,6 +83,18 @@ export const useMaquinariasApi = () => {
     [fetchWithAuth]
   );
 
+  const actualizarEstadoMaquinaria = useCallback(
+    async (id: number, estado: 'activo' | 'inactivo'): Promise<void> => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado }),
+      });
+      if (!res.ok) throw new Error('Error al actualizar estado de la maquinaria');
+    },
+    [fetchWithAuth]
+  );
+
   const eliminarMaquinaria = useCallback(
     async (id: number): Promise<void> => {
       const res = await fetchWithAuth(`${API_BASE_URL}/maquinarias/${id}/`, {
@@ -192,6 +204,7 @@ export const useMaquinariasApi = () => {
         nombre: maquinaria.nombre,
         identificador: maquinaria.identificador,
         tipo: maquinaria.tipo,
+        estado: maquinaria.estado || 'activo', // Fallback to 'activo' if undefined
         costo: maquinaria.costo,
         fecha_compra: maquinaria.fecha_compra,
         tipo_documento: maquinaria.tipo_documento,
@@ -213,6 +226,7 @@ export const useMaquinariasApi = () => {
     getMaquinariaById,
     crearMaquinaria,
     actualizarMaquinaria,
+    actualizarEstadoMaquinaria,
     eliminarMaquinaria,
 
     // 📊 Gastos operativos

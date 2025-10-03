@@ -64,7 +64,7 @@ export const PersonalAsignado: FC<PersonalAsignadoProps> = ({
 
   const [filtros, setFiltros] = useState<{
     search: string;
-    estado?: 'Activo' | 'Inactivo' | 'Todos';
+    estado?: string;
   }>({ search: '', estado: 'Todos' });
 
   const today = useMemo(() => new Date(), []);

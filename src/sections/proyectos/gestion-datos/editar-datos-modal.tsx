@@ -37,6 +37,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
 }) => {
   const [nombre, setNombre] = useState(initialData.nombre);
   const [ubicacion, setUbicacion] = useState(initialData.ubicacion);
+  const [identificador, setIdentificador] = useState(initialData.identificador);
   const [presupuestoInicial, setPresupuestoInicial] = useState<number>(
     initialData.presupuestoInicial
   );
@@ -48,10 +49,11 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleEditarDatosBasicos = useCallback(() => {
-    if (nombre && ubicacion && presupuestoInicial && fechaInicio && fechaFin && socio?.id) {
+    if (nombre && ubicacion && identificador && presupuestoInicial && fechaInicio && fechaFin && socio?.id) {
       onEditarDatosBasicos({
         nombre,
         ubicacion,
+        identificador,
         presupuestoInicial,
         fecha_inicio: format(fechaInicio, 'yyyy-MM-dd'),
         fecha_fin: format(fechaFin, 'yyyy-MM-dd'),
@@ -62,6 +64,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
   }, [
     nombre,
     ubicacion,
+    identificador,
     presupuestoInicial,
     fechaInicio,
     fechaFin,
@@ -101,6 +104,13 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
             fullWidth
             value={ubicacion}
             onChange={(e) => setUbicacion(e.target.value)}
+          />
+
+          <TextField
+            label="Identificador"
+            fullWidth
+            value={identificador}
+            onChange={(e) => setIdentificador(e.target.value)}
           />
 
           <TextField
@@ -176,7 +186,7 @@ export const EditarDatosBasicosModal: FC<EditarDatosBasicosModalProps> = ({
         <Button onClick={onClose}>Cancelar</Button>
         <Button
           variant="contained"
-          disabled={!nombre || !ubicacion || !presupuestoInicial || !fechaInicio || !fechaFin || !socio}
+          disabled={!nombre || !ubicacion || !identificador || !presupuestoInicial || !fechaInicio || !fechaFin || !socio}
           onClick={handleEditarDatosBasicos}
         >
           Guardar

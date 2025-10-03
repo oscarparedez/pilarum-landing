@@ -33,6 +33,7 @@ interface Filtros {
   rol?: string;
   tipoIngresoId?: number;
   tipoOrigen?: string;
+  estado?: string;
 }
 
 interface TablaPaginadaConFiltrosProps {
@@ -51,6 +52,8 @@ interface TablaPaginadaConFiltrosProps {
   tiposIngreso?: TipoIngreso[];
   filtrosTipoOrigen?: boolean;
   opcionesTipoOrigen?: ['proyecto', 'orden_compra', 'gasto_maquinaria', 'compra_maquinaria'];
+  filtrosEstadoOpciones?: string[];
+  estadoLabel?: string;
   children: (
     currentPage: number,
     estadoFiltro?: string,
@@ -76,12 +79,15 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   tiposIngreso,
   filtrosTipoOrigen = false,
   opcionesTipoOrigen = ['proyecto', 'orden_compra', 'gasto_maquinaria', 'compra_maquinaria'],
+  filtrosEstadoOpciones,
+  estadoLabel = 'Estado',
   children,
 }) => {
   const [search, setSearch] = useState('');
   const [fechaInicio, setFechaInicio] = useState<Date | null>(null);
   const [fechaFin, setFechaFin] = useState<Date | null>(null);
   const [estado, setEstado] = useState('');
+  const [estadoProyecto, setEstadoProyecto] = useState('');
   const [rol, setRol] = useState('');
   const [empresa, setEmpresa] = useState('');
   const [tipoIngresoId, setTipoIngresoId] = useState<number | undefined>(undefined);
@@ -102,7 +108,8 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
           empresaValue: string,
           rolValue: string,
           tipoIdValue: number | undefined,
-          tipoOrigenValue: string
+          tipoOrigenValue: string,
+          estadoProyectoValue: string
         ) => {
           onFiltrar({
             search: searchValue ?? '',
@@ -112,6 +119,7 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
             rol: rolValue || undefined, // <- importante
             tipoIngresoId: tipoIdValue ? Number(tipoIdValue) : undefined,
             tipoOrigen: tipoOrigenValue || undefined,
+            estado: estadoProyectoValue || undefined,
           });
         },
         200
@@ -120,9 +128,9 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
   );
 
   useEffect(() => {
-    debouncedFiltrar(search, fechaInicio, fechaFin, empresa, rol, tipoIngresoId, tipoOrigen);
+    debouncedFiltrar(search, fechaInicio, fechaFin, empresa, rol, tipoIngresoId, tipoOrigen, estadoProyecto);
     return () => debouncedFiltrar.cancel();
-  }, [search, fechaInicio, fechaFin, empresa, rol, debouncedFiltrar, tipoIngresoId, tipoOrigen]);
+  }, [search, fechaInicio, fechaFin, empresa, rol, debouncedFiltrar, tipoIngresoId, tipoOrigen, estadoProyecto]);
 
   const renderedChildren = useMemo(() => {
     return children(
@@ -139,12 +147,13 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
     setFechaInicio(null);
     setFechaFin(null);
     setEstado('');
+    setEstadoProyecto('');
     setRol('');
     setEmpresa('');
     setPage(1);
   };
 
-  const hayFiltrosActivos = search || fechaInicio || fechaFin || estado || rol || empresa;
+  const hayFiltrosActivos = search || fechaInicio || fechaFin || estado || estadoProyecto || rol || empresa;
 
   return (
     <Box>
@@ -215,6 +224,39 @@ export const TablaPaginadaConFiltros: FC<TablaPaginadaConFiltrosProps> = ({
                 <MenuItem value="">Todos</MenuItem>
                 <MenuItem value="Activo">Activo</MenuItem>
                 <MenuItem value="Inactivo">Inactivo</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+
+          {filtrosEstadoOpciones && (
+            <FormControl
+              sx={{ minWidth: 190 }}
+              size="medium"
+            >
+              <InputLabel>{estadoLabel}</InputLabel>
+              <Select
+                value={estadoProyecto}
+                label={estadoLabel}
+                onChange={(e) => {
+                  setPage(1);
+                  setEstadoProyecto(e.target.value);
+                }}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                {filtrosEstadoOpciones.map((estadoOpcion) => (
+                  <MenuItem
+                    key={estadoOpcion}
+                    value={estadoOpcion}
+                  >
+                    {estadoOpcion === 'en_progreso' ? 'En Progreso' : 
+                     estadoOpcion === 'pendiente' ? 'Pendiente' :
+                     estadoOpcion === 'pausado' ? 'Pausado' :
+                     estadoOpcion === 'completado' ? 'Completado' :
+                     estadoOpcion === 'archivado' ? 'Archivado' :
+                     estadoOpcion === 'activo' ? 'Activo' :
+                     estadoOpcion === 'inactivo' ? 'Inactivo' : estadoOpcion}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           )}

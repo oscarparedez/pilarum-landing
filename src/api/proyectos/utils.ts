@@ -6,10 +6,12 @@ export const mapProyectoDatosBasicosToFrontend = (proyecto: any): Proyecto => {
     id: proyecto.id,
     nombre: proyecto.nombre,
     ubicacion: proyecto.ubicacion,
+    identificador: proyecto.identificador ?? '',
     presupuestoInicial: proyecto.presupuesto_inicial ?? 0,
     socio_asignado: proyecto.socio_asignado,
     fechaInicio: proyecto.fecha_inicio,
-    fechaFin: proyecto.fecha_fin
+    fechaFin: proyecto.fecha_fin,
+    estado: proyecto.estado || 'pendiente'
   };
 };
 
@@ -17,8 +19,10 @@ export const mapProyectoToConfig = (data: {
   id: number;              
   nombre: string;
   ubicacion: string;
+  identificador: string;
   fecha_inicio: string;
   fecha_fin: string;
+  estado: 'pendiente' | 'en_progreso' | 'pausado' | 'completado' | 'archivado';
   socios: Socio[];
   socio_asignado: any;
   ingresos: any[];
@@ -57,10 +61,12 @@ export const mapProyectoToConfig = (data: {
       id: data.id,
       nombre: data.nombre,
       ubicacion: data.ubicacion,
+      identificador: data.identificador,
       fechaInicio: data.fecha_inicio,
       fechaFin: fechaMasReciente,
       presupuestoInicial,
       socio_asignado: data.socio_asignado,
+      estado: data.estado || 'pendiente',
     },
     presupuestoTotal: presupuestoTotal,
     totalIngresos,

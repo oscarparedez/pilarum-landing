@@ -12,7 +12,7 @@ interface FiltrosGlobales {
   search: string;
   fechaInicio?: Date | null;
   fechaFin?: Date | null;
-  estado?: 'Activo' | 'Inactivo' | 'Todos';
+  estado?: string;
   empresa?: string;
   rol?: string;
   tipoIngresoId?: number;
