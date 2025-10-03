@@ -1,8 +1,9 @@
 import type { FC } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
 import LogOut01Icon from '@untitled-ui/icons-react/build/esm/LogOut01';
+import { Key } from '@mui/icons-material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -17,6 +18,8 @@ import { useAuth } from 'src/hooks/use-auth';
 import { useRouter } from 'src/hooks/use-router';
 import { paths } from 'src/paths';
 import { Issuer } from 'src/utils/auth';
+import { ModalCambiarContrasena } from 'src/sections/oficina/gestion-planilla/cambiar-contrasena-modal';
+import { usePlanillaApi } from 'src/api/planilla/usePlanillaApi';
 
 interface AccountPopoverProps {
   anchorEl: null | Element;
@@ -29,6 +32,9 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
   const router = useRouter();
   const auth = useAuth();
   const user = auth.user;
+  const { cambiarContrasenaPropia } = usePlanillaApi();
+
+  const [modalCambiarContrasenaOpen, setModalCambiarContrasenaOpen] = useState(false);
 
   const userInitials = useMemo(() => {
     const first = user?.first_name?.charAt(0)?.toUpperCase() || '';
@@ -57,6 +63,19 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
       toast.error('Something went wrong!');
     }
   }, [auth, router, onClose]);
+
+  const handleChangePassword = useCallback(
+    async (data: { old_password: string; new_password: string }) => {
+      try {
+        await cambiarContrasenaPropia(data);
+        toast.success('Contraseña cambiada exitosamente');
+        setModalCambiarContrasenaOpen(false);
+      } catch (error) {
+        toast.error('Error al cambiar la contraseña');
+      }
+    },
+    [cambiarContrasenaPropia]
+  );
 
   return (
     <Popover
@@ -157,6 +176,54 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
 
       <Divider />
 
+      {/* Change Password Section */}
+      <Box sx={{ p: 3, py: 2 }}>
+        <Button
+          fullWidth
+          variant="text"
+          onClick={() => setModalCambiarContrasenaOpen(true)}
+          sx={{
+            justifyContent: 'flex-start',
+            px: 2,
+            py: 1.5,
+            fontWeight: 500,
+            fontSize: '0.875rem',
+            textTransform: 'none',
+            color: 'text.primary',
+            borderRadius: 2,
+            border: 'none',
+            bgcolor: 'transparent',
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              bgcolor: 'action.hover',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            },
+            '&:active': {
+              transform: 'translateY(0px)',
+            },
+          }}
+          startIcon={
+            <SvgIcon
+              fontSize="small"
+              sx={{
+                color: 'inherit',
+                transition: 'transform 0.2s ease-in-out',
+                '.MuiButton-root:hover &': {
+                  transform: 'translateX(2px)',
+                },
+              }}
+            >
+              <Key />
+            </SvgIcon>
+          }
+        >
+          Cambiar contraseña
+        </Button>
+      </Box>
+
+      <Divider />
+
       {/* Logout Section */}
       <Box sx={{ p: 3, pt: 2 }}>
         <Button
@@ -203,6 +270,13 @@ export const AccountPopover: FC<AccountPopoverProps> = (props) => {
           Cerrar Sesión
         </Button>
       </Box>
+
+      {/* Change Password Modal */}
+      <ModalCambiarContrasena
+        open={modalCambiarContrasenaOpen}
+        onClose={() => setModalCambiarContrasenaOpen(false)}
+        onConfirm={handleChangePassword}
+      />
     </Popover>
   );
 };

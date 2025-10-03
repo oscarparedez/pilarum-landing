@@ -17,6 +17,7 @@ import { TablaPaginadaConFiltros } from 'src/components/tabla-paginada-con-filtr
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { ModalRegistrarPersona } from 'src/sections/oficina/gestion-planilla/crear-personal-modal';
 import { ModalEditarPersona } from 'src/sections/oficina/gestion-planilla/editar-personal-modal';
+import { ModalAdminResetPassword } from 'src/sections/oficina/gestion-planilla/admin-reset-password-modal';
 import { NextPage } from 'next';
 import { usePlanillaApi } from 'src/api/planilla/usePlanillaApi';
 import toast from 'react-hot-toast';
@@ -26,16 +27,20 @@ import { useRolesApi } from 'src/api/roles/useRolesApi';
 import { useHasPermission } from 'src/hooks/use-has-permissions';
 import { PermissionId } from 'src/constants/roles/permissions';
 import { FullPageLoader } from 'src/components/loader/Loader';
+import { useAuth } from 'src/hooks/use-auth';
 
 const Page: NextPage = () => {
-  const { getUsuarios, crearUsuario, actualizarUsuario } = usePlanillaApi();
+  const { getUsuarios, crearUsuario, actualizarUsuario, cambiarContrasenaAdmin } = usePlanillaApi();
   const { getRoles } = useRolesApi();
+  const { user: currentUser } = useAuth();
 
   const canCreateUsuarios = useHasPermission(PermissionId.CREAR_USUARIO_PLANILLA);
   const canEditUsuarios = useHasPermission(PermissionId.EDITAR_USUARIO_PLANILLA);
+  const canResetPasswords = useHasPermission(PermissionId.CAMBIAR_CONTRASENA_USUARIOS);
 
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
+  const [modalResetPasswordOpen, setModalResetPasswordOpen] = useState(false);
   const [personaSeleccionada, setPersonaSeleccionada] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(false);
   const [personal, setPersonal] = useState<Usuario[]>([]);
@@ -96,6 +101,26 @@ const Page: NextPage = () => {
       }
     },
     [actualizarUsuario, personaSeleccionada, fetchData]
+  );
+
+  const handleResetPassword = useCallback(
+    async (password: string) => {
+      if (!personaSeleccionada) return;
+      setLoading(true);
+      try {
+        await cambiarContrasenaAdmin(personaSeleccionada.id, { password });
+        toast.success(
+          `Contraseña restablecida para ${personaSeleccionada.first_name} ${personaSeleccionada.last_name}`,
+          { duration: 4000 }
+        );
+        setModalResetPasswordOpen(false);
+      } catch {
+        toast.error('No se pudo restablecer la contraseña');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [cambiarContrasenaAdmin, personaSeleccionada]
   );
 
   const handleFiltrar = useCallback((f: typeof filtros) => {
@@ -178,7 +203,9 @@ const Page: NextPage = () => {
                         <TableCell>Rol</TableCell>
                         <TableCell>Estado</TableCell>
                         <TableCell>Usuario creador</TableCell>
-                        {canEditUsuarios && <TableCell align="center">Acciones</TableCell>}
+                        {(canEditUsuarios || canResetPasswords) && (
+                          <TableCell align="center">Acciones</TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -200,18 +227,39 @@ const Page: NextPage = () => {
                             {persona.usuario_creador?.first_name}{' '}
                             {persona.usuario_creador?.last_name}
                           </TableCell>
-                          {canEditUsuarios && (
+                          {(canEditUsuarios || canResetPasswords) && (
                             <TableCell align="center">
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                onClick={() => {
-                                  setPersonaSeleccionada(persona);
-                                  setModalEditarOpen(true);
-                                }}
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                justifyContent="center"
                               >
-                                Ver detalles
-                              </Button>
+                                {canEditUsuarios && (
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => {
+                                      setPersonaSeleccionada(persona);
+                                      setModalEditarOpen(true);
+                                    }}
+                                  >
+                                    Ver detalles
+                                  </Button>
+                                )}
+                                {canResetPasswords && Number(currentUser?.id) !== persona.id && (
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    color="warning"
+                                    onClick={() => {
+                                      setPersonaSeleccionada(persona);
+                                      setModalResetPasswordOpen(true);
+                                    }}
+                                  >
+                                    Restablecer contraseña
+                                  </Button>
+                                )}
+                              </Stack>
                             </TableCell>
                           )}
                         </TableRow>
@@ -236,6 +284,15 @@ const Page: NextPage = () => {
               onClose={() => setModalEditarOpen(false)}
               initialData={personaSeleccionada}
               onConfirm={handleGuardarEdicion}
+            />
+          )}
+
+          {personaSeleccionada && (
+            <ModalAdminResetPassword
+              open={modalResetPasswordOpen}
+              onClose={() => setModalResetPasswordOpen(false)}
+              usuario={personaSeleccionada}
+              onConfirm={handleResetPassword}
             />
           )}
         </CardContent>

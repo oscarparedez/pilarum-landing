@@ -11,6 +11,7 @@ export const PERMISSION_LABEL_TO_ID: Record<string, number> = {
   'Crear usuario de planilla': 21,
   'Editar usuario de planilla': 22,
   'Dar de baja usuario de planilla': 23,
+  'Cambiar contraseña de usuarios': 24,
 
   // 📂 OFICINA — 🔐 Roles y permisos (40–59)
   'Ver roles y permisos': 40,
@@ -161,6 +162,7 @@ export const PermissionId = {
   CREAR_USUARIO_PLANILLA: 21,
   EDITAR_USUARIO_PLANILLA: 22,
   BAJA_USUARIO_PLANILLA: 23,
+  CAMBIAR_CONTRASENA_USUARIOS: 24,
   VER_ROLES_PERMISOS: 40,
   CREAR_ROL: 41,
   EDITAR_ROL: 42,
@@ -281,6 +283,7 @@ export const permisosAgrupados: Record<string, Record<string, string[]>> = {
       'Crear usuario de planilla',
       'Editar usuario de planilla',
       'Dar de baja usuario de planilla',
+      'Cambiar contraseña de usuarios',
     ],
     '🔐 Roles y permisos': [
       'Ver roles y permisos',

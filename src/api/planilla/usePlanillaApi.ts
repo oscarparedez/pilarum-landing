@@ -47,15 +47,29 @@ export const usePlanillaApi = () => {
     [fetchWithAuth]
   );
 
-  const cambiarContrasena = useCallback(
-    async (id: number, data: { old_password: string; new_password: string }) => {
+  const cambiarContrasenaAdmin = useCallback(
+    async (id: number, data: { password: string }) => {
       const res = await fetchWithAuth(`${API_BASE_URL}/usuarios/${id}/set_password/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ new_password: data.password }),
+      });
+
+      if (!res.ok) throw new Error('Error al cambiar contraseña (admin)');
+      return await res.json();
+    },
+    [fetchWithAuth]
+  );
+
+  const cambiarContrasenaPropia = useCallback(
+    async (data: { old_password: string; new_password: string }) => {
+      const res = await fetchWithAuth(`${API_BASE_URL}/usuarios/change_password/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
-      if (!res.ok) throw new Error('Error al cambiar contraseña');
+      if (!res.ok) throw new Error('Error al cambiar tu contraseña');
       return await res.json();
     },
     [fetchWithAuth]
@@ -65,6 +79,7 @@ export const usePlanillaApi = () => {
     getUsuarios,
     crearUsuario,
     actualizarUsuario,
-    cambiarContrasena,
+    cambiarContrasenaAdmin,
+    cambiarContrasenaPropia,
   };
 };
