@@ -1,11 +1,5 @@
 import type { FC } from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import {
   AccountBalance as FinanceIcon,
   Inventory as InventoryIcon,
@@ -20,6 +14,13 @@ export const LandingHero: FC = () => {
 
   const handleLogin = () => {
     router.push(paths.auth.login);
+  };
+
+  const handleWhatsAppContact = () => {
+    const message = 'Hola! Me interesa Pilarum para mis proyectos industriales';
+    const phoneNumber = '50254331544'; // Cambia por tu número (código país + número sin +)
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -48,35 +49,85 @@ export const LandingHero: FC = () => {
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '3rem', md: '4rem' },
+                  fontSize: { xs: '2.8rem', md: '3.8rem' },
                   fontWeight: 800,
                   color: '#1C2536',
                   lineHeight: 1.1,
-                  mb: 4,
+                  mb: 3,
                 }}
               >
-                Control total de tus{' '}
+                ¿Cansado de{' '}
                 <Box
                   component="span"
                   sx={{
-                    color: '#2970FF',
+                    color: '#DC2626',
                   }}
                 >
-                  proyectos industriales
-                </Box>
+                  perder dinero
+                </Box>{' '}
+                en tus obras?
               </Typography>
+
+              <Typography
+                variant="h5"
+                sx={{
+                  fontSize: { xs: '1.3rem', md: '1.5rem' },
+                  fontWeight: 600,
+                  color: '#374151',
+                  mb: 3,
+                  lineHeight: 1.4,
+                }}
+              >
+                El 73% de proyectos industriales se exceden en costos por falta de control
+              </Typography>
+
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: { xs: '1.5rem', md: '1.75rem' },
+                  fontSize: { xs: '1.1rem', md: '1.25rem' },
                   fontWeight: 400,
-                  color: '#6C737F',
+                  color: '#6B7280',
                   mb: 4,
                   lineHeight: 1.6,
                 }}
               >
-                Gestiona proyectos industriales, inventario, personal, maquinaria y finanzas en una sola plataforma.
-                Optimiza tiempos, reduce costos y maximiza la eficiencia de tus obras.
+                Termina con los sobrecostos, retrasos y el caos operativo. Controla todos los
+                costos, tiempos y recursos de tus proyectos industriales desde una sola plataforma.
+              </Typography>
+
+              <Box sx={{ mb: 4 }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleWhatsAppContact}
+                  sx={{
+                    backgroundColor: '#25D366',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 14px 0 rgba(37, 211, 102, 0.39)',
+                    '&:hover': {
+                      backgroundColor: '#1DA851',
+                      boxShadow: '0 6px 20px 0 rgba(37, 211, 102, 0.5)',
+                    },
+                  }}
+                >
+                  Consultar por WhatsApp →
+                </Button>
+              </Box>
+
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#9CA3AF',
+                  fontSize: '0.9rem',
+                }}
+              >
+                ✓ Sin permanencia • ✓ Soporte 24/7 • ✓ Resultados en 30 días
               </Typography>
             </Box>
           </Grid>
@@ -127,7 +178,7 @@ export const LandingHero: FC = () => {
                 >
                   <FinanceIcon sx={{ fontSize: 32 }} />
                 </Box>
-                
+
                 <Box
                   className="float-animation-delay-1"
                   sx={{
@@ -146,7 +197,7 @@ export const LandingHero: FC = () => {
                 >
                   <InventoryIcon sx={{ fontSize: 28 }} />
                 </Box>
-                
+
                 <Box
                   className="float-animation-delay-2"
                   sx={{
@@ -165,7 +216,7 @@ export const LandingHero: FC = () => {
                 >
                   <MaquinariaIcon sx={{ fontSize: 30 }} />
                 </Box>
-                
+
                 <Box
                   className="float-animation-delay-3"
                   sx={{
@@ -190,17 +241,21 @@ export const LandingHero: FC = () => {
                   sx={{
                     textAlign: 'center',
                     zIndex: 1,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '12px',
+                    p: 3,
+                    border: '1px solid rgba(229, 231, 235, 0.8)',
                   }}
                 >
                   <Typography
-                    variant="h4"
+                    variant="h5"
                     sx={{
                       color: '#1C2536',
                       fontWeight: 700,
                       mb: 1,
                     }}
                   >
-                    Tu obra en tiempo real
+                    Control total en tiempo real
                   </Typography>
                   <Typography
                     variant="body1"
