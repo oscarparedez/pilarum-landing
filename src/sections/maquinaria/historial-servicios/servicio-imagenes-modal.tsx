@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
-import { Modal, Backdrop, Box, IconButton, Typography, Stack } from '@mui/material';
+import { Modal, Backdrop, Box, IconButton, Typography, Stack, Chip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -46,32 +46,57 @@ export const ServicioImagenesModal: FC<Props> = ({ open, onClose, images }) => {
           borderRadius: 2,
           width: '75vw',
           height: '75vh',
-          p: 2,
           boxShadow: 24,
           outline: 'none',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h6">Fotos del servicio</Typography>
-          <IconButton onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
+        {/* Header Section */}
+        <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+          >
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  mb: 0,
+                }}
+              >
+                Fotos del Servicio
+              </Typography>
+            </Box>
 
+            <IconButton
+              onClick={onClose}
+              sx={{
+                ml: 2,
+                color: 'text.secondary',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+        </Box>
+
+        {/* Image Gallery Section */}
         <Box
           position="relative"
-          flexGrow={1}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          sx={{ overflow: 'hidden' }}
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}
         >
           <IconButton
             onClick={handlePrev}
@@ -86,7 +111,7 @@ export const ServicioImagenesModal: FC<Props> = ({ open, onClose, images }) => {
             src={images[index]}
             alt={`Foto ${index + 1}`}
             sx={{
-              width: '100%',
+              maxWidth: '100%',
               maxHeight: '100%',
               objectFit: 'contain',
               borderRadius: 1,
@@ -102,14 +127,22 @@ export const ServicioImagenesModal: FC<Props> = ({ open, onClose, images }) => {
           </IconButton>
         </Box>
 
-        <Typography
-          variant="h6"
-          color="text.secondary"
-          align="center"
-          mt={1}
+        {/* Footer with image counter */}
+        <Box
+          sx={{
+            p: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            borderTop: 1,
+            borderColor: 'divider',
+          }}
         >
-          {index + 1} / {images.length}
-        </Typography>
+          <Chip
+            label={`${index + 1} de ${images.length}`}
+            variant="outlined"
+            size="small"
+          />
+        </Box>
       </Box>
     </Modal>
   );

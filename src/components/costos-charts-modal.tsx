@@ -651,9 +651,18 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ pt: 0 }}>
-        {/* Información de filtros y resumen */}
-        <Box sx={{ mb: 3 }}>
+      <DialogContent sx={{ pt: 0, pb: 0, display: 'flex', flexDirection: 'column', height: '70vh' }}>
+        {/* Fixed Header Section */}
+        <Box sx={{ 
+          position: 'sticky',
+          top: 0,
+          backgroundColor: 'background.paper',
+          zIndex: 1,
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid',
+          borderColor: 'divider'
+        }}>
           <Stack
             direction="row"
             spacing={1}
@@ -704,10 +713,29 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
           </Box>
         </Box>
 
-        <Grid
-          container
-          spacing={2}
-        >
+        {/* Scrollable Charts Section */}
+        <Box sx={{ 
+          flex: 1,
+          overflowY: 'auto',
+          pr: 1,
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(0,0,0,0.2)',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: 'rgba(0,0,0,0.3)',
+          },
+        }}>
+          <Grid
+            container
+            spacing={2}
+          >
           {/* Siempre mostrar al menos una gráfica */}
 
           {/* Prioridad 1: Gráfico de Tipo de Origen (siempre que haya datos) */}
@@ -871,7 +899,8 @@ export const CostosChartsModal: React.FC<CostosChartsModalProps> = ({
               </Card>
             </Grid>
           )}
-        </Grid>
+          </Grid>
+        </Box>
       </DialogContent>
     </Dialog>
   );

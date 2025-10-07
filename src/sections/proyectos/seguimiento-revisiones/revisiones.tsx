@@ -43,6 +43,7 @@ export const Revisiones: FC<RevisionesProps> = ({
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [imagenes, setImagenes] = useState<string[]>([]);
+  const [revisionSeleccionada, setRevisionSeleccionada] = useState<Revision | null>(null);
   const [agregarModalOpen, setAgregarModalOpen] = useState(false);
   const [editarRevision, setEditarRevision] = useState<Revision | null>(null);
   const [revisionAEliminar, setRevisionAEliminar] = useState<Revision | null>(null);
@@ -73,13 +74,16 @@ export const Revisiones: FC<RevisionesProps> = ({
     });
   }, [revisiones, filtros]);
 
-  const abrirModal = (imgs: string[]) => {
-    setImagenes(imgs);
+  const abrirModal = (revision: Revision) => {
+    setImagenes(revision.fotos.map((f) => f.imagen));
+    setRevisionSeleccionada(revision);
     setModalOpen(true);
   };
 
   const cerrarModal = () => {
     setModalOpen(false);
+    // Don't clear the revision immediately to avoid flicker
+    setTimeout(() => setRevisionSeleccionada(null), 300);
   };
 
   const onCrearRevision = useCallback(
@@ -162,7 +166,7 @@ export const Revisiones: FC<RevisionesProps> = ({
                           <TableCell>
                             <IconButton
                               color="info"
-                              onClick={() => abrirModal(rev.fotos.map((f) => f.imagen))}
+                              onClick={() => abrirModal(rev)}
                             >
                               <VisibilityIcon />
                             </IconButton>
@@ -219,6 +223,7 @@ export const Revisiones: FC<RevisionesProps> = ({
         open={modalOpen}
         onClose={cerrarModal}
         images={imagenes}
+        revision={revisionSeleccionada}
       />
     </Box>
   );

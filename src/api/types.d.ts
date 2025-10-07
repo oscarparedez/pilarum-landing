@@ -174,7 +174,6 @@ export interface Revision {
   titulo: string;
   anotaciones: string;
   fecha_review: string;
-  anotaciones: string;
   fecha_creacion: string;
   usuario_creador: UsuarioPublico;
   fotos: FotoRevision[];
