@@ -23,11 +23,10 @@ const carouselItems = [
 
 export const LandingAdminCarousel = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [activeStep, setActiveStep] = useState(0);
   const maxSteps = carouselItems.length;
 
-  // Auto-slide con loop
+  // Auto-slide loop
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveStep((prevStep) => (prevStep + 1) % maxSteps);
@@ -41,13 +40,12 @@ export const LandingAdminCarousel = () => {
   return (
     <Box
       sx={{
-        py: { xs: 8, md: 12 },
+        py: { xs: 6, md: 12 },
         bgcolor: 'grey.50',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Wrapper principal */}
       <Box
         sx={{
           position: 'relative',
@@ -57,60 +55,7 @@ export const LandingAdminCarousel = () => {
           px: { xs: 1, md: 0 },
         }}
       >
-        {/* Flechas navegación */}
-        <IconButton
-          onClick={handleBack}
-          sx={{
-            position: 'absolute',
-            left: -30,
-            top: '45%',
-            transform: 'translateY(-50%)',
-            zIndex: 3,
-            bgcolor: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(0,0,0,0.1)',
-            width: 50,
-            height: 50,
-            '&:hover': {
-              bgcolor: 'primary.main',
-              color: 'white',
-              transform: 'translateY(-50%) scale(1.05)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-            },
-            display: { xs: 'none', md: 'flex' },
-            transition: 'all 0.3s ease',
-          }}
-        >
-          <KeyboardArrowLeft fontSize="large" />
-        </IconButton>
-
-        <IconButton
-          onClick={handleNext}
-          sx={{
-            position: 'absolute',
-            right: -30,
-            top: '45%',
-            transform: 'translateY(-50%)',
-            zIndex: 3,
-            bgcolor: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(0,0,0,0.1)',
-            width: 50,
-            height: 50,
-            '&:hover': {
-              bgcolor: 'primary.main',
-              color: 'white',
-              transform: 'translateY(-50%) scale(1.05)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-            },
-            display: { xs: 'none', md: 'flex' },
-            transition: 'all 0.3s ease',
-          }}
-        >
-          <KeyboardArrowRight fontSize="large" />
-        </IconButton>
-
-        {/* Contenedor del carrusel */}
+        {/* Carousel core */}
         <Box
           sx={{
             position: 'relative',
@@ -120,12 +65,7 @@ export const LandingAdminCarousel = () => {
             bgcolor: 'background.paper',
           }}
         >
-          <Box
-            sx={{
-              position: 'relative',
-              height: { xs: 600, md: 700 },
-            }}
-          >
+          <Box sx={{ position: 'relative', height: { xs: 500, md: 700 } }}>
             {carouselItems.map((item, index) => (
               <Box
                 key={index}
@@ -146,15 +86,16 @@ export const LandingAdminCarousel = () => {
                     width: '100%',
                   }}
                 >
-                  {/* Texto */}
+                  {/* Text section */}
                   <Box
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
-                      justifyContent: 'center',
-                      p: { xs: 3, md: 4 },
+                      justifyContent: { xs: 'flex-start', md: 'center' },
+                      p: { xs: 2, md: 4 },
                       bgcolor: 'background.paper',
                       order: { xs: 2, md: 1 },
+                      overflowY: { xs: 'auto', md: 'visible' },
                     }}
                   >
                     <Typography
@@ -198,7 +139,7 @@ export const LandingAdminCarousel = () => {
                     </Box>
                   </Box>
 
-                  {/* Imagen redondeada */}
+                  {/* Image section */}
                   <Box
                     sx={{
                       position: 'relative',
@@ -220,9 +161,8 @@ export const LandingAdminCarousel = () => {
                       sx={{
                         width: '100%',
                         height: 'auto',
-                        maxHeight: { xs: 600, md: 750 },
-                        minHeight: { xs: 400, md: 600 },
-                        objectFit: 'cover',
+                        maxHeight: { xs: 320, md: 700 },
+                        objectFit: 'contain',
                         borderRadius: 3,
                         display: 'block',
                       }}
@@ -234,41 +174,57 @@ export const LandingAdminCarousel = () => {
           </Box>
         </Box>
 
-        {/* Indicadores (dots) */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, gap: 1 }}>
-          {carouselItems.map((_, index) => (
-            <Box
-              key={index}
-              onClick={() => setActiveStep(index)}
-              sx={{
-                width: activeStep === index ? 32 : 12,
-                height: 12,
-                borderRadius: '50px',
-                bgcolor: activeStep === index ? 'primary.main' : 'grey.300',
-                cursor: 'pointer',
-                transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
-                opacity: activeStep === index ? 1 : 0.6,
-                '&:hover': {
-                  bgcolor: activeStep === index ? 'primary.dark' : 'primary.light',
-                  opacity: 1,
-                  transform: 'scale(1.1)',
-                },
-              }}
-            />
-          ))}
-        </Box>
-
-        {/* Navegación móvil */}
-        <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'space-between', mt: 2 }}>
+        {/* Arrows + Dots centered row (all screen sizes) */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mt: 4,
+            gap: 2,
+          }}
+        >
           <IconButton
             onClick={handleBack}
-            sx={{ bgcolor: 'background.paper', boxShadow: 1 }}
+            sx={{
+              bgcolor: 'primary.main',
+              color: 'white',
+              width: 52,
+              height: 52,
+              '&:hover': { bgcolor: 'primary.dark' },
+            }}
           >
             <KeyboardArrowLeft />
           </IconButton>
+
+          {/* Dots */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+            {carouselItems.map((_, index) => (
+              <Box
+                key={index}
+                onClick={() => setActiveStep(index)}
+                sx={{
+                  width: activeStep === index ? 32 : 12,
+                  height: 12,
+                  borderRadius: '50px',
+                  bgcolor: activeStep === index ? 'primary.main' : 'grey.300',
+                  cursor: 'pointer',
+                  transition: 'all 0.4s ease',
+                  opacity: activeStep === index ? 1 : 0.6,
+                }}
+              />
+            ))}
+          </Box>
+
           <IconButton
             onClick={handleNext}
-            sx={{ bgcolor: 'background.paper', boxShadow: 1 }}
+            sx={{
+              bgcolor: 'primary.main',
+              color: 'white',
+              width: 52,
+              height: 52,
+              '&:hover': { bgcolor: 'primary.dark' },
+            }}
           >
             <KeyboardArrowRight />
           </IconButton>
