@@ -1,19 +1,11 @@
 import type { FC } from 'react';
 import {
   Box,
-  Button,
   Container,
   Typography,
 } from '@mui/material';
-import { useRouter } from 'src/hooks/use-router';
-import { paths } from 'src/paths';
 
 export const LandingCta: FC = () => {
-  const router = useRouter();
-
-  const handleLogin = () => {
-    router.push(paths.auth.login);
-  };
 
   return (
     <Box

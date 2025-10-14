@@ -70,7 +70,7 @@ const Page: NextPage = () => {
           >
             <Button
               component={RouterLink}
-              href={paths.dashboard.inicio}
+              href={paths.index}
             >
               Volver al inicio
             </Button>

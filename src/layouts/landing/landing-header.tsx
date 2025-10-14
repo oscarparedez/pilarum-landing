@@ -2,22 +2,13 @@ import type { FC } from 'react';
 import {
   AppBar,
   Box,
-  Button,
   Container,
   Toolbar,
   Typography,
 } from '@mui/material';
-import { useRouter } from 'src/hooks/use-router';
-import { paths } from 'src/paths';
 import { Logo } from 'src/components/logo';
 
 export const LandingHeader: FC = () => {
-  const router = useRouter();
-
-  const handleLogin = () => {
-    router.push(paths.auth.login);
-  };
-
   return (
     <AppBar
       elevation={0}
@@ -63,24 +54,6 @@ export const LandingHeader: FC = () => {
               Pilarum
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            onClick={handleLogin}
-            sx={{
-              backgroundColor: '#2970FF',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 3,
-              py: 1.5,
-              fontSize: '1rem',
-              '&:hover': {
-                backgroundColor: '#004EEB',
-              },
-            }}
-          >
-            Iniciar sesión
-          </Button>
         </Toolbar>
       </Container>
     </AppBar>

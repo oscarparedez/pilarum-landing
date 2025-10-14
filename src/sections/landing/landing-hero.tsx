@@ -6,15 +6,8 @@ import {
   Build as MaquinariaIcon,
   Assignment as RevisionIcon,
 } from '@mui/icons-material';
-import { useRouter } from 'src/hooks/use-router';
-import { paths } from 'src/paths';
 
 export const LandingHero: FC = () => {
-  const router = useRouter();
-
-  const handleLogin = () => {
-    router.push(paths.auth.login);
-  };
 
   const handleWhatsAppContact = () => {
     const message = 'Hola! Me interesa Pilarum para mis proyectos industriales';
@@ -124,10 +117,10 @@ export const LandingHero: FC = () => {
                 variant="body2"
                 sx={{
                   color: '#9CA3AF',
-                  fontSize: '0.9rem',
+                  fontSize: '1.2rem',
                 }}
               >
-                ✓ Sin permanencia • ✓ Soporte 24/7 • ✓ Resultados en 30 días
+                ✓ Soporte 24/7 • ✓ Resultados inmediatos
               </Typography>
             </Box>
           </Grid>
