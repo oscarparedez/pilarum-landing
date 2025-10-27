@@ -1,8 +1,8 @@
 {
-  "name": "@devias-kit-pro/next-pages",
-  "version": "6.4.2",
-  "author": "Devias",
-  "homepage": "https://devias.io",
+  "name": "pilarum-landing",
+  "version": "1.0.0",
+  "author": "Oscar Paredez",
+  "homepage": "https://www.intro.pilarum.com",
   "private": true,
   "scripts": {
     "dev": "next",
