@@ -15,6 +15,11 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Allow the new pricing page in addition to root and static assets
+  if (currentPath === '/pricing') {
+    return NextResponse.next();
+  }
+
   // For any other path, redirect to the landing page
   return NextResponse.redirect(new URL('/', req.url));
 }

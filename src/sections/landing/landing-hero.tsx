@@ -1,5 +1,6 @@
 import type { FC } from 'react';
-import { Box, Button, Container, Grid, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Stack, Typography } from '@mui/material';
+import Link from 'next/link';
 import {
   AccountBalance as FinanceIcon,
   Inventory as InventoryIcon,
@@ -88,30 +89,73 @@ export const LandingHero: FC = () => {
                 costos, tiempos y recursos de tus proyectos industriales desde una sola plataforma.
               </Typography>
 
-              <Box sx={{ mb: 4 }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  onClick={handleWhatsAppContact}
+              <Stack
+                spacing={1}
+                sx={{
+                  mb: 4,
+                  alignItems: { xs: 'center', md: 'flex-start' },
+                }}
+              >
+                <Box
                   sx={{
-                    backgroundColor: '#25D366',
-                    color: '#fff',
-                    fontWeight: 700,
-                    fontSize: '1.1rem',
-                    px: 4,
-                    py: 1.5,
-                    borderRadius: '8px',
-                    textTransform: 'none',
-                    boxShadow: '0 4px 14px 0 rgba(37, 211, 102, 0.39)',
-                    '&:hover': {
-                      backgroundColor: '#1DA851',
-                      boxShadow: '0 6px 20px 0 rgba(37, 211, 102, 0.5)',
-                    },
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                    justifyContent: { xs: 'center', md: 'flex-start' },
                   }}
                 >
-                  Consultar por WhatsApp →
-                </Button>
-              </Box>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={handleWhatsAppContact}
+                    sx={{
+                      backgroundColor: '#25D366',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: '1.1rem',
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      boxShadow: '0 4px 14px 0 rgba(37, 211, 102, 0.39)',
+                      '&:hover': {
+                        backgroundColor: '#1DA851',
+                        boxShadow: '0 6px 20px 0 rgba(37, 211, 102, 0.5)',
+                      },
+                    }}
+                  >
+                    Consultar por WhatsApp →
+                  </Button>
+                  <Button
+                    component={Link}
+                    href="/pricing"
+                    variant="contained"
+                    size="large"
+                    color="primary"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '1.05rem',
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                    }}
+                  >
+                    Ver planes y precios
+                  </Button>
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#2563EB',
+                    fontWeight: 600,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Plataformas con descuento de lanzamiento (hasta 11% OFF)
+                </Typography>
+              </Stack>
 
               <Typography
                 variant="body2"
