@@ -6,6 +6,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import Link from 'next/link';
 import { Logo } from 'src/components/logo';
 
 export const LandingHeader: FC = () => {
@@ -25,11 +26,15 @@ export const LandingHeader: FC = () => {
             py: 2,
           }}
         >
-          <Box
-            sx={{
-              alignItems: 'center',
+          <Link
+            href="/"
+            style={{
+              textDecoration: 'none',
+              color: 'inherit',
               display: 'flex',
+              alignItems: 'center',
               flexGrow: 1,
+              cursor: 'pointer',
             }}
           >
             <Box
@@ -53,7 +58,7 @@ export const LandingHeader: FC = () => {
             >
               Pilarum
             </Typography>
-          </Box>
+          </Link>
         </Toolbar>
       </Container>
     </AppBar>
