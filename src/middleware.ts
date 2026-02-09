@@ -16,7 +16,7 @@ export function middleware(req: NextRequest) {
   }
 
   // Allow the new pricing page in addition to root and static assets
-  if (currentPath === '/pricing') {
+  if (currentPath === '/planes') {
     return NextResponse.next();
   }
 

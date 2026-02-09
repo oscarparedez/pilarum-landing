@@ -128,7 +128,7 @@ export const LandingHero: FC = () => {
                   </Button>
                   <Button
                     component={Link}
-                    href="/pricing"
+                    href="/planes"
                     variant="contained"
                     size="large"
                     color="primary"
