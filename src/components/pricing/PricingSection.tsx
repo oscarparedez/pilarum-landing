@@ -85,7 +85,13 @@ export const PricingSection = () => {
         background: 'linear-gradient(180deg, #fdfdfd 0%, #f7f9fc 100%)',
       }}
     >
-      <Container maxWidth="lg">
+      <Container
+        maxWidth="lg"
+        disableGutters
+        sx={{
+          px: { xs: 2, sm: 3, md: 0 },
+        }}
+      >
         <Stack
           spacing={1}
           alignItems="center"
@@ -118,7 +124,7 @@ export const PricingSection = () => {
 
         <Grid
           container
-          spacing={4}
+          spacing={{ xs: 2, md: 4 }}
           alignItems="stretch"
         >
           {pricingPlans.map((plan) => {
