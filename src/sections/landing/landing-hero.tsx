@@ -11,16 +11,16 @@ import {
 export const LandingHero: FC = () => {
 
   const handleWhatsAppContact = () => {
-    const message = 'Hola! Me interesa Pilarum para mis proyectos industriales';
-    const phoneNumber = '50254331544'; // Cambia por tu número (código país + número sin +)
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const message = 'Hola! Me interesa Pilarum para mi constructora.';
+    const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '502XXXXXXXX';
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
   return (
     <Box
       sx={{
-        py: 12,
+        py: 22,
         backgroundColor: 'linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%)',
       }}
     >
@@ -47,19 +47,19 @@ export const LandingHero: FC = () => {
                   fontWeight: 800,
                   color: '#1C2536',
                   lineHeight: 1.1,
-                  mb: 3,
+                  mb: 3.5,
                 }}
               >
-                ¿Cansado de{' '}
+                ¿Tus obras siguen en{' '}
                 <Box
                   component="span"
                   sx={{
                     color: '#DC2626',
                   }}
                 >
-                  perder dinero
+                  Excel
                 </Box>{' '}
-                en tus obras?
+                y sin control real?
               </Typography>
 
               <Typography
@@ -68,31 +68,17 @@ export const LandingHero: FC = () => {
                   fontSize: { xs: '1.3rem', md: '1.5rem' },
                   fontWeight: 600,
                   color: '#374151',
-                  mb: 3,
+                  mb: 3.5,
                   lineHeight: 1.4,
                 }}
               >
-                El 73% de proyectos industriales se exceden en costos por falta de control
-              </Typography>
-
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: { xs: '1.1rem', md: '1.25rem' },
-                  fontWeight: 400,
-                  color: '#6B7280',
-                  mb: 4,
-                  lineHeight: 1.6,
-                }}
-              >
-                Termina con los sobrecostos, retrasos y el caos operativo. Controla todos los
-                costos, tiempos y recursos de tus proyectos industriales desde una sola plataforma.
+                Material perdido, rentabilidad incierta y costos sin trazabilidad.
               </Typography>
 
               <Stack
                 spacing={1}
                 sx={{
-                  mb: 4,
+                  mb: 4.5,
                   alignItems: { xs: 'center', md: 'flex-start' },
                 }}
               >
@@ -112,9 +98,9 @@ export const LandingHero: FC = () => {
                       backgroundColor: '#25D366',
                       color: '#fff',
                       fontWeight: 700,
-                      fontSize: '1.1rem',
-                      px: 4,
-                      py: 1.5,
+                      fontSize: '1.15rem',
+                      px: 4.5,
+                      py: 1.6,
                       borderRadius: '8px',
                       textTransform: 'none',
                       boxShadow: '0 4px 14px 0 rgba(37, 211, 102, 0.39)',
@@ -134,9 +120,9 @@ export const LandingHero: FC = () => {
                     color="primary"
                     sx={{
                       fontWeight: 600,
-                      fontSize: '1.05rem',
-                      px: 4,
-                      py: 1.5,
+                      fontSize: '1.1rem',
+                      px: 4.25,
+                      py: 1.6,
                       borderRadius: '8px',
                       textTransform: 'none',
                     }}
@@ -144,28 +130,20 @@ export const LandingHero: FC = () => {
                     Ver planes y precios
                   </Button>
                 </Box>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: '#2563EB',
-                    fontWeight: 600,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Plataformas con descuento de lanzamiento (hasta 11% OFF)
-                </Typography>
-              </Stack>
-
               <Typography
                 variant="body2"
                 sx={{
-                  color: '#9CA3AF',
-                  fontSize: '1.2rem',
+                  color: '#6B7280',
+                  fontWeight: 500,
+                  letterSpacing: '0.01em',
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
                 }}
               >
-                ✓ Soporte 24/7 • ✓ Resultados inmediatos
+                Para constructoras que hoy usan Excel o gestionan sin un sistema centralizado.
               </Typography>
+            </Stack>
+
             </Box>
           </Grid>
           <Grid
@@ -292,7 +270,7 @@ export const LandingHero: FC = () => {
                       mb: 1,
                     }}
                   >
-                    Control total en tiempo real
+                    Visibilidad de tus obras en tiempo real
                   </Typography>
                   <Typography
                     variant="body1"
@@ -301,7 +279,7 @@ export const LandingHero: FC = () => {
                       fontWeight: 500,
                     }}
                   >
-                    Desde tu computadora o celular
+                    En un solo tablero, desde cualquier dispositivo
                   </Typography>
                 </Box>
               </Box>

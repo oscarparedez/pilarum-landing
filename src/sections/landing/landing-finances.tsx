@@ -61,8 +61,8 @@ export const LandingFinances: FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              Reportes flexibles de ingresos y costos por proyecto.
-              Filtra por fechas, socio, tipo de ingreso o costo según necesites.
+              Registro centralizado de costos con flujos financieros y gráficas en tiempo real
+              para entender la rentabilidad de cada proyecto con filtros por fechas.
             </Typography>
             <Box
               sx={{
@@ -99,7 +99,7 @@ export const LandingFinances: FC = () => {
                     color: '#1C2536',
                   }}
                 >
-                  Reportes filtrados por proyecto y fechas
+                  Reportes de rentabilidad por proyecto y fechas
                 </Typography>
               </Box>
               <Box
@@ -130,7 +130,7 @@ export const LandingFinances: FC = () => {
                     color: '#1C2536',
                   }}
                 >
-                  Clasificación por tipo de ingreso y costo
+                  Gráficas en tiempo real de flujos financieros
                 </Typography>
               </Box>
               <Box
@@ -161,7 +161,7 @@ export const LandingFinances: FC = () => {
                     color: '#1C2536',
                   }}
                 >
-                  Análisis por socio y área de trabajo
+                  Control de costos de maquinaria en servicios y consumos
                 </Typography>
               </Box>
             </Box>
@@ -214,7 +214,7 @@ export const LandingFinances: FC = () => {
                     zIndex: 1,
                   }}
                 >
-                  Reportes Flexibles
+                  Reportes en tiempo real
                 </Typography>
                 <Typography
                   variant="body1"
@@ -224,8 +224,8 @@ export const LandingFinances: FC = () => {
                     zIndex: 1,
                   }}
                 >
-                  Filtra y analiza tus datos financieros 
-                  exactamente como necesitas.
+                  Visualiza rentabilidad por proyecto, flujos de caja
+                  y costos de maquinaria en un solo tablero.
                 </Typography>
               </CardContent>
             </Card>

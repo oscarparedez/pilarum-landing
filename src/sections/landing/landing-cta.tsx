@@ -50,14 +50,14 @@ export const LandingCta: FC = () => {
               lineHeight: 1.2,
             }}
           >
-            Optimiza tu gestión{' '}
+            Recupera el control{' '}
             <Box
               component="span"
               sx={{
                 color: '#EBEFFF',
               }}
             >
-              hoy mismo
+              de tus obras
             </Box>
           </Typography>
           <Typography
@@ -71,8 +71,7 @@ export const LandingCta: FC = () => {
               mx: 'auto',
             }}
           >
-            Únete a los profesionales que ya están transformando
-            la gestión de sus proyectos industriales.
+            Material por obra, rentabilidad real y costos centralizados en una sola plataforma.
           </Typography>
         </Box>
       </Container>

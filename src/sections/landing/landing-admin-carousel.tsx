@@ -6,18 +6,18 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 const carouselItems = [
   {
     image: '/assets/proyectos.png',
-    title: 'Gestión de proyectos',
-    description: 'Organiza y supervisa todos tus proyectos de construcción en tiempo real',
+    title: 'Rentabilidad por obra en tiempo real',
+    description: 'Conoce qué proyectos son realmente rentables con costos e ingresos centralizados',
   },
   {
     image: '/assets/ingresos-con-grafico.png',
-    title: 'Registro y análisis de ingresos',
-    description: 'Visualiza tus ingresos con gráficos detallados y reportes automáticos',
+    title: 'Flujos financieros claros',
+    description: 'Gráficas en vivo de ingresos y egresos para decisiones inmediatas',
   },
   {
     image: '/assets/costos-con-grafico.png',
-    title: 'Costos generales y reportes',
-    description: 'Controla gastos operativos con análisis visual y seguimiento completo',
+    title: 'Costos centralizados por operación',
+    description: 'Registra y analiza servicios, consumos y costos indirectos sin perderse en Excel',
   },
 ];
 

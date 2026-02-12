@@ -12,7 +12,7 @@ interface SeoProps {
 export const Seo: FC<SeoProps> = (props) => {
   const { 
     title, 
-    description = 'Plataforma de gestión de obras industriales',
+    description = 'Plataforma de gestión de constructoras',
     image = 'https://pilarum.com/assets/logo.png',
     url
   } = props;

@@ -11,7 +11,7 @@ import {
 import {
   Inventory as InventoryIcon,
   Business as ProjectIcon,
-  People as PersonalIcon,
+  QueryStats as ReportsIcon,
   Build as MaquinariaIcon,
 } from '@mui/icons-material';
 
@@ -114,43 +114,42 @@ export const LandingModules: FC = () => {
     {
       icon: <InventoryIcon sx={{ fontSize: 32 }} />,
       title: 'Inventario',
-      description: 'Control completo de materiales y recursos con tracking en tiempo real.',
+      description: 'Asignación precisa de materiales por obra, sin depender de Excel.',
       features: [
-        'Trackeo de materiales',
+        'Material asignado por proyecto',
         'Órdenes de compra',
         'Rebajas de inventario',
-        'Material planificado por proyecto',
+        'Saldos disponibles por obra',
       ],
     },
     {
       icon: <ProjectIcon sx={{ fontSize: 32 }} />,
       title: 'Proyectos',
-      description: 'Gestión integral desde presupuesto hasta entrega final.',
+      description: 'Rentabilidad real por obra con ingresos y costos centralizados.',
       features: [
-        'Presupuestos y ampliaciones',
-        'Registro de ingresos por avances',
-        'Registro de pagos a personal de obra',
-        'Seguimiento fotográfico de obra',
+        'Ingresos y costos por proyecto',
+        'Comparativos por periodos',
+        'Ejecución vs presupuesto',
+        'Seguimiento de avances',
       ],
     },
     {
-      icon: <PersonalIcon sx={{ fontSize: 32 }} />,
-      title: 'Personal',
-      description: 'Organiza tu equipo de trabajo con asignaciones eficientes.',
+      icon: <ReportsIcon sx={{ fontSize: 32 }} />,
+      title: 'Reportes en tiempo real',
+      description: 'Gráficas y flujos financieros en tiempo real para decidir rápido.',
       features: [
-        'Gestión de ingenieros',
-        'Control de arquitectos',
-        'Asignación flexible por tiempo',
-        'Seguimiento de tareas',
+        'Flujo de caja por obra en vivo',
+        'Rentabilidad por proyecto y fechas',
+        'Gráficas comparativas por periodo',
       ],
     },
     {
       icon: <MaquinariaIcon sx={{ fontSize: 32 }} />,
       title: 'Maquinaria',
-      description: 'Optimiza el uso y controla costos operativos de equipos.',
+      description: 'Control de costos de maquinaria en servicios y consumos.',
       features: [
-        'Ubicación exacta por obra',
-        'Costos operativos',
+        'Costos por equipo y obra',
+        'Servicios y consumos',
         'Gastos de combustible',
         'Mantenimiento preventivo',
       ],
@@ -192,8 +191,7 @@ export const LandingModules: FC = () => {
               mx: 'auto',
             }}
           >
-            Todo lo que necesitas para gestionar tus obras industriales
-            de manera eficiente y profesional.
+            Pensado para constructoras que hoy trabajan en Excel o sin control centralizado.
           </Typography>
         </Box>
         <Grid

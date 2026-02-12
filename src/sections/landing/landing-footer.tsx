@@ -60,7 +60,7 @@ export const LandingFooter: FC = () => {
               textAlign: { xs: 'center', md: 'right' },
             }}
           >
-            Plataforma de gestión de obras industriales
+            Plataforma de gestión de constructoras
           </Typography>
         </Box>
         <Divider

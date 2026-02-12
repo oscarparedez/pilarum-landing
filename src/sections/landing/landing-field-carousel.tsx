@@ -6,18 +6,18 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 const carouselItems = [
   {
     image: '/assets/maquinaria.png',
-    title: 'Control de maquinaria y herramientas',
-    description: 'Rastrea ubicación, estado y mantenimiento de todo tu equipo en tiempo real',
+    title: 'Costo real de maquinaria',
+    description: 'Controla servicios, consumos y mantenimiento para evitar fugas de dinero',
   },
   {
     image: '/assets/inventario.png',
-    title: 'Inventario central actualizado',
-    description: 'Gestiona materiales y suministros con control automático de stock',
+    title: 'Material asignado por obra',
+    description: 'Sabe exactamente qué materiales están en cada proyecto y cuánto queda',
   },
   {
     image: '/assets/foto-revision-obra.png',
-    title: 'Evidencia fotográfica en campo',
-    description: 'Documenta avances y supervisión con fotografías georreferenciadas',
+    title: 'Avances y control en campo',
+    description: 'Registra avances para justificar costos y mantener trazabilidad',
   },
 ];
 

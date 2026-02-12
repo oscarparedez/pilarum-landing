@@ -84,18 +84,18 @@ export const LandingBenefits: FC = () => {
   const benefits = [
     {
       icon: <SpeedIcon sx={{ fontSize: 40 }} />,
-      title: 'Intuitivo y fácil de usar',
-      description: 'Interface diseñada para arquitectos e ingenieros. Sin curva de aprendizaje compleja.',
+      title: 'De Excel a control real',
+      description: 'Centraliza información sin depender de hojas de cálculo dispersas.',
     },
     {
       icon: <VisibilityIcon sx={{ fontSize: 40 }} />,
-      title: 'Visión centralizada',
-      description: 'Todos tus recursos, proyectos y finanzas en una sola plataforma integrada.',
+      title: 'Material por obra',
+      description: 'Sabe qué materiales están asignados a cada proyecto y sus saldos.',
     },
     {
       icon: <OptimizationIcon sx={{ fontSize: 40 }} />,
-      title: 'Optimización garantizada',
-      description: 'Reduce tiempos operativos y controla costos con análisis automatizados.',
+      title: 'Rentabilidad comprobable',
+      description: 'Identifica qué obras dejan margen y cuáles están perdiendo dinero.',
     },
   ];
 
@@ -134,8 +134,7 @@ export const LandingBenefits: FC = () => {
               mx: 'auto',
             }}
           >
-            Diseñado específicamente para profesionales de la ingeniería
-            que buscan eficiencia y control total.
+            Enfocado en constructoras que necesitan control financiero y operativo real.
           </Typography>
         </Box>
         <Grid

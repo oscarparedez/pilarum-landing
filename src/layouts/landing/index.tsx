@@ -11,7 +11,7 @@ interface LandingLayoutProps {
 export const LandingLayout: FC<LandingLayoutProps> = ({ children }) => {
   return (
     <>
-      <Seo title="Plataforma de gestión de obras industriales" />
+      <Seo title="Plataforma de gestión de constructoras" />
       <Box
         sx={{
           minHeight: '100vh',
