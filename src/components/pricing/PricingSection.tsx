@@ -1,4 +1,15 @@
-import { Box, Button, Card, CardContent, Chip, Container, Grid, Stack, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Grid,
+  Stack,
+  Typography,
+  useTheme,
+} from '@mui/material';
 
 type PricingPlan = {
   id: string;
@@ -23,7 +34,9 @@ const priceFormatter = new Intl.NumberFormat('es-GT', {
 const formatQuetzal = (value: number) => `Q${priceFormatter.format(value)}`;
 
 export const openWhatsApp = (planName: string, usersLimit: number, launchPrice: number) => {
-  const message = `Hola, quiero información del plan ${planName} de Pilarum (hasta ${usersLimit} usuarios). Estoy revisando el precio de lanzamiento ${formatQuetzal(launchPrice)}. ¿Me puedes cotizar y explicar el proceso?`;
+  const message = `Hola, quiero información del plan ${planName} de Pilarum (hasta ${usersLimit} usuarios). Estoy revisando el precio de lanzamiento ${formatQuetzal(
+    launchPrice
+  )}. ¿Me puedes cotizar y explicar el proceso?`;
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
   if (typeof window === 'undefined') {
@@ -81,7 +94,7 @@ export const PricingSection = () => {
       component="section"
       id="pricing"
       sx={{
-        py: { xs: 6, md: 10 },
+        py: 4,
         background: 'linear-gradient(180deg, #fdfdfd 0%, #f7f9fc 100%)',
       }}
     >
@@ -100,14 +113,15 @@ export const PricingSection = () => {
         >
           <Typography
             variant="overline"
+            fontSize={16}
             color="primary"
             sx={{ letterSpacing: '0.3em' }}
           >
             Planes Pilarum
           </Typography>
           <Typography
-            variant="h3"
-            component="h2"
+            variant="h2"
+            component="h1"
             fontWeight={700}
             sx={{ maxWidth: 520 }}
           >
@@ -115,6 +129,7 @@ export const PricingSection = () => {
           </Typography>
           <Typography
             variant="body1"
+            fontSize={16}
             color="text.secondary"
             sx={{ maxWidth: 520 }}
           >
@@ -126,22 +141,23 @@ export const PricingSection = () => {
           container
           spacing={{ xs: 2, md: 4 }}
           alignItems="stretch"
+          justifyContent={{ xs: 'center', md: 'flex-start' }}
         >
           {pricingPlans.map((plan) => {
             const isProfessional = plan.highlight;
 
             return (
-            <Grid
-              item
-              xs={12}
-              md={4}
-              key={plan.id}
-              sx={{ display: 'flex' }}
-            >
-              <Card
-                component="article"
-                elevation={0}
-                sx={{
+              <Grid
+                item
+                xs={12}
+                md={4}
+                key={plan.id}
+                sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}
+              >
+                <Card
+                  component="article"
+                  elevation={0}
+                  sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     height: '100%',
@@ -153,6 +169,9 @@ export const PricingSection = () => {
                     boxShadow: isProfessional ? theme.shadows[5] : 'none',
                     transform: isProfessional ? { xs: 'none', md: 'translateY(-12px)' } : 'none',
                     transition: 'transform 200ms ease, box-shadow 200ms ease',
+                    width: '100%',
+                    maxWidth: { xs: 360, md: 'none' },
+                    mx: { xs: 'auto', md: 0 },
                   }}
                 >
                   <CardContent
@@ -189,9 +208,7 @@ export const PricingSection = () => {
                       </Stack>
                     )}
 
-                    <Stack
-                      spacing={0.25}
-                    >
+                    <Stack spacing={0.25}>
                       <Typography
                         variant="h5"
                         component="h3"
@@ -207,9 +224,7 @@ export const PricingSection = () => {
                       </Typography>
                     </Stack>
 
-                    <Stack
-                      spacing={0.5}
-                    >
+                    <Stack spacing={0.5}>
                       <Box
                         display="flex"
                         alignItems="baseline"
@@ -229,22 +244,22 @@ export const PricingSection = () => {
                           / mes
                         </Typography>
                       </Box>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      spacing={1}
-                      flexWrap="wrap"
-                    >
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          textDecoration: 'line-through',
-                          letterSpacing: '0.05em',
-                        }}
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
+                        flexWrap="wrap"
                       >
-                        {formatQuetzal(plan.monthlyPrice)}
-                      </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            textDecoration: 'line-through',
+                            letterSpacing: '0.05em',
+                          }}
+                        >
+                          {formatQuetzal(plan.monthlyPrice)}
+                        </Typography>
                         <Typography
                           variant="caption"
                           color="text.secondary"
